@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-type MysteryReward = {
+export type MysteryReward = {
   title: string;
   rarity: string;
   description: string;
