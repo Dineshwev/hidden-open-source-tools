@@ -4,6 +4,7 @@ dist
 coverage
 .env
 .env.local
+*.log
 backend/.env
 frontend/.env.local
 backend/node_modules

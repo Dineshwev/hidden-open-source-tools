@@ -1,0 +1,159 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-void text-white font-body antialiased;
+  background-image:
+    radial-gradient(circle at top left, rgba(87, 112, 255, 0.2), transparent 28%),
+    radial-gradient(circle at 80% 10%, rgba(255, 153, 102, 0.16), transparent 20%),
+    linear-gradient(180deg, #07111f 0%, #0d1628 50%, #111d32 100%);
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: theme("backgroundImage.hero-grid");
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent);
+  opacity: 0.35;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(87, 112, 255, 0.08), transparent 18%),
+    radial-gradient(circle at 82% 18%, rgba(255, 153, 102, 0.06), transparent 16%),
+    radial-gradient(circle at 50% 72%, rgba(115, 240, 196, 0.06), transparent 20%);
+  filter: blur(40px);
+  animation: body-aurora-drift 24s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+.glass-panel {
+  @apply border border-white/10 bg-white/5 backdrop-blur-xl;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-white via-aurora to-ember bg-clip-text text-transparent;
+}
+
+.depth-stage {
+  position: relative;
+  isolation: isolate;
+}
+
+.depth-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.08), transparent 18%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+  opacity: 0.9;
+}
+
+.depth-panel {
+  position: relative;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 24px 60px rgba(2, 8, 20, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    transform 280ms ease,
+    box-shadow 280ms ease,
+    border-color 280ms ease,
+    background-color 280ms ease;
+}
+
+.depth-panel::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 30%, transparent 60%, rgba(115, 240, 196, 0.08));
+  opacity: 0.85;
+}
+
+.depth-panel:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 32px 80px rgba(2, 8, 20, 0.4),
+    0 0 40px rgba(87, 112, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.hero-ambient {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(115, 240, 196, 0.14), transparent 22%),
+    radial-gradient(circle at 80% 18%, rgba(255, 153, 102, 0.14), transparent 24%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+  background-size: 120% 120%;
+  animation: hero-ambient-shift 18s ease-in-out infinite;
+}
+
+.hero-grid-flow {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.95), transparent 85%);
+  animation: hero-grid-pan 24s linear infinite;
+}
+
+@keyframes hero-ambient-shift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    transform: translate3d(10px, 18px, 0) scale(1.05);
+    filter: hue-rotate(10deg);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: hue-rotate(0deg);
+  }
+}
+
+@keyframes hero-grid-pan {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-18px, 12px, 0);
+  }
+  100% {
+    transform: translate3d(-36px, 24px, 0);
+  }
+}
+
+@keyframes body-aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(24px, -18px, 0) scale(1.06);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
