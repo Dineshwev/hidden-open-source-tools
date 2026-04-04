@@ -3,5 +3,11 @@
   command = "npm run build"
   publish = ".next"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.highperformanceformat.com https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.highperformanceformat.com https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; connect-src 'self' https://www.highperformanceformat.com https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; frame-src 'self' https://www.highperformanceformat.com https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; img-src 'self' data: https://www.highperformanceformat.com https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; style-src 'self' 'unsafe-inline';"
+    Referrer-Policy = "no-referrer-when-downgrade"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
