@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Download, Star, Crown, Sparkles } from 'lucide-react';
 import AdUnlockModal from './AdUnlockModal';
@@ -22,13 +22,6 @@ const rarities = {
   epic: { color: 'bg-purple-500/30 border-purple-500/60', glow: 'shadow-purple-500/50', text: 'bg-gradient-to-r from-purple-400 to-pink-400', rarityIcon: Crown },
   legendary: { color: 'bg-orange-500/40 border-orange-500/70', glow: 'shadow-orange-500/70', text: 'bg-gradient-to-r from-orange-400 to-yellow-400', rarityIcon: Sparkles },
 };
-
-const sampleRewards: Reward[] = [
-  { name: 'Neon UI Icons', description: '50 cyberpunk icons SVG', rarity: 'common' as Rarity, fileType: 'SVG Pack', creator: 'Alex Rivera' },
-  { name: 'Quantum Shader', description: 'Advanced GLSL fragment shader', rarity: 'rare' as Rarity, fileType: 'Shader', creator: 'Luna Voss' },
-  { name: 'Holographic HUD', description: 'Interactive 3D interface kit', rarity: 'epic' as Rarity, fileType: '3D Model', creator: 'Kai Nova' },
-  { name: 'NFT Galaxy Generator', description: 'Procedural space art generator', rarity: 'legendary' as Rarity, fileType: 'Script', creator: 'Zara Quill' },
-];
 
 const boxVariants: Variants = {
   closed: {
@@ -83,19 +76,39 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
   const [reward, setReward] = useState<Reward | null>(null);
   const [isPending, startTransition] = useTransition();
   const [showAdModal, setShowAdModal] = useState(false);
+  const [unlockError, setUnlockError] = useState("");
+  const [checkingInventory, setCheckingInventory] = useState(false);
 
-  const openBox = () => {
+  const openBox = async () => {
     // Stage 1: Trigger the gated ad slot before anything opens
-    setShowAdModal(true);
+    setUnlockError("");
+    setCheckingInventory(true);
+
+    try {
+      const response = await api.get('/files/approved');
+      const availableFiles = response.data?.data;
+
+      if (!Array.isArray(availableFiles) || availableFiles.length === 0) {
+        setUnlockError("No approved files are available yet. Ask admin to approve uploads first.");
+        return;
+      }
+
+      setShowAdModal(true);
+    } catch {
+      setUnlockError("Unable to verify file inventory. Please try again.");
+    } finally {
+      setCheckingInventory(false);
+    }
   };
 
-  const handleAdUnlock = async () => {
+  const handleAdUnlock = async (adPassToken: string) => {
     setShowAdModal(false);
     setIsOpening(true);
+    setUnlockError("");
 
     try {
       // Stage 2: Call Serverless Next.js API
-      const res = await api.post('/mystery/unlock');
+      const res = await api.post('/mystery/unlock', { adPassToken });
       const dbFile = res.data.data;
       
       // Map DB schema to frontend display schema
@@ -107,11 +120,11 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         creator: 'Anonymous'
       });
     } catch (err) {
-      // Fallback to sample data if user not logged in or backend fails
-      setTimeout(() => {
-        const randomReward = sampleRewards[Math.floor(Math.random() * sampleRewards.length)]!;
-        setReward(randomReward);
-      }, 1500);
+      setIsOpening(false);
+      const maybeError = err as { response?: { data?: { error?: string } } };
+      const apiErrorMessage = maybeError?.response?.data?.error;
+
+      setUnlockError(apiErrorMessage || "Unlock failed. Please complete the sponsor verification again.");
     }
   };
 
@@ -183,7 +196,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
           <div className="text-center text-white/90">
             <div className="text-4xl mb-2 animate-spin">🎁</div>
             <div className="font-bold text-lg mb-1">Click to Open</div>
-            <div className="text-sm opacity-75">Random file reward awaits</div>
+            <div className="text-sm opacity-75">{checkingInventory ? 'Checking available files...' : 'Random file reward awaits'}</div>
           </div>
         </motion.div>
       </motion.div>
@@ -194,6 +207,12 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         onClose={() => setShowAdModal(false)} 
         onUnlock={handleAdUnlock} 
       />
+
+      {unlockError && (
+        <div className="mt-6 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {unlockError}
+        </div>
+      )}
 
       {/* Reward Modal */}
       <AnimatePresence>

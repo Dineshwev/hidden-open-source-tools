@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerUser, unauthorizedResponse, errorResponse } from '@/lib/utils/authHelper';
-import { supabase } from '@/lib/backend_lib/supabase.js';
+import { getSupabaseClient, hasSupabaseConfig } from '@/lib/backend_lib/supabase.js';
 import * as fileService from '@/lib/services/file.service.js';
 import crypto from 'crypto';
 
@@ -8,6 +8,15 @@ export async function POST(req: Request) {
   try {
     const user = getServerUser(req);
     if (!user) return unauthorizedResponse();
+
+    if (!hasSupabaseConfig()) {
+      return NextResponse.json(
+        { error: 'Upload storage is not configured on this server' },
+        { status: 503 }
+      );
+    }
+
+    const supabase = getSupabaseClient();
 
     const formData = await req.formData();
     const file = formData.get('file') as File;

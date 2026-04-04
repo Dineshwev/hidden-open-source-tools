@@ -1,3 +1,5 @@
+"use client";
+
 export default function ContactPage() {
   return (
     <div className="max-w-xl mx-auto py-20 px-6 space-y-8">

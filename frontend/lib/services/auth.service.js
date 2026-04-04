@@ -46,6 +46,34 @@ export async function loginUser(payload) {
   return buildAuthResponse(user);
 }
 
+export async function createGuestUser(guestKey) {
+  const normalizedKey = sanitizeText(String(guestKey || '')).toLowerCase();
+  if (!normalizedKey) {
+    throw new AppError("Missing guest session key", 400);
+  }
+
+  const username = `guest_${normalizedKey.slice(0, 24)}`;
+  const email = `guest_${normalizedKey.slice(0, 24)}@guest.local`;
+
+  let user = await prisma.user.findFirst({
+    where: {
+      OR: [{ email }, { username }]
+    }
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        username,
+        email,
+        passwordHash: await hashPassword(normalizedKey)
+      }
+    });
+  }
+
+  return buildAuthResponse(user);
+}
+
 export async function getCurrentUser(userId) {
   const user = await prisma.user.findUnique({
     where: { id: userId },

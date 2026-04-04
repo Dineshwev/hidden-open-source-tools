@@ -2,28 +2,83 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import api from "@/lib/api";
+import { getToken, setToken } from "@/lib/auth";
 
 type AdUnlockModalProps = {
   open: boolean;
   onClose: () => void;
-  onUnlock: () => void;
+  onUnlock: (adPassToken: string) => void;
 };
 
 export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModalProps) {
   const [hasClickedSponsor, setHasClickedSponsor] = useState(false);
   const [unlockReady, setUnlockReady] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [challengeToken, setChallengeToken] = useState("");
+  const [isFetchingChallenge, setIsFetchingChallenge] = useState(false);
+  const [isExchangingPass, setIsExchangingPass] = useState(false);
+  const [adPassToken, setAdPassToken] = useState("");
   
   const timeLeftTab = useRef<number | null>(null);
+
+  const ensureSessionToken = async () => {
+    const existingToken = getToken();
+    if (existingToken) {
+      return existingToken;
+    }
+
+    const guestKeyStorageKey = "portfolio_universe_guest_key";
+    const guestKey =
+      window.localStorage.getItem(guestKeyStorageKey) ||
+      (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
+    window.localStorage.setItem(guestKeyStorageKey, guestKey);
+
+    const response = await api.post('/auth/guest', { guestKey });
+    const guestToken = response.data?.token;
+
+    if (!guestToken) {
+      throw new Error("Guest session could not be created");
+    }
+
+    setToken(guestToken);
+    return guestToken;
+  };
 
   useEffect(() => {
     if (!open) {
       setHasClickedSponsor(false);
       setUnlockReady(false);
       setErrorMsg("");
+      setChallengeToken("");
+      setAdPassToken("");
+      setIsFetchingChallenge(false);
+      setIsExchangingPass(false);
       timeLeftTab.current = null;
       return;
     }
+
+    const fetchChallenge = async () => {
+      setIsFetchingChallenge(true);
+      setErrorMsg("");
+
+      try {
+        await ensureSessionToken();
+        const response = await api.post('/mystery/ad-challenge');
+        setChallengeToken(response.data?.data?.challengeToken || "");
+      } catch {
+        setErrorMsg("Unable to prepare the sponsor unlock. Please try again.");
+      } finally {
+        setIsFetchingChallenge(false);
+      }
+    };
+
+    void fetchChallenge();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
 
     const handleVisibilityChange = () => {
       // If user has not clicked sponsor link yet, don't track
@@ -38,9 +93,34 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
           const timeSpentAwayInSeconds = (Date.now() - timeLeftTab.current) / 1000;
           
           if (timeSpentAwayInSeconds >= 5) {
-            // They successfully dwelt on the ad!
-            setUnlockReady(true);
-            setErrorMsg("");
+            // Exchange the challenge for a short-lived unlock token.
+            const exchangeChallenge = async () => {
+              if (!challengeToken) {
+                setUnlockReady(false);
+                setErrorMsg("Sponsor verification is not ready yet.");
+                return;
+              }
+
+              setIsExchangingPass(true);
+
+              try {
+                const response = await api.post('/mystery/ad-pass', {
+                  challengeToken
+                });
+
+                const passToken = response.data?.data?.adPassToken || "";
+                setAdPassToken(passToken);
+                setUnlockReady(Boolean(passToken));
+                setErrorMsg("");
+              } catch {
+                setUnlockReady(false);
+                setErrorMsg("Sponsor verification failed. Please complete the sponsor step again.");
+              } finally {
+                setIsExchangingPass(false);
+              }
+            };
+
+            void exchangeChallenge();
           } else {
             // They immediately closed it or bounced from proxy issue
             setUnlockReady(false);
@@ -54,7 +134,7 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [open, hasClickedSponsor]);
+  }, [open, hasClickedSponsor, challengeToken]);
 
   if (!open) {
     return null;
@@ -83,9 +163,9 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
               setHasClickedSponsor(true);
               setErrorMsg("");
             }}
-            className="btn-premium transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,212,0.3)]"
+              className={`btn-premium transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,212,0.3)] ${isFetchingChallenge ? 'pointer-events-none opacity-70' : ''}`}
           >
-            Visit Sponsor Link
+              {isFetchingChallenge ? 'Preparing sponsor check...' : 'Visit Sponsor Link'}
           </a>
         </div>
 
@@ -98,7 +178,7 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         {hasClickedSponsor && !unlockReady && (
           <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-900/20 p-6 text-center animate-pulse">
             <p className="text-sm font-medium text-cyan-300">
-              Waiting for verification... Please stay on the sponsor tab!
+              {isExchangingPass ? 'Verifying sponsor return...' : 'Waiting for verification... Please stay on the sponsor tab!'}
             </p>
           </div>
         )}
@@ -114,7 +194,7 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
           <button
             type="button"
             disabled={!unlockReady}
-            onClick={onUnlock}
+            onClick={() => onUnlock(adPassToken)}
             className={`flex-1 rounded-full px-4 py-3 text-sm font-bold text-white transition-all ${
               unlockReady 
                 ? "bg-gradient-to-r from-emerald-400 to-cyan-500 shadow-[0_0_20px_rgba(52,211,153,0.4)] hover:scale-105" 

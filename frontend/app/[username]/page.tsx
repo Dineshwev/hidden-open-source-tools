@@ -96,7 +96,7 @@ export default function CreatorProfile() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.button className="px-12 py-4 rounded-3xl bg-gradient-to-r from-nebula-500 to-aurora text-white font-bold text-lg shadow-glow-lg hover:shadow-glow-xl transition-all px-8 py-4">
+              <motion.button className="rounded-3xl bg-gradient-to-r from-nebula-500 to-aurora px-12 py-4 text-lg font-bold text-white shadow-glow-lg transition-all hover:shadow-glow-xl">
                 Follow
               </motion.button>
               <motion.button className="px-12 py-4 rounded-3xl border-2 border-white/30 bg-white/5 backdrop-blur-xl text-white font-bold text-lg hover:bg-white/10 transition-all">
