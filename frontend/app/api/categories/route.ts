@@ -4,7 +4,7 @@ import { errorResponse } from '@/lib/utils/authHelper';
 
 export async function GET() {
   try {
-    const data = await categoryService.getAllCategories();
+    const data = await categoryService.getCategories();
     return NextResponse.json({ data }, { status: 200 });
   } catch (error: any) {
     return errorResponse(error);
