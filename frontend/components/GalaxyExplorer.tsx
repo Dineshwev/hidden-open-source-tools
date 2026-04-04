@@ -1,24 +1,36 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { motion } from 'framer-motion';
-import { User, Star, Award } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, ChevronLeft } from 'lucide-react';
 
-const CreatorNode = ({ position, name, color = '#7f96ff', id }: { position: [number, number, number]; name: string; color?: string; id: string }) => {
+const CreatorNode = ({
+  position,
+  name,
+  color = '#7f96ff',
+  id,
+  onClick
+}: {
+  position: [number, number, number];
+  name: string;
+  color?: string;
+  id: string;
+  onClick?: () => void;
+}) => {
   const meshRef = useRef<THREE.Mesh>(null!);
   const [hovered, setHovered] = useState(false);
-  const [clicked, setClicked] = useState(false);
   const raycaster = useThree((state) => state.raycaster);
   const mouse = useThree((state) => state.mouse);
+  const camera = useThree((state) => state.camera);
 
   const intersect = useCallback(() => {
-    raycaster.setFromCamera(mouse, useThree((state) => state.camera));
+    raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObject(meshRef.current);
     return intersects.length > 0;
-  }, [raycaster, mouse]);
+  }, [raycaster, mouse, camera]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -38,7 +50,7 @@ const CreatorNode = ({ position, name, color = '#7f96ff', id }: { position: [num
 
   return (
     <>
-      <mesh ref={meshRef} position={position}>
+      <mesh ref={meshRef} position={position} onClick={onClick}>
         <sphereGeometry args={[0.08, 16, 16]} />
         <meshStandardMaterial 
           color={color} 
@@ -280,7 +292,8 @@ function GalaxyArms() {
 
   return (
     <group ref={groupRef}>
-      <TorusKnot args={[1.5, 0.3, 100, 16]} rotation={[0, 0, Math.PI / 4]}>
+      <mesh rotation={[0, 0, Math.PI / 4]}>
+        <torusKnotGeometry args={[1.5, 0.3, 100, 16]} />
         <meshStandardMaterial 
           color="#4a5568" 
           emissive="#1a202c" 
@@ -289,8 +302,9 @@ function GalaxyArms() {
           transparent 
           opacity={0.6}
         />
-      </TorusKnot>
-      <TorusKnot args={[2.2, 0.2, 80, 12]} rotation={[0, 0, -Math.PI / 6]}>
+      </mesh>
+      <mesh rotation={[0, 0, -Math.PI / 6]}>
+        <torusKnotGeometry args={[2.2, 0.2, 80, 12]} />
         <meshStandardMaterial 
           color="#718096" 
           emissive="#2d3748" 
@@ -299,7 +313,7 @@ function GalaxyArms() {
           transparent 
           opacity={0.4}
         />
-      </TorusKnot>
+      </mesh>
     </group>
   );
 }

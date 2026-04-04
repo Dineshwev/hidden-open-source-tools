@@ -1,130 +1,137 @@
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --neon-blue: #00d2ff;
-  --neon-purple: #9d4edd;
-  --neon-cyan: #00f5d4;
-  --bg-space: #030712;
+  --bg-base: #071321;
+  --bg-elevated: #0f2238;
+  --surface-glass: rgba(255, 255, 255, 0.06);
+  --surface-border: rgba(255, 255, 255, 0.14);
+  --text-primary: #f7fbff;
+  --text-secondary: rgba(231, 241, 255, 0.72);
+  --brand-cyan: #3ed4c8;
+  --brand-blue: #4d9dff;
+  --brand-orange: #f2a766;
 }
 
 html {
   scroll-behavior: smooth;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
 }
 
 body {
-  @apply bg-gray-950 text-gray-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-200;
-  background-color: var(--bg-space);
-  background-image: 
-    radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120,119,198,0.3), transparent),
-    radial-gradient(ellipse 60% 50% at 10% 110%, rgba(0, 245, 212, 0.1), transparent),
-    radial-gradient(ellipse 60% 50% at 90% 110%, rgba(157, 78, 221, 0.1), transparent);
+  @apply antialiased selection:bg-cyan-300/30 selection:text-cyan-50;
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(72rem 36rem at 12% -10%, rgba(62, 212, 200, 0.24), transparent 60%),
+    radial-gradient(62rem 32rem at 92% -20%, rgba(77, 157, 255, 0.24), transparent 62%),
+    radial-gradient(40rem 24rem at 50% 110%, rgba(242, 167, 102, 0.18), transparent 70%),
+    linear-gradient(180deg, #071321 0%, #06101c 100%);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 .font-display {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: "Sora", sans-serif;
 }
 
-/* Supreme Glassmorphism Custom Utilities */
-.glass-super {
-  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-  backdrop-filter: blur(40px);
-  -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(255,255,255,0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.glass-card {
-  background: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px -1px rgba(0,0,0,0.2);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card:hover {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 40px -5px rgba(0,245,212,0.15);
-}
-
-/* Animated Gradient Borders */
-.gradient-border-anim {
-  position: relative;
-  border-radius: 1rem;
-  background: #0f172a;
-}
-.gradient-border-anim::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 1.1rem;
-  background: linear-gradient(90deg, #00f5d4, #00d2ff, #9d4edd, #00f5d4);
-  background-size: 300% 300%;
-  z-index: -1;
-  animation: bg-pan 4s ease infinite;
-  opacity: 0.8;
-  filter: blur(8px);
-}
-
-@keyframes bg-pan {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Text Magic */
-.text-gradient-magic {
-  background: linear-gradient(to right, #ffffff 20%, #a5b4fc 50%, #5eead4 80%);
-  background-size: 200% auto;
+.text-gradient {
+  background: linear-gradient(90deg, #ecf4ff 0%, #7fe4db 48%, #73b4ff 100%);
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: shine 4s linear infinite;
 }
 
-@keyframes shine {
+.glass-card {
+  background: linear-gradient(145deg, rgba(16, 39, 63, 0.88), rgba(11, 28, 47, 0.78));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 16px 45px rgba(3, 12, 24, 0.35);
+  transition: all 0.32s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(62, 212, 200, 0.38);
+  box-shadow: 0 24px 50px rgba(3, 12, 24, 0.42);
+}
+
+.glass-panel {
+  background: linear-gradient(170deg, rgba(22, 45, 70, 0.7), rgba(11, 30, 49, 0.62));
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 12px 40px rgba(2, 9, 19, 0.33);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.depth-stage {
+  position: relative;
+}
+
+.depth-stage::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border: 1px solid rgba(77, 157, 255, 0.16);
+  pointer-events: none;
+}
+
+.depth-panel {
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.depth-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 45px rgba(2, 10, 22, 0.43);
+  border-color: rgba(62, 212, 200, 0.32);
+}
+
+.text-gradient-magic {
+  background: linear-gradient(95deg, #f2f8ff 8%, #7bdccd 52%, #74b2ff 92%);
+  background-size: 180% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: glow-shift 5s linear infinite;
+}
+
+@keyframes glow-shift {
   to {
-    background-position: 200% center;
+    background-position: 180% center;
   }
 }
 
-/* Beautiful Animated Background Grid */
 .bg-grid-cyber {
-  background-size: 40px 40px;
-  background-image: 
+  background-size: 36px 36px;
+  background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
 }
 
-/* Custom Scrollbar for Ultra Premium Feel */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #030712; 
+  background: #081523;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b; 
+  background: #1f3a5a;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155; 
+  background: #29507a;
 }
 
-/* Floating Elements Animation */
 @keyframes float {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
   100% { transform: translateY(0px); }
 }
 .animate-float {
@@ -133,34 +140,56 @@ body {
 
 @keyframes float-delayed {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-12px); }
   100% { transform: translateY(0px); }
 }
 .animate-float-delayed {
   animation: float-delayed 7s ease-in-out infinite 1s;
 }
 
-/* Epic Glows */
 .shadow-glow-epic {
-  box-shadow: 0 0 80px -10px var(--neon-cyan);
+  box-shadow: 0 0 72px -12px rgba(62, 212, 200, 0.5);
 }
 .shadow-glow-purple {
-  box-shadow: 0 0 80px -10px var(--neon-purple);
+  box-shadow: 0 0 72px -12px rgba(77, 157, 255, 0.44);
 }
 
-/* Custom Buttons overrides */
 .btn-premium {
-  @apply relative overflow-hidden rounded-full px-8 py-3 font-semibold text-white transition-all bg-gradient-to-r from-cyan-500 to-blue-600 border border-white/20;
+  @apply relative overflow-hidden rounded-full px-8 py-3 font-semibold text-slate-950 transition-all;
+  background: linear-gradient(90deg, #7be4d8, #78b7ff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 .btn-premium::before {
   content: "";
   position: absolute;
-  top: 0; left: -100%;
-  width: 50%; height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.44), transparent);
   transform: skewX(-25deg);
   animation: btn-shine 3s ease-in-out infinite;
 }
 @keyframes btn-shine {
   100% { left: 200%; }
+}
+
+.asset-card-glitch {
+  background-image:
+    linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    repeating-linear-gradient(
+      90deg,
+      rgba(62, 212, 200, 0.22) 0,
+      rgba(62, 212, 200, 0.22) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  background-size: 100% 5px, 18px 100%;
+  animation: glitch-slide 6s linear infinite;
+}
+
+@keyframes glitch-slide {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-14px); }
+  100% { transform: translateX(0); }
 }

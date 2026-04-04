@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Upload, Eye, Award, Flame, Download, ArrowRight } from 'lucide-react';
 import LevelBadge from '@/components/LevelBadge';
@@ -33,7 +34,7 @@ export default function CreatorDashboard() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-nebula-500 p-3 shadow-glow-lg">
-                <img src="/avatar.jpg" alt="Profile" className="w-full h-full rounded-xl object-cover" />
+                <Image src="/avatar.jpg" alt="Profile" width={56} height={56} className="w-full h-full rounded-xl object-cover" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-aurora to-nebula-400 bg-clip-text text-transparent">

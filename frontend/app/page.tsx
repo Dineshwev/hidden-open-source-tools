@@ -1,117 +1,176 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { ArrowRight, Sparkles, Zap, Shield, Globe } from "lucide-react";
+import { ArrowRight, BadgeCheck, PlayCircle, Shield, TimerReset, Sparkles } from "lucide-react";
 import StatGrid from "@/components/StatGrid";
 import StatsTicker from "@/components/StatsTicker";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
 
-// Lazy-load heavy 3D components so they don't block initial page render
-const HeroScene = dynamic(() => import("@/components/HeroScene"), { 
-  ssr: false, 
-  loading: () => <div className="animate-pulse bg-white/5 rounded-full w-[400px] h-[400px]" />
-});
-const AnimatedStars = dynamic(() => import("@/components/AnimatedStars"), { ssr: false });
-
 export default function HomePage() {
   return (
     <>
-      <SpaceBackground />
-      <div className="space-y-32 relative z-10 pb-20">
-        
-        {/* PREMIUM HERO SECTION */}
-        <section className="relative pt-20">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-nebula-500/20 rounded-full blur-[120px] opacity-50 point-events-none" />
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-aurora/10 rounded-full blur-[100px] opacity-40 point-events-none" />
-          
-          <div className="relative grid items-center gap-16 lg:grid-cols-[1fr_1fr] max-w-7xl mx-auto px-4">
-            
-            <div className="space-y-8 relative z-20">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-aurora/30 bg-aurora/10 backdrop-blur-md shadow-[0_0_20px_rgba(115,240,196,0.15)]">
-                <span className="flex h-2 w-2 rounded-full bg-aurora animate-ping" />
-                <span className="text-xs font-bold uppercase tracking-widest text-aurora">Next-Gen Creator Economy</span>
+      <SpaceBackground className="opacity-70" />
+      <div className="relative z-10 space-y-24 pb-20">
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-grid-cyber px-5 py-14 md:px-10 md:py-16 lg:px-12">
+          <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-cyan-300/20 blur-[100px]" />
+          <div className="absolute -right-16 top-10 h-72 w-72 rounded-full bg-blue-300/20 blur-[100px]" />
+
+          <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-7">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-xs uppercase tracking-[0.22em] text-cyan-100">
+                Sponsored Access Platform
               </div>
-              
-              <h1 className="font-display text-6xl md:text-7xl font-extrabold leading-[1.1] text-transparent bg-clip-text bg-gradient-to-br from-white via-[#e2e8f0] to-nebula-400 drop-shadow-2xl">
-                Unlock the <br /> 
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-aurora via-nebula-400 to-ember animate-pulse">Mystery</span> of Web3.
+
+              <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
+                Professional asset downloads powered by
+                <span className="text-gradient-magic"> watch-ads unlocks</span>
               </h1>
-              
-              <p className="text-xl leading-relaxed text-white/70 max-w-xl font-light">
-                Discover exclusive premium assets. Bypass paywalls with our sponsored unlock system. Turn ad-views into high-end resources.
+
+              <p className="max-w-2xl text-lg leading-relaxed text-white/75">
+                Portfolio Universe helps users unlock premium files without subscriptions. Watch a short sponsor ad, pass the gate, and download instantly from a curated and moderated resource vault.
               </p>
 
-              <div className="flex flex-wrap items-center gap-6 pt-4">
-                <Link
-                  href="/mystery-box"
-                  className="relative group overflow-hidden rounded-2xl bg-white text-void px-8 py-4 font-bold text-lg transition-transform hover:scale-105 shadow-[0_0_40px_rgba(255,255,255,0.3)]"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-aurora to-nebula-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <span className="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors duration-500">
-                    Open Mystery Box <Sparkles className="w-5 h-5" />
-                  </span>
+              <div className="flex flex-wrap items-center gap-4">
+                <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base">
+                  Open Mystery Box <Sparkles className="h-4 w-4" />
                 </Link>
-                
                 <Link
                   href="/upload"
-                  className="group flex items-center gap-3 px-8 py-4 rounded-2xl border border-white/20 bg-black/40 backdrop-blur-xl text-white font-semibold hover:bg-white/10 transition-all hover:border-aurora/50"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:border-cyan-300/45 hover:bg-white/10"
                 >
-                  Contribute Code
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform text-aurora" />
+                  Become a Contributor <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-              
-              {/* Trust Indicators */}
-              <div className="pt-8 border-t border-white/10 flex items-center gap-8 opacity-60">
-                <div className="flex items-center gap-2"><Shield className="w-5 h-5" /> Safe</div>
-                <div className="flex items-center gap-2"><Zap className="w-5 h-5" /> Instant</div>
-                <div className="flex items-center gap-2"><Globe className="w-5 h-5" /> Global</div>
+
+              <div className="grid gap-3 pt-4 sm:grid-cols-3">
+                <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
+                  <p className="font-display text-2xl text-white">24/7</p>
+                  Active unlock flow
+                </div>
+                <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
+                  <p className="font-display text-2xl text-white">Instant</p>
+                  Post-ad gated download
+                </div>
+                <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
+                  <p className="font-display text-2xl text-white">Verified</p>
+                  Human moderated resources
+                </div>
               </div>
             </div>
 
-            <div className="relative z-10 h-[600px] w-full flex items-center justify-center">
-               <HeroScene />
-            </div>
-            
+            <aside className="glass-panel depth-stage rounded-[1.6rem] p-6 md:p-8">
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-100/80">Unlock Journey</p>
+              <div className="mt-6 space-y-4">
+                {[
+                  {
+                    icon: <PlayCircle className="h-5 w-5" />,
+                    title: "Watch sponsor ad",
+                    text: "Users complete one short ad task to activate secure download access."
+                  },
+                  {
+                    icon: <Shield className="h-5 w-5" />,
+                    title: "Pass gate verification",
+                    text: "Each unlock is tracked to prevent abuse and keep traffic quality high."
+                  },
+                  {
+                    icon: <BadgeCheck className="h-5 w-5" />,
+                    title: "Download premium file",
+                    text: "Approved assets are delivered instantly with clear category and rarity tags."
+                  }
+                ].map((step) => (
+                  <article key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-cyan-100">
+                      {step.icon}
+                      {step.title}
+                    </div>
+                    <p className="text-sm text-white/65">{step.text}</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-orange-200/20 bg-orange-200/10 p-4 text-sm text-orange-50/90">
+                <p className="inline-flex items-center gap-2 font-semibold">
+                  <TimerReset className="h-4 w-4" /> Daily mystery reset
+                </p>
+                <p className="mt-2 text-orange-50/80">Return every day to unlock limited drops and maintain your streak bonus.</p>
+              </div>
+            </aside>
           </div>
         </section>
 
-        {/* HIGH-END FEATURE CARDS */}
-        <section className="relative px-4 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section className="space-y-6">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Why users stay longer</p>
+              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Designed for repeat sessions and trust</h2>
+            </div>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
             {[
-              { title: "Zero Subscriptions", desc: "Premium content gated by our sponsor network, not your credit card.", color: "from-aurora to-emerald-500" },
-              { title: "Verified Loot", desc: "Every download is securely hashed, validated, and ranked by the community.", color: "from-nebula-400 to-blue-600" },
-              { title: "Creator Rewards", desc: "Uploads that trend earn XP, platform streaks, and dashboard dominance.", color: "from-ember to-rose-500" }
-            ].map((feature, i) => (
-              <div key={i} className="group relative overflow-hidden rounded-[2.5rem] p-[1px] transition-all hover:scale-[1.02]">
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-40 group-hover:opacity-100 transition-opacity duration-500`} />
-                <div className="relative h-full flex flex-col justify-end p-8 bg-[#07111f]/90 backdrop-blur-3xl rounded-[2.5rem] border border-white/5">
-                  <div className={`w-12 h-12 mb-6 rounded-full bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.2)]`}>
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-3 font-display">{feature.title}</h3>
-                  <p className="text-white/60 leading-relaxed">{feature.desc}</p>
-                </div>
-              </div>
+              {
+                title: "No Subscription Fatigue",
+                desc: "Users unlock content through ads instead of recurring payments, reducing friction for return visits."
+              },
+              {
+                title: "Clear Progress Loops",
+                desc: "Daily resets, rarity labels, and contributor reputation create momentum and longer exploration sessions."
+              },
+              {
+                title: "Professional Trust Layer",
+                desc: "Moderation and verification signals help users feel safe before they spend time on unlock actions."
+              }
+            ].map((feature) => (
+              <article key={feature.title} className="glass-card depth-panel rounded-3xl p-7">
+                <h3 className="font-display text-2xl text-white">{feature.title}</h3>
+                <p className="mt-3 text-white/65">{feature.desc}</p>
+              </article>
             ))}
           </div>
         </section>
 
-        {/* METRICS & DISCOVERY */}
-        <div className="bg-black/40 backdrop-blur-2xl border-y border-white/5 py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+        <section className="glass-panel depth-stage rounded-[2rem] p-6 md:p-8 lg:p-10">
+          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Performance Snapshot</p>
+              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Built for conversion and quality traffic</h2>
+            </div>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2 text-sm text-white/85 transition hover:border-cyan-300/45"
+            >
+              Open Dashboard <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
           <StatGrid />
-        </div>
-        
+        </section>
+
         <StatsTicker />
-        
-        <div className="max-w-7xl mx-auto px-4 space-y-32">
+
+        <div className="space-y-24">
           <TrendingDownloads />
           <TopContributors />
         </div>
-        
+
+        <section className="rounded-[2rem] border border-white/10 bg-gradient-to-r from-[#112741] via-[#14304f] to-[#1f3c58] p-8 md:p-12">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-cyan-100/80">Ready To Scale Engagement</p>
+            <h2 className="mt-3 font-display text-3xl text-white md:text-5xl">Launch your next unlock session in under 30 seconds</h2>
+            <p className="mt-4 text-white/70">
+              Explore trending drops, watch one short ad, and get instant access to moderated digital resources tailored for creators.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base">
+                Start Unlock Flow <Sparkles className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Create Free Account <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { User, Crown, Download, Heart, Eye, MessageCircle, Clock, Award, TrendingUp } from 'lucide-react';
 import LevelBadge from '@/components/LevelBadge';
@@ -58,9 +59,11 @@ export default function CreatorProfile() {
           >
             <div className="inline-block mb-8">
               <div className="relative">
-                <img 
-                  src={creatorData.avatar} 
+                <Image
+                  src={creatorData.avatar}
                   alt={creatorData.name}
+                  width={128}
+                  height={128}
                   className="w-32 h-32 rounded-3xl object-cover shadow-2xl shadow-black/50 ring-4 ring-white/20"
                 />
                 <div className="absolute bottom-0 right-0 w-12 h-12 bg-gradient-to-br from-emerald-500 rounded-2xl p-2 shadow-glow-lg ring-2 ring-black/30 -translate-x-2 translate-y-2">
@@ -155,10 +158,12 @@ export default function CreatorProfile() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <div className="relative h-64 rounded-3xl overflow-hidden">
-                    <img 
-                      src={upload.thumbnail} 
+                    <Image
+                      src={upload.thumbnail}
                       alt={upload.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="absolute bottom-4 left-4 right-4">

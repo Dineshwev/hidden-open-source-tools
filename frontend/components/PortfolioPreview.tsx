@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Download, Heart, Eye, ExternalLink } from 'lucide-react';
+import { Download, Heart, Eye, ExternalLink, Star } from 'lucide-react';
 
 interface CreatorPreview {
   id: string;
@@ -50,9 +50,11 @@ const PortfolioPreview = ({ creator, isVisible, position, onClose }: PortfolioPr
             <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
               <div className="relative">
                 <div className={`w-16 h-16 rounded-2xl overflow-hidden shadow-glow bg-gradient-to-br from-${creator.level > 4 ? 'orange' : creator.level > 2 ? 'purple' : 'blue'}-500`}>
-                  <img 
-                    src={creator.avatar || '/api/placeholder/64/64'} 
+                  <Image
+                    src={creator.avatar || '/api/placeholder/64/64'}
                     alt={creator.name}
+                    width={64}
+                    height={64}
                     className="w-full h-full object-cover"
                   />
                 </div>
