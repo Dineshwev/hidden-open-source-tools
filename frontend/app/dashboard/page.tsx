@@ -6,6 +6,7 @@ import { BarChart3, TrendingUp, Upload, Eye, Award, Flame, Download, ArrowRight 
 import LevelBadge from '@/components/LevelBadge';
 import StreakBadge from '@/components/StreakBadge';
 import AdSmartlinkSlot from '@/components/AdSmartlinkSlot';
+import AdBanner from '@/components/AdBanner';
 
 const stats = [
   { name: 'Uploads', value: 247, change: '+12%', icon: Upload, color: 'emerald' },
@@ -109,6 +110,16 @@ export default function CreatorDashboard() {
             description="Creator-focused sponsor campaigns run here to keep analytics and unlock tools free."
             cta="Check Sponsored Tool"
             compact
+          />
+        </div>
+
+        <div className="mb-12 flex justify-center">
+          <AdBanner
+            adKey="550b73b63e77cce545f72e48056d5c5a"
+            scriptSrc="https://www.highperformanceformat.com/550b73b63e77cce545f72e48056d5c5a/invoke.js"
+            width={160}
+            height={300}
+            className="max-w-[160px]"
           />
         </div>
 

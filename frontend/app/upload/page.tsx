@@ -1,6 +1,7 @@
 import UploadForm from "@/components/UploadForm";
 import SectionHeading from "@/components/SectionHeading";
 import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
+import AdBanner from "@/components/AdBanner";
 
 export default function UploadPage() {
   return (
@@ -16,6 +17,15 @@ export default function UploadPage() {
         cta="Explore Offer"
         compact
       />
+
+      <AdBanner
+        adKey="00af9711b16771abdb58e6d42ecb9590"
+        scriptSrc="https://www.highperformanceformat.com/00af9711b16771abdb58e6d42ecb9590/invoke.js"
+        width={300}
+        height={250}
+        className="mx-auto max-w-[300px]"
+      />
+
       <UploadForm />
     </div>
   );

@@ -6,6 +6,7 @@ import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
 import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
+import AdBanner from "@/components/AdBanner";
 
 export default function HomePage() {
   return (
@@ -106,6 +107,14 @@ export default function HomePage() {
           compact
         />
 
+        <AdBanner
+          adKey="88375ede7ff23d9e0cd724f375a2a681"
+          scriptSrc="https://www.highperformanceformat.com/88375ede7ff23d9e0cd724f375a2a681/invoke.js"
+          width={468}
+          height={60}
+          className="mx-auto max-w-[468px]"
+        />
+
         <section className="space-y-6">
           <div className="flex items-end justify-between gap-4">
             <div>
@@ -153,6 +162,14 @@ export default function HomePage() {
         </section>
 
         <StatsTicker />
+
+        <AdBanner
+          adKey="00af9711b16771abdb58e6d42ecb9590"
+          scriptSrc="https://www.highperformanceformat.com/00af9711b16771abdb58e6d42ecb9590/invoke.js"
+          width={300}
+          height={250}
+          className="mx-auto max-w-[300px]"
+        />
 
         <AdSmartlinkSlot
           title="Limited Partner Promotion"

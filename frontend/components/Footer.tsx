@@ -1,5 +1,5 @@
 import Link from "next/link";
-import AdNativeBanner from "./AdNativeBanner";
+import AdBanner from "./AdBanner";
 
 const mainLinks = [
   { href: "/", label: "Home" },
@@ -18,7 +18,24 @@ const legalLinks = [
 export default function Footer() {
   return (
     <footer className="relative z-20 mt-20 border-t border-white/10 bg-[#08182a]/90">
-      <AdNativeBanner />
+      <div className="px-4 pt-6 md:px-6">
+        <div className="hidden md:block">
+          <AdBanner
+            adKey="39ae9600ed125f26df75ac07ffcf1c4d"
+            scriptSrc="https://www.highperformanceformat.com/39ae9600ed125f26df75ac07ffcf1c4d/invoke.js"
+            width={728}
+            height={90}
+          />
+        </div>
+        <div className="md:hidden">
+          <AdBanner
+            adKey="c92bbc7baa5146f8949557091e05fb19"
+            scriptSrc="https://www.highperformanceformat.com/c92bbc7baa5146f8949557091e05fb19/invoke.js"
+            width={320}
+            height={50}
+          />
+        </div>
+      </div>
 
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[1.2fr_1fr_1fr]">
         <div className="space-y-5">
