@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 type AdUnlockModalProps = {
@@ -10,28 +10,50 @@ type AdUnlockModalProps = {
 };
 
 export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModalProps) {
-  const [secondsLeft, setSecondsLeft] = useState(5);
   const [hasClickedSponsor, setHasClickedSponsor] = useState(false);
+  const [unlockReady, setUnlockReady] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  
+  const timeLeftTab = useRef<number | null>(null);
 
   useEffect(() => {
     if (!open) {
-      setSecondsLeft(5);
       setHasClickedSponsor(false);
+      setUnlockReady(false);
+      setErrorMsg("");
+      timeLeftTab.current = null;
       return;
     }
 
-    if (hasClickedSponsor) {
-      const timer = setInterval(() => {
-        setSecondsLeft((current) => {
-          if (current <= 1) {
-            clearInterval(timer);
-            return 0;
+    const handleVisibilityChange = () => {
+      // If user has not clicked sponsor link yet, don't track
+      if (!hasClickedSponsor) return;
+
+      if (document.hidden) {
+        // User left the tab (went to adsterra)
+        timeLeftTab.current = Date.now();
+      } else {
+        // User came back to our tab
+        if (timeLeftTab.current) {
+          const timeSpentAwayInSeconds = (Date.now() - timeLeftTab.current) / 1000;
+          
+          if (timeSpentAwayInSeconds >= 5) {
+            // They successfully dwelt on the ad!
+            setUnlockReady(true);
+            setErrorMsg("");
+          } else {
+            // They immediately closed it or bounced from proxy issue
+            setUnlockReady(false);
+            setHasClickedSponsor(false);
+            setErrorMsg("You closed the sponsor page too quickly or used a VPN. Please visit the link and wait at least 5 seconds before returning.");
           }
-          return current - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timer);
-    }
+          timeLeftTab.current = null;
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [open, hasClickedSponsor]);
 
   if (!open) {
@@ -39,56 +61,67 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 px-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 px-4 backdrop-blur-sm">
       <motion.div
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="glass-panel w-full max-w-lg rounded-3xl p-8 shadow-glow"
+        initial={{ opacity: 0, scale: 0.92, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="glass-card w-full max-w-lg rounded-3xl p-8 shadow-glow-epic"
       >
-        <p className="mb-2 text-sm uppercase tracking-[0.3em] text-aurora/70">Sponsored unlock</p>
-        <h2 className="font-display text-3xl font-bold text-white">Action Required</h2>
+        <p className="mb-2 text-xs uppercase tracking-widest text-cyan-400">Sponsored unlock</p>
+        <h2 className="font-display text-3xl font-bold text-white mb-6">Action Required</h2>
         
         {/* Adsterra Smartlink Block */}
-        <div className="my-6 min-h-[100px] w-full rounded-xl bg-black/40 border border-white/10 flex flex-col items-center justify-center p-6 text-center">
-          <p className="text-white/80 mb-4">You must visit our sponsor to unlock this mystery box.</p>
+        <div className="mb-6 w-full rounded-2xl bg-black/60 border border-white/10 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-purple-500/10 pointer-events-none" />
+          <p className="text-white/80 mb-6 relative z-10 text-lg">You must visit our sponsor and stay there for <span className="text-cyan-400 font-bold">5 seconds</span> to unlock this mystery box.</p>
+          
           <a
             href="https://www.profitablecpmratenetwork.com/eyxbqyzk?key=dc62ef4d3d7d7672be4a64e11612ea8c"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setHasClickedSponsor(true)}
-            className="rounded-full bg-gradient-to-r from-emerald-500 to-green-400 px-8 py-3 text-sm font-bold text-white shadow-glow transition hover:scale-105"
+            onClick={() => {
+              setHasClickedSponsor(true);
+              setErrorMsg("");
+            }}
+            className="btn-premium transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,212,0.3)]"
           >
             Visit Sponsor Link
           </a>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-6">
-          <div className="h-3 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-aurora to-nebula-400 transition-all duration-1000"
-              style={{ width: `${((5 - secondsLeft) / 5) * 100}%` }}
-            />
+        {errorMsg && (
+          <div className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm animate-pulse text-center">
+            {errorMsg}
           </div>
-          <p className="mt-4 text-sm text-white/70">
-            {secondsLeft > 0 ? `Unlock available in ${secondsLeft}s` : "Mystery box is ready to open"}
-          </p>
-        </div>
+        )}
 
-        <div className="mt-8 flex gap-3">
+        {hasClickedSponsor && !unlockReady && (
+          <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-900/20 p-6 text-center animate-pulse">
+            <p className="text-sm font-medium text-cyan-300">
+              Waiting for verification... Please stay on the sponsor tab!
+            </p>
+          </div>
+        )}
+
+        <div className="mt-8 flex gap-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-full border border-white/15 px-4 py-3 text-sm text-white/80 transition hover:bg-white/10"
+            className="flex-1 rounded-full border border-white/20 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white backdrop-blur-md"
           >
             Cancel
           </button>
           <button
             type="button"
-            disabled={secondsLeft > 0}
+            disabled={!unlockReady}
             onClick={onUnlock}
-            className="flex-1 rounded-full bg-nebula-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-nebula-400 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`flex-1 rounded-full px-4 py-3 text-sm font-bold text-white transition-all ${
+              unlockReady 
+                ? "bg-gradient-to-r from-emerald-400 to-cyan-500 shadow-[0_0_20px_rgba(52,211,153,0.4)] hover:scale-105" 
+                : "bg-white/5 border border-white/10 text-white/30 cursor-not-allowed"
+            }`}
           >
-            Unlock Download
+            {unlockReady ? "Unlock Download!" : "Locked"}
           </button>
         </div>
       </motion.div>
