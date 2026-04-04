@@ -33,10 +33,16 @@ export default function FileCard({
 
   return (
     <motion.article
-      whileHover={{ y: -10, rotateX: -6, rotateY: 5 }}
-      transition={{ type: "spring", stiffness: 220, damping: 18 }}
+      whileHover={{ y: -12, rotateX: -8, rotateY: 8, rotateZ: 1 }}
+      whileTap={{ y: -2, scale: 0.98 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 15,
+        rotate: { duration: 0.2 }
+      }}
       style={{ transformStyle: "preserve-3d" }}
-      className="depth-panel asset-card glass-panel overflow-hidden rounded-3xl p-5 transition hover:border-nebula-400/40"
+      className="depth-panel asset-card glass-panel overflow-hidden rounded-3xl p-5 transition-all hover:border-nebula-400/50 hover:shadow-glow-lg group"
     >
       <div className="asset-card-preview relative overflow-hidden rounded-[1.35rem] border border-white/10 bg-[linear-gradient(135deg,rgba(127,150,255,0.22),rgba(6,13,23,0.25)_55%,rgba(255,153,102,0.18))] p-4">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.06),transparent)]" />

@@ -163,6 +163,28 @@ function SceneBackdrop() {
         <circleGeometry args={[3.8, 64]} />
         <meshBasicMaterial color="#73f0c4" transparent opacity={0.08} />
       </mesh>
+      
+      {/* Holographic floor */}
+      <mesh position={[0, -2.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[14, 10]} />
+        <meshBasicMaterial 
+          color="#7f96ff" 
+          transparent 
+          opacity={0.06} 
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      
+      {/* Energy field */}
+      <mesh position={[0, 0, -1.5]}>
+        <sphereGeometry args={[2.8, 32, 32]} />
+        <meshBasicMaterial 
+          color="#73f0c4" 
+          transparent 
+          opacity={0.04} 
+          wireframe 
+        />
+      </mesh>
     </>
   );
 }

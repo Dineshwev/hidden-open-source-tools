@@ -11,26 +11,28 @@ type AdUnlockModalProps = {
 
 export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModalProps) {
   const [secondsLeft, setSecondsLeft] = useState(5);
+  const [hasClickedSponsor, setHasClickedSponsor] = useState(false);
 
   useEffect(() => {
     if (!open) {
       setSecondsLeft(5);
+      setHasClickedSponsor(false);
       return;
     }
 
-    const timer = setInterval(() => {
-      setSecondsLeft((current) => {
-        if (current <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-
-        return current - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [open]);
+    if (hasClickedSponsor) {
+      const timer = setInterval(() => {
+        setSecondsLeft((current) => {
+          if (current <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return current - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [open, hasClickedSponsor]);
 
   if (!open) {
     return null;
@@ -44,12 +46,23 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         className="glass-panel w-full max-w-lg rounded-3xl p-8 shadow-glow"
       >
         <p className="mb-2 text-sm uppercase tracking-[0.3em] text-aurora/70">Sponsored unlock</p>
-        <h2 className="font-display text-3xl font-bold text-white">Watching ad sequence...</h2>
-        <p className="mt-4 text-white/70">
-          Simulate an ad slot here, then unlock a random verified file once the countdown completes.
-        </p>
+        <h2 className="font-display text-3xl font-bold text-white">Action Required</h2>
+        
+        {/* Adsterra Smartlink Block */}
+        <div className="my-6 min-h-[100px] w-full rounded-xl bg-black/40 border border-white/10 flex flex-col items-center justify-center p-6 text-center">
+          <p className="text-white/80 mb-4">You must visit our sponsor to unlock this mystery box.</p>
+          <a
+            href="https://www.profitablecpmratenetwork.com/eyxbqyzk?key=dc62ef4d3d7d7672be4a64e11612ea8c"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setHasClickedSponsor(true)}
+            className="rounded-full bg-gradient-to-r from-emerald-500 to-green-400 px-8 py-3 text-sm font-bold text-white shadow-glow transition hover:scale-105"
+          >
+            Visit Sponsor Link
+          </a>
+        </div>
 
-        <div className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-6">
+        <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-6">
           <div className="h-3 overflow-hidden rounded-full bg-white/10">
             <div
               className="h-full rounded-full bg-gradient-to-r from-aurora to-nebula-400 transition-all duration-1000"

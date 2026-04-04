@@ -84,6 +84,20 @@ export default function AnimatedStars() {
         animate={{ x: ["0%", "220%"] }}
         transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
       />
+      
+      {/* Cyberpunk scan lines */}
+      <motion.div
+        className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.02)_50%,transparent)] opacity-60"
+        animate={{ y: ["0%", "100%"] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+      />
+      
+      {/* Holographic interference pattern */}
+      <motion.div
+        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(115,240,196,0.06),transparent_60%)] opacity-70"
+        animate={{ rotate: "360deg" }}
+        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+      />
     </div>
   );
 }
