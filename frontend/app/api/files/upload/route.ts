@@ -16,7 +16,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const supabase = getSupabaseClient();
+    let supabase;
+    try {
+      supabase = getSupabaseClient();
+    } catch {
+      return NextResponse.json(
+        { error: 'Upload storage is not configured on this server' },
+        { status: 503 }
+      );
+    }
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
