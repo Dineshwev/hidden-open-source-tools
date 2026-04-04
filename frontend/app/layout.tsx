@@ -17,7 +17,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         {/* Allow ad network requests and scripts */}
         <meta name="referrer" content="no-referrer-when-downgrade" />
-        <meta httpEquiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; connect-src 'self' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com;" />
+        <meta httpEquiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com https://www.highperformanceformat.com; connect-src 'self' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com https://www.highperformanceformat.com; frame-src 'self' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com https://www.highperformanceformat.com; img-src 'self' data: https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com https://www.highperformanceformat.com;" />
         
         {/* Adsterra Social Bar */}
         <Script
