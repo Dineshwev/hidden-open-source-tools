@@ -6,7 +6,7 @@ export default function TermsPage() {
         <p>Last updated: {new Date().toLocaleDateString()}</p>
         <section>
           <h2 className="text-2xl text-white font-semibold mb-3">1. User Uploads</h2>
-          <p>By uploading files to Portfolio Universe, you confirm you have the right to distribute said files. We are not responsible for user-uploaded content.</p>
+          <p>By uploading files to The Cloud Rain, you confirm you have the right to distribute said files. We are not responsible for user-uploaded content.</p>
         </section>
         <section>
           <h2 className="text-2xl text-white font-semibold mb-3">2. Platform Usage</h2>

@@ -29,7 +29,7 @@ export default function HomePage() {
               </h1>
 
               <p className="max-w-2xl text-lg leading-relaxed text-white/75">
-                Portfolio Universe helps users unlock premium files without subscriptions. Watch a short sponsor ad, pass the gate, and download instantly from a curated and moderated resource vault.
+                The Cloud Rain helps users unlock premium files without subscriptions. Watch a short sponsor ad, pass the gate, and download instantly from a curated and moderated resource vault.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">

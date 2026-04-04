@@ -41,7 +41,7 @@ export default function Footer() {
         <div className="space-y-5">
           <p className="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white">
             <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-cyan-300 to-blue-400" />
-            Portfolio Universe
+            The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">
             A sponsor-powered download platform where users unlock premium resources through short ad tasks while creators grow visibility and trust.
@@ -80,7 +80,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 border-t border-white/10 px-6 py-6 md:flex-row md:items-center">
-        <p className="text-xs text-white/45">© {new Date().getFullYear()} Portfolio Universe. All rights reserved.</p>
+        <p className="text-xs text-white/45">© {new Date().getFullYear()} The Cloud Rain. All rights reserved.</p>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Fast Unlocks</span>
           <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Verified Files</span>

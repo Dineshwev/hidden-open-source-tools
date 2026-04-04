@@ -43,8 +43,8 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3">
             <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-cyan-300 to-blue-400" />
             <div>
-              <p className="font-display text-sm uppercase tracking-[0.28em] text-cyan-200/80">Portfolio</p>
-              <p className="font-display text-lg leading-none text-gradient">Universe</p>
+              <p className="font-display text-sm uppercase tracking-[0.28em] text-cyan-200/80">The Cloud</p>
+              <p className="font-display text-lg leading-none text-gradient">Rain</p>
             </div>
           </Link>
         </motion.div>

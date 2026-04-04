@@ -6,7 +6,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Portfolio Universe - Mystery Download Box",
+  title: "The Cloud Rain - Mystery Download Box",
   description:
     "An open-source platform for unlocking random digital downloads, contributing resources, and moderating a creator-powered mystery economy."
 };
