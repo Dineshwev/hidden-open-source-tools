@@ -15,17 +15,27 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Allow ad network requests and scripts */}
+        <meta name="referrer" content="no-referrer-when-downgrade" />
+        <meta httpEquiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com; connect-src 'self' https://pl29057275.profitablecpmratenetwork.com https://pl29057276.profitablecpmratenetwork.com https://pl29057277.profitablecpmratenetwork.com;" />
+        
         {/* Adsterra Social Bar */}
         <Script
           type="text/javascript"
           src="https://pl29057275.profitablecpmratenetwork.com/5c/1c/50/5c1c50649255aa22a89926928f273f7f.js"
           strategy="lazyOnload"
+          onError={() => {
+            console.warn('[Adsterra] Social Bar script failed to load');
+          }}
         />
         {/* Adsterra Popunder */}
         <Script
           type="text/javascript"
           src="https://pl29057277.profitablecpmratenetwork.com/0d/33/17/0d331706a51e24f4d4635b990ad03e17.js"
           strategy="lazyOnload"
+          onError={() => {
+            console.warn('[Adsterra] Popunder script failed to load');
+          }}
         />
       </head>
       <body className="flex min-h-screen flex-col">

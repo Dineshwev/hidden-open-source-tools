@@ -28,6 +28,7 @@ export default function AdNativeBanner() {
     script.src = NATIVE_SCRIPT_SRC;
 
     script.onerror = () => {
+      console.warn('[Adsterra] Native Banner script failed to load');
       setShowFallback(true);
     };
 
@@ -38,10 +39,16 @@ export default function AdNativeBanner() {
       const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
       const hasRenderedAd = container.childElementCount > 0 || (container.textContent || "").trim().length > 0;
 
-      if (isLocalhost || !hasRenderedAd) {
+      if (hasRenderedAd) {
+        console.log('[Adsterra] Native Banner loaded successfully');
+      } else if (isLocalhost) {
+        console.info('[Adsterra] Running on localhost - ads may not display');
+        setShowFallback(true);
+      } else {
+        console.warn('[Adsterra] Native Banner did not render - showing fallback. Ad network may have rejected traffic.');
         setShowFallback(true);
       }
-    }, 6000);
+    }, 10000);
 
     return () => {
       window.clearTimeout(checkTimer);
