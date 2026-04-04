@@ -1,5 +1,6 @@
 import MysteryBox from "@/components/MysteryBox";
 import SectionHeading from "@/components/SectionHeading";
+import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 
 export default function MysteryBoxPage() {
   return (
@@ -10,7 +11,20 @@ export default function MysteryBoxPage() {
         description="This experience is designed around a rewarded ad unlock, rarity weighting, duplicate avoidance, and a reveal moment that feels premium."
       />
 
+      <AdSmartlinkSlot
+        title="Sponsored Booster"
+        description="Check this partner offer before your next mystery pull to support more free drops."
+        cta="Open Sponsor Offer"
+        compact
+      />
+
       <MysteryBox />
+
+      <AdSmartlinkSlot
+        title="More Partner Offers"
+        description="Extra sponsor placements help increase rewards inventory and keep unlock costs at zero for users."
+        cta="See Another Offer"
+      />
     </div>
   );
 }

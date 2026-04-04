@@ -5,6 +5,7 @@ import StatsTicker from "@/components/StatsTicker";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
+import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 
 export default function HomePage() {
   return (
@@ -98,6 +99,13 @@ export default function HomePage() {
           </div>
         </section>
 
+        <AdSmartlinkSlot
+          title="Creator Deals You Might Like"
+          description="Short sponsor sessions unlock premium downloads and keep this platform free."
+          cta="Visit Sponsored Offer"
+          compact
+        />
+
         <section className="space-y-6">
           <div className="flex items-end justify-between gap-4">
             <div>
@@ -145,6 +153,12 @@ export default function HomePage() {
         </section>
 
         <StatsTicker />
+
+        <AdSmartlinkSlot
+          title="Limited Partner Promotion"
+          description="Support the platform by checking this partner offer and unlock more mystery rewards."
+          cta="Open Partner Deal"
+        />
 
         <div className="space-y-24">
           <TrendingDownloads />

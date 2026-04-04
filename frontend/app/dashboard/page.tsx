@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Upload, Eye, Award, Flame, Download, ArrowRight } from 'lucide-react';
 import LevelBadge from '@/components/LevelBadge';
 import StreakBadge from '@/components/StreakBadge';
+import AdSmartlinkSlot from '@/components/AdSmartlinkSlot';
 
 const stats = [
   { name: 'Uploads', value: 247, change: '+12%', icon: Upload, color: 'emerald' },
@@ -101,6 +102,15 @@ export default function CreatorDashboard() {
             ))}
           </div>
         </motion.section>
+
+        <div className="mb-12">
+          <AdSmartlinkSlot
+            title="Dashboard Sponsor Slot"
+            description="Creator-focused sponsor campaigns run here to keep analytics and unlock tools free."
+            cta="Check Sponsored Tool"
+            compact
+          />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* XP Progress */}
