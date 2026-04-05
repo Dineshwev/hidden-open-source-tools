@@ -37,6 +37,7 @@ export default function AdminModerationPanel() {
 
     setLoading(true);
     setError("");
+    setStatusMessage("Verifying access key...");
 
     try {
       const response = await api.get<{ data: PendingUpload[] }>("/admin/pending-uploads", {
@@ -45,11 +46,14 @@ export default function AdminModerationPanel() {
         }
       });
 
-      setPendingUploads(response.data?.data || []);
+      const loadedUploads = response.data?.data || [];
+      setPendingUploads(loadedUploads);
+      setStatusMessage(`Panel unlocked. Loaded ${loadedUploads.length} pending upload${loadedUploads.length === 1 ? "" : "s"}.`);
     } catch (err: unknown) {
       const maybeError = err as { response?: { data?: { error?: string } } };
       const message = maybeError?.response?.data?.error || "Failed to load pending uploads.";
       setError(message);
+      setStatusMessage("");
     } finally {
       setLoading(false);
     }
@@ -72,7 +76,6 @@ export default function AdminModerationPanel() {
 
   const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStatusMessage("");
     const trimmedKey = keyInput.trim();
 
     if (!trimmedKey) {
