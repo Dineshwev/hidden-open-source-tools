@@ -108,8 +108,6 @@ export default function HomePage() {
         />
 
         <AdBanner
-          adKey="88375ede7ff23d9e0cd724f375a2a681"
-          scriptSrc="https://www.highperformanceformat.com/88375ede7ff23d9e0cd724f375a2a681/invoke.js"
           width={468}
           height={60}
           className="mx-auto max-w-[468px]"
@@ -164,8 +162,6 @@ export default function HomePage() {
         <StatsTicker />
 
         <AdBanner
-          adKey="00af9711b16771abdb58e6d42ecb9590"
-          scriptSrc="https://www.highperformanceformat.com/00af9711b16771abdb58e6d42ecb9590/invoke.js"
           width={300}
           height={250}
           className="mx-auto max-w-[300px]"

@@ -1,7 +1,5 @@
 "use client";
 
-const DEFAULT_SPONSOR_LINK = "https://www.profitablecpmratenetwork.com/eyxbqyzk?key=dc62ef4d3d7d7672be4a64e11612ea8c";
-
 type AdSmartlinkSlotProps = {
   title?: string;
   description?: string;
@@ -12,9 +10,8 @@ type AdSmartlinkSlotProps = {
 
 export default function AdSmartlinkSlot({
   title = "Sponsored Spotlight",
-  description = "Explore a partner offer that helps keep free downloads unlocked for everyone.",
-  cta = "Open Sponsor Offer",
-  href = DEFAULT_SPONSOR_LINK,
+  description = "Ad slot reserved for Monetag integration.",
+  cta = "Ad Link Coming Soon",
   compact = false
 }: AdSmartlinkSlotProps) {
   return (
@@ -29,14 +26,9 @@ export default function AdSmartlinkSlot({
           <p className="mt-2 text-sm leading-relaxed text-cyan-100/80">{description}</p>
         </div>
 
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center rounded-full border border-cyan-100/30 bg-cyan-100/90 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.02]"
-        >
+        <span className="inline-flex cursor-not-allowed items-center justify-center rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white/70">
           {cta}
-        </a>
+        </span>
       </div>
     </section>
   );

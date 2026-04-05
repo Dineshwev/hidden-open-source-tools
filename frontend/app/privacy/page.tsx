@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         </section>
         <section>
           <h2 className="text-2xl text-white font-semibold mb-3">2. Third-Party Advertisers</h2>
-          <p>We partner with third-party ad networks (like Adsterra) which may collect anonymized IP addresses and browser data to serve relevant advertisements.</p>
+          <p>We partner with third-party ad networks which may collect anonymized IP addresses and browser data to serve relevant advertisements.</p>
         </section>
       </div>
     </div>

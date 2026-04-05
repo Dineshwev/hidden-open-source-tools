@@ -85,7 +85,7 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
       if (!hasClickedSponsor) return;
 
       if (document.hidden) {
-        // User left the tab (went to adsterra)
+        // User left the tab
         timeLeftTab.current = Date.now();
       } else {
         // User came back to our tab
@@ -150,23 +150,11 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         <p className="mb-2 text-xs uppercase tracking-widest text-cyan-400">Sponsored unlock</p>
         <h2 className="font-display text-3xl font-bold text-white mb-6">Action Required</h2>
         
-        {/* Adsterra Smartlink Block */}
+        {/* Monetag link placeholder */}
         <div className="mb-6 w-full rounded-2xl bg-black/60 border border-white/10 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-purple-500/10 pointer-events-none" />
-          <p className="text-white/80 mb-6 relative z-10 text-lg">You must visit our sponsor and stay there for <span className="text-cyan-400 font-bold">5 seconds</span> to unlock this mystery box.</p>
-          
-          <a
-            href="https://www.profitablecpmratenetwork.com/eyxbqyzk?key=dc62ef4d3d7d7672be4a64e11612ea8c"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => {
-              setHasClickedSponsor(true);
-              setErrorMsg("");
-            }}
-              className={`btn-premium transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,212,0.3)] ${isFetchingChallenge ? 'pointer-events-none opacity-70' : ''}`}
-          >
-              {isFetchingChallenge ? 'Preparing sponsor check...' : 'Visit Sponsor Link'}
-          </a>
+          <p className="text-white/80 mb-4 relative z-10 text-lg">Monetag sponsor link will be added here.</p>
+          <p className="text-white/60 relative z-10 text-sm">Ad unlock is temporarily disabled until the new Monetag URL is configured.</p>
         </div>
 
         {errorMsg && (

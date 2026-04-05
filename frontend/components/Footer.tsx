@@ -21,16 +21,12 @@ export default function Footer() {
       <div className="px-4 pt-6 md:px-6">
         <div className="hidden md:block">
           <AdBanner
-            adKey="39ae9600ed125f26df75ac07ffcf1c4d"
-            scriptSrc="https://www.highperformanceformat.com/39ae9600ed125f26df75ac07ffcf1c4d/invoke.js"
             width={728}
             height={90}
           />
         </div>
         <div className="md:hidden">
           <AdBanner
-            adKey="c92bbc7baa5146f8949557091e05fb19"
-            scriptSrc="https://www.highperformanceformat.com/c92bbc7baa5146f8949557091e05fb19/invoke.js"
             width={320}
             height={50}
           />

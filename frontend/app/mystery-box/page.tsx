@@ -20,8 +20,6 @@ export default function MysteryBoxPage() {
       />
 
       <AdBanner
-        adKey="b50d3eab6429780cb08020245e37a868"
-        scriptSrc="https://www.highperformanceformat.com/b50d3eab6429780cb08020245e37a868/invoke.js"
         width={160}
         height={600}
         className="mx-auto max-w-[160px]"

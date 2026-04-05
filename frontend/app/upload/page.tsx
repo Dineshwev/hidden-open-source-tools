@@ -19,8 +19,6 @@ export default function UploadPage() {
       />
 
       <AdBanner
-        adKey="00af9711b16771abdb58e6d42ecb9590"
-        scriptSrc="https://www.highperformanceformat.com/00af9711b16771abdb58e6d42ecb9590/invoke.js"
         width={300}
         height={250}
         className="mx-auto max-w-[300px]"

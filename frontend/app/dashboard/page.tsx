@@ -115,8 +115,6 @@ export default function CreatorDashboard() {
 
         <div className="mb-12 flex justify-center">
           <AdBanner
-            adKey="550b73b63e77cce545f72e48056d5c5a"
-            scriptSrc="https://www.highperformanceformat.com/550b73b63e77cce545f72e48056d5c5a/invoke.js"
             width={160}
             height={300}
             className="max-w-[160px]"

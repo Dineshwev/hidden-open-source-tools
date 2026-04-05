@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 type AdBannerProps = {
-  adKey: string;
-  scriptSrc: string;
-  width: number;
-  height: number;
+  adKey?: string;
+  scriptSrc?: string;
+  width?: number;
+  height?: number;
   className?: string;
 };
 
@@ -17,6 +17,10 @@ type AdQueueWindow = Window & {
 export default function AdBanner({ adKey, scriptSrc, width, height, className = "" }: AdBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
+
+  if (!adKey || !scriptSrc || !width || !height) {
+    return null;
+  }
 
   useEffect(() => {
     const container = containerRef.current;
