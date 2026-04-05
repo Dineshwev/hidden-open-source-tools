@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerUser, unauthorizedResponse, errorResponse } from '@/lib/utils/authHelper';
-import { getSupabaseClient, hasSupabaseConfig } from '@/lib/backend_lib/supabase.js';
+import { ensureSupabaseBucket, getSupabaseClient, hasSupabaseConfig } from '@/lib/backend_lib/supabase.js';
 import * as fileService from '@/lib/services/file.service.js';
 import crypto from 'crypto';
 
@@ -46,8 +46,9 @@ export async function POST(req: Request) {
 
     // 2. Upload to Supabase Storage
     const filename = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`;
+    const { bucketName } = await ensureSupabaseBucket(supabase);
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('mystery-bucket')
+      .from(bucketName)
       .upload(`uploads/${filename}`, buffer, {
          contentType: file.type,
       });
@@ -58,7 +59,7 @@ export async function POST(req: Request) {
     
     // 3. Get Public URL
     const { data: publicUrlData } = supabase.storage
-      .from('mystery-bucket')
+      .from(bucketName)
       .getPublicUrl(`uploads/${filename}`);
 
     const storagePath = publicUrlData.publicUrl;

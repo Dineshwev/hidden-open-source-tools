@@ -60,6 +60,49 @@ export function getSupabaseConfigDiagnostics() {
 	};
 }
 
+export function getSupabaseBucketName() {
+	const bucketName = readEnv('SUPABASE_STORAGE_BUCKET');
+	if (!bucketName || isPlaceholder(bucketName)) {
+		return 'mystery-bucket';
+	}
+
+	return bucketName;
+}
+
+export async function ensureSupabaseBucket(supabaseClient) {
+	const bucketName = getSupabaseBucketName();
+	const { data, error } = await supabaseClient.storage.getBucket(bucketName);
+
+	if (!error && data) {
+		return { bucketName, created: false };
+	}
+
+	const lookupErrorMessage = String(error?.message || '').toLowerCase();
+	const bucketMissing =
+		lookupErrorMessage.includes('not found') ||
+		lookupErrorMessage.includes('does not exist') ||
+		lookupErrorMessage.includes('bucket not found');
+
+	if (!bucketMissing && error) {
+		throw new Error(`Storage check failed for bucket "${bucketName}": ${error.message}`);
+	}
+
+	const { error: createError } = await supabaseClient.storage.createBucket(bucketName, {
+		public: true
+	});
+
+	if (createError) {
+		const createErrorMessage = String(createError.message || '').toLowerCase();
+		if (!createErrorMessage.includes('already exists')) {
+			throw new Error(
+				`Storage bucket "${bucketName}" is missing and could not be created: ${createError.message}`
+			);
+		}
+	}
+
+	return { bucketName, created: true };
+}
+
 export function getSupabaseClient() {
 	if (cachedSupabase) {
 		return cachedSupabase;

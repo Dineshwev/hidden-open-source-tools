@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/lib/backend_lib/prisma.js';
-import { getSupabaseClient, getSupabaseConfigDiagnostics, hasSupabaseConfig } from '@/lib/backend_lib/supabase.js';
+import {
+  ensureSupabaseBucket,
+  getSupabaseClient,
+  getSupabaseConfigDiagnostics,
+  hasSupabaseConfig
+} from '@/lib/backend_lib/supabase.js';
 import * as fileService from '@/lib/services/file.service.js';
 import { errorResponse } from '@/lib/utils/authHelper';
 
@@ -75,9 +80,10 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(arrayBuffer);
     const checksum = crypto.createHash('sha256').update(buffer).digest('hex');
     const filename = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`;
+    const { bucketName } = await ensureSupabaseBucket(supabase);
 
     const { error: uploadError } = await supabase.storage
-      .from('mystery-bucket')
+      .from(bucketName)
       .upload(`uploads/${filename}`, buffer, {
         contentType: file.type
       });
@@ -97,7 +103,7 @@ export async function POST(req: Request) {
     }
 
     const { data: publicUrlData } = supabase.storage
-      .from('mystery-bucket')
+      .from(bucketName)
       .getPublicUrl(`uploads/${filename}`);
 
     const uploadedRecord = await fileService.createServerlessUpload({
