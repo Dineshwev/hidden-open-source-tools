@@ -15,7 +15,7 @@ export default function RegisterPage() {
       setMessage("Registration complete. You can now log in.");
       event.currentTarget.reset();
     } catch (_error) {
-      setMessage("Registration failed. Check your backend configuration.");
+      setMessage("Registration failed. Check your project configuration.");
     }
   }
 

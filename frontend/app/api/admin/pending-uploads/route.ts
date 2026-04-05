@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     if (String(error?.message || "").includes("Can't reach database server")) {
       return NextResponse.json(
         {
-          error: 'Database is not reachable. Start your local Postgres or fix DATABASE_URL before opening the admin queue.'
+          error: 'Database is not reachable. Check DATABASE_URL and your managed database status before opening the admin queue.'
         },
         { status: 503 }
       );

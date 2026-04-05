@@ -83,6 +83,16 @@ export async function POST(req: Request) {
       });
 
     if (uploadError) {
+      if (String(uploadError.message || '').toLowerCase().includes('invalid compact jws')) {
+        return NextResponse.json(
+          {
+            error: 'Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).',
+            diagnostics: getSupabaseConfigDiagnostics()
+          },
+          { status: 503 }
+        );
+      }
+
       throw new Error(`Upload failed: ${uploadError.message}`);
     }
 
@@ -107,6 +117,16 @@ export async function POST(req: Request) {
     if (String(error?.message || '').includes("Can't reach database server")) {
       return NextResponse.json(
         { error: 'Database is not reachable. Fix DATABASE_URL before uploading from admin panel.' },
+        { status: 503 }
+      );
+    }
+
+    if (String(error?.message || '').toLowerCase().includes('invalid compact jws')) {
+      return NextResponse.json(
+        {
+          error: 'Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).',
+          diagnostics: getSupabaseConfigDiagnostics()
+        },
         { status: 503 }
       );
     }

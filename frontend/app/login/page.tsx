@@ -16,7 +16,7 @@ export default function LoginPage() {
       setToken(response.data.token);
       setMessage("Login successful. Token saved locally for future API calls.");
     } catch (_error) {
-      setMessage("Login failed. Verify the backend is running and the credentials are valid.");
+      setMessage("Login failed. Verify your project configuration and credentials.");
     }
   }
 

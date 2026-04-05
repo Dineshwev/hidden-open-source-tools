@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
     if (!hasSupabaseConfig()) {
       return NextResponse.json(
-        { error: 'Upload storage is not configured on this server' },
+        { error: 'Upload storage is not configured for this deployment' },
         { status: 503 }
       );
     }
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       supabase = getSupabaseClient();
     } catch {
       return NextResponse.json(
-        { error: 'Upload storage is not configured on this server' },
+        { error: 'Upload storage is not configured for this deployment' },
         { status: 503 }
       );
     }

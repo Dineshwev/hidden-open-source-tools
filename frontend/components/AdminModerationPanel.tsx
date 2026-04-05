@@ -34,6 +34,14 @@ type HealthState = {
   checkedAt: string | null;
 };
 
+type UploadDiagnostics = {
+  urlPresent?: boolean;
+  urlValid?: boolean;
+  keyPresent?: boolean;
+  keyValid?: boolean;
+  keyHint?: string;
+};
+
 type UploadPreset = {
   label: string;
   title: string;
@@ -90,13 +98,15 @@ export default function AdminModerationPanel() {
   const [error, setError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [uploadStatusMessage, setUploadStatusMessage] = useState("");
+  const [uploadErrorMessage, setUploadErrorMessage] = useState("");
+  const [uploadDiagnostics, setUploadDiagnostics] = useState<UploadDiagnostics | null>(null);
   const [uploadSubmitting, setUploadSubmitting] = useState(false);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected">("pending");
   const [healthState, setHealthState] = useState<HealthState>({
     database: "checking",
     adminApi: "idle",
-    detail: "Checking backend services...",
+    detail: "Checking platform services...",
     checkedAt: null
   });
   const uploadFormRef = useRef<HTMLFormElement | null>(null);
@@ -169,7 +179,7 @@ export default function AdminModerationPanel() {
       setHealthState((previous) => ({
         ...previous,
         database: "checking",
-        detail: "Checking backend services...",
+        detail: "Checking platform services...",
         checkedAt: new Date().toISOString()
       }));
 
@@ -319,6 +329,8 @@ export default function AdminModerationPanel() {
 
     setUploadSubmitting(true);
     setUploadStatusMessage("Uploading file to Supabase...");
+    setUploadErrorMessage("");
+    setUploadDiagnostics(null);
     setError("");
 
     try {
@@ -330,12 +342,24 @@ export default function AdminModerationPanel() {
       });
 
       setUploadStatusMessage("File uploaded and marked pending for review.");
+      setUploadErrorMessage("");
+      setUploadDiagnostics(null);
       event.currentTarget.reset();
       await fetchPending(accessKey);
     } catch (err: unknown) {
-      const maybeError = err as { response?: { data?: { error?: string } } };
+      const maybeError = err as {
+        response?: {
+          data?: {
+            error?: string;
+            diagnostics?: UploadDiagnostics;
+          };
+        };
+      };
+      const message = maybeError?.response?.data?.error || "Admin upload failed.";
       setUploadStatusMessage("");
-      setError(maybeError?.response?.data?.error || "Admin upload failed.");
+      setUploadErrorMessage(message);
+      setUploadDiagnostics(maybeError?.response?.data?.diagnostics || null);
+      setError(message);
     } finally {
       setUploadSubmitting(false);
     }
@@ -436,6 +460,8 @@ export default function AdminModerationPanel() {
     setPendingUploads([]);
     setApprovedUploads([]);
     setRejectedUploads([]);
+    setUploadErrorMessage("");
+    setUploadDiagnostics(null);
     setSelectedIds([]);
     setError("");
     setStatusMessage("");
@@ -801,6 +827,22 @@ export default function AdminModerationPanel() {
               {uploadSubmitting ? "Uploading..." : "Upload File"}
             </button>
           </div>
+
+          {uploadErrorMessage ? (
+            <div className="mt-4 rounded-2xl border border-rose-300/35 bg-rose-400/10 p-4 text-sm text-rose-100">
+              <p className="font-semibold">Upload failed</p>
+              <p className="mt-1">{uploadErrorMessage}</p>
+              {uploadDiagnostics ? (
+                <ul className="mt-3 space-y-1 text-xs text-rose-100/90">
+                  <li>URL present: {String(!!uploadDiagnostics.urlPresent)}</li>
+                  <li>URL valid: {String(!!uploadDiagnostics.urlValid)}</li>
+                  <li>Service key present: {String(!!uploadDiagnostics.keyPresent)}</li>
+                  <li>Service key valid: {String(!!uploadDiagnostics.keyValid)}</li>
+                  <li>Hint: {uploadDiagnostics.keyHint || "No hint provided."}</li>
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
           </form>
 
         </section>

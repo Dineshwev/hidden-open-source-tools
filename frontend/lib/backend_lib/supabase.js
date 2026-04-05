@@ -28,9 +28,11 @@ function isValidSupabaseUrl(value) {
 function isValidSupabaseKey(value) {
 	if (isPlaceholder(value)) return false;
 
-	// Accept any non-placeholder key with reasonable length.
-	// This avoids rejecting valid newer formats that don't match older patterns.
-	return value.length >= 20;
+	// Accept modern secret keys (sb_*) or JWT-like service role keys.
+	if (value.startsWith('sb_')) return true;
+
+	const jwtLikePattern = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+	return jwtLikePattern.test(value);
 }
 
 function hasValidSupabaseConfig() {
@@ -54,7 +56,7 @@ export function getSupabaseConfigDiagnostics() {
 		keyValid,
 		keyHint: keyValid
 			? 'Looks valid.'
-			: 'Expected a non-placeholder service role key value.'
+			: 'Expected Supabase service role key format (sb_* secret key or JWT-like key with 3 dot-separated parts).'
 	};
 }
 

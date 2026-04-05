@@ -65,7 +65,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
     if (String(error?.message || "").includes("Can't reach database server")) {
       return NextResponse.json(
         {
-          error: 'Database is not reachable. Start your local Postgres or fix DATABASE_URL before moderating uploads.'
+          error: 'Database is not reachable. Check DATABASE_URL and your managed database status before moderating uploads.'
         },
         { status: 503 }
       );
