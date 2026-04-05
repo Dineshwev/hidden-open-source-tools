@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/lib/backend_lib/prisma.js';
-import { getSupabaseClient, hasSupabaseConfig } from '@/lib/backend_lib/supabase.js';
+import { getSupabaseClient, getSupabaseConfigDiagnostics, hasSupabaseConfig } from '@/lib/backend_lib/supabase.js';
 import * as fileService from '@/lib/services/file.service.js';
 import { errorResponse } from '@/lib/utils/authHelper';
 
@@ -22,8 +22,12 @@ export async function POST(req: Request) {
     }
 
     if (!hasSupabaseConfig()) {
+      const diagnostics = getSupabaseConfigDiagnostics();
       return NextResponse.json(
-        { error: 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.' },
+        {
+          error: 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.',
+          diagnostics
+        },
         { status: 503 }
       );
     }
@@ -32,8 +36,12 @@ export async function POST(req: Request) {
     try {
       supabase = getSupabaseClient();
     } catch {
+      const diagnostics = getSupabaseConfigDiagnostics();
       return NextResponse.json(
-        { error: 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.' },
+        {
+          error: 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.',
+          diagnostics
+        },
         { status: 503 }
       );
     }

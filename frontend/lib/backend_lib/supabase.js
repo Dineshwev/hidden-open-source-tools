@@ -28,8 +28,9 @@ function isValidSupabaseUrl(value) {
 function isValidSupabaseKey(value) {
 	if (isPlaceholder(value)) return false;
 
-	// Legacy service role keys are JWT-like; newer keys often start with sb_.
-	return value.includes('.') || value.startsWith('sb_');
+	// Accept any non-placeholder key with reasonable length.
+	// This avoids rejecting valid newer formats that don't match older patterns.
+	return value.length >= 20;
 }
 
 function hasValidSupabaseConfig() {
@@ -37,6 +38,24 @@ function hasValidSupabaseConfig() {
 	const supabaseKey = readEnv('SUPABASE_SERVICE_ROLE_KEY');
 
 	return isValidSupabaseUrl(supabaseUrl) && isValidSupabaseKey(supabaseKey);
+}
+
+export function getSupabaseConfigDiagnostics() {
+	const supabaseUrl = readEnv('NEXT_PUBLIC_SUPABASE_URL');
+	const supabaseKey = readEnv('SUPABASE_SERVICE_ROLE_KEY');
+
+	const urlValid = isValidSupabaseUrl(supabaseUrl);
+	const keyValid = isValidSupabaseKey(supabaseKey);
+
+	return {
+		urlPresent: !!supabaseUrl,
+		urlValid,
+		keyPresent: !!supabaseKey,
+		keyValid,
+		keyHint: keyValid
+			? 'Looks valid.'
+			: 'Expected a non-placeholder service role key value.'
+	};
 }
 
 export function getSupabaseClient() {
