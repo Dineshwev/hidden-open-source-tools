@@ -14,6 +14,19 @@ export async function getPendingUploads() {
   });
 }
 
+export async function getModerationHistory(status) {
+  return prisma.file.findMany({
+    where: { status },
+    include: {
+      category: true,
+      uploader: {
+        select: { id: true, username: true, email: true }
+      }
+    },
+    orderBy: { reviewedAt: "desc" }
+  });
+}
+
 export async function moderateUpload({ adminId, fileId, status }) {
   const file = await prisma.file.findUnique({ where: { id: fileId } });
 
