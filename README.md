@@ -59,6 +59,41 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
 ```
 
+Set a private admin panel key in `frontend/.env.local`:
+
+```bash
+ADMIN_PANEL_ACCESS_KEY=replace-with-a-long-random-secret
+ADMIN_PANEL_ROUTE_SECRET=segment-one/segment-two/segment-three/segment-four
+```
+
+Admin moderation panel URL format:
+
+```text
+/control-room/<segment-one>/<segment-two>/<segment-three>/<segment-four>
+```
+
+Example:
+
+```text
+/control-room/r4in-gate/v9x-lock/k2m-vault/p7q-node
+```
+
+The `/admin` route is intentionally disabled.
+
+### 2a. Set up Supabase for global uploads
+
+Your uploads and approvals are stored in Supabase, so every approved file appears globally on the site.
+
+Use these values from your Supabase project:
+
+- `DATABASE_URL`: the Supabase Postgres connection string from Project Settings > Database
+- `NEXT_PUBLIC_SUPABASE_URL`: the Supabase project URL from Project Settings > API
+- `SUPABASE_SERVICE_ROLE_KEY`: the Service Role key from Project Settings > API
+
+Create a storage bucket named `mystery-bucket` and make it public, because the upload flow saves a public file URL for each approved asset.
+
+If any of those values are missing, the upload API will return a configuration error instead of saving the file.
+
 ### 3. Start PostgreSQL and run Prisma
 
 ```bash

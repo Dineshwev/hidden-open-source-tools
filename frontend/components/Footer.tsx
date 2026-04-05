@@ -4,8 +4,7 @@ import AdBanner from "./AdBanner";
 const mainLinks = [
   { href: "/", label: "Home" },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/upload", label: "Upload" },
-  { href: "/admin", label: "Admin" }
+  { href: "/upload", label: "Upload" }
 ];
 
 const legalLinks = [

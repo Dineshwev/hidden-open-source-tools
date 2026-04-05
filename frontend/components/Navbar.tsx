@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, Box, LayoutDashboard, LockKeyhole, ShieldCheck, Upload, Menu, X } from "lucide-react";
+import { Search, Box, LayoutDashboard, LockKeyhole, Upload, Menu, X } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const links = [
@@ -12,7 +12,6 @@ const links = [
   { href: "/mystery-box", label: "Mystery Box", icon: Box },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/upload", label: "Upload", icon: Upload },
-  { href: "/admin", label: "Admin", icon: ShieldCheck },
   { href: "/login", label: "Login", icon: LockKeyhole }
 ];
 
