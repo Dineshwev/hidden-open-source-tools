@@ -8,8 +8,12 @@ const mainLinks = [
 ];
 
 const legalLinks = [
+  { href: "/about", label: "About" },
+  { href: "/ads-disclosure", label: "Ads Disclosure" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
+  { href: "/copyright", label: "Copyright" },
+  { href: "/license", label: "License" },
   { href: "/contact", label: "Contact Support" },
   { href: "/dmca", label: "DMCA Claim" }
 ];
@@ -39,11 +43,11 @@ export default function Footer() {
             The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">
-            A sponsor-powered download platform where users unlock premium resources through short ad tasks while creators grow visibility and trust.
+            A sponsor-powered download platform built with clear disclosures, moderation controls, and legal pages that make the product feel like a real company.
           </p>
           <div className="rounded-2xl border border-white/15 bg-white/[0.03] p-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Publisher Promise</p>
-            <p className="mt-2 text-sm text-white/70">No subscription wall. Every unlock flow is transparent, moderated, and optimized for mobile.</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Company Standard</p>
+            <p className="mt-2 text-sm text-white/70">Every unlock flow is transparent, moderated, and designed to avoid unnecessary user frustration.</p>
           </div>
         </div>
 

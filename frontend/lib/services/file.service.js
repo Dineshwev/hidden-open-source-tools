@@ -6,32 +6,41 @@ import { hashFile } from "../utils/fileHasher.js";
 import { simulateMalwareScan } from "../utils/fileScanner.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { uploadSchema } from "../validators/fileValidators.js";
+import { getFallbackApprovedFiles } from "../utils/mysteryFallback.js";
 
 export async function getApprovedFiles() {
-  return prisma.file.findMany({
-    where: { status: "APPROVED" },
-    include: {
-      category: true,
-      uploader: {
-        select: { username: true }
-      }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  try {
+    return await prisma.file.findMany({
+      where: { status: "APPROVED" },
+      include: {
+        category: true,
+        uploader: {
+          select: { username: true }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+  } catch {
+    return getFallbackApprovedFiles();
+  }
 }
 
 export async function getTrendingFiles() {
-  return prisma.file.findMany({
-    where: { status: "APPROVED" },
-    include: {
-      category: true,
-      uploader: {
-        select: { username: true, contributorPoints: true }
-      }
-    },
-    orderBy: [{ downloadCount: "desc" }, { createdAt: "desc" }],
-    take: 6
-  });
+  try {
+    return await prisma.file.findMany({
+      where: { status: "APPROVED" },
+      include: {
+        category: true,
+        uploader: {
+          select: { username: true, contributorPoints: true }
+        }
+      },
+      orderBy: [{ downloadCount: "desc" }, { createdAt: "desc" }],
+      take: 6
+    });
+  } catch {
+    return getFallbackApprovedFiles().slice(0, 6);
+  }
 }
 
 export async function getUserSubmissions(userId) {

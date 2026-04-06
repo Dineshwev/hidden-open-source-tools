@@ -1,1 +1,1 @@
-export const MONETAG_SMARTLINK = "https://omg10.com/4/10833655";
+export const DEFAULT_PROMO_DESTINATION = "/upload";

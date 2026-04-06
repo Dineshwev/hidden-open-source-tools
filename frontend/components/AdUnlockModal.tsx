@@ -4,7 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import api from "@/lib/api";
 import { getToken, setToken } from "@/lib/auth";
-import { MONETAG_SMARTLINK } from "@/lib/adLinks";
+
+type AdOffer = {
+  id: string;
+  label: string;
+  url: string;
+  provider: "direct";
+};
 
 type AdUnlockModalProps = {
   open: boolean;
@@ -17,11 +23,14 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
   const [unlockReady, setUnlockReady] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [challengeToken, setChallengeToken] = useState("");
+  const [adOffers, setAdOffers] = useState<AdOffer[]>([]);
+  const [selectedOfferId, setSelectedOfferId] = useState("");
+  const [waitSeconds, setWaitSeconds] = useState(6);
   const [isFetchingChallenge, setIsFetchingChallenge] = useState(false);
   const [isExchangingPass, setIsExchangingPass] = useState(false);
   const [adPassToken, setAdPassToken] = useState("");
   
-  const timeLeftTab = useRef<number | null>(null);
+  const unlockWaitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const ensureSessionToken = async () => {
     const existingToken = getToken();
@@ -53,10 +62,16 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
       setUnlockReady(false);
       setErrorMsg("");
       setChallengeToken("");
+      setAdOffers([]);
+      setSelectedOfferId("");
+      setWaitSeconds(6);
       setAdPassToken("");
       setIsFetchingChallenge(false);
       setIsExchangingPass(false);
-      timeLeftTab.current = null;
+      if (unlockWaitTimer.current) {
+        clearTimeout(unlockWaitTimer.current);
+        unlockWaitTimer.current = null;
+      }
       return;
     }
 
@@ -66,10 +81,18 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
 
       try {
         await ensureSessionToken();
-        const response = await api.post('/mystery/ad-challenge');
-        setChallengeToken(response.data?.data?.challengeToken || "");
-      } catch {
-        setErrorMsg("Unable to prepare the sponsor unlock. Please try again.");
+
+        const [challengeResponse, offerResponse] = await Promise.all([
+          api.post('/mystery/ad-challenge'),
+          api.get('/mystery/ad-offer')
+        ]);
+
+        setChallengeToken(challengeResponse.data?.data?.challengeToken || "");
+        setAdOffers(Array.isArray(offerResponse.data?.data?.offers) ? offerResponse.data.data.offers : []);
+        setWaitSeconds(Number(offerResponse.data?.data?.waitSeconds) || 6);
+      } catch (error: any) {
+        const apiError = error?.response?.data?.error;
+        setErrorMsg(apiError || "Unable to prepare unlock verification. Please try again.");
       } finally {
         setIsFetchingChallenge(false);
       }
@@ -78,64 +101,52 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
     void fetchChallenge();
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
+  const beginUnlockVerification = (offer: AdOffer) => {
+    if (!challengeToken) {
+      setUnlockReady(false);
+      setErrorMsg("Verification token is not ready yet.");
+      return;
+    }
 
-    const handleVisibilityChange = () => {
-      // If user has not clicked sponsor link yet, don't track
-      if (!hasClickedSponsor) return;
+    if (!/^https?:\/\//i.test(offer.url)) {
+      setUnlockReady(false);
+      setErrorMsg("Offer URL is invalid. Please refresh and try again.");
+      return;
+    }
 
-      if (document.hidden) {
-        // User left the tab
-        timeLeftTab.current = Date.now();
-      } else {
-        // User came back to our tab
-        if (timeLeftTab.current) {
-          const timeSpentAwayInSeconds = (Date.now() - timeLeftTab.current) / 1000;
-          
-          if (timeSpentAwayInSeconds >= 5) {
-            // Exchange the challenge for a short-lived unlock token.
-            const exchangeChallenge = async () => {
-              if (!challengeToken) {
-                setUnlockReady(false);
-                setErrorMsg("Sponsor verification is not ready yet.");
-                return;
-              }
+    setHasClickedSponsor(true);
+    setSelectedOfferId(offer.id);
+    setUnlockReady(false);
+    setErrorMsg("");
+    setIsExchangingPass(true);
 
-              setIsExchangingPass(true);
+    if (unlockWaitTimer.current) {
+      clearTimeout(unlockWaitTimer.current);
+    }
 
-              try {
-                const response = await api.post('/mystery/ad-pass', {
-                  challengeToken
-                });
+    unlockWaitTimer.current = setTimeout(() => {
+      const exchangeChallenge = async () => {
+        try {
+          const response = await api.post('/mystery/ad-pass', {
+            challengeToken
+          });
 
-                const passToken = response.data?.data?.adPassToken || "";
-                setAdPassToken(passToken);
-                setUnlockReady(Boolean(passToken));
-                setErrorMsg("");
-              } catch {
-                setUnlockReady(false);
-                setErrorMsg("Sponsor verification failed. Please complete the sponsor step again.");
-              } finally {
-                setIsExchangingPass(false);
-              }
-            };
-
-            void exchangeChallenge();
-          } else {
-            // They immediately closed it or bounced from proxy issue
-            setUnlockReady(false);
-            setHasClickedSponsor(false);
-            setErrorMsg("You closed the sponsor page too quickly or used a VPN. Please visit the link and wait at least 5 seconds before returning.");
-          }
-          timeLeftTab.current = null;
+          const passToken = response.data?.data?.adPassToken || "";
+          setAdPassToken(passToken);
+          setUnlockReady(Boolean(passToken));
+          setErrorMsg("");
+        } catch {
+          setUnlockReady(false);
+          setErrorMsg("Verification failed. Please try again.");
+        } finally {
+          setIsExchangingPass(false);
+          unlockWaitTimer.current = null;
         }
-      }
-    };
+      };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [open, hasClickedSponsor, challengeToken]);
+      void exchangeChallenge();
+    }, Math.max(waitSeconds, 5) * 1000);
+  };
 
   if (!open) {
     return null;
@@ -151,24 +162,35 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         <p className="mb-2 text-xs uppercase tracking-widest text-cyan-400">Sponsored unlock</p>
         <h2 className="font-display text-3xl font-bold text-white mb-6">Action Required</h2>
         
-        {/* Monetag Smartlink Block */}
         <div className="mb-6 w-full rounded-2xl bg-black/60 border border-white/10 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-purple-500/10 pointer-events-none" />
 
-          <p className="text-white/80 mb-6 relative z-10 text-lg">You must visit our sponsor and stay there for <span className="text-cyan-400 font-bold">5 seconds</span> to unlock this mystery box.</p>
+          <p className="text-white/80 mb-6 relative z-10 text-lg">Choose any sponsor offer, stay there for at least {waitSeconds} seconds, then return.</p>
 
-          <a
-            href={MONETAG_SMARTLINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => {
-              setHasClickedSponsor(true);
-              setErrorMsg("");
-            }}
-            className={`btn-premium transform hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(0,255,212,0.3)] ${isFetchingChallenge ? 'pointer-events-none opacity-70' : ''}`}
-          >
-            {isFetchingChallenge ? 'Preparing sponsor check...' : 'Visit Sponsor Link'}
-          </a>
+          <div className="relative z-10 grid w-full gap-3">
+            {adOffers.map((offer) => (
+              <a
+                key={offer.id}
+                href={offer.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => beginUnlockVerification(offer)}
+                className={`btn-premium block w-full transform text-center hover:scale-[1.01] active:scale-95 shadow-[0_0_20px_rgba(0,255,212,0.25)] ${(isFetchingChallenge || isExchangingPass) ? 'pointer-events-none opacity-70' : ''}`}
+              >
+                {isExchangingPass && selectedOfferId === offer.id ? 'Verifying...' : `Open ${offer.label}`}
+              </a>
+            ))}
+
+            {!isFetchingChallenge && adOffers.length === 0 && (
+              <p className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                No sponsor links are configured right now.
+              </p>
+            )}
+
+            {isFetchingChallenge && (
+              <p className="text-sm text-cyan-300">Preparing sponsor links...</p>
+            )}
+          </div>
         </div>
 
         {errorMsg && (
@@ -180,7 +202,7 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         {hasClickedSponsor && !unlockReady && (
           <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-900/20 p-6 text-center animate-pulse">
             <p className="text-sm font-medium text-cyan-300">
-              {isExchangingPass ? 'Verifying sponsor return...' : 'Waiting for verification... Please stay on the sponsor tab!'}
+              {isExchangingPass ? 'Verifying access...' : 'Waiting for verification...'}
             </p>
           </div>
         )}

@@ -100,10 +100,20 @@ export default function HomePage() {
           </div>
         </section>
 
+        <AdBanner
+          title="Featured Creator Tools"
+          description="A soft sponsor lane for creator-focused tools and offers, shown after the intro instead of interrupting it."
+          cta="Browse Tools"
+          href="/upload"
+          width={728}
+          height={90}
+          className="mx-auto max-w-[728px]"
+        />
+
         <AdSmartlinkSlot
-          title="Creator Deals You Might Like"
-          description="Short sponsor sessions unlock premium downloads and keep this platform free."
-          cta="Visit Sponsored Offer"
+          title="Optional Sponsor Offer"
+          description="Choose a partner offer only if it matches what you need. No forced redirects, no blocking flow."
+          cta="Open Offer"
           compact
         />
 
@@ -168,9 +178,9 @@ export default function HomePage() {
         />
 
         <AdSmartlinkSlot
-          title="Limited Partner Promotion"
-          description="Support the platform by checking this partner offer and unlock more mystery rewards."
-          cta="Open Partner Deal"
+          title="Secondary Sponsor Slot"
+          description="A second, lightweight sponsor placement for users who want another option without leaving the page structure."
+          cta="See Offer"
         />
 
         <div className="space-y-24">

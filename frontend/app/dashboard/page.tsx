@@ -106,10 +106,22 @@ export default function CreatorDashboard() {
 
         <div className="mb-12">
           <AdSmartlinkSlot
-            title="Dashboard Sponsor Slot"
-            description="Creator-focused sponsor campaigns run here to keep analytics and unlock tools free."
-            cta="Check Sponsored Tool"
+            title="Creator Tools Lane"
+            description="A calm sponsor slot for tools and offers that fits between analytics and action."
+            cta="Browse Offer"
             compact
+          />
+        </div>
+
+        <div className="mb-12">
+          <AdBanner
+            title="Dashboard Partner Banner"
+            description="An optional sponsor banner after the stats section, so the user sees it only after value has been delivered."
+            cta="Open Partner Banner"
+            href="/upload"
+            width={728}
+            height={90}
+            className="mx-auto max-w-[728px]"
           />
         </div>
 

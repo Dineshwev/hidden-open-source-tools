@@ -1,0 +1,34 @@
+import { NextResponse } from 'next/server';
+import { getServerUser, unauthorizedResponse, errorResponse } from '@/lib/utils/authHelper';
+import { getMysteryAdOffers, getMysteryAdWaitSeconds } from '@/lib/utils/mysteryAdOffers';
+
+export async function GET(req: Request) {
+  try {
+    const user = getServerUser(req);
+    if (!user) return unauthorizedResponse();
+
+    const offers = await getMysteryAdOffers();
+    const waitSeconds = getMysteryAdWaitSeconds();
+
+    if (offers.length === 0) {
+      return NextResponse.json(
+        {
+          error: 'No sponsor offers configured. Set MYSTERY_AD_DIRECT_URLS with public https URLs.'
+        },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        data: {
+          offers,
+          waitSeconds
+        }
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return errorResponse(error);
+  }
+}

@@ -12,10 +12,20 @@ export default function UploadPage() {
         description="Submit digital resources with metadata, licensing, tags, and a preview image. The file enters a moderation queue before it becomes eligible for the mystery engine."
       />
       <AdSmartlinkSlot
-        title="Creator Partner Offer"
-        description="Discover tools and offers for creators while your upload workflow stays free."
-        cta="Explore Offer"
+        title="Creator Tools Offer"
+        description="A light sponsor option placed before the upload form so it never interrupts the actual submission flow."
+        cta="Browse Tools"
         compact
+      />
+
+      <AdBanner
+        title="Upload Page Banner"
+        description="A secondary sponsor banner shown alongside the upload workflow for users who want another option."
+        cta="Open Banner"
+        href="/mystery-box"
+        width={728}
+        height={90}
+        className="mx-auto max-w-[728px]"
       />
 
       <AdBanner
