@@ -10,20 +10,15 @@ export async function GET(req: Request) {
     const offers = await getMysteryAdOffers();
     const waitSeconds = getMysteryAdWaitSeconds();
 
-    if (offers.length === 0) {
-      return NextResponse.json(
-        {
-          error: 'No Adsterra smartlink URLs configured. Set NEXT_PUBLIC_ADSTERRA_SMARTLINK_URLS with public https URLs.'
-        },
-        { status: 503 }
-      );
-    }
-
     return NextResponse.json(
       {
         data: {
           offers,
-          waitSeconds
+          waitSeconds,
+          message:
+            offers.length === 0
+              ? 'No Adsterra smartlinks are configured right now. Set NEXT_PUBLIC_ADSTERRA_SMARTLINK_URLS with public https URLs.'
+              : undefined
         }
       },
       { status: 200 }
