@@ -27,7 +27,7 @@ export default function Navbar() {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 border-b border-white/10 bg-[#08182a]/80 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur-xl"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -40,9 +40,9 @@ export default function Navbar() {
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <Link href="/" className="flex items-center gap-3">
-            <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-cyan-300 to-blue-400" />
+            <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-white to-neutral-500" />
             <div>
-              <p className="font-display text-sm uppercase tracking-[0.28em] text-cyan-200/80">The Cloud</p>
+              <p className="font-display text-sm uppercase tracking-[0.28em] text-white/55">The Cloud</p>
               <p className="font-display text-lg leading-none text-gradient">Rain</p>
             </div>
           </Link>
@@ -58,7 +58,7 @@ export default function Navbar() {
                   href={href}
                   className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
                     active
-                      ? "border border-cyan-300/45 bg-cyan-300/15 text-cyan-100"
+                      ? "border border-white/20 bg-white/10 text-white"
                       : "border border-transparent bg-white/[0.03] text-white/70 hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
                   }`}
                 >
@@ -85,7 +85,7 @@ export default function Navbar() {
 
           <Link
             href="/mystery-box"
-            className="hidden rounded-full border border-cyan-200/35 bg-gradient-to-r from-cyan-200 to-blue-300 px-5 py-2 text-sm font-semibold text-slate-900 transition hover:scale-[1.02] md:inline-flex"
+            className="hidden rounded-full border border-white/15 bg-gradient-to-r from-white to-neutral-400 px-5 py-2 text-sm font-semibold text-black transition hover:scale-[1.02] md:inline-flex"
           >
             Start Unlocking
           </Link>
@@ -103,7 +103,7 @@ export default function Navbar() {
 
       {searchOpen && (
         <motion.div
-          className="absolute right-4 top-full mt-2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/15 bg-[#0f253c]/95 p-4 shadow-2xl md:right-6"
+          className="absolute right-4 top-full mt-2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/15 bg-[#111111]/95 p-4 shadow-2xl md:right-6"
           initial={{ opacity: 0, scale: 0.9, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
         >
@@ -112,7 +112,7 @@ export default function Navbar() {
             <input
               type="text"
               placeholder="Search files, creators, categories..."
-              className="w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-12 pr-4 text-white/90 placeholder-white/45 focus:border-cyan-300/60 focus:outline-none"
+              className="w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-12 pr-4 text-white/90 placeholder-white/45 focus:border-white/40 focus:outline-none"
               autoFocus
             />
           </div>
@@ -121,7 +121,7 @@ export default function Navbar() {
 
       {mobileOpen && (
         <motion.div
-          className="border-t border-white/10 bg-[#0b1f33]/95 px-4 py-4 lg:hidden"
+          className="border-t border-white/10 bg-[#0f0f0f]/95 px-4 py-4 lg:hidden"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
         >
@@ -136,7 +136,7 @@ export default function Navbar() {
                   onClick={closePanels}
                   className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
                     active
-                      ? "border border-cyan-300/45 bg-cyan-300/15 text-cyan-100"
+                      ? "border border-white/20 bg-white/10 text-white"
                       : "border border-white/10 bg-white/[0.04] text-white/80"
                   }`}
                 >

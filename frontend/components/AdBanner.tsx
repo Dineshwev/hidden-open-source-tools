@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getAdsterraBannerKeyForSize, getAdsterraBannerScriptUrlForSize } from "@/lib/adsterra";
+import SponsorFallbackCard from "@/components/SponsorFallbackCard";
 
 type AdBannerProps = {
   adKey?: string;
@@ -23,8 +24,8 @@ export default function AdBanner({
   width,
   height,
   className = "",
-  title = "Sponsored Lane",
-  description = "A lightweight sponsor slot that keeps the page moving without blocking the user."
+  title = "",
+  description = ""
 }: AdBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -33,6 +34,7 @@ export default function AdBanner({
   const resolvedScriptSrc = scriptSrc ?? getAdsterraBannerScriptUrlForSize(width, height);
   const resolvedWidth = width;
   const resolvedHeight = height;
+  const shouldRenderFallback = !mounted || !resolvedAdKey || !resolvedScriptSrc || !resolvedWidth || !resolvedHeight || failed;
 
   useEffect(() => {
     setMounted(true);
@@ -107,19 +109,17 @@ export default function AdBanner({
     };
   }, [mounted, resolvedAdKey, resolvedScriptSrc, resolvedWidth, resolvedHeight]);
 
-  if (!mounted || !resolvedAdKey || !resolvedScriptSrc || !resolvedWidth || !resolvedHeight) {
+  if (shouldRenderFallback) {
     return (
       <div className={`flex w-full justify-center ${className}`}>
-        <div className="relative w-full max-w-full overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-[#10233b] to-[#14304d] p-5 shadow-lg">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-300/15 blur-3xl" />
-          <div className="pointer-events-none absolute -left-8 -bottom-8 h-24 w-24 rounded-full bg-blue-300/15 blur-3xl" />
-          <div className="relative flex flex-col gap-3">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-cyan-100/70">Advertisement</p>
-            <h3 className="font-display text-xl font-bold text-white md:text-2xl">{title}</h3>
-            <p className="max-w-2xl text-sm leading-relaxed text-cyan-100/80">{description}</p>
-            <p className="text-xs uppercase tracking-[0.22em] text-cyan-100/45">Adsterra banner slot waiting for config</p>
-          </div>
-        </div>
+        <SponsorFallbackCard
+          title={title}
+          description={failed ? "Banner unavailable in this browser. Continue with the sponsor offer instead." : description}
+          cta="Open Sponsor"
+          className="w-full max-w-full"
+          compact={Boolean(resolvedWidth && resolvedWidth <= 320)}
+          horizontal
+        />
       </div>
     );
   }
@@ -133,9 +133,6 @@ export default function AdBanner({
           className="overflow-hidden rounded-2xl border border-white/10 bg-black/20"
           style={{ width: "100%", maxWidth: `${resolvedWidth}px`, minHeight: `${resolvedHeight}px` }}
         />
-        {failed && (
-          <p className="text-xs text-white/40">Ad unit did not render. Check publisher approval or browser blocking.</p>
-        )}
       </div>
     </div>
   );

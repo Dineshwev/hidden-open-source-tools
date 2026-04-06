@@ -10,7 +10,7 @@ import FileCard from '@/components/FileCard';
 const creatorData = {
   name: 'Alex Rivera',
   handle: '@alexriv',
-  avatar: '/avatar-alex.jpg',
+  avatar: '/avatar-alex.svg',
   bio: 'Cyberpunk UI specialist | 3D artist | 500+ neon assets',
   level: 24,
   xp: 8470,
@@ -26,9 +26,9 @@ const creatorData = {
 };
 
 const uploads = [
-  { title: 'Neon UI Icons Pack', downloads: 456, likes: 89, thumbnail: '/thumb1.jpg' },
-  { title: 'Cyberpunk Shader GLSL', downloads: 234, likes: 67, thumbnail: '/thumb2.jpg' },
-  { title: 'Holographic HUD Kit', downloads: 178, likes: 145, thumbnail: '/thumb3.jpg' },
+  { title: 'Neon UI Icons Pack', downloads: 456, likes: 89, thumbnail: '/thumb1.svg' },
+  { title: 'Cyberpunk Shader GLSL', downloads: 234, likes: 67, thumbnail: '/thumb2.svg' },
+  { title: 'Holographic HUD Kit', downloads: 178, likes: 145, thumbnail: '/thumb3.svg' },
 ];
 
 const achievements = [

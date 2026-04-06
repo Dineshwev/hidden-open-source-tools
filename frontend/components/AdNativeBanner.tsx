@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getAdsterraNativeBannerScriptUrl } from "@/lib/adsterra";
+import SponsorFallbackCard from "@/components/SponsorFallbackCard";
 
 export default function AdNativeBanner() {
   const scriptSrc = getAdsterraNativeBannerScriptUrl();
@@ -46,8 +47,19 @@ export default function AdNativeBanner() {
     };
   }, [containerId, scriptSrc]);
 
-  if (!scriptSrc || !containerId) {
-    return null;
+  if (!scriptSrc || !containerId || failed) {
+    return (
+      <div className="mx-auto flex w-full max-w-[320px] flex-col items-center gap-2">
+        <SponsorFallbackCard
+          title="Sponsor Offer"
+          description="Native ad unavailable in this browser."
+          cta="Open Sponsor"
+          className="w-full"
+          compact
+          horizontal
+        />
+      </div>
+    );
   }
 
   return (
@@ -58,9 +70,6 @@ export default function AdNativeBanner() {
         id={`container-${containerId}`}
         className="min-h-[250px] w-full overflow-hidden rounded-2xl border border-white/10 bg-black/20"
       />
-      {failed && (
-        <p className="text-xs text-white/40">Native ad unit did not render. Check publisher approval or browser blocking.</p>
-      )}
     </div>
   );
 }

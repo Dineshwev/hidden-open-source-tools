@@ -20,7 +20,7 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative z-20 mt-20 border-t border-white/10 bg-[#08182a]/90">
+    <footer className="relative z-20 mt-20 border-t border-white/10 bg-[#070707]/95">
       <div className="px-4 pt-6 md:px-6">
         <div className="hidden md:block">
           <AdBanner
@@ -39,7 +39,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[1.2fr_1fr_1fr]">
         <div className="space-y-5">
           <p className="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white">
-            <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-cyan-300 to-blue-400" />
+            <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-white to-neutral-500" />
             The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">

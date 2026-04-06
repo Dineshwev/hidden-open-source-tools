@@ -5,15 +5,15 @@
 @tailwind utilities;
 
 :root {
-  --bg-base: #071321;
-  --bg-elevated: #0f2238;
+  --bg-base: #050505;
+  --bg-elevated: #101010;
   --surface-glass: rgba(255, 255, 255, 0.06);
   --surface-border: rgba(255, 255, 255, 0.14);
-  --text-primary: #f7fbff;
-  --text-secondary: rgba(231, 241, 255, 0.72);
-  --brand-cyan: #3ed4c8;
-  --brand-blue: #4d9dff;
-  --brand-orange: #f2a766;
+  --text-primary: #f5f5f5;
+  --text-secondary: rgba(255, 255, 255, 0.72);
+  --brand-cyan: #d4d4d4;
+  --brand-blue: #8b8b8b;
+  --brand-orange: #b8b8b8;
 }
 
 html {
@@ -22,14 +22,14 @@ html {
 }
 
 body {
-  @apply antialiased selection:bg-cyan-300/30 selection:text-cyan-50;
+  @apply antialiased selection:bg-white/30 selection:text-black;
   color: var(--text-primary);
   background-color: var(--bg-base);
   background-image:
-    radial-gradient(72rem 36rem at 12% -10%, rgba(62, 212, 200, 0.24), transparent 60%),
-    radial-gradient(62rem 32rem at 92% -20%, rgba(77, 157, 255, 0.24), transparent 62%),
-    radial-gradient(40rem 24rem at 50% 110%, rgba(242, 167, 102, 0.18), transparent 70%),
-    linear-gradient(180deg, #071321 0%, #06101c 100%);
+    radial-gradient(68rem 34rem at 12% -10%, rgba(255, 255, 255, 0.09), transparent 60%),
+    radial-gradient(58rem 30rem at 92% -20%, rgba(255, 255, 255, 0.05), transparent 62%),
+    radial-gradient(40rem 24rem at 50% 110%, rgba(255, 255, 255, 0.04), transparent 70%),
+    linear-gradient(180deg, #050505 0%, #090909 100%);
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -39,14 +39,14 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #ecf4ff 0%, #7fe4db 48%, #73b4ff 100%);
+  background: linear-gradient(90deg, #ffffff 0%, #d2d2d2 52%, #8f8f8f 100%);
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
 }
 
 .glass-card {
-  background: linear-gradient(145deg, rgba(16, 39, 63, 0.88), rgba(11, 28, 47, 0.78));
+  background: linear-gradient(145deg, rgba(18, 18, 18, 0.94), rgba(9, 9, 9, 0.9));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--surface-border);
@@ -56,12 +56,12 @@ body {
 
 .glass-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(62, 212, 200, 0.38);
-  box-shadow: 0 24px 50px rgba(3, 12, 24, 0.42);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.46);
 }
 
 .glass-panel {
-  background: linear-gradient(170deg, rgba(22, 45, 70, 0.7), rgba(11, 30, 49, 0.62));
+  background: linear-gradient(170deg, rgba(19, 19, 19, 0.84), rgba(8, 8, 8, 0.82));
   border: 1px solid var(--surface-border);
   box-shadow: 0 12px 40px rgba(2, 9, 19, 0.33);
   backdrop-filter: blur(14px);
@@ -77,7 +77,7 @@ body {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  border: 1px solid rgba(77, 157, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   pointer-events: none;
 }
 
@@ -88,12 +88,12 @@ body {
 
 .depth-panel:hover {
   transform: translateY(-5px);
-  box-shadow: 0 18px 45px rgba(2, 10, 22, 0.43);
-  border-color: rgba(62, 212, 200, 0.32);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .text-gradient-magic {
-  background: linear-gradient(95deg, #f2f8ff 8%, #7bdccd 52%, #74b2ff 92%);
+  background: linear-gradient(95deg, #ffffff 8%, #d7d7d7 52%, #8f8f8f 92%);
   background-size: 180% auto;
   color: transparent;
   -webkit-background-clip: text;
@@ -119,14 +119,14 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #081523;
+  background: #080808;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f3a5a;
+  background: #2a2a2a;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #29507a;
+  background: #3b3b3b;
 }
 
 @keyframes float {
@@ -148,15 +148,15 @@ body {
 }
 
 .shadow-glow-epic {
-  box-shadow: 0 0 72px -12px rgba(62, 212, 200, 0.5);
+  box-shadow: 0 0 72px -12px rgba(255, 255, 255, 0.18);
 }
 .shadow-glow-purple {
-  box-shadow: 0 0 72px -12px rgba(77, 157, 255, 0.44);
+  box-shadow: 0 0 72px -12px rgba(255, 255, 255, 0.14);
 }
 
 .btn-premium {
   @apply relative overflow-hidden rounded-full px-8 py-3 font-semibold text-slate-950 transition-all;
-  background: linear-gradient(90deg, #7be4d8, #78b7ff);
+  background: linear-gradient(90deg, #ffffff, #d0d0d0);
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 .btn-premium::before {
@@ -179,8 +179,8 @@ body {
     linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
     repeating-linear-gradient(
       90deg,
-      rgba(62, 212, 200, 0.22) 0,
-      rgba(62, 212, 200, 0.22) 1px,
+      rgba(255, 255, 255, 0.16) 0,
+      rgba(255, 255, 255, 0.16) 1px,
       transparent 1px,
       transparent 6px
     );

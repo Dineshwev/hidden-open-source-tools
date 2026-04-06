@@ -1,12 +1,15 @@
 node_modules
 .next
+frontend/.next
 dist
 coverage
 .env
+.env.*
 .env.local
 *.log
 backend/.env
 frontend/.env.local
+frontend/.env
 backend/node_modules
 frontend/node_modules
 postgres_data

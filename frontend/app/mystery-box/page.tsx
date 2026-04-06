@@ -20,31 +20,25 @@ export default function MysteryBoxPage() {
         compact
       />
 
-      <AdNativeBanner />
+      <div className="grid gap-4 lg:grid-cols-[300px_minmax(0,468px)] lg:items-start lg:justify-center">
+        <AdNativeBanner />
 
-      <div className="space-y-4">
-        <AdBanner
-          title="Mystery Box Companion Banner"
-          description="A second sponsor placement that sits beside the mystery flow instead of blocking it."
-          width={320}
-          height={50}
-          className="mx-auto max-w-[320px] md:hidden"
-        />
-        <AdBanner
-          title="Mystery Box Companion Banner"
-          description="A second sponsor placement that sits beside the mystery flow instead of blocking it."
-          width={468}
-          height={60}
-          className="mx-auto hidden max-w-[468px] md:flex"
-        />
-      </div>
-
-      <div className="mx-auto hidden w-full max-w-[160px] lg:block">
-        <AdBanner
-          width={160}
-          height={600}
-          className="max-w-[160px]"
-        />
+        <div className="space-y-4">
+          <AdBanner
+            title="Mystery Box Companion Banner"
+            description=""
+            width={320}
+            height={50}
+            className="mx-auto max-w-[320px] md:hidden"
+          />
+          <AdBanner
+            title="Mystery Box Companion Banner"
+            description=""
+            width={468}
+            height={60}
+            className="mx-auto hidden max-w-[468px] md:flex"
+          />
+        </div>
       </div>
 
       <MysteryBox />
