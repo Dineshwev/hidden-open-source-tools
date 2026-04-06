@@ -24,8 +24,8 @@ export default function Footer() {
       <div className="px-4 pt-6 md:px-6">
         <div className="hidden md:block">
           <AdBanner
-            width={728}
-            height={90}
+            width={468}
+            height={60}
           />
         </div>
         <div className="md:hidden">
