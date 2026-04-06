@@ -38,34 +38,26 @@ export function getAdsterraVerificationCode() {
   return process.env.NEXT_PUBLIC_ADSTERRA_VERIFICATION_CODE?.trim() || "0BWqbyw168nW";
 }
 
-export function getAdsterraBannerKey() {
-  return process.env.NEXT_PUBLIC_ADSTERRA_BANNER_KEY?.trim() || "";
-}
-
-export function getAdsterraBannerScriptUrl() {
-  return process.env.NEXT_PUBLIC_ADSTERRA_BANNER_SCRIPT_URL?.trim() || "";
-}
-
 export function getAdsterraBannerKeyForSize(width?: number, height?: number) {
   if (!width || !height) {
-    return getAdsterraBannerKey();
+    return "";
   }
 
   const size = `${width}x${height}` as BannerSize;
   const envName = BANNER_SIZE_ENV_MAP[size];
 
   if (!envName) {
-    return getAdsterraBannerKey();
+    return "";
   }
 
-  return process.env[envName]?.trim() || getAdsterraBannerKey();
+  return process.env[envName]?.trim() || "";
 }
 
 export function getAdsterraBannerScriptUrlForSize(width?: number, height?: number) {
   const bannerKey = getAdsterraBannerKeyForSize(width, height);
 
   if (!bannerKey) {
-    return getAdsterraBannerScriptUrl();
+    return "";
   }
 
   return `https://www.highperformanceformat.com/${bannerKey}/invoke.js`;
