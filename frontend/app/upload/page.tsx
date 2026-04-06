@@ -2,6 +2,7 @@ import UploadForm from "@/components/UploadForm";
 import SectionHeading from "@/components/SectionHeading";
 import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 import AdBanner from "@/components/AdBanner";
+import AdNativeBanner from "@/components/AdNativeBanner";
 
 export default function UploadPage() {
   return (
@@ -18,15 +19,24 @@ export default function UploadPage() {
         compact
       />
 
-      <AdBanner
-        title="Upload Page Banner"
-        description="A secondary sponsor banner shown alongside the upload workflow for users who want another option."
-        cta="Open Banner"
-        href="/mystery-box"
-        width={728}
-        height={90}
-        className="mx-auto max-w-[728px]"
-      />
+      <AdNativeBanner />
+
+      <div className="space-y-4">
+        <AdBanner
+          title="Upload Page Banner"
+          description="A secondary sponsor banner shown alongside the upload workflow for users who want another option."
+          width={320}
+          height={50}
+          className="mx-auto max-w-[320px] md:hidden"
+        />
+        <AdBanner
+          title="Upload Page Banner"
+          description="A secondary sponsor banner shown alongside the upload workflow for users who want another option."
+          width={468}
+          height={60}
+          className="mx-auto hidden max-w-[468px] md:flex"
+        />
+      </div>
 
       <AdBanner
         width={300}

@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     if (offers.length === 0) {
       return NextResponse.json(
         {
-          error: 'No sponsor offers configured. Set MYSTERY_AD_DIRECT_URLS with public https URLs.'
+          error: 'No Adsterra smartlink URLs configured. Set NEXT_PUBLIC_ADSTERRA_SMARTLINK_URLS with public https URLs.'
         },
         { status: 503 }
       );

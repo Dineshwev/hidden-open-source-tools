@@ -7,6 +7,7 @@ import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
 import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 import AdBanner from "@/components/AdBanner";
+import AdNativeBanner from "@/components/AdNativeBanner";
 
 export default function HomePage() {
   return (
@@ -100,15 +101,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        <AdBanner
-          title="Featured Creator Tools"
-          description="A soft sponsor lane for creator-focused tools and offers, shown after the intro instead of interrupting it."
-          cta="Browse Tools"
-          href="/upload"
-          width={728}
-          height={90}
-          className="mx-auto max-w-[728px]"
-        />
+        <div className="space-y-4">
+          <AdBanner
+            title="Featured Creator Tools"
+            description="A soft sponsor lane for creator-focused tools and offers, shown after the intro instead of interrupting it."
+            width={320}
+            height={50}
+            className="mx-auto max-w-[320px] md:hidden"
+          />
+          <AdBanner
+            title="Featured Creator Tools"
+            description="A soft sponsor lane for creator-focused tools and offers, shown after the intro instead of interrupting it."
+            width={468}
+            height={60}
+            className="mx-auto hidden max-w-[468px] md:flex"
+          />
+        </div>
 
         <AdSmartlinkSlot
           title="Optional Sponsor Offer"
@@ -117,11 +125,20 @@ export default function HomePage() {
           compact
         />
 
-        <AdBanner
-          width={468}
-          height={60}
-          className="mx-auto max-w-[468px]"
-        />
+        <AdNativeBanner />
+
+        <div className="space-y-4">
+          <AdBanner
+            width={320}
+            height={50}
+            className="mx-auto max-w-[320px] md:hidden"
+          />
+          <AdBanner
+            width={468}
+            height={60}
+            className="mx-auto hidden max-w-[468px] md:flex"
+          />
+        </div>
 
         <section className="space-y-6">
           <div className="flex items-end justify-between gap-4">

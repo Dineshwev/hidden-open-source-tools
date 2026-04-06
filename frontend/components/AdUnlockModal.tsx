@@ -9,7 +9,7 @@ type AdOffer = {
   id: string;
   label: string;
   url: string;
-  provider: "direct";
+  provider: "adsterra-smartlink";
 };
 
 type AdUnlockModalProps = {
@@ -110,7 +110,7 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
 
     if (!/^https?:\/\//i.test(offer.url)) {
       setUnlockReady(false);
-      setErrorMsg("Offer URL is invalid. Please refresh and try again.");
+      setErrorMsg("Adsterra smartlink URL is invalid. Please refresh and try again.");
       return;
     }
 
@@ -183,12 +183,12 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
 
             {!isFetchingChallenge && adOffers.length === 0 && (
               <p className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                No sponsor links are configured right now.
+                No Adsterra smartlinks are configured right now.
               </p>
             )}
 
             {isFetchingChallenge && (
-              <p className="text-sm text-cyan-300">Preparing sponsor links...</p>
+              <p className="text-sm text-cyan-300">Preparing Adsterra smartlinks...</p>
             )}
           </div>
         </div>

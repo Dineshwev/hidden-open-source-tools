@@ -7,6 +7,7 @@ import LevelBadge from '@/components/LevelBadge';
 import StreakBadge from '@/components/StreakBadge';
 import AdSmartlinkSlot from '@/components/AdSmartlinkSlot';
 import AdBanner from '@/components/AdBanner';
+import AdNativeBanner from '@/components/AdNativeBanner';
 
 const stats = [
   { name: 'Uploads', value: 247, change: '+12%', icon: Upload, color: 'emerald' },
@@ -114,18 +115,37 @@ export default function CreatorDashboard() {
         </div>
 
         <div className="mb-12">
+          <AdNativeBanner />
+        </div>
+
+        <div className="mb-12">
+          <div className="space-y-4">
+            <AdBanner
+              title="Dashboard Partner Banner"
+              description="An optional sponsor banner after the stats section, so the user sees it only after value has been delivered."
+              width={320}
+              height={50}
+              className="mx-auto max-w-[320px] md:hidden"
+            />
+            <AdBanner
+              title="Dashboard Partner Banner"
+              description="An optional sponsor banner after the stats section, so the user sees it only after value has been delivered."
+              width={468}
+              height={60}
+              className="mx-auto hidden max-w-[468px] md:flex"
+            />
+          </div>
+        </div>
+
+        <div className="mb-12 flex justify-center lg:hidden">
           <AdBanner
-            title="Dashboard Partner Banner"
-            description="An optional sponsor banner after the stats section, so the user sees it only after value has been delivered."
-            cta="Open Partner Banner"
-            href="/upload"
-            width={728}
-            height={90}
-            className="mx-auto max-w-[728px]"
+            width={320}
+            height={50}
+            className="max-w-[320px]"
           />
         </div>
 
-        <div className="mb-12 flex justify-center">
+        <div className="mb-12 hidden justify-center lg:flex">
           <AdBanner
             width={160}
             height={300}

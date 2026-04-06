@@ -1,5 +1,7 @@
 "use client";
 
+import { getAdsterraSmartlinkUrl } from "@/lib/adsterra";
+
 type AdSmartlinkSlotProps = {
   title?: string;
   description?: string;
@@ -12,10 +14,11 @@ export default function AdSmartlinkSlot({
   title = "Featured Spotlight",
   description = "Explore curated updates and keep discovering new resources.",
   cta = "Explore Now",
-  href = "/upload",
+  href,
   compact = false
 }: AdSmartlinkSlotProps) {
-  const isExternal = /^https?:\/\//i.test(href);
+  const resolvedHref = href ?? getAdsterraSmartlinkUrl();
+  const isExternal = /^https?:\/\//i.test(resolvedHref);
 
   return (
     <section className="relative overflow-hidden rounded-[1.6rem] border border-cyan-300/20 bg-gradient-to-r from-[#0f2a44] to-[#12324f] p-5 md:p-7">
@@ -29,14 +32,20 @@ export default function AdSmartlinkSlot({
           <p className="mt-2 text-sm leading-relaxed text-cyan-100/80">{description}</p>
         </div>
 
-        <a
-          href={href}
-          target={isExternal ? "_blank" : undefined}
-          rel={isExternal ? "noopener noreferrer" : undefined}
-          className="inline-flex items-center justify-center rounded-full border border-cyan-100/30 bg-cyan-100/90 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.02]"
-        >
-          {cta}
-        </a>
+        {resolvedHref ? (
+          <a
+            href={resolvedHref}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
+            className="inline-flex items-center justify-center rounded-full border border-cyan-100/30 bg-cyan-100/90 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.02]"
+          >
+            {cta}
+          </a>
+        ) : (
+          <div className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white/45">
+            Smartlink pending
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,1 +1,1 @@
-export const DEFAULT_PROMO_DESTINATION = "/upload";
+export const DEFAULT_PROMO_DESTINATION = "";
