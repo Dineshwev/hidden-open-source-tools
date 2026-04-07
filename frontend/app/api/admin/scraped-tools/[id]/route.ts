@@ -12,9 +12,10 @@ function isAuthorized(req: Request) {
   const adminSecret = process.env.ADMIN_SECRET?.trim() || process.env.ADMIN_PANEL_ACCESS_KEY?.trim();
   const authHeader = req.headers.get("authorization") || "";
   const accessKeyHeader = req.headers.get("x-admin-access-key") || "";
-  const token = authHeader.toLowerCase().startsWith("bearer ")
-    ? authHeader.slice(7).trim()
-    : authHeader.trim() || accessKeyHeader.trim();
+  const tokenFromAccessHeader = accessKeyHeader.trim();
+  const tokenFromBearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
+  const tokenFromRawAuth = !authHeader.toLowerCase().startsWith("bearer ") ? authHeader.trim() : "";
+  const token = tokenFromAccessHeader || tokenFromBearer || tokenFromRawAuth;
 
   if (!adminSecret) {
     return {
