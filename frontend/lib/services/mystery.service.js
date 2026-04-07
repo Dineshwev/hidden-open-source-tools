@@ -40,6 +40,40 @@ export async function unlockMysteryFile(userId) {
     }
 
     if (!candidateFiles.length) {
+      const scrapedCandidates = await prisma.scrapedTool.findMany({
+        where: {
+          OR: [{ status: "approved" }, { status: "APPROVED" }]
+        },
+        orderBy: { scraped_at: "desc" },
+        take: 200
+      });
+
+      if (scrapedCandidates.length) {
+        const selected = scrapedCandidates[Math.floor(Math.random() * scrapedCandidates.length)] || scrapedCandidates[0];
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            streakDays: {
+              increment: 1
+            }
+          }
+        });
+
+        return {
+          id: selected.id,
+          title: selected.title,
+          description: selected.description || "Curated resource from scraped tools.",
+          rarity: "COMMON",
+          category: selected.category || "other",
+          uploader: selected.source_site || "scraper",
+          downloadUrl: selected.webpage_url,
+          tags: [],
+          license: "Source site terms",
+          mimeType: "Link"
+        };
+      }
+
       throw new AppError("No approved files are available yet", 404);
     }
 

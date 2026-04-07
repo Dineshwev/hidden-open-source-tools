@@ -14,6 +14,7 @@ interface Reward {
   rarity: Rarity;
   fileType: string;
   creator: string;
+  downloadUrl?: string;
 }
 
 const rarities = {
@@ -117,7 +118,8 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         description: dbFile.description,
         rarity: (dbFile.rarity?.toLowerCase() as Rarity) || 'common',
         fileType: dbFile.mimeType || 'File',
-        creator: 'Anonymous'
+        creator: dbFile.uploader || 'Anonymous',
+        downloadUrl: dbFile.downloadUrl
       });
     } catch (err) {
       setIsOpening(false);
@@ -131,6 +133,43 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
   const closeModal = () => {
     setReward(null);
     setIsOpening(false);
+  };
+
+  const handleDownload = () => {
+    if (!reward?.downloadUrl) {
+      closeModal();
+      return;
+    }
+
+    if (reward.downloadUrl.startsWith('http://') || reward.downloadUrl.startsWith('https://')) {
+      window.open(reward.downloadUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    window.open(reward.downloadUrl, '_blank');
+  };
+
+  const handleShare = async () => {
+    if (!reward) return;
+
+    const shareUrl = reward.downloadUrl || window.location.href;
+    const payload = {
+      title: reward.name,
+      text: `I unlocked ${reward.name} on The Cloud Rain`,
+      url: shareUrl
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(payload);
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      setUnlockError('Reward link copied to clipboard.');
+    } catch {
+      setUnlockError('Unable to share reward right now.');
+    }
   };
 
   return (
@@ -277,14 +316,15 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
                     className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-nebula-500 to-aurora text-white font-semibold shadow-glow hover:shadow-glow-lg hover:scale-105 transition-all"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={closeModal}
+                    onClick={handleDownload}
                   >
-                    Download (2.4MB)
+                    Download
                   </motion.button>
                   <motion.button 
                     className="px-6 py-4 rounded-2xl border border-white/30 bg-white/10 backdrop-blur-sm text-white font-semibold hover:bg-white/20 transition-all"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => void handleShare()}
                   >
                     Share Reward
                   </motion.button>
