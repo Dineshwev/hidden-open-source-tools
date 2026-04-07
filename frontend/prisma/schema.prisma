@@ -132,3 +132,18 @@ model AdminLog {
 
   @@map("admin_logs")
 }
+
+model ScrapedTool {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  image_url   String?
+  webpage_url String   @unique
+  category    String
+  status      String   @default("pending")
+  source_site String?
+  scraped_at  DateTime @default(now())
+  reviewed_at DateTime?
+
+  @@map("scraped_tools")
+}

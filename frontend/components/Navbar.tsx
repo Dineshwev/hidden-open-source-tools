@@ -11,6 +11,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/mystery-box", label: "Mystery Box", icon: Box },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/upload", label: "Upload", icon: Upload },
   { href: "/login", label: "Login", icon: LockKeyhole }
 ];
@@ -49,7 +50,7 @@ export default function Navbar() {
         </motion.div>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {links.map(({ href, label, icon: Icon }, index) => {
+          {links.map(({ href, label, icon: Icon, isNew }, index) => {
             const active = pathname === href;
 
             return (
@@ -64,6 +65,11 @@ export default function Navbar() {
                 >
                   {Icon ? <Icon className="h-4 w-4" /> : null}
                   <span>{label}</span>
+                  {isNew ? (
+                    <span className="rounded-full border border-cyan-300/45 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+                      New
+                    </span>
+                  ) : null}
                 </Link>
               </motion.div>
             );
@@ -126,7 +132,7 @@ export default function Navbar() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="grid grid-cols-1 gap-2">
-            {links.map(({ href, label, icon: Icon }) => {
+            {links.map(({ href, label, icon: Icon, isNew }) => {
               const active = pathname === href;
 
               return (
@@ -142,6 +148,11 @@ export default function Navbar() {
                 >
                   {Icon ? <Icon className="h-4 w-4" /> : null}
                   {label}
+                  {isNew ? (
+                    <span className="ml-auto rounded-full border border-cyan-300/45 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+                      New
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}
