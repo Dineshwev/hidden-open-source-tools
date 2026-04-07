@@ -6,16 +6,8 @@ import { hashFile } from "../utils/fileHasher.js";
 import { simulateMalwareScan } from "../utils/fileScanner.js";
 import { sanitizeText } from "../utils/sanitize.js";
 import { uploadSchema } from "../validators/fileValidators.js";
-import { getFallbackApprovedFiles } from "../utils/mysteryFallback.js";
 
 export async function getApprovedFiles() {
-  try {
-    return await prisma.file.findMany({
-      where: { status: "APPROVED" },
-      include: {
-        category: true,
-          select: { username: true }
-        }
   return prisma.file.findMany({
     where: { status: "APPROVED" },
     include: {
@@ -26,9 +18,9 @@ export async function getApprovedFiles() {
     },
     orderBy: { createdAt: "desc" }
   });
-        uploader: {
-          select: { username: true, contributorPoints: true }
-        }
+}
+
+export async function getTrendingFiles() {
   return prisma.file.findMany({
     where: { status: "APPROVED" },
     include: {
@@ -40,6 +32,7 @@ export async function getApprovedFiles() {
     orderBy: [{ downloadCount: "desc" }, { createdAt: "desc" }],
     take: 6
   });
+}
 
 export async function getUserSubmissions(userId) {
   return prisma.upload.findMany({
