@@ -86,10 +86,22 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
     setCheckingInventory(true);
 
     try {
-      const response = await api.get('/files/approved');
-      const availableFiles = response.data?.data;
+      const [legacyResponse, scrapedResponse] = await Promise.all([
+        api.get('/files/approved').catch(() => ({ data: { data: [] } })),
+        api.get('/files/scraped-tools', {
+          params: {
+            page: 1,
+            limit: 1
+          }
+        }).catch(() => ({ data: { data: [] } }))
+      ]);
 
-      if (!Array.isArray(availableFiles) || availableFiles.length === 0) {
+      const availableLegacyFiles = legacyResponse?.data?.data;
+      const availableScrapedTools = scrapedResponse?.data?.data;
+      const hasLegacyInventory = Array.isArray(availableLegacyFiles) && availableLegacyFiles.length > 0;
+      const hasScrapedInventory = Array.isArray(availableScrapedTools) && availableScrapedTools.length > 0;
+
+      if (!hasLegacyInventory && !hasScrapedInventory) {
         setUnlockError("No approved files are available yet. Ask admin to approve uploads first.");
         return;
       }
