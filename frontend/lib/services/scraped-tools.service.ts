@@ -95,7 +95,7 @@ export async function getPendingTools(page: number, limit: number): Promise<Pagi
     const { data, count, error } = await supabaseAdmin
       .from("scraped_tools")
       .select("*", { count: "exact" })
-      .eq("status", "pending")
+      .or("status.eq.pending,status.eq.PENDING,status.is.null")
       .order("scraped_at", { ascending: false })
       .range(start, end);
 
@@ -119,7 +119,7 @@ export async function getApprovedTools(category?: ToolCategory, page?: number, l
     let query = supabaseAdmin
       .from("scraped_tools")
       .select("*", { count: "exact" })
-      .eq("status", "approved")
+      .or("status.eq.approved,status.eq.APPROVED")
       .order("scraped_at", { ascending: false });
 
     if (category) {
