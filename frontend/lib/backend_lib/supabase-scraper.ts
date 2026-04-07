@@ -12,11 +12,11 @@ function readRequiredEnv(name: string) {
 }
 
 const publicUrl = readRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
-const publicAnonKey = readRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 const adminUrl = readRequiredEnv("SUPABASE_URL");
 const adminServiceRoleKey = readRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
+const publicAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || "";
 
-export const supabasePublic = createClient(publicUrl, publicAnonKey);
+export const supabasePublic = publicAnonKey ? createClient(publicUrl, publicAnonKey) : null;
 
 export const supabaseAdmin = createClient(adminUrl, adminServiceRoleKey, {
   auth: {
