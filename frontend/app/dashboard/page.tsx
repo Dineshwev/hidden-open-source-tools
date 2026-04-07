@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Upload, Eye, Award, Flame, Download, ArrowRight } from 'lucide-react';
 import LevelBadge from '@/components/LevelBadge';
 import StreakBadge from '@/components/StreakBadge';
-import AdSmartlinkSlot from '@/components/AdSmartlinkSlot';
 import AdBanner from '@/components/AdBanner';
 import AdNativeBanner from '@/components/AdNativeBanner';
 
@@ -104,15 +103,6 @@ export default function CreatorDashboard() {
             ))}
           </div>
         </motion.section>
-
-        <div className="mb-12">
-          <AdSmartlinkSlot
-            title="Creator Tools Lane"
-            description="A calm sponsor slot for tools and offers that fits between analytics and action."
-            cta="Browse Offer"
-            compact
-          />
-        </div>
 
         <div className="mb-12">
           <AdNativeBanner />

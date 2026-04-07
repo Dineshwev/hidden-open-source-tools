@@ -5,7 +5,6 @@ import StatsTicker from "@/components/StatsTicker";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
-import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 import AdBanner from "@/components/AdBanner";
 import AdNativeBanner from "@/components/AdNativeBanner";
 
@@ -118,13 +117,6 @@ export default function HomeDesktopLanding() {
           />
         </div>
 
-        <AdSmartlinkSlot
-          title="Optional Sponsor Offer"
-          description="Choose a partner offer only if it matches what you need. No dead ad boxes, no broken page sections."
-          cta="Open Offer"
-          compact
-        />
-
         <AdNativeBanner />
 
         <div className="space-y-4">
@@ -181,12 +173,6 @@ export default function HomeDesktopLanding() {
         <StatsTicker />
 
         <AdBanner width={300} height={250} className="mx-auto max-w-[300px]" />
-
-        <AdSmartlinkSlot
-          title="Secondary Sponsor Slot"
-          description="A second sponsor lane gives users another option when embedded units are blocked or low-fill."
-          cta="See Offer"
-        />
 
         <div className="space-y-24">
           <TrendingDownloads />

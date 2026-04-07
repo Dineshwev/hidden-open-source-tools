@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-react";
 import StatGrid from "@/components/StatGrid";
 import TrendingDownloads from "@/components/TrendingDownloads";
-import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 import AdBanner from "@/components/AdBanner";
 import AdNativeBanner from "@/components/AdNativeBanner";
 
@@ -80,13 +79,6 @@ export default function HomeMobileLanding() {
         />
         <AdNativeBanner />
       </div>
-
-      <AdSmartlinkSlot
-        title="Sponsor Offer Backup"
-        description="Use this lightweight sponsor lane when embedded ads are unavailable on a mobile browser."
-        cta="Open Offer"
-        compact
-      />
 
       <section className="glass-panel rounded-[1.8rem] p-5">
         <p className="text-xs uppercase tracking-[0.3em] text-white/50">Performance Snapshot</p>

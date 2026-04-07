@@ -14,34 +14,32 @@ export async function getApprovedFiles() {
       where: { status: "APPROVED" },
       include: {
         category: true,
-        uploader: {
           select: { username: true }
         }
-      },
-      orderBy: { createdAt: "desc" }
-    });
-  } catch {
-    return getFallbackApprovedFiles();
-  }
-}
-
-export async function getTrendingFiles() {
-  try {
-    return await prisma.file.findMany({
-      where: { status: "APPROVED" },
-      include: {
-        category: true,
+  return prisma.file.findMany({
+    where: { status: "APPROVED" },
+    include: {
+      category: true,
+      uploader: {
+        select: { username: true }
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
         uploader: {
           select: { username: true, contributorPoints: true }
         }
-      },
-      orderBy: [{ downloadCount: "desc" }, { createdAt: "desc" }],
-      take: 6
-    });
-  } catch {
-    return getFallbackApprovedFiles().slice(0, 6);
-  }
-}
+  return prisma.file.findMany({
+    where: { status: "APPROVED" },
+    include: {
+      category: true,
+      uploader: {
+        select: { username: true, contributorPoints: true }
+      }
+    },
+    orderBy: [{ downloadCount: "desc" }, { createdAt: "desc" }],
+    take: 6
+  });
 
 export async function getUserSubmissions(userId) {
   return prisma.upload.findMany({

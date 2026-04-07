@@ -1,6 +1,5 @@
 import UploadForm from "@/components/UploadForm";
 import SectionHeading from "@/components/SectionHeading";
-import AdSmartlinkSlot from "@/components/AdSmartlinkSlot";
 import AdBanner from "@/components/AdBanner";
 import AdNativeBanner from "@/components/AdNativeBanner";
 
@@ -12,13 +11,6 @@ export default function UploadPage() {
         title="Upload a File"
         description="Submit digital resources with metadata, licensing, tags, and a preview image. The file enters a moderation queue before it becomes eligible for the mystery engine."
       />
-      <AdSmartlinkSlot
-        title="Creator Tools Offer"
-        description="A light sponsor option placed before the upload form so it never interrupts the actual submission flow."
-        cta="Browse Tools"
-        compact
-      />
-
       <AdNativeBanner />
 
       <div className="space-y-4">
