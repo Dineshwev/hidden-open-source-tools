@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Frown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import SponsorModal from "@/components/SponsorModal";
+import ToolCard from "@/components/ToolCard";
 import type { PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
 type ToolsApiResponse = PaginatedResponse<ScrapedTool>;
@@ -30,22 +31,6 @@ const categoryTabs: CategoryTab[] = [
   { key: "components", label: "🧩 Components", queryValue: "ui-component" }
 ];
 
-function clampDescription(text: string | null) {
-  if (!text?.trim()) {
-    return "No description available yet.";
-  }
-
-  return text.trim();
-}
-
-function toDomainLabel(url: string) {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return "external";
-  }
-}
-
 export default function FreeToolsPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryTab["key"]>("all");
   const [tools, setTools] = useState<ScrapedTool[]>([]);
@@ -54,7 +39,6 @@ export default function FreeToolsPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
-  const [failedImages, setFailedImages] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [targetUrl, setTargetUrl] = useState("");
 
@@ -111,7 +95,6 @@ export default function FreeToolsPage() {
     setTools([]);
     setPage(1);
     setTotalPages(1);
-    setFailedImages([]);
     void fetchTools(1, true);
   }, [fetchTools, selectedCategory]);
 
@@ -124,6 +107,11 @@ export default function FreeToolsPage() {
   };
 
   const renderSkeletons = loading && tools.length === 0;
+
+  const handleOpenTool = (url: string) => {
+    setTargetUrl(url);
+    setModalOpen(true);
+  };
 
   return (
     <div className="space-y-10 pb-8">
@@ -141,8 +129,8 @@ export default function FreeToolsPage() {
               type="button"
               onClick={() => setSelectedCategory(tab.key)}
               className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${selectedCategory === tab.key
-                  ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
-                  : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+                ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
+                : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
                 }`}
             >
               {tab.label}
@@ -159,8 +147,8 @@ export default function FreeToolsPage() {
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {renderSkeletons
-          ? Array.from({ length: 6 }).map((_, index) => (
-            <div key={`skeleton-${index}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
+          ? Array.from({ length: 6 }).map((_, skeletonIdx) => (
+            <div key={`skeleton-${skeletonIdx}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
               <div className="h-44 rounded-2xl bg-white/10" />
               <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
               <div className="mt-3 h-3 w-full rounded bg-white/10" />
@@ -169,71 +157,20 @@ export default function FreeToolsPage() {
               <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
             </div>
           ))
-          : tools.map((tool, index) => {
-            const imageSrc = failedImages.includes(tool.id) || !tool.image_url ? FALLBACK_IMAGE : tool.image_url;
-
-            return (
-              <motion.article
-                key={tool.id}
-                className="glass-card rounded-3xl border border-white/10 p-4"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25) }}
-              >
-                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                  <Image
-                    src={imageSrc}
-                    alt={tool.title}
-                    width={1200}
-                    height={700}
-                    className="h-44 w-full object-cover"
-                    onError={() =>
-                      setFailedImages((previous) =>
-                        previous.includes(tool.id) ? previous : [...previous, tool.id]
-                      )
-                    }
-                  />
-                  <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/60 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-cyan-100">
-                    {tool.category}
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  <h3 className="font-display text-xl text-white">{tool.title}</h3>
-                  <p
-                    className="text-sm leading-6 text-white/65"
-                    style={{
-                      display: "-webkit-box",
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden"
-                    }}
-                  >
-                    {clampDescription(tool.description)}
-                  </p>
-                  <p className="text-xs uppercase tracking-[0.18em] text-white/45">
-                    {tool.source_site || toDomainLabel(tool.webpage_url)}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setTargetUrl(tool.webpage_url);
-                      setModalOpen(true);
-                    }}
-                    className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
-                  >
-                    Visit Resource →
-                  </button>
-                </div>
-              </motion.article>
-            );
-          })}
+          : tools.map((tool, toolIdx) => (
+            <ToolCard
+              key={tool.id}
+              tool={tool}
+              index={toolIdx}
+              onOpen={handleOpenTool}
+            />
+          ))}
       </section>
 
-      <SponsorModal 
-        isOpen={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        targetUrl={targetUrl} 
+      <SponsorModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        targetUrl={targetUrl}
       />
 
       {!loading && tools.length === 0 ? (

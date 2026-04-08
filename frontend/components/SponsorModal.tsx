@@ -5,9 +5,9 @@ import { X, ExternalLink, ShieldCheck } from "lucide-react";
 import { getAdsterraSmartlinkUrl } from "@/lib/adsterra";
 
 interface SponsorModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  targetUrl: string;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly targetUrl: string;
 }
 
 export default function SponsorModal({ isOpen, onClose, targetUrl }: SponsorModalProps) {
@@ -15,15 +15,15 @@ export default function SponsorModal({ isOpen, onClose, targetUrl }: SponsorModa
   const smartlink = getAdsterraSmartlinkUrl();
 
   const handleAction = () => {
-    if (!adClicked) {
+    if (adClicked) {
+      globalThis.window?.open(targetUrl, "_blank", "noopener,noreferrer");
+      onClose();
+      setAdClicked(false);
+    } else {
       if (smartlink) {
-        window.open(smartlink, "_blank", "noopener,noreferrer");
+        globalThis.window?.open(smartlink, "_blank", "noopener,noreferrer");
       }
       setAdClicked(true);
-    } else {
-      window.open(targetUrl, "_blank", "noopener,noreferrer");
-      onClose();
-      setAdClicked(false); // Reset for next time
     }
   };
 
