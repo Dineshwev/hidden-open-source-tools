@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 import AdsterraScripts from "@/components/AdsterraScripts";
+import { AuthProvider } from "@/lib/AuthProvider";
 
 const siteName = "The Cloud Rain";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
@@ -92,10 +93,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className="flex min-h-screen flex-col">
-        <Navbar />
-        <ScrollProgress />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10 pt-4">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <ScrollProgress />
+          <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10 pt-4">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
