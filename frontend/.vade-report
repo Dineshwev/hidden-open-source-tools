@@ -1,0 +1,61 @@
+# Vercel Web Analytics Installation Report
+
+## Summary
+Successfully installed and configured Vercel Web Analytics for this Next.js 14 (App Router) project following the latest official documentation from https://vercel.com/docs/analytics/quickstart.
+
+## Changes Made
+
+### 1. Package Installation
+- **Package**: `@vercel/analytics` version 2.0.1
+- **Method**: Installed using npm (the project's package manager)
+- **Command**: `npm install @vercel/analytics`
+
+### 2. Configuration
+- **File Modified**: `frontend/app/layout.tsx`
+- **Changes**:
+  1. Added import statement: `import { Analytics } from '@vercel/analytics/next';`
+  2. Added `<Analytics />` component inside the `<body>` tag, after the `<Footer />` component
+
+### 3. Files Modified
+- `frontend/app/layout.tsx` - Added Analytics import and component
+- `frontend/package.json` - Added @vercel/analytics dependency
+- `frontend/package-lock.json` - Updated with new dependency tree
+
+## Implementation Details
+
+The Analytics component was added to the root layout file (`app/layout.tsx`) following Next.js App Router best practices. This ensures that analytics tracking is enabled across all pages of the application.
+
+The component is placed at the end of the `<body>` tag to avoid blocking page rendering, as recommended by Vercel's documentation.
+
+## Framework-Specific Approach
+This is a Next.js 14 project using the App Router, so the integration followed the specific instructions for Next.js App Router:
+- Used the `@vercel/analytics/next` import path
+- Added the component to the root layout file rather than `_app.tsx` (which is for Pages Router)
+
+## Testing & Verification
+
+✅ **Build Test**: Successfully built the project with `npm run build`
+✅ **Linter**: Ran `npm run lint` - no new errors introduced
+✅ **Dependencies**: Package lock file properly updated
+
+## Next Steps for Deployment
+
+To activate Web Analytics on Vercel:
+1. Deploy this code to Vercel
+2. Go to your Vercel dashboard
+3. Select the project
+4. Navigate to Analytics in the sidebar
+5. Click "Enable" to activate Web Analytics
+
+After enabling and deploying, the analytics will automatically start tracking:
+- Page views
+- Visitor statistics
+- Real-time analytics data
+
+The analytics tracking will send data to `/_vercel/insights/*` endpoints and display metrics in the Vercel dashboard.
+
+## Notes
+- The implementation is privacy-compliant and follows Vercel's data collection standards
+- No configuration options were needed for basic setup
+- Custom event tracking can be added later if needed (available on Pro/Enterprise plans)
+- The Analytics component is lightweight and won't impact page load performance
