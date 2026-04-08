@@ -63,8 +63,8 @@ export default function AdNativeBanner() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[300px] flex-col items-center gap-2">
-      <span className="text-[10px] uppercase tracking-[0.28em] text-white/35">Advertisement</span>
+    <div className="mx-auto flex w-full max-w-[300px] flex-col items-center gap-3">
+      <span className="text-[10px] font-medium uppercase tracking-[0.4em] text-white/20">Sponsored Content</span>
       <div
         ref={containerRef}
         id={`container-${containerId}`}

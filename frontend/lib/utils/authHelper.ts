@@ -10,7 +10,8 @@ export function getServerUser(req: Request) {
   try {
     const decoded = verifyAccessToken(token);
     return decoded ? decoded : null;
-  } catch (err) {
+  } catch (err: any) {
+    console.error("[AUTH] JWT Verification failed:", err.message);
     return null;
   }
 }

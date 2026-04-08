@@ -10,7 +10,8 @@ const usedChallengeIds = new Set<string>();
 export async function POST(req: Request) {
   try {
     const user = getServerUser(req);
-    if (!user) return unauthorizedResponse();
+    // Allowing anonymous ad pass exchange
+    const userId = user?.userId || "anonymous_box_user";
 
     const { challengeToken } = await req.json().catch(() => ({ challengeToken: null }));
 
@@ -24,8 +25,8 @@ export async function POST(req: Request) {
       iat?: number;
     };
 
-    if (decoded.sub !== user.userId) {
-      return NextResponse.json({ error: 'Ad challenge does not belong to this user' }, { status: 403 });
+    if (decoded.sub !== userId) {
+      return NextResponse.json({ error: 'Ad challenge session mismatch' }, { status: 403 });
     }
 
     if (decoded.iat && Date.now() / 1000 - decoded.iat < 5) {
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
 
     usedChallengeIds.add(decoded.jti);
 
-    const adPassToken = signMysteryUnlockToken(user.userId, decoded.jti);
+    const adPassToken = signMysteryUnlockToken(userId, decoded.jti);
 
     return NextResponse.json(
       {

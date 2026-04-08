@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Download, Star, Crown, Sparkles } from 'lucide-react';
+
+const MysteryBox3D = dynamic(() => import('./MysteryBox3D'), { ssr: false });
 import AdUnlockModal from './AdUnlockModal';
 import api from '@/lib/api';
 
@@ -78,40 +81,44 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
   const [isPending, startTransition] = useTransition();
   const [showAdModal, setShowAdModal] = useState(false);
   const [unlockError, setUnlockError] = useState("");
-  const [checkingInventory, setCheckingInventory] = useState(false);
+  const [hasInventory, setHasInventory] = useState<boolean | null>(null);
 
-  const openBox = async () => {
-    // Stage 1: Trigger the gated ad slot before anything opens
-    setUnlockError("");
-    setCheckingInventory(true);
+  useEffect(() => {
+    const checkInventory = async () => {
+      try {
+        const [legacyResponse, scrapedResponse] = await Promise.all([
+          api.get('/files/approved').catch(() => ({ data: { data: [] } })),
+          api.get('/files/scraped-tools', {
+            params: { page: 1, limit: 1 }
+          }).catch(() => ({ data: { data: [] } }))
+        ]);
 
-    try {
-      const [legacyResponse, scrapedResponse] = await Promise.all([
-        api.get('/files/approved').catch(() => ({ data: { data: [] } })),
-        api.get('/files/scraped-tools', {
-          params: {
-            page: 1,
-            limit: 1
-          }
-        }).catch(() => ({ data: { data: [] } }))
-      ]);
-
-      const availableLegacyFiles = legacyResponse?.data?.data;
-      const availableScrapedTools = scrapedResponse?.data?.data;
-      const hasLegacyInventory = Array.isArray(availableLegacyFiles) && availableLegacyFiles.length > 0;
-      const hasScrapedInventory = Array.isArray(availableScrapedTools) && availableScrapedTools.length > 0;
-
-      if (!hasLegacyInventory && !hasScrapedInventory) {
-        setUnlockError("No approved files are available yet. Ask admin to approve uploads first.");
-        return;
+        const hasLegacy = Array.isArray(legacyResponse?.data?.data) && legacyResponse.data.data.length > 0;
+        const hasScraped = Array.isArray(scrapedResponse?.data?.data) && scrapedResponse.data.data.length > 0;
+        
+        setHasInventory(hasLegacy || hasScraped);
+      } catch (err) {
+        console.error("Inventory check failed:", err);
+        setHasInventory(false);
       }
+    };
 
-      setShowAdModal(true);
-    } catch {
-      setUnlockError("Unable to verify file inventory. Please try again.");
-    } finally {
-      setCheckingInventory(false);
+    checkInventory();
+  }, []);
+
+  const openBox = () => {
+    if (hasInventory === false) {
+      setUnlockError("No approved files are available yet. Ask admin to approve uploads first.");
+      return;
     }
+    
+    if (hasInventory === null) {
+      // Still checking
+      return;
+    }
+
+    setUnlockError("");
+    setShowAdModal(true);
   };
 
   const handleAdUnlock = async (adPassToken: string) => {
@@ -122,9 +129,13 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
     try {
       // Stage 2: Call Serverless Next.js API
       const res = await api.post('/mystery/unlock', { adPassToken });
+      
+      if (!res.data?.data) {
+        throw new Error("The cloud rain was unable to retrieve your reward. Please try again.");
+      }
+
       const dbFile = res.data.data;
       
-      // Map DB schema to frontend display schema
       setReward({
         name: dbFile.title,
         description: dbFile.description,
@@ -133,12 +144,16 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         creator: dbFile.uploader || 'Anonymous',
         downloadUrl: dbFile.downloadUrl
       });
-    } catch (err) {
+    } catch (err: any) {
       setIsOpening(false);
-      const maybeError = err as { response?: { data?: { error?: string } } };
-      const apiErrorMessage = maybeError?.response?.data?.error;
-
-      setUnlockError(apiErrorMessage || "Unlock failed. Please complete the sponsor verification again.");
+      const apiErrorMessage = err.response?.data?.error || err.message;
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem("portfolio_universe_token");
+        setUnlockError("Your session has expired or is invalid. Please refresh the page and try again.");
+      } else {
+        setUnlockError(apiErrorMessage || "Unlock failed. Please complete the sponsor verification again.");
+      }
     }
   };
 
@@ -185,72 +200,30 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
   };
 
   return (
-    <div className={`relative mx-auto w-fit ${className}`}>
-      <motion.div
-        variants={boxVariants}
-        initial="closed"
-        whileHover="hover"
-        animate={isOpening ? "opening" : "closed"}
-        onClick={openBox}
-        className="relative w-48 h-48 md:w-64 md:h-64 cursor-pointer select-none touch-man-action"
-        style={{ perspective: 1000 }}
-      >
-        {/* Box */}
-        <motion.div 
-          className="absolute inset-0 rounded-3xl bg-gradient-to-br from-nebula-500/40 via-[#7f96ff]/20 to-aurora/30 border-4 border-white/30 backdrop-blur-xl shadow-2xl shadow-nebula-500/50"
-          animate={{ 
-            rotateX: isOpening ? [0, 90, 0] : 0,
-            rotateY: isOpening ? [0, 180, 360] : 0 
-          }}
-          transition={{ duration: 1.5 }}
-        >
-          {/* Lock */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/20 border-4 border-white/40 shadow-glow flex items-center justify-center">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-white/80 to-nebula-100 shadow-inner" />
-          </div>
+    <div className={`relative mx-auto w-full max-w-2xl px-4 ${className}`}>
+      <div className="relative group overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 md:p-8 shadow-[0_0_50px_-12px_rgba(127,150,255,0.2)] hover:shadow-[0_0_80px_-12px_rgba(127,150,255,0.4)] transition-shadow duration-500">
+        <div className="absolute inset-0 bg-gradient-to-br from-nebula-500/5 via-transparent to-aurora/5 pointer-events-none" />
+        
+        {/* New 3D Mystery Box Integration */}
+        <div className="relative z-10 flex flex-col items-center">
+          <MysteryBox3D 
+            isOpening={isOpening} 
+            color={reward ? rarities[reward.rarity].color.split(' ')[0].replace('bg-', '') : "#7f96ff"}
+            onClick={openBox}
+          />
           
-          {/* Glow ring */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-nebula-500 via-white/20 to-aurora opacity-70 blur-xl animate-pulse" />
-          
-          {/* Particles */}
-          <div className="absolute inset-0 rounded-3xl">
-            <motion.div 
-              className="absolute w-2 h-2 md:w-3 md:h-3 rounded-full bg-nebula-400 blur-sm top-10 left-10"
-              variants={particlesVariants}
-              animate={isOpening ? "burst" : "idle"}
-            />
-            <motion.div 
-              className="absolute w-2 h-2 md:w-3 md:h-3 rounded-full bg-aurora blur-sm top-20 right-10"
-              variants={particlesVariants}
-              animate={isOpening ? "burst" : "idle"}
-            />
-            <motion.div 
-              className="absolute w-2 h-2 md:w-3 md:h-3 rounded-full bg-ember blur-sm bottom-20 left-20"
-              variants={particlesVariants}
-              animate={isOpening ? "burst" : "idle"}
-            />
-            <motion.div 
-              className="absolute w-2 h-2 md:w-3 md:h-3 rounded-full bg-nebula-400 blur-sm bottom-10 right-20"
-              variants={particlesVariants}
-              animate={isOpening ? "burst" : "idle"}
-            />
+          <div className="mt-8 text-center space-y-2">
+            <h3 className="text-2xl font-display text-white">
+              {isOpening ? "Unlocking Your Reward..." : "Mystery Reward Box"}
+            </h3>
+            <p className="text-white/60 max-w-xs mx-auto text-sm">
+              {hasInventory === null 
+                ? "Verifying inventory availability..." 
+                : "Unlock randomized premium developer tools and resources every day."}
+            </p>
           </div>
-        </motion.div>
-
-        {/* Click prompt */}
-        <motion.div 
-          className="absolute inset-0 rounded-3xl border-4 border-transparent flex items-center justify-center bg-black/20 backdrop-blur-sm"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="text-center text-white/90">
-            <div className="text-4xl mb-2 animate-spin">🎁</div>
-            <div className="font-bold text-lg mb-1">Click to Open</div>
-            <div className="text-sm opacity-75">{checkingInventory ? 'Checking available files...' : 'Random file reward awaits'}</div>
-          </div>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Ad Gateway Modal */}
       <AdUnlockModal 

@@ -11,22 +11,22 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "The Cloud Rain | Free Tools, Mystery Box, Open Source Downloads",
+    default: "The Cloud Rain | Premium Developer Resources & Mystery Box Drops",
     template: "%s | The Cloud Rain"
   },
   description:
-    "Discover free developer tools, templates, UI kits, and curated resources. The Cloud Rain is an open-source platform with moderation-backed downloads and a mystery box unlock flow.",
+    "The Cloud Rain is the ultimate hub for premium developer resources. Access curated UI kits, source codes, AI tools, and exclusive templates for free through our interactive mystery box experience.",
   keywords: [
-    "free developer tools",
-    "open source tools",
+    "premium developer resources",
     "free UI kits",
-    "developer resources",
-    "free templates",
-    "coding tools",
-    "mystery box downloads",
-    "curated developer assets",
-    "web development resources",
-    "frontend tools"
+    "source code downloads",
+    "mystery box developer tools",
+    "web development templates",
+    "free SaaS templates",
+    "coding assets",
+    "digital designer resources",
+    "open source software library",
+    "frontend developer tools"
   ],
   applicationName: siteName,
   category: "technology",
@@ -37,16 +37,16 @@ export const metadata: Metadata = {
     type: "website",
     url: siteUrl,
     siteName,
-    title: "The Cloud Rain | Free Tools, Mystery Box, Open Source Downloads",
+    title: "The Cloud Rain | Premium Developer Resources & Mystery Box Drops",
     description:
-      "Find moderated, free developer resources including templates, courses, AI tools, and components.",
+      "Unlock curated, high-quality developer assets for free. Join The Cloud Rain community and discover exclusive UI kits, templates, and tools.",
     locale: "en_US"
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Cloud Rain | Free Tools and Open Source Downloads",
+    title: "The Cloud Rain | Premium Developer Resources",
     description:
-      "Explore curated free tools and unlock mystery rewards on an open-source, moderation-backed platform."
+      "The ultimate destination for developers. Unlock premium UI kits, source codes, and templates through our daily mystery box."
   },
   robots: {
     index: true,

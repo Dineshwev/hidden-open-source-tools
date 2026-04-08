@@ -5,9 +5,10 @@ import { getServerUser, unauthorizedResponse, errorResponse } from '@/lib/utils/
 export async function GET(req: Request) {
   try {
     const user = getServerUser(req);
-    if (!user) return unauthorizedResponse();
+    // Allowing anonymous history check (will be empty)
+    const userId = user?.userId || "anonymous_box_user";
 
-    const data = await mysteryService.getDownloadHistory(user.userId);
+    const data = await mysteryService.getDownloadHistory(userId);
     return NextResponse.json({ data }, { status: 200 });
   } catch (error: any) {
     return errorResponse(error);

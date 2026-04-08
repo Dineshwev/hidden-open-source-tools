@@ -5,8 +5,7 @@ import { getMysteryAdOffers, getMysteryAdWaitSeconds } from '@/lib/utils/mystery
 export async function GET(req: Request) {
   try {
     const user = getServerUser(req);
-    if (!user) return unauthorizedResponse();
-
+    // Allowing public access to offers - user session is optional here
     const offers = await getMysteryAdOffers();
     const waitSeconds = getMysteryAdWaitSeconds();
 

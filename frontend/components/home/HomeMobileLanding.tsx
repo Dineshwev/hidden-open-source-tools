@@ -69,20 +69,21 @@ export default function HomeMobileLanding() {
         </div>
       </section>
 
-      <div className="space-y-4">
-        <AdBanner
-          title="Mobile Sponsor Lane"
-          description="If the banner cannot render, this slot falls back to a sponsor offer automatically."
-          width={320}
-          height={50}
-          className="mx-auto max-w-[320px]"
-        />
+      <div className="space-y-6">
+        <div className="text-center py-4">
+           <p className="text-[10px] font-medium uppercase tracking-[0.4em] text-white/20 mb-4">Sponsored Content</p>
+           <AdBanner
+             width={320}
+             height={50}
+             className="mx-auto max-w-[320px]"
+           />
+        </div>
         <AdNativeBanner />
       </div>
 
       <section className="glass-panel rounded-[1.8rem] p-5">
-        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Performance Snapshot</p>
-        <h2 className="mt-3 font-display text-2xl text-white">Fast to scan, fast to unlock</h2>
+        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Global Activity</p>
+        <h2 className="mt-3 font-display text-2xl text-white">Live System Snapshot</h2>
         <div className="mt-5">
           <StatGrid />
         </div>
@@ -90,14 +91,15 @@ export default function HomeMobileLanding() {
 
       <TrendingDownloads />
 
-      <section className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-6">
+      <section className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-6 relative overflow-hidden">
+        <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-nebula-500/10 blur-3xl" />
         <p className="text-xs uppercase tracking-[0.3em] text-white/50">Ready For The Next Drop</p>
-        <h2 className="mt-3 font-display text-3xl text-white">Keep the flow simple on any screen</h2>
+        <h2 className="mt-3 font-display text-3xl text-white">Unlock daily premium drops</h2>
         <p className="mt-3 text-sm leading-relaxed text-white/65">
-          Sponsor cards, smartlinks, and verified assets now work together so revenue does not depend on a single ad format.
+          Join thousands of developers and designers already using The Cloud Rain for their daily resource needs.
         </p>
-        <Link href="/mystery-box" className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white px-5 py-3 text-sm font-semibold text-black">
-          Open Mystery Box <Sparkles className="h-4 w-4" />
+        <Link href="/mystery-box" className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-6 py-4 text-sm font-bold text-black shadow-xl">
+          Start Mystery Box <Sparkles className="h-4 w-4" />
         </Link>
       </section>
     </div>

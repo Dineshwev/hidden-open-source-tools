@@ -8,16 +8,28 @@ import { sanitizeText } from "../utils/sanitize.js";
 import { uploadSchema } from "../validators/fileValidators.js";
 
 export async function getApprovedFiles() {
-  return prisma.file.findMany({
-    where: { status: "APPROVED" },
-    include: {
-      category: true,
-      uploader: {
-        select: { username: true }
-      }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  try {
+    const files = await prisma.file.findMany({
+      where: { status: "APPROVED" },
+      include: {
+        category: true,
+        uploader: {
+          select: { username: true }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+
+    return files.map(file => ({
+      ...file,
+      category: file.category || { name: "Other" },
+      uploader: file.uploader || { username: "Anonymous" }
+    }));
+  } catch (err) {
+    console.error("[FILE SERVICE] getApprovedFiles failed:", err);
+    // Return empty array instead of throwing to avoid 500
+    return [];
+  }
 }
 
 export async function getTrendingFiles() {

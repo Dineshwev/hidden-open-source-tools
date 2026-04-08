@@ -5,9 +5,9 @@ import { signMysteryAdChallengeToken } from '@/lib/utils/jwt.js';
 export async function POST(req: Request) {
   try {
     const user = getServerUser(req);
-    if (!user) return unauthorizedResponse();
-
-    const challengeToken = signMysteryAdChallengeToken(user.userId);
+    // Use the real user ID or a fallback anonymous session ID
+    const userId = user?.userId || "anonymous_box_user";
+    const challengeToken = signMysteryAdChallengeToken(userId);
 
     return NextResponse.json(
       {

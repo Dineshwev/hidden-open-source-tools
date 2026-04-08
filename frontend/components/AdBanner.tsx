@@ -126,8 +126,8 @@ export default function AdBanner({
 
   return (
     <div className={`flex w-full justify-center ${className}`}>
-      <div className="relative flex w-full max-w-full flex-col items-center gap-2">
-        <span className="text-[10px] uppercase tracking-[0.28em] text-white/35">Advertisement</span>
+      <div className="relative flex w-full max-w-full flex-col items-center gap-3">
+        <span className="text-[10px] font-medium uppercase tracking-[0.4em] text-white/20">Sponsored Content</span>
         <div
           ref={containerRef}
           className="overflow-hidden rounded-2xl border border-white/10 bg-black/20"

@@ -24,60 +24,60 @@ export default function HomeDesktopLanding() {
               </div>
 
               <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
-                Embedded ads when they work,
-                <span className="text-gradient-magic"> sponsor fallbacks when they do not</span>
+                The Ultimate Hub for 
+                <span className="text-gradient-magic"> Premium Developer Resources</span>
               </h1>
 
               <p className="max-w-2xl text-lg leading-relaxed text-white/72">
-                The Cloud Rain helps users unlock premium files without subscriptions. Banner and native units stay live where possible, and backup sponsor cards keep revenue paths open when a browser blocks ad rendering.
+                Access curated UI kits, source codes, AI tools, and exclusive templates. Unlock high-quality assets through our interactive mystery box experience and support the open-source community.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base">
+                <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base px-8 py-4">
                   Open Mystery Box <Sparkles className="h-4 w-4" />
                 </Link>
                 <Link
-                  href="/upload"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  href="/free-tools"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Become a Contributor <ArrowRight className="h-4 w-4" />
+                  Explore Free Tools <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
 
               <div className="grid gap-3 pt-4 sm:grid-cols-3">
                 <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
-                  <p className="font-display text-2xl text-white">24/7</p>
-                  Active unlock flow
+                  <p className="font-display text-2xl text-white">5,000+</p>
+                  Curated Resources
                 </div>
                 <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
-                  <p className="font-display text-2xl text-white">Fallback Ready</p>
-                  Sponsor card backup
+                  <p className="font-display text-2xl text-white">Daily</p>
+                  New Mystery Drops
                 </div>
                 <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
                   <p className="font-display text-2xl text-white">Verified</p>
-                  Human moderated resources
+                  Moderated Contents
                 </div>
               </div>
             </div>
 
             <aside className="glass-panel depth-stage rounded-[1.6rem] p-6 md:p-8">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Unlock Journey</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Community Activity</p>
               <div className="mt-6 space-y-4">
                 {[
                   {
-                    icon: <PlayCircle className="h-5 w-5" />,
-                    title: "Try embedded sponsor ad",
-                    text: "Users see a standard banner or native slot first when their browser allows it."
+                    icon: <Sparkles className="h-5 w-5 text-yellow-400" />,
+                    title: "Legendary Reward Unlocked",
+                    text: "A user just unlocked a Premium Next.js Dashboard Template!"
                   },
                   {
-                    icon: <Shield className="h-5 w-5" />,
-                    title: "Fallback when blocked",
-                    text: "If rendering fails, a sponsor card keeps the visit monetizable without breaking the page."
+                    icon: <Shield className="h-5 w-5 text-blue-400" />,
+                    title: "New Tools Verified",
+                    text: "15 new AI-powered developer utilities have been added to the library."
                   },
                   {
-                    icon: <BadgeCheck className="h-5 w-5" />,
-                    title: "Keep downloads moving",
-                    text: "Approved assets and smartlink offers continue the flow instead of leaving dead space."
+                    icon: <BadgeCheck className="h-5 w-5 text-green-400" />,
+                    title: "Contributor Milestone",
+                    text: "Dineshwev reached 500+ successful resource contributions."
                   }
                 ].map((step) => (
                   <article key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
@@ -90,64 +90,55 @@ export default function HomeDesktopLanding() {
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/85">
-                <p className="inline-flex items-center gap-2 font-semibold">
-                  <TimerReset className="h-4 w-4" /> Daily mystery reset
-                </p>
-                <p className="mt-2 text-white/65">Return every day to unlock limited drops and maintain your streak bonus.</p>
+              <div className="mt-8 pt-8 border-t border-white/5">
+                 <p className="text-xs uppercase tracking-[0.3em] text-white/40 mb-4 text-center text-center">Featured Supporter</p>
+                 <AdBanner width={300} height={250} className="mx-auto" />
               </div>
             </aside>
           </div>
         </section>
 
-        <div className="space-y-4">
-          <AdBanner
-            title="Featured Creator Tools"
-            description="This slot now falls back to a sponsor card automatically when the banner cannot render."
-            width={320}
-            height={50}
-            className="mx-auto max-w-[320px] md:hidden"
-          />
-          <AdBanner
-            title="Featured Creator Tools"
-            description="This slot now falls back to a sponsor card automatically when the banner cannot render."
-            width={468}
-            height={60}
-            className="mx-auto hidden max-w-[468px] md:flex"
-          />
-        </div>
+        <section className="space-y-12">
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="text-xs uppercase tracking-[0.3em] text-nebula-400 font-bold">Trending Assets</p>
+            <h2 className="mt-4 font-display text-4xl text-white">Most Downloaded This Week</h2>
+            <p className="mt-4 text-white/50">Discover what other developers are using to build the next generation of web applications.</p>
+          </div>
+          
+          <TrendingDownloads />
+        </section>
 
-        <AdNativeBanner />
-
-        <div className="space-y-4">
-          <AdBanner width={320} height={50} className="mx-auto max-w-[320px] md:hidden" />
-          <AdBanner width={468} height={60} className="mx-auto hidden max-w-[468px] md:flex" />
+        <div className="py-12 px-6 rounded-[3rem] bg-gradient-to-r from-nebula-900/40 via-aurora-900/20 to-nebula-900/40 border border-white/5 text-center">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/40">Community Sponsors</p>
+            <div className="mt-8 flex justify-center">
+               <AdNativeBanner />
+            </div>
         </div>
 
         <section className="space-y-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/55">Why users stay longer</p>
-              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Designed for blocked and unblocked browsers alike</h2>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/55">Quality Guaranteed</p>
+              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Why Developers Choose The Cloud Rain</h2>
             </div>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
             {[
               {
-                title: "No Dead Inventory",
-                desc: "When a banner fails, the section still carries a monetization path through a sponsor fallback."
+                title: "Zero Subscriptions",
+                desc: "Get access to high-value assets without monthly fees through our rewarded unlock system."
               },
               {
-                title: "Clear Progress Loops",
-                desc: "Daily resets, rarity labels, and contributor reputation create momentum and longer exploration sessions."
+                title: "Fast Discovery",
+                desc: "Our intelligent search and categorization find the tools you need in seconds, not minutes."
               },
               {
-                title: "Mobile First Choices",
-                desc: "The primary homepage now favors smaller screens and only expands into the denser desktop experience when space allows."
+                title: "Safe and Secure",
+                desc: "Every resource is manually reviewed by our moderation team to ensure code safety and quality."
               }
             ].map((feature) => (
-              <article key={feature.title} className="glass-card depth-panel rounded-3xl p-7">
-                <h3 className="font-display text-2xl text-white">{feature.title}</h3>
+              <article key={feature.title} className="glass-card depth-panel rounded-3xl p-7 hover:border-nebula-500/30 transition-colors">
+                <h3 className="font-display text-2xl text-white group-hover:text-nebula-400 transition-colors">{feature.title}</h3>
                 <p className="mt-3 text-white/65">{feature.desc}</p>
               </article>
             ))}
@@ -157,14 +148,14 @@ export default function HomeDesktopLanding() {
         <section className="glass-panel depth-stage rounded-[2rem] p-6 md:p-8 lg:p-10">
           <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/55">Performance Snapshot</p>
-              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Built to keep visits monetizable</h2>
+              <p className="text-xs uppercase tracking-[0.3em] text-white/55">Global Network</p>
+              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Real-time Platform Activity</h2>
             </div>
             <Link
               href="/dashboard"
               className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2 text-sm text-white/85 transition hover:border-white/30"
             >
-              Open Dashboard <ArrowRight className="h-4 w-4" />
+              View System Status <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
           <StatGrid />
@@ -172,27 +163,25 @@ export default function HomeDesktopLanding() {
 
         <StatsTicker />
 
-        <AdBanner width={300} height={250} className="mx-auto max-w-[300px]" />
-
         <div className="space-y-24">
-          <TrendingDownloads />
           <TopContributors />
         </div>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-8 md:p-12">
-          <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-white/60">Ready To Scale Engagement</p>
-            <h2 className="mt-3 font-display text-3xl text-white md:text-5xl">Launch the next unlock session without depending on one ad format</h2>
-            <p className="mt-4 text-white/70">
-              Explore trending drops, keep sponsor opportunities visible, and let fallback cards protect revenue when a browser blocks embedded ads.
+        <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-8 md:p-12 overflow-hidden relative">
+          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-nebula-500/20 blur-[100px]" />
+          <div className="mx-auto max-w-3xl text-center relative z-10">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/60">Join The Community</p>
+            <h2 className="mt-3 font-display text-4xl text-white md:text-6xl">Ready to upgrade your workflow?</h2>
+            <p className="mt-6 text-xl text-white/70">
+              Start your journey with a daily mystery box unlock and discover the best resources for your next big project.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base">
-                Start Unlock Flow <Sparkles className="h-4 w-4" />
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-lg px-10 py-5">
+                Start Mystery Unlock <Sparkles className="h-5 w-5" />
               </Link>
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-8 py-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
                 Create Free Account <ArrowRight className="h-4 w-4" />
               </Link>
