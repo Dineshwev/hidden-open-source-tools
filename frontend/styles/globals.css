@@ -5,6 +5,18 @@
 @tailwind utilities;
 
 :root {
+  --bg-base: #fafafa;
+  --bg-elevated: #ffffff;
+  --surface-glass: rgba(0, 0, 0, 0.04);
+  --surface-border: rgba(0, 0, 0, 0.1);
+  --text-primary: #111111;
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --brand-cyan: #0891b2;
+  --brand-blue: #2563eb;
+  --brand-orange: #ea580c;
+}
+
+:root.dark {
   --bg-base: #050505;
   --bg-elevated: #101010;
   --surface-glass: rgba(255, 255, 255, 0.06);

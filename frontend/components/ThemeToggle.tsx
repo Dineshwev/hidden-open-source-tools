@@ -21,10 +21,10 @@ export default function ThemeToggle({ className = 'ml-auto' }: { className?: str
     }
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = !isDark;
-    setIsDark(newTheme);
-    localStorage.theme = newTheme ? 'dark' : 'light';
+  const setTheme = (dark: boolean) => {
+    setIsDark(dark);
+    localStorage.theme = dark ? 'dark' : 'light';
+    setIsOpen(false);
   };
 
   return (
@@ -51,13 +51,13 @@ export default function ThemeToggle({ className = 'ml-auto' }: { className?: str
           className="absolute top-full right-0 mt-2 w-48 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-3 shadow-glow-lg"
         >
           <motion.button
-            onClick={toggleTheme}
+            onClick={() => setTheme(false)}
             className="flex w-full items-center gap-3 rounded-xl p-3 text-left hover:bg-white/10 transition-colors"
             whileHover={{ x: 4 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-nebula-400 p-2 shadow-glow-xs">
-              <Sun className="h-6 w-6 text-nebula-100" />
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-aurora/30 to-amber/30 p-2 shadow-glow-xs">
+              <Sun className="h-6 w-6 text-aurora" />
             </div>
             <div>
               <p className="font-medium text-white">Light Mode</p>
@@ -66,13 +66,13 @@ export default function ThemeToggle({ className = 'ml-auto' }: { className?: str
           </motion.button>
           
           <motion.button
-            onClick={toggleTheme}
+            onClick={() => setTheme(true)}
             className="flex w-full items-center gap-3 rounded-xl p-3 text-left hover:bg-white/10 transition-colors mt-2"
             whileHover={{ x: 4 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-ember/20 p-2 shadow-glow-xs">
-              <Moon className="h-6 w-6 text-ember" />
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-nebula-500/20 p-2 shadow-glow-xs">
+              <Moon className="h-6 w-6 text-nebula-200" />
             </div>
             <div>
               <p className="font-medium text-white">Dark Mode</p>

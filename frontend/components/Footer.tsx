@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdBanner from "./AdBanner";
+import Logo from "./Logo";
 
 const mainLinks = [
   { href: "/", label: "Home" },
@@ -39,7 +40,7 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[1.2fr_1fr_1fr]">
         <div className="space-y-5">
           <p className="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white">
-            <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-white to-neutral-500" />
+            <Logo size={32} />
             The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">

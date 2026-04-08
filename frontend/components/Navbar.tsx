@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { Search, Box, LayoutDashboard, LockKeyhole, Upload, Menu, X } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import Logo from "./Logo";
 
 const links = [
   { href: "/", label: "Home" },
@@ -41,7 +42,7 @@ export default function Navbar() {
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <Link href="/" className="flex items-center gap-3">
-            <span className="h-8 w-8 rounded-lg border border-white/20 bg-gradient-to-br from-white to-neutral-500" />
+            <Logo size={32} className="rounded-lg shadow-glow-sm" />
             <div>
               <p className="font-display text-sm uppercase tracking-[0.28em] text-white/55">The Cloud</p>
               <p className="font-display text-lg leading-none text-gradient">Rain</p>

@@ -6,6 +6,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { Frown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import SponsorModal from "@/components/SponsorModal";
 import type { PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
 type ToolsApiResponse = PaginatedResponse<ScrapedTool>;
@@ -54,6 +55,8 @@ export default function FreeToolsPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [failedImages, setFailedImages] = useState<string[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [targetUrl, setTargetUrl] = useState("");
 
   const activeCategory = useMemo(
     () => categoryTabs.find((tab) => tab.key === selectedCategory) || categoryTabs[0],
@@ -137,11 +140,10 @@ export default function FreeToolsPage() {
               key={tab.key}
               type="button"
               onClick={() => setSelectedCategory(tab.key)}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
-                selectedCategory === tab.key
+              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${selectedCategory === tab.key
                   ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
                   : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -158,73 +160,81 @@ export default function FreeToolsPage() {
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {renderSkeletons
           ? Array.from({ length: 6 }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
-                <div className="h-44 rounded-2xl bg-white/10" />
-                <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
-                <div className="mt-3 h-3 w-full rounded bg-white/10" />
-                <div className="mt-2 h-3 w-11/12 rounded bg-white/10" />
-                <div className="mt-2 h-3 w-2/3 rounded bg-white/10" />
-                <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
-              </div>
-            ))
+            <div key={`skeleton-${index}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
+              <div className="h-44 rounded-2xl bg-white/10" />
+              <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
+              <div className="mt-3 h-3 w-full rounded bg-white/10" />
+              <div className="mt-2 h-3 w-11/12 rounded bg-white/10" />
+              <div className="mt-2 h-3 w-2/3 rounded bg-white/10" />
+              <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
+            </div>
+          ))
           : tools.map((tool, index) => {
-              const imageSrc = failedImages.includes(tool.id) || !tool.image_url ? FALLBACK_IMAGE : tool.image_url;
+            const imageSrc = failedImages.includes(tool.id) || !tool.image_url ? FALLBACK_IMAGE : tool.image_url;
 
-              return (
-                <motion.article
-                  key={tool.id}
-                  className="glass-card rounded-3xl border border-white/10 p-4"
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25) }}
-                >
-                  <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-                    <Image
-                      src={imageSrc}
-                      alt={tool.title}
-                      width={1200}
-                      height={700}
-                      className="h-44 w-full object-cover"
-                      onError={() =>
-                        setFailedImages((previous) =>
-                          previous.includes(tool.id) ? previous : [...previous, tool.id]
-                        )
-                      }
-                    />
-                    <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/60 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-cyan-100">
-                      {tool.category}
-                    </span>
-                  </div>
+            return (
+              <motion.article
+                key={tool.id}
+                className="glass-card rounded-3xl border border-white/10 p-4"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25) }}
+              >
+                <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+                  <Image
+                    src={imageSrc}
+                    alt={tool.title}
+                    width={1200}
+                    height={700}
+                    className="h-44 w-full object-cover"
+                    onError={() =>
+                      setFailedImages((previous) =>
+                        previous.includes(tool.id) ? previous : [...previous, tool.id]
+                      )
+                    }
+                  />
+                  <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/60 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-cyan-100">
+                    {tool.category}
+                  </span>
+                </div>
 
-                  <div className="mt-4 space-y-3">
-                    <h3 className="font-display text-xl text-white">{tool.title}</h3>
-                    <p
-                      className="text-sm leading-6 text-white/65"
-                      style={{
-                        display: "-webkit-box",
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden"
-                      }}
-                    >
-                      {clampDescription(tool.description)}
-                    </p>
-                    <p className="text-xs uppercase tracking-[0.18em] text-white/45">
-                      {tool.source_site || toDomainLabel(tool.webpage_url)}
-                    </p>
-                    <a
-                      href={tool.webpage_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
-                    >
-                      Visit Resource →
-                    </a>
-                  </div>
-                </motion.article>
-              );
-            })}
+                <div className="mt-4 space-y-3">
+                  <h3 className="font-display text-xl text-white">{tool.title}</h3>
+                  <p
+                    className="text-sm leading-6 text-white/65"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden"
+                    }}
+                  >
+                    {clampDescription(tool.description)}
+                  </p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-white/45">
+                    {tool.source_site || toDomainLabel(tool.webpage_url)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTargetUrl(tool.webpage_url);
+                      setModalOpen(true);
+                    }}
+                    className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+                  >
+                    Visit Resource →
+                  </button>
+                </div>
+              </motion.article>
+            );
+          })}
       </section>
+
+      <SponsorModal 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        targetUrl={targetUrl} 
+      />
 
       {!loading && tools.length === 0 ? (
         <section className="glass-panel flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">

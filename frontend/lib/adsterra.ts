@@ -91,6 +91,10 @@ export function getAdsterraNativeBannerScriptUrl() {
   return process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_BANNER_SCRIPT_URL?.trim() || "";
 }
 
+export function getAdsterraInterstitialScriptUrl() {
+  return process.env.NEXT_PUBLIC_ADSTERRA_INTERSTITIAL_SCRIPT_URL?.trim() || "";
+}
+
 export function getAdsterraWaitSeconds() {
   const configured = Number(process.env.NEXT_PUBLIC_ADSTERRA_WAIT_SECONDS ?? DEFAULT_WAIT_SECONDS);
 
