@@ -14,6 +14,8 @@ const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/upload", label: "Upload", icon: Upload },
+  { href: "/contact", label: "Contact" },
+  { href: "/general-queries", label: "General Queries" },
   { href: "/login", label: "Login", icon: LockKeyhole }
 ];
 
