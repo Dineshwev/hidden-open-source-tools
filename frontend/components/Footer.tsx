@@ -63,6 +63,12 @@ export default function Footer() {
               </li>
             ))}
           </ul>
+          <Link
+            href="/contact"
+            className="inline-flex items-center rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+          >
+            Contact Us
+          </Link>
         </div>
 
         <div className="space-y-4">

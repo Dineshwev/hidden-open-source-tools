@@ -4,25 +4,48 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, Box, LayoutDashboard, LockKeyhole, Upload, Menu, X } from "lucide-react";
+import { Search, LockKeyhole, Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import Logo from "./Logo";
 
-const links = [
+const primaryDesktopLinks = [
   { href: "/", label: "Home" },
-  { href: "/mystery-box", label: "Mystery Box", icon: Box },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/free-tools", label: "Free Tools", isNew: true },
-  { href: "/upload", label: "Upload", icon: Upload },
+  { href: "/mystery-box", label: "Mystery Box" },
+  { href: "/dashboard", label: "Dashboard" }
+];
+
+const communityLinks = [
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
-  { href: "/login", label: "Login", icon: LockKeyhole }
+  { href: "/upload", label: "Upload" }
+];
+
+const mobileLinks = [
+  { href: "/", label: "Home" },
+  { href: "/free-tools", label: "Free Tools", isNew: true },
+  { href: "/mystery-box", label: "Mystery Box" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/contact", label: "Contact" },
+  { href: "/general-queries", label: "General Queries" },
+  { href: "/upload", label: "Upload" },
+  { href: "/login", label: "Login" }
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
+  const communityActive = communityLinks.some((item) => isActive(item.href));
 
   const closePanels = () => {
     setSearchOpen(false);
@@ -31,7 +54,7 @@ export default function Navbar() {
 
   return (
     <motion.header
-      className="sticky top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-[color:var(--nav-border)] bg-[var(--nav-bg)] text-[color:var(--nav-text)] backdrop-blur-xl"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -46,27 +69,31 @@ export default function Navbar() {
           <Link href="/" className="flex items-center gap-3">
             <Logo size={32} className="rounded-lg shadow-glow-sm" />
             <div>
-              <p className="font-display text-sm uppercase tracking-[0.28em] text-white/55">The Cloud</p>
+              <p className="font-display text-sm uppercase tracking-[0.28em] text-[color:var(--nav-muted)]">The Cloud</p>
               <p className="font-display text-lg leading-none text-gradient">Rain</p>
             </div>
           </Link>
         </motion.div>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {links.map(({ href, label, icon: Icon, isNew }, index) => {
-            const active = pathname === href;
+          {primaryDesktopLinks.map(({ href, label, isNew }, index) => {
+            const active = isActive(href);
 
             return (
-              <motion.div key={href} initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + index * 0.05 }}>
+              <motion.div
+                key={href}
+                initial={{ opacity: 0, y: -12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + index * 0.05 }}
+              >
                 <Link
                   href={href}
                   className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
                     active
-                      ? "border border-white/20 bg-white/10 text-white"
-                      : "border border-transparent bg-white/[0.03] text-white/70 hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
+                      ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
+                      : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
                   }`}
                 >
-                  {Icon ? <Icon className="h-4 w-4" /> : null}
                   <span>{label}</span>
                   {isNew ? (
                     <span className="rounded-full border border-cyan-300/45 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
@@ -77,12 +104,51 @@ export default function Navbar() {
               </motion.div>
             );
           })}
+
+          <motion.div
+            className="group relative"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + primaryDesktopLinks.length * 0.05 }}
+          >
+            <button
+              type="button"
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+                communityActive
+                  ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
+                  : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
+              }`}
+            >
+              <span>Community</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+
+            <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-56 -translate-x-1/2 rounded-2xl border border-[color:var(--nav-border)] bg-[var(--nav-dropdown-bg)] p-2 opacity-0 shadow-2xl backdrop-blur-xl transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-1 group-hover:opacity-100">
+              {communityLinks.map(({ href, label }) => {
+                const active = isActive(href);
+
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`mb-1 flex items-center rounded-xl px-3 py-2 text-sm last:mb-0 ${
+                      active
+                        ? "bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
+                        : "text-[color:var(--nav-muted)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.div>
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
           <motion.button
             onClick={() => setSearchOpen(!searchOpen)}
-            className="rounded-full border border-white/10 bg-white/5 p-2 transition-all hover:bg-white/10"
+            className="rounded-full border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] p-2 text-[color:var(--nav-text)] transition-all hover:bg-[color:var(--nav-pill-hover)]"
             whileHover={{ scale: 1.08, rotate: 18 }}
             whileTap={{ scale: 0.95 }}
             aria-label="Open search"
@@ -93,15 +159,20 @@ export default function Navbar() {
           <ThemeToggle />
 
           <Link
-            href="/mystery-box"
-            className="hidden rounded-full border border-white/15 bg-gradient-to-r from-white to-neutral-400 px-5 py-2 text-sm font-semibold text-black transition hover:scale-[1.02] md:inline-flex"
+            href="/login"
+            className={`hidden items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition lg:inline-flex ${
+              isActive("/login")
+                ? "border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
+                : "border-[color:var(--nav-border)] bg-transparent text-[color:var(--nav-muted)] hover:border-[color:var(--nav-pill-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
+            }`}
           >
-            Start Unlocking
+            <LockKeyhole className="h-4 w-4" />
+            Login
           </Link>
 
           <button
             type="button"
-            className="inline-flex rounded-full border border-white/10 bg-white/5 p-2 text-white lg:hidden"
+            className="inline-flex rounded-full border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] p-2 text-[color:var(--nav-text)] lg:hidden"
             onClick={() => setMobileOpen((open) => !open)}
             aria-label="Toggle mobile menu"
           >
@@ -112,16 +183,16 @@ export default function Navbar() {
 
       {searchOpen && (
         <motion.div
-          className="absolute right-4 top-full mt-2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-white/15 bg-[#111111]/95 p-4 shadow-2xl md:right-6"
+          className="absolute right-4 top-full mt-2 w-[calc(100%-2rem)] max-w-md rounded-2xl border border-[color:var(--nav-border)] bg-[var(--nav-search-bg)] p-4 shadow-2xl md:right-6"
           initial={{ opacity: 0, scale: 0.9, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
         >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[color:var(--nav-muted)]" />
             <input
               type="text"
               placeholder="Search files, creators, categories..."
-              className="w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-12 pr-4 text-white/90 placeholder-white/45 focus:border-white/40 focus:outline-none"
+              className="w-full rounded-xl border border-[color:var(--nav-input-border)] bg-[color:var(--nav-input-bg)] py-3 pl-12 pr-4 text-[color:var(--nav-text)] placeholder-[color:var(--nav-input-placeholder)] focus:border-[color:var(--nav-pill-border)] focus:outline-none"
               autoFocus
             />
           </div>
@@ -130,13 +201,13 @@ export default function Navbar() {
 
       {mobileOpen && (
         <motion.div
-          className="border-t border-white/10 bg-[#0f0f0f]/95 px-4 py-4 lg:hidden"
+          className="border-t border-[color:var(--nav-border)] bg-[var(--nav-dropdown-bg)] px-4 py-4 lg:hidden"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="grid grid-cols-1 gap-2">
-            {links.map(({ href, label, icon: Icon, isNew }) => {
-              const active = pathname === href;
+            {mobileLinks.map(({ href, label, isNew }) => {
+              const active = isActive(href);
 
               return (
                 <Link
@@ -145,11 +216,10 @@ export default function Navbar() {
                   onClick={closePanels}
                   className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
                     active
-                      ? "border border-white/20 bg-white/10 text-white"
-                      : "border border-white/10 bg-white/[0.04] text-white/80"
+                      ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
+                      : "border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)]"
                   }`}
                 >
-                  {Icon ? <Icon className="h-4 w-4" /> : null}
                   {label}
                   {isNew ? (
                     <span className="ml-auto rounded-full border border-cyan-300/45 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100">

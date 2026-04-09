@@ -17,7 +17,19 @@ export default function ThemeToggle({ className = 'ml-auto' }: { className?: str
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsDark(localStorage.theme !== 'light' || window.matchMedia('(prefers-color-scheme: dark)').matches);
+      const savedTheme = localStorage.getItem('theme');
+
+      if (savedTheme === 'dark') {
+        setIsDark(true);
+        return;
+      }
+
+      if (savedTheme === 'light') {
+        setIsDark(false);
+        return;
+      }
+
+      setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
   }, []);
 

@@ -14,6 +14,23 @@
   --brand-cyan: #0891b2;
   --brand-blue: #2563eb;
   --brand-orange: #ea580c;
+  --bg-layer-1: radial-gradient(68rem 34rem at 12% -10%, rgba(37, 99, 235, 0.14), transparent 60%);
+  --bg-layer-2: radial-gradient(58rem 30rem at 92% -20%, rgba(8, 145, 178, 0.11), transparent 62%);
+  --bg-layer-3: radial-gradient(40rem 24rem at 50% 110%, rgba(14, 165, 233, 0.08), transparent 70%);
+  --bg-layer-4: linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
+  --nav-bg: rgba(255, 255, 255, 0.86);
+  --nav-border: rgba(15, 23, 42, 0.12);
+  --nav-text: #0f172a;
+  --nav-muted: rgba(15, 23, 42, 0.72);
+  --nav-pill-bg: rgba(15, 23, 42, 0.04);
+  --nav-pill-hover: rgba(15, 23, 42, 0.08);
+  --nav-pill-active: rgba(15, 23, 42, 0.13);
+  --nav-pill-border: rgba(15, 23, 42, 0.16);
+  --nav-dropdown-bg: rgba(255, 255, 255, 0.97);
+  --nav-search-bg: rgba(255, 255, 255, 0.96);
+  --nav-input-bg: rgba(15, 23, 42, 0.03);
+  --nav-input-border: rgba(15, 23, 42, 0.16);
+  --nav-input-placeholder: rgba(15, 23, 42, 0.45);
 }
 
 :root.dark {
@@ -26,6 +43,23 @@
   --brand-cyan: #d4d4d4;
   --brand-blue: #8b8b8b;
   --brand-orange: #b8b8b8;
+  --bg-layer-1: radial-gradient(68rem 34rem at 12% -10%, rgba(255, 255, 255, 0.09), transparent 60%);
+  --bg-layer-2: radial-gradient(58rem 30rem at 92% -20%, rgba(255, 255, 255, 0.05), transparent 62%);
+  --bg-layer-3: radial-gradient(40rem 24rem at 50% 110%, rgba(255, 255, 255, 0.04), transparent 70%);
+  --bg-layer-4: linear-gradient(180deg, #050505 0%, #090909 100%);
+  --nav-bg: rgba(0, 0, 0, 0.85);
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --nav-text: #ffffff;
+  --nav-muted: rgba(255, 255, 255, 0.7);
+  --nav-pill-bg: rgba(255, 255, 255, 0.03);
+  --nav-pill-hover: rgba(255, 255, 255, 0.07);
+  --nav-pill-active: rgba(255, 255, 255, 0.1);
+  --nav-pill-border: rgba(255, 255, 255, 0.2);
+  --nav-dropdown-bg: rgba(13, 13, 13, 0.95);
+  --nav-search-bg: rgba(17, 17, 17, 0.95);
+  --nav-input-bg: rgba(255, 255, 255, 0.05);
+  --nav-input-border: rgba(255, 255, 255, 0.15);
+  --nav-input-placeholder: rgba(255, 255, 255, 0.45);
 }
 
 html {
@@ -38,10 +72,10 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-base);
   background-image:
-    radial-gradient(68rem 34rem at 12% -10%, rgba(255, 255, 255, 0.09), transparent 60%),
-    radial-gradient(58rem 30rem at 92% -20%, rgba(255, 255, 255, 0.05), transparent 62%),
-    radial-gradient(40rem 24rem at 50% 110%, rgba(255, 255, 255, 0.04), transparent 70%),
-    linear-gradient(180deg, #050505 0%, #090909 100%);
+    var(--bg-layer-1),
+    var(--bg-layer-2),
+    var(--bg-layer-3),
+    var(--bg-layer-4);
   min-height: 100vh;
   overflow-x: hidden;
 }
