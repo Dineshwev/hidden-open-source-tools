@@ -131,12 +131,22 @@ function buildUpdatePayloadVariants(status: AdminUpdatePayload["status"], note?:
     {
       ...baseWithoutReviewedAt,
       moderation_note: trimmedNote
+    },
+    {
+      ...baseWithReviewedAt
+    },
+    {
+      ...baseWithoutReviewedAt
     }
   ];
 }
 
 function shouldRetryWithFallback(error: any, payload: Record<string, string>) {
   if (isMissingReviewedAtColumnError(error) && "reviewed_at" in payload) {
+    return true;
+  }
+
+  if (isMissingModerationNoteColumnError(error) && "moderation_note" in payload) {
     return true;
   }
 
@@ -336,10 +346,6 @@ export async function updateToolStatus(id: string, status: AdminUpdatePayload["s
 
     return mapDbTool(data);
   } catch (error: any) {
-    if (isMissingModerationNoteColumnError(error)) {
-      throw new Error("Failed to save moderation note: missing 'moderation_note' column. Run the SQL migration first.");
-    }
-
     throw new Error(error?.message || "Failed to update tool status");
   }
 }
@@ -388,10 +394,6 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
 
     return affected;
   } catch (error: any) {
-    if (isMissingModerationNoteColumnError(error)) {
-      throw new Error("Failed to save moderation note: missing 'moderation_note' column. Run the SQL migration first.");
-    }
-
     throw new Error(error?.message || "Failed to bulk update tool status");
   }
 }
