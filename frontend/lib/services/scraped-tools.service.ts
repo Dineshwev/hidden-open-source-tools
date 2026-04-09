@@ -101,6 +101,57 @@ function splitToolId(compositeId: string) {
   };
 }
 
+function isMissingReviewedAtColumnError(error: any) {
+  const message = String(error?.message || "").toLowerCase();
+  return message.includes("reviewed_at") && message.includes("column");
+}
+
+async function updateOpenSourceToolById(id: string, status: AdminUpdatePayload["status"]) {
+  const withReviewedAt = await supabaseAdmin
+    .from("open_source_tools")
+    .update({ status, reviewed_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("*")
+    .single();
+
+  if (!withReviewedAt.error) {
+    return withReviewedAt;
+  }
+
+  if (!isMissingReviewedAtColumnError(withReviewedAt.error)) {
+    return withReviewedAt;
+  }
+
+  return supabaseAdmin
+    .from("open_source_tools")
+    .update({ status })
+    .eq("id", id)
+    .select("*")
+    .single();
+}
+
+async function bulkUpdateOpenSourceTools(ids: string[], status: AdminUpdatePayload["status"]) {
+  const withReviewedAt = await supabaseAdmin
+    .from("open_source_tools")
+    .update({ status, reviewed_at: new Date().toISOString() })
+    .in("id", ids)
+    .select("id");
+
+  if (!withReviewedAt.error) {
+    return withReviewedAt;
+  }
+
+  if (!isMissingReviewedAtColumnError(withReviewedAt.error)) {
+    return withReviewedAt;
+  }
+
+  return supabaseAdmin
+    .from("open_source_tools")
+    .update({ status })
+    .in("id", ids)
+    .select("id");
+}
+
 function normalizePage(value?: number) {
   const parsed = Number(value ?? DEFAULT_PAGE);
   if (!Number.isFinite(parsed)) return DEFAULT_PAGE;
@@ -209,12 +260,7 @@ export async function updateToolStatus(id: string, status: AdminUpdatePayload["s
     const toolRef = splitToolId(id);
 
     if (toolRef.table === "open_source_tools") {
-      const { data: openSourceData, error: openSourceError } = await supabaseAdmin
-        .from("open_source_tools")
-        .update({ status, reviewed_at: new Date().toISOString() })
-        .eq("id", toolRef.id)
-        .select("*")
-        .single();
+      const { data: openSourceData, error: openSourceError } = await updateOpenSourceToolById(toolRef.id, status);
 
       if (openSourceError) {
         throw new Error(`Failed to update tool status: ${openSourceError.message}`);
@@ -277,11 +323,7 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
     }
 
     if (splitIds.openSource.length > 0) {
-      const { data, error } = await supabaseAdmin
-        .from("open_source_tools")
-        .update({ status, reviewed_at: new Date().toISOString() })
-        .in("id", splitIds.openSource)
-        .select("id");
+      const { data, error } = await bulkUpdateOpenSourceTools(splitIds.openSource, status);
 
       if (error) {
         throw new Error(`Failed to bulk update tool status: ${error.message}`);
