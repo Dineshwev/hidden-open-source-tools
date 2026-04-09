@@ -14,8 +14,14 @@ type ToastState = {
   message: string;
 };
 
+type SourceFilter = "all" | "open-source" | "scraped";
+
 const ACCESS_KEY_STORAGE = "cloud_rain_admin_access_key";
+const SOURCE_FILTER_STORAGE = "cloud_rain_admin_source_filter";
+const CATEGORY_FILTER_STORAGE = "cloud_rain_admin_category_filter";
+const SEARCH_QUERY_STORAGE = "cloud_rain_admin_search_query";
 const PAGE_SIZE = 12;
+const OPEN_SOURCE_ID_PREFIX = "ost__";
 
 function safeDomainLabel(url: string) {
   try {
@@ -31,6 +37,28 @@ function trimSummary(text: string | null, maxLength = 160) {
   return `${text.slice(0, maxLength).trimEnd()}...`;
 }
 
+function getOriginBadge(toolId: string) {
+  if (toolId.startsWith(OPEN_SOURCE_ID_PREFIX)) {
+    return {
+      label: "Open Source",
+      className: "border-emerald-300/30 bg-emerald-300/15 text-emerald-100"
+    };
+  }
+
+  return {
+    label: "Scraped",
+    className: "border-cyan-300/30 bg-cyan-300/15 text-cyan-100"
+  };
+}
+
+function isSourceFilter(value: string): value is SourceFilter {
+  return value === "all" || value === "open-source" || value === "scraped";
+}
+
+function isCategoryFilter(value: string): value is ToolCategory | "all" {
+  return value === "all" || value === "ui-kit" || value === "course" || value === "template" || value === "ai-tool" || value === "ui-component" || value === "other";
+}
+
 export default function ScrapedToolsAdminPanel() {
   const [accessKey, setAccessKey] = useState("");
   const [keyInput, setKeyInput] = useState("");
@@ -44,6 +72,7 @@ export default function ScrapedToolsAdminPanel() {
   const [totalPages, setTotalPages] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState<ToolCategory | "all">("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastTimerRef = useRef<number | null>(null);
@@ -107,6 +136,20 @@ export default function ScrapedToolsAdminPanel() {
     }
 
     const storedKey = localStorage.getItem(ACCESS_KEY_STORAGE) || "";
+    const storedSourceFilter = localStorage.getItem(SOURCE_FILTER_STORAGE) || "all";
+    const storedCategoryFilter = localStorage.getItem(CATEGORY_FILTER_STORAGE) || "all";
+    const storedSearchQuery = localStorage.getItem(SEARCH_QUERY_STORAGE) || "";
+
+    if (isSourceFilter(storedSourceFilter)) {
+      setSourceFilter(storedSourceFilter);
+    }
+
+    if (isCategoryFilter(storedCategoryFilter)) {
+      setCategoryFilter(storedCategoryFilter);
+    }
+
+    setSearchQuery(storedSearchQuery);
+
     if (!storedKey) {
       return;
     }
@@ -115,6 +158,30 @@ export default function ScrapedToolsAdminPanel() {
     setKeyInput(storedKey);
     void loadPendingTools(storedKey, 1);
   }, [loadPendingTools]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    localStorage.setItem(SOURCE_FILTER_STORAGE, sourceFilter);
+  }, [sourceFilter]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    localStorage.setItem(CATEGORY_FILTER_STORAGE, categoryFilter);
+  }, [categoryFilter]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    localStorage.setItem(SEARCH_QUERY_STORAGE, searchQuery);
+  }, [searchQuery]);
 
   useEffect(() => {
     return () => {
@@ -136,6 +203,16 @@ export default function ScrapedToolsAdminPanel() {
     const query = searchQuery.trim().toLowerCase();
 
     return tools.filter((tool) => {
+      const isOpenSource = tool.id.startsWith(OPEN_SOURCE_ID_PREFIX);
+
+      if (sourceFilter === "open-source" && !isOpenSource) {
+        return false;
+      }
+
+      if (sourceFilter === "scraped" && isOpenSource) {
+        return false;
+      }
+
       if (categoryFilter !== "all" && tool.category !== categoryFilter) {
         return false;
       }
@@ -149,7 +226,18 @@ export default function ScrapedToolsAdminPanel() {
         .toLowerCase()
         .includes(query);
     });
-  }, [tools, categoryFilter, searchQuery]);
+  }, [tools, sourceFilter, categoryFilter, searchQuery]);
+
+  const sourceTabs = useMemo(() => {
+    const openSourceCount = tools.filter((tool) => tool.id.startsWith(OPEN_SOURCE_ID_PREFIX)).length;
+    const scrapedCount = tools.length - openSourceCount;
+
+    return [
+      { key: "all" as const, label: "All", count: tools.length },
+      { key: "open-source" as const, label: "Open Source", count: openSourceCount },
+      { key: "scraped" as const, label: "Scraped", count: scrapedCount }
+    ];
+  }, [tools]);
 
   const categoryTabs = useMemo(() => {
     const categoryMap = new Map<string, number>();
@@ -366,7 +454,7 @@ export default function ScrapedToolsAdminPanel() {
       <section className="glass-panel rounded-[2rem] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-semibold text-white">Pending Scraped Tools</h2>
+            <h2 className="font-display text-2xl font-semibold text-white">Pending Tools</h2>
             <p className="mt-2 text-sm text-white/65">
               Page {page} of {Math.max(1, totalPages || 1)}
             </p>
@@ -382,6 +470,23 @@ export default function ScrapedToolsAdminPanel() {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-3">
+          {sourceTabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setSourceFilter(tab.key)}
+              className={`rounded-full px-4 py-2 text-sm transition ${
+                sourceFilter === tab.key
+                  ? "bg-emerald-300 text-slate-900"
+                  : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+              }`}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-3">
           {categoryTabs.map((tab) => (
             <button
               key={tab.key}
@@ -434,6 +539,7 @@ export default function ScrapedToolsAdminPanel() {
 
           {filteredTools.map((tool) => {
             const hasImage = tool.image_url && !failedImageIds.includes(tool.id);
+            const originBadge = getOriginBadge(tool.id);
 
             return (
               <article
@@ -465,12 +571,20 @@ export default function ScrapedToolsAdminPanel() {
                         <h3 className="font-display text-xl text-white">{tool.title}</h3>
                         <p className="mt-1 text-sm text-white/60">{trimSummary(tool.description)}</p>
                       </div>
-                      <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
-                        {tool.category}
-                      </span>
+                        <div className="flex flex-wrap gap-2">
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs uppercase tracking-[0.18em] ${originBadge.className}`}
+                          >
+                            {originBadge.label}
+                          </span>
+                          <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-cyan-200">
+                            {tool.category}
+                          </span>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/55">
+                      <span>Origin: {originBadge.label}</span>
                       <span>Source: {tool.source_site || safeDomainLabel(tool.webpage_url)}</span>
                       <span>Scraped: {new Date(tool.scraped_at).toLocaleString()}</span>
                     </div>

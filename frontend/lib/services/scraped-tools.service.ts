@@ -11,6 +11,7 @@ type PaginatedToolsResult = Omit<PaginatedResponse<ScrapedTool>, "success">;
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
+const OPEN_SOURCE_ID_PREFIX = "ost__";
 
 const CATEGORY_DB_VALUES: Record<ToolCategory, string[]> = {
   "ui-kit": ["ui-kit", "UI Kits", "ui kits", "ui kit"],
@@ -56,6 +57,50 @@ function mapDbTool(row: any): ScrapedTool {
   };
 }
 
+function mapOpenSourceTool(row: any): ScrapedTool {
+  const rawId = String(row?.id || "").trim();
+  const rawUrl = String(row?.url || row?.webpage_url || "").trim();
+  const fallbackTitle = String(row?.name || row?.title || "Untitled").trim();
+  const scrapedAt =
+    row?.scraped_at ||
+    row?.created_at ||
+    row?.inserted_at ||
+    row?.updated_at ||
+    "1970-01-01T00:00:00.000Z";
+
+  return {
+    id: `${OPEN_SOURCE_ID_PREFIX}${rawId}`,
+    title: fallbackTitle || "Untitled",
+    description: row?.description ?? null,
+    image_url: row?.image_url ?? row?.image ?? null,
+    webpage_url: rawUrl,
+    category: normalizeCategory(row?.category),
+    source_site: row?.source_site ?? null,
+    status: normalizeStatus(row?.status),
+    scraped_at: String(scrapedAt),
+    reviewed_at: row?.reviewed_at ?? null
+  };
+}
+
+function isPendingLike(statusValue: unknown) {
+  const raw = String(statusValue || "").trim().toLowerCase();
+  return !raw || raw === "pending";
+}
+
+function splitToolId(compositeId: string) {
+  if (compositeId.startsWith(OPEN_SOURCE_ID_PREFIX)) {
+    return {
+      table: "open_source_tools" as const,
+      id: compositeId.slice(OPEN_SOURCE_ID_PREFIX.length)
+    };
+  }
+
+  return {
+    table: "scraped_tools" as const,
+    id: compositeId
+  };
+}
+
 function normalizePage(value?: number) {
   const parsed = Number(value ?? DEFAULT_PAGE);
   if (!Number.isFinite(parsed)) return DEFAULT_PAGE;
@@ -90,21 +135,41 @@ export async function getPendingTools(page: number, limit: number): Promise<Pagi
   try {
     const safePage = normalizePage(page);
     const safeLimit = normalizeLimit(limit);
-    const { start, end } = getPaginationRange(safePage, safeLimit);
 
-    const { data, count, error } = await supabaseAdmin
+    const { data: scrapedRows, error } = await supabaseAdmin
       .from("scraped_tools")
-      .select("*", { count: "exact" })
+      .select("*")
       .or("status.eq.pending,status.eq.PENDING,status.is.null")
-      .order("scraped_at", { ascending: false })
-      .range(start, end);
+      .order("scraped_at", { ascending: false });
 
     if (error) {
       throw new Error(`Failed to fetch pending tools: ${error.message}`);
     }
 
-    const mappedData = Array.isArray(data) ? data.map(mapDbTool) : [];
-    return toPaginatedResult(mappedData, count, safeLimit, safePage);
+    const { data: openSourceRows, error: openSourceError } = await supabaseAdmin
+      .from("open_source_tools")
+      .select("*");
+
+    if (openSourceError) {
+      throw new Error(`Failed to fetch open source tools: ${openSourceError.message}`);
+    }
+
+    const mappedScraped = Array.isArray(scrapedRows) ? scrapedRows.map(mapDbTool) : [];
+    const mappedOpenSource = Array.isArray(openSourceRows)
+      ? openSourceRows.filter((row) => isPendingLike(row?.status)).map(mapOpenSourceTool)
+      : [];
+
+    const merged = [...mappedScraped, ...mappedOpenSource].sort((a, b) => {
+      const aTime = new Date(a.scraped_at).getTime();
+      const bTime = new Date(b.scraped_at).getTime();
+      return bTime - aTime;
+    });
+
+    const count = merged.length;
+    const { start, end } = getPaginationRange(safePage, safeLimit);
+    const pageRows = merged.slice(start, end + 1);
+
+    return toPaginatedResult(pageRows, count, safeLimit, safePage);
   } catch (error: any) {
     throw new Error(error?.message || "Failed to fetch pending tools");
   }
@@ -141,10 +206,27 @@ export async function getApprovedTools(category?: ToolCategory, page?: number, l
 
 export async function updateToolStatus(id: string, status: AdminUpdatePayload["status"]): Promise<ScrapedTool> {
   try {
+    const toolRef = splitToolId(id);
+
+    if (toolRef.table === "open_source_tools") {
+      const { data: openSourceData, error: openSourceError } = await supabaseAdmin
+        .from("open_source_tools")
+        .update({ status, reviewed_at: new Date().toISOString() })
+        .eq("id", toolRef.id)
+        .select("*")
+        .single();
+
+      if (openSourceError) {
+        throw new Error(`Failed to update tool status: ${openSourceError.message}`);
+      }
+
+      return mapOpenSourceTool(openSourceData);
+    }
+
     const { data, error } = await supabaseAdmin
       .from("scraped_tools")
       .update({ status, reviewed_at: new Date().toISOString() })
-      .eq("id", id)
+      .eq("id", toolRef.id)
       .select("*")
       .single();
 
@@ -164,17 +246,51 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
       return 0;
     }
 
-    const { data, error } = await supabaseAdmin
-      .from("scraped_tools")
-      .update({ status, reviewed_at: new Date().toISOString() })
-      .in("id", ids)
-      .select("id");
+    const splitIds = ids.reduce(
+      (acc, rawId) => {
+        const parsed = splitToolId(rawId);
+        if (parsed.table === "open_source_tools") {
+          acc.openSource.push(parsed.id);
+        } else {
+          acc.scraped.push(parsed.id);
+        }
 
-    if (error) {
-      throw new Error(`Failed to bulk update tool status: ${error.message}`);
+        return acc;
+      },
+      { scraped: [] as string[], openSource: [] as string[] }
+    );
+
+    let affected = 0;
+
+    if (splitIds.scraped.length > 0) {
+      const { data, error } = await supabaseAdmin
+        .from("scraped_tools")
+        .update({ status, reviewed_at: new Date().toISOString() })
+        .in("id", splitIds.scraped)
+        .select("id");
+
+      if (error) {
+        throw new Error(`Failed to bulk update tool status: ${error.message}`);
+      }
+
+      affected += Array.isArray(data) ? data.length : 0;
     }
 
-    return Array.isArray(data) ? data.length : 0;
+    if (splitIds.openSource.length > 0) {
+      const { data, error } = await supabaseAdmin
+        .from("open_source_tools")
+        .update({ status, reviewed_at: new Date().toISOString() })
+        .in("id", splitIds.openSource)
+        .select("id");
+
+      if (error) {
+        throw new Error(`Failed to bulk update tool status: ${error.message}`);
+      }
+
+      affected += Array.isArray(data) ? data.length : 0;
+    }
+
+    return affected;
   } catch (error: any) {
     throw new Error(error?.message || "Failed to bulk update tool status");
   }
