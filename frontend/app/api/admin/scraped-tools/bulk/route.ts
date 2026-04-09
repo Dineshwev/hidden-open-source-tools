@@ -36,6 +36,7 @@ export async function PATCH(req: Request) {
     const body = await req.json().catch(() => ({}));
     const ids = body?.ids;
     const status = body?.status as AdminUpdatePayload["status"] | undefined;
+    const note = typeof body?.note === "string" ? body.note.trim().slice(0, 500) : undefined;
 
     if (!Array.isArray(ids) || ids.some((id) => typeof id !== "string" || !id.trim())) {
       return NextResponse.json(
@@ -51,7 +52,7 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const updated = await bulkUpdateStatus(ids, status);
+    const updated = await bulkUpdateStatus(ids, status, note);
 
     return NextResponse.json(
       {

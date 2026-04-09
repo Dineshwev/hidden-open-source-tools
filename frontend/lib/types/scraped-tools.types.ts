@@ -13,6 +13,7 @@ export interface ScrapedTool {
   status: ToolStatus;
   scraped_at: string;
   reviewed_at: string | null;
+  moderation_note: string | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -25,4 +26,5 @@ export interface PaginatedResponse<T> {
 
 export interface AdminUpdatePayload {
   status: "approved" | "rejected";
+  note?: string;
 }

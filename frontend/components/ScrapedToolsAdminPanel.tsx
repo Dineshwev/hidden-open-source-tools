@@ -74,6 +74,8 @@ export default function ScrapedToolsAdminPanel() {
   const [categoryFilter, setCategoryFilter] = useState<ToolCategory | "all">("all");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [bulkNote, setBulkNote] = useState("");
+  const [notesByToolId, setNotesByToolId] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -309,6 +311,7 @@ export default function ScrapedToolsAdminPanel() {
       return;
     }
 
+    const note = notesByToolId[id]?.trim();
     const previousTools = tools;
     const nextTools = previousTools.filter((item) => item.id !== id);
     setActionLoading(true);
@@ -319,13 +322,19 @@ export default function ScrapedToolsAdminPanel() {
     try {
       await api.patch(
         `/admin/scraped-tools/${id}`,
-        { status },
+        { status, note: note || undefined },
         {
           headers: {
             "x-admin-access-key": accessKey
           }
         }
       );
+
+      setNotesByToolId((previous) => {
+        const next = { ...previous };
+        delete next[id];
+        return next;
+      });
 
       showToast("success", status === "approved" ? "Tool approved." : "Tool rejected.");
 
@@ -355,6 +364,7 @@ export default function ScrapedToolsAdminPanel() {
       return;
     }
 
+    const note = bulkNote.trim();
     const previousTools = tools;
     const idsToUpdate = selectedIds;
     const nextTools = previousTools.filter((item) => !idsToUpdate.includes(item.id));
@@ -369,7 +379,8 @@ export default function ScrapedToolsAdminPanel() {
         "/admin/scraped-tools/bulk",
         {
           ids: idsToUpdate,
-          status
+          status,
+          note: note || undefined
         },
         {
           headers: {
@@ -377,6 +388,8 @@ export default function ScrapedToolsAdminPanel() {
           }
         }
       );
+
+      setBulkNote("");
 
       showToast(
         "success",
@@ -504,6 +517,12 @@ export default function ScrapedToolsAdminPanel() {
         </div>
 
         <div className="mt-5 flex flex-wrap gap-3">
+          <input
+            value={bulkNote}
+            onChange={(event) => setBulkNote(event.target.value.slice(0, 500))}
+            placeholder="Bulk moderation note (optional, up to 500 chars)"
+            className="min-w-[280px] flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/45 outline-none transition focus:border-cyan-300/40"
+          />
           <button
             type="button"
             onClick={allVisibleSelected ? () => setSelectedIds([]) : selectVisible}
@@ -597,6 +616,25 @@ export default function ScrapedToolsAdminPanel() {
                     >
                       Open source URL
                     </a>
+
+                    {tool.moderation_note ? (
+                      <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-white/45">Last moderation note</p>
+                        <p className="mt-1 whitespace-pre-wrap">{tool.moderation_note}</p>
+                      </div>
+                    ) : null}
+
+                    <input
+                      value={notesByToolId[tool.id] || ""}
+                      onChange={(event) =>
+                        setNotesByToolId((previous) => ({
+                          ...previous,
+                          [tool.id]: event.target.value.slice(0, 500)
+                        }))
+                      }
+                      placeholder="Add a note before approve/reject (optional)"
+                      className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/45 outline-none transition focus:border-cyan-300/40"
+                    />
 
                     <div className="flex flex-wrap items-center gap-3 pt-1">
                       <label className="flex items-center gap-2 text-sm text-white/80">

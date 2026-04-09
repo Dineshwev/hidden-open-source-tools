@@ -53,7 +53,8 @@ function mapDbTool(row: any): ScrapedTool {
     source_site: row?.source_site ?? null,
     status: normalizeStatus(row?.status),
     scraped_at: String(row?.scraped_at || new Date().toISOString()),
-    reviewed_at: row?.reviewed_at ?? null
+    reviewed_at: row?.reviewed_at ?? null,
+    moderation_note: row?.moderation_note ?? null
   };
 }
 
@@ -78,7 +79,8 @@ function mapOpenSourceTool(row: any): ScrapedTool {
     source_site: row?.source_site ?? null,
     status: normalizeStatus(row?.status),
     scraped_at: String(scrapedAt),
-    reviewed_at: row?.reviewed_at ?? null
+    reviewed_at: row?.reviewed_at ?? null,
+    moderation_note: row?.moderation_note ?? null
   };
 }
 
@@ -106,50 +108,107 @@ function isMissingReviewedAtColumnError(error: any) {
   return message.includes("reviewed_at") && message.includes("column");
 }
 
-async function updateOpenSourceToolById(id: string, status: AdminUpdatePayload["status"]) {
-  const withReviewedAt = await supabaseAdmin
-    .from("open_source_tools")
-    .update({ status, reviewed_at: new Date().toISOString() })
-    .eq("id", id)
-    .select("*")
-    .single();
-
-  if (!withReviewedAt.error) {
-    return withReviewedAt;
-  }
-
-  if (!isMissingReviewedAtColumnError(withReviewedAt.error)) {
-    return withReviewedAt;
-  }
-
-  return supabaseAdmin
-    .from("open_source_tools")
-    .update({ status })
-    .eq("id", id)
-    .select("*")
-    .single();
+function isMissingModerationNoteColumnError(error: any) {
+  const message = String(error?.message || "").toLowerCase();
+  return message.includes("moderation_note") && message.includes("column");
 }
 
-async function bulkUpdateOpenSourceTools(ids: string[], status: AdminUpdatePayload["status"]) {
-  const withReviewedAt = await supabaseAdmin
-    .from("open_source_tools")
-    .update({ status, reviewed_at: new Date().toISOString() })
-    .in("id", ids)
-    .select("id");
+function buildUpdatePayloadVariants(status: AdminUpdatePayload["status"], note?: string) {
+  const trimmedNote = note?.trim();
+  const reviewedAtIso = new Date().toISOString();
+  const baseWithReviewedAt: Record<string, string> = { status, reviewed_at: reviewedAtIso };
+  const baseWithoutReviewedAt: Record<string, string> = { status };
 
-  if (!withReviewedAt.error) {
-    return withReviewedAt;
+  if (!trimmedNote) {
+    return [baseWithReviewedAt, baseWithoutReviewedAt];
   }
 
-  if (!isMissingReviewedAtColumnError(withReviewedAt.error)) {
-    return withReviewedAt;
+  return [
+    {
+      ...baseWithReviewedAt,
+      moderation_note: trimmedNote
+    },
+    {
+      ...baseWithoutReviewedAt,
+      moderation_note: trimmedNote
+    }
+  ];
+}
+
+function shouldRetryWithFallback(error: any, payload: Record<string, string>) {
+  if (isMissingReviewedAtColumnError(error) && "reviewed_at" in payload) {
+    return true;
   }
 
-  return supabaseAdmin
-    .from("open_source_tools")
-    .update({ status })
-    .in("id", ids)
-    .select("id");
+  return false;
+}
+
+async function updateToolByIdWithFallback(
+  table: "scraped_tools" | "open_source_tools",
+  id: string,
+  status: AdminUpdatePayload["status"],
+  note?: string
+) {
+  const payloadVariants = buildUpdatePayloadVariants(status, note);
+  let lastResult: Awaited<ReturnType<typeof supabaseAdmin.from>> | null = null;
+
+  for (const payload of payloadVariants) {
+    const result = await supabaseAdmin.from(table).update(payload).eq("id", id).select("*").single();
+
+    if (!result.error) {
+      return result;
+    }
+
+    lastResult = result as any;
+
+    if (!shouldRetryWithFallback(result.error, payload)) {
+      return result;
+    }
+  }
+
+  return lastResult as any;
+}
+
+async function bulkUpdateToolsWithFallback(
+  table: "scraped_tools" | "open_source_tools",
+  ids: string[],
+  status: AdminUpdatePayload["status"],
+  note?: string
+) {
+  const payloadVariants = buildUpdatePayloadVariants(status, note);
+  let lastResult: Awaited<ReturnType<typeof supabaseAdmin.from>> | null = null;
+
+  for (const payload of payloadVariants) {
+    const result = await supabaseAdmin.from(table).update(payload).in("id", ids).select("id");
+
+    if (!result.error) {
+      return result;
+    }
+
+    lastResult = result as any;
+
+    if (!shouldRetryWithFallback(result.error, payload)) {
+      return result;
+    }
+  }
+
+  return lastResult as any;
+}
+
+async function updateOpenSourceToolById(id: string, status: AdminUpdatePayload["status"], note?: string) {
+  return updateToolByIdWithFallback("open_source_tools", id, status, note);
+}
+
+async function bulkUpdateOpenSourceTools(ids: string[], status: AdminUpdatePayload["status"], note?: string) {
+  return bulkUpdateToolsWithFallback("open_source_tools", ids, status, note);
+}
+
+async function updateScrapedToolById(id: string, status: AdminUpdatePayload["status"], note?: string) {
+  return updateToolByIdWithFallback("scraped_tools", id, status, note);
+}
+
+async function bulkUpdateScrapedTools(ids: string[], status: AdminUpdatePayload["status"], note?: string) {
+  return bulkUpdateToolsWithFallback("scraped_tools", ids, status, note);
 }
 
 function normalizePage(value?: number) {
@@ -255,12 +314,12 @@ export async function getApprovedTools(category?: ToolCategory, page?: number, l
   }
 }
 
-export async function updateToolStatus(id: string, status: AdminUpdatePayload["status"]): Promise<ScrapedTool> {
+export async function updateToolStatus(id: string, status: AdminUpdatePayload["status"], note?: string): Promise<ScrapedTool> {
   try {
     const toolRef = splitToolId(id);
 
     if (toolRef.table === "open_source_tools") {
-      const { data: openSourceData, error: openSourceError } = await updateOpenSourceToolById(toolRef.id, status);
+      const { data: openSourceData, error: openSourceError } = await updateOpenSourceToolById(toolRef.id, status, note);
 
       if (openSourceError) {
         throw new Error(`Failed to update tool status: ${openSourceError.message}`);
@@ -269,12 +328,7 @@ export async function updateToolStatus(id: string, status: AdminUpdatePayload["s
       return mapOpenSourceTool(openSourceData);
     }
 
-    const { data, error } = await supabaseAdmin
-      .from("scraped_tools")
-      .update({ status, reviewed_at: new Date().toISOString() })
-      .eq("id", toolRef.id)
-      .select("*")
-      .single();
+    const { data, error } = await updateScrapedToolById(toolRef.id, status, note);
 
     if (error) {
       throw new Error(`Failed to update tool status: ${error.message}`);
@@ -282,11 +336,15 @@ export async function updateToolStatus(id: string, status: AdminUpdatePayload["s
 
     return mapDbTool(data);
   } catch (error: any) {
+    if (isMissingModerationNoteColumnError(error)) {
+      throw new Error("Failed to save moderation note: missing 'moderation_note' column. Run the SQL migration first.");
+    }
+
     throw new Error(error?.message || "Failed to update tool status");
   }
 }
 
-export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload["status"]): Promise<number> {
+export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload["status"], note?: string): Promise<number> {
   try {
     if (!Array.isArray(ids) || ids.length === 0) {
       return 0;
@@ -309,11 +367,7 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
     let affected = 0;
 
     if (splitIds.scraped.length > 0) {
-      const { data, error } = await supabaseAdmin
-        .from("scraped_tools")
-        .update({ status, reviewed_at: new Date().toISOString() })
-        .in("id", splitIds.scraped)
-        .select("id");
+      const { data, error } = await bulkUpdateScrapedTools(splitIds.scraped, status, note);
 
       if (error) {
         throw new Error(`Failed to bulk update tool status: ${error.message}`);
@@ -323,7 +377,7 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
     }
 
     if (splitIds.openSource.length > 0) {
-      const { data, error } = await bulkUpdateOpenSourceTools(splitIds.openSource, status);
+      const { data, error } = await bulkUpdateOpenSourceTools(splitIds.openSource, status, note);
 
       if (error) {
         throw new Error(`Failed to bulk update tool status: ${error.message}`);
@@ -334,6 +388,10 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
 
     return affected;
   } catch (error: any) {
+    if (isMissingModerationNoteColumnError(error)) {
+      throw new Error("Failed to save moderation note: missing 'moderation_note' column. Run the SQL migration first.");
+    }
+
     throw new Error(error?.message || "Failed to bulk update tool status");
   }
 }

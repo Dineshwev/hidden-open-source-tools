@@ -144,6 +144,7 @@ model ScrapedTool {
   source_site String?
   scraped_at  DateTime @default(now())
   reviewed_at DateTime?
+  moderation_note String?
 
   @@map("scraped_tools")
 }
