@@ -16,11 +16,12 @@ export default function MysteryBoxPage() {
         {/* Core Mystery Box Section */}
         <MysteryBox />
 
-        {/* Professional Sponsor Section Below */}
-        <div className="mt-20 space-y-8 rounded-[2.5rem] border border-white/5 bg-white/[0.02] p-8 md:p-12">
+        {/* Sponsor Section After Primary Experience */}
+        <div className="mt-20 space-y-8 rounded-[2.5rem] border border-white/10 bg-white/[0.03] p-8 md:p-12">
           <div className="text-center space-y-2">
+            <p className="text-xs uppercase tracking-[0.28em] text-white/45">Sponsored</p>
             <h3 className="text-xl font-display text-white/80 uppercase tracking-widest">Platform Supporters</h3>
-            <p className="text-sm text-white/40">These sponsors help keep The Cloud Rain free for everyone.</p>
+            <p className="text-sm text-white/50">Sponsor placements appear after the unlock experience to keep the main flow focused.</p>
           </div>
           
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
@@ -32,14 +33,14 @@ export default function MysteryBoxPage() {
               <div className="glass-panel p-6 rounded-3xl border-white/10 flex flex-col items-center gap-4">
                 <AdBanner
                   title="Premium Resource Sponsor"
-                  description="Support our contributors by visiting this sponsor."
+                  description="Optional sponsor shown after core content delivery."
                   width={320}
                   height={50}
                   className="mx-auto max-w-[320px] md:hidden"
                 />
                 <AdBanner
                   title="Premium Resource Sponsor"
-                  description="Support our contributors by visiting this sponsor."
+                  description="Optional sponsor shown after core content delivery."
                   width={468}
                   height={60}
                   className="mx-auto hidden max-w-[468px] md:flex"

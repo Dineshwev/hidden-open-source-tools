@@ -3,8 +3,6 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Upload, Eye, Award, Flame, Download, ArrowRight } from 'lucide-react';
-import LevelBadge from '@/components/LevelBadge';
-import StreakBadge from '@/components/StreakBadge';
 import AdBanner from '@/components/AdBanner';
 import AdNativeBanner from '@/components/AdNativeBanner';
 
@@ -42,11 +40,7 @@ export default function CreatorDashboard() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-aurora to-nebula-400 bg-clip-text text-transparent">
                   Alex Rivera
                 </h1>
-                <div className="flex items-center gap-3 mt-1">
-                  <LevelBadge currentXP={8470} size="sm" />
-                  <StreakBadge streak={14} size="sm" animateFlame />
-                  <div className="text-sm text-white/60 font-mono">ID: CR-2471</div>
-                </div>
+                <p className="mt-1 text-sm text-white/60">Creator dashboard overview</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -104,60 +98,23 @@ export default function CreatorDashboard() {
           </div>
         </motion.section>
 
-        <div className="mb-12">
-          <AdNativeBanner />
-        </div>
-
-        <div className="mb-12">
-          <div className="space-y-4">
-            <AdBanner
-              title="Dashboard Partner Banner"
-              description="An optional sponsor banner after the stats section, so the user sees it only after value has been delivered."
-              width={320}
-              height={50}
-              className="mx-auto max-w-[320px] md:hidden"
-            />
-            <AdBanner
-              title="Dashboard Partner Banner"
-              description="An optional sponsor banner after the stats section, so the user sees it only after value has been delivered."
-              width={468}
-              height={60}
-              className="mx-auto hidden max-w-[468px] md:flex"
-            />
-          </div>
-        </div>
-
-        <div className="mb-12 flex justify-center lg:hidden">
-          <AdBanner
-            width={320}
-            height={50}
-            className="max-w-[320px]"
-          />
-        </div>
-
-        <div className="mb-12 hidden justify-center lg:flex">
-          <AdBanner
-            width={160}
-            height={300}
-            className="max-w-[160px]"
-          />
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* XP Progress */}
+          {/* Performance Snapshot */}
           <motion.section className="lg:col-span-1">
             <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
-              XP Progress
+              Performance Snapshot
             </h3>
             <div className="space-y-6">
-              <LevelBadge currentXP={8470} size="lg" showProgress />
-              <div className="text-sm text-white/60 space-y-2">
-                <div>Next Level: 5,000 XP (1,530 left)</div>
-                <div>Daily Goal: 100 XP</div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/45">Upload Quality</p>
+                <p className="mt-2 text-2xl font-bold text-white">89% Approved</p>
+                <p className="mt-1 text-sm text-white/60">Stable moderation performance across recent submissions.</p>
               </div>
-              <motion.button className="w-full p-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-400 text-white font-bold shadow-glow hover:shadow-glow-lg transition-all">
-                Earn XP Today
-              </motion.button>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/45">Weekly Activity</p>
+                <p className="mt-2 text-2xl font-bold text-white">+12 Uploads</p>
+                <p className="mt-1 text-sm text-white/60">Consistent output without queue spikes this week.</p>
+              </div>
             </div>
           </motion.section>
 
@@ -245,6 +202,34 @@ export default function CreatorDashboard() {
                 </span>
               </motion.a>
             ))}
+          </div>
+        </motion.section>
+
+        <motion.section className="mt-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <div className="text-center space-y-2 mb-6">
+            <p className="text-xs uppercase tracking-[0.28em] text-white/45">Sponsored</p>
+            <h3 className="text-lg font-semibold text-white/85">Supporter Spotlight</h3>
+            <p className="text-sm text-white/60">Sponsor visibility appears after primary dashboard content.</p>
+          </div>
+
+          <div className="space-y-5">
+            <AdNativeBanner />
+            <div className="space-y-3">
+              <AdBanner
+                title="Dashboard Partner Banner"
+                description="Optional sponsor slot placed lower to keep the dashboard focused on user actions first."
+                width={320}
+                height={50}
+                className="mx-auto max-w-[320px] md:hidden"
+              />
+              <AdBanner
+                title="Dashboard Partner Banner"
+                description="Optional sponsor slot placed lower to keep the dashboard focused on user actions first."
+                width={468}
+                height={60}
+                className="mx-auto hidden max-w-[468px] md:flex"
+              />
+            </div>
           </div>
         </motion.section>
       </div>

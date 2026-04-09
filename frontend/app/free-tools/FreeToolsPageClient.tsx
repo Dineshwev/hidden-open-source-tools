@@ -8,6 +8,8 @@ import { Frown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import SponsorModal from "@/components/SponsorModal";
 import ToolCard from "@/components/ToolCard";
+import AdBanner from "@/components/AdBanner";
+import AdNativeBanner from "@/components/AdNativeBanner";
 import type { PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
 type ToolsApiResponse = PaginatedResponse<ScrapedTool>;
@@ -193,6 +195,34 @@ export default function FreeToolsPageClient() {
           </button>
         </section>
       ) : null}
+
+      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 md:p-7">
+        <div className="mb-5 text-center space-y-2">
+          <p className="text-xs uppercase tracking-[0.28em] text-white/45">Sponsored</p>
+          <p className="text-sm text-white/65">Sponsor visibility appears below the discovery feed to keep browsing friction low.</p>
+        </div>
+
+        <div className="space-y-5">
+          <AdNativeBanner />
+
+          <div className="space-y-4">
+            <AdBanner
+              title="Free Tools Sponsor"
+              description="Optional sponsor placement below the main resource list."
+              width={320}
+              height={50}
+              className="mx-auto max-w-[320px] md:hidden"
+            />
+            <AdBanner
+              title="Free Tools Sponsor"
+              description="Optional sponsor placement below the main resource list."
+              width={468}
+              height={60}
+              className="mx-auto hidden max-w-[468px] md:flex"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
