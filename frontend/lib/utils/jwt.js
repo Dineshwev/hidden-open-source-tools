@@ -33,7 +33,7 @@ export function verifyMysteryAdChallengeToken(token) {
 }
 
 export function signMysteryUnlockToken(userId, challengeId) {
-  return signToken({ sub: userId, scope: "mystery-unlock", challengeId }, "15m");
+  return signToken({ sub: userId, scope: "mystery-unlock", challengeId }, "30m");
 }
 
 export function verifyMysteryUnlockToken(token) {

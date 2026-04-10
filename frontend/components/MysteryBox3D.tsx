@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, Suspense, memo, useMemo } from 'react';
+import { useRef, Suspense, memo, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { 
   Float, 
@@ -84,6 +84,33 @@ export default function MysteryBox3D({
   color?: string;
   onClick: () => void;
 }) {
+  const [webglBroken, setWebglBroken] = useState(false);
+
+  useEffect(() => {
+    const onContextLost = () => {
+      setWebglBroken(true);
+    };
+
+    window.addEventListener('webglcontextlost', onContextLost as EventListener, true);
+
+    return () => {
+      window.removeEventListener('webglcontextlost', onContextLost as EventListener, true);
+    };
+  }, []);
+
+  if (webglBroken) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="mx-auto flex h-[340px] w-full max-w-[520px] flex-col items-center justify-center rounded-[2rem] border border-cyan-300/25 bg-gradient-to-br from-[#131a2b] to-[#0b1020] text-center"
+      >
+        <p className="text-sm uppercase tracking-[0.25em] text-cyan-200/80">3D preview unavailable</p>
+        <p className="mt-3 max-w-sm text-sm text-white/70">Your browser graphics context reset. Click to continue unlock flow without 3D rendering.</p>
+      </button>
+    );
+  }
+
   return (
     <div className="w-full h-[300px] md:h-[400px] cursor-pointer outline-none" onClick={onClick}>
       <Canvas 

@@ -1,0 +1,69 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+
+export const metadata: Metadata = {
+  title: "Weekly Roundups | Free Developer Tools and Open Source Picks",
+  description:
+    "Weekly curated roundup of free developer tools, open source software, and hidden gems from The Cloud Rain.",
+  keywords: [
+    "weekly developer tools roundup",
+    "open source weekly picks",
+    "free tools weekly",
+    "developer resources updates"
+  ],
+  alternates: {
+    canonical: "/weekly-roundups"
+  },
+  openGraph: {
+    title: "Weekly Roundups | Free Developer Tools and Open Source Picks",
+    description:
+      "Explore fresh weekly picks across free developer tools, open source software, and hidden productivity resources.",
+    url: `${siteUrl}/weekly-roundups`
+  }
+};
+
+const roundupItems = [
+  {
+    href: "/weekly-roundups/2026-04-10",
+    title: "Weekly Roundup - April 10, 2026",
+    summary: "Open source productivity stack, free UI kits, and underrated workflow tools for faster shipping."
+  },
+  {
+    href: "/weekly-roundups/2026-04-03",
+    title: "Weekly Roundup - April 3, 2026",
+    summary: "Hidden dev utilities, AI helpers, and free template picks for frontend and SaaS builders."
+  },
+  {
+    href: "/weekly-roundups/2026-03-27",
+    title: "Weekly Roundup - March 27, 2026",
+    summary: "Best free developer tools this week with practical categories and quick-start recommendations."
+  }
+];
+
+export default function WeeklyRoundupsPage() {
+  return (
+    <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
+      <header className="space-y-3">
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundups</p>
+        <h1 className="font-display text-3xl text-white md:text-5xl">Fresh weekly picks for developers</h1>
+        <p className="max-w-3xl text-white/70">
+          Each week we publish curated picks across open source software, free tools, and hidden gems so you can discover high-value resources faster.
+        </p>
+      </header>
+
+      <section className="space-y-4">
+        {roundupItems.map((item) => (
+          <article key={item.href} className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+            <h2 className="text-xl text-white">{item.title}</h2>
+            <p className="mt-2 text-sm text-white/70">{item.summary}</p>
+            <Link href={item.href} className="mt-4 inline-flex rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900">
+              Read Roundup
+            </Link>
+          </article>
+        ))}
+      </section>
+    </div>
+  );
+}

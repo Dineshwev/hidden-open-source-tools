@@ -1,7 +1,26 @@
+import type { Metadata } from "next";
 import MysteryBox from "@/components/MysteryBox";
 import SectionHeading from "@/components/SectionHeading";
 import AdBanner from "@/components/AdBanner";
 import AdNativeBanner from "@/components/AdNativeBanner";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+
+export const metadata: Metadata = {
+  title: "Hidden Tools and Mystery Developer Resources",
+  description:
+    "Explore hidden tools and surprise developer resources through The Cloud Rain Mystery Box. Discover curated open source and premium-quality free tools.",
+  keywords: ["hidden tools", "mystery developer tools", "surprise software", "developer resource drops"],
+  alternates: {
+    canonical: "/mystery-box"
+  },
+  openGraph: {
+    title: "Hidden Tools and Mystery Developer Resources",
+    description:
+      "Unlock hidden tools and curated developer resources through an interactive mystery box experience.",
+    url: `${siteUrl}/mystery-box`
+  }
+};
 
 export default function MysteryBoxPage() {
   return (

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { Frown } from "lucide-react";
@@ -195,6 +196,22 @@ export default function FreeToolsPageClient() {
           </button>
         </section>
       ) : null}
+
+      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <p className="text-xs uppercase tracking-[0.25em] text-white/45">More discovery</p>
+        <h3 className="mt-2 font-display text-xl text-white">Compare and discover more tools</h3>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href="/best-free-developer-tools" className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
+            Best Free Developer Tools
+          </Link>
+          <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Open Source Software
+          </Link>
+          <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Hidden Tools
+          </Link>
+        </div>
+      </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 md:p-7">
         <div className="mb-5 text-center space-y-2">

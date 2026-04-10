@@ -19,6 +19,14 @@ const legalLinks = [
   { href: "/dmca", label: "DMCA Claim" }
 ];
 
+const seoLinks = [
+  { href: "/best-free-developer-tools", label: "Best Free Developer Tools" },
+  { href: "/weekly-roundups", label: "Weekly Roundups" },
+  { href: "/open-source-software", label: "Open Source Software" },
+  { href: "/hidden-tools", label: "Hidden Tools" },
+  { href: "/free-tools", label: "Free Tools" }
+];
+
 export default function Footer() {
   return (
     <footer className="relative z-20 mt-20 border-t border-white/10 bg-[#070707]/95">
@@ -37,7 +45,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-[1.2fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_1fr_1fr]">
         <div className="space-y-5">
           <p className="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white">
             <Logo size={32} />
@@ -77,6 +85,19 @@ export default function Footer() {
             {legalLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-white">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Popular Searches</p>
+          <ul className="flex flex-col gap-3">
+            {seoLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-emerald-200">
                   {link.label}
                 </Link>
               </li>
