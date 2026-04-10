@@ -1,18 +1,18 @@
-# The Cloud Rain - Mystery Download Box
+# The Cloud Rain - Hidden Open Source Tools
 
-The cloud rain  is a production-ready open-source platform where users unlock random digital resources after an ad flow, contribute files back to the community, and rely on admin moderation to keep the ecosystem safe.
+The Cloud Rain is an open-source Next.js platform where users unlock curated developer resources through a mystery-box flow, browse free tools, and use moderated community features.
 
 ## Stack
 
 - Frontend: Next.js 14 App Router, TypeScript, Tailwind CSS, Framer Motion, Three.js, Zustand
-- Backend: Node.js, Express, Prisma ORM, PostgreSQL, JWT, Multer
-- Ops readiness: Docker, environment templates, rate limiting, structured logging
+- Data and APIs: Next.js route handlers, Prisma ORM, PostgreSQL/Supabase, JWT
+- Ops readiness: Docker, environment templates, sitemap generation
 
 ## Features
 
 - Mystery box engine with rarity weighting and duplicate avoidance
 - JWT auth with protected dashboard-ready flows
-- Moderated upload pipeline with malware scan simulation
+- Moderated upload and messaging flows
 - Admin analytics and approval queue
 - Contributor points, streaks, and leaderboard foundations
 - Open-source contributor docs and issue templates
@@ -27,17 +27,6 @@ root/
     lib/
     store/
     styles/
-  backend/
-    prisma/
-    src/
-      config/
-      controllers/
-      lib/
-      middleware/
-      routes/
-      services/
-      utils/
-      validators/
   database/
   assets/
   .github/
@@ -48,14 +37,12 @@ root/
 ### 1. Install dependencies
 
 ```bash
-cd backend && npm install
-cd ../frontend && npm install
+cd frontend && npm install
 ```
 
 ### 2. Configure environment files
 
 ```bash
-cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
 ```
 
@@ -94,20 +81,23 @@ Create a storage bucket named `mystery-bucket` and make it public, because the u
 
 If any of those values are missing, the upload API will return a configuration error instead of saving the file.
 
-### 3. Start PostgreSQL and run Prisma
+### 3. Start services and Prisma
 
 ```bash
 docker compose up -d postgres
-cd backend
-npm run prisma:generate
-npm run prisma:migrate
-npm run prisma:seed
+cd frontend
+npx prisma generate
+```
+
+If you run with local Postgres instead of Supabase, also run migrations:
+
+```bash
+npx prisma migrate deploy
 ```
 
 ### 4. Run the apps
 
 ```bash
-cd backend && npm run dev
 cd frontend && npm run dev
 ```
 
@@ -116,10 +106,10 @@ cd frontend && npm run dev
 - Uploaded files are stored in `assets/uploads/`
 - Preview assets can live in `assets/previews/`
 - `database/schema.sql` is included for SQL-first inspection, but Prisma is the source of truth
-- GitHub publishing is intentionally left as an extension point rather than hardcoded automation
+- API endpoints are implemented in `frontend/app/api/*`
 
 ## Open Source Workflow
 
-- Read [CONTRIBUTING.md](c:\Users\ASUS\OneDrive\Desktop\None\CONTRIBUTING.md)
+- Read [CONTRIBUTING.md](CONTRIBUTING.md)
 - Use the issue templates in `.github/ISSUE_TEMPLATE/`
-- Keep business logic in backend services and UI logic in reusable frontend components
+- Keep business logic in `frontend/lib/services` and UI logic in reusable `frontend/components`

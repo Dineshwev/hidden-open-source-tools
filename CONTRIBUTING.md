@@ -1,5 +1,6 @@
-# Contributing to The Cloud Rain 
-Thanks for helping build The Cloud Rain .
+# Contributing to The Cloud Rain
+
+Thanks for helping improve The Cloud Rain.
 
 ## Workflow
 
@@ -11,9 +12,9 @@ Thanks for helping build The Cloud Rain .
 ## Local Setup
 
 1. Start PostgreSQL with `docker compose up -d postgres`
-2. Configure `backend/.env`
-3. Run `npm install` in `backend/` and `frontend/`
-4. Generate Prisma client with `npm run prisma:generate`
+2. Configure `frontend/.env.local` from `frontend/.env.example`
+3. Run `npm install` in `frontend/`
+4. Generate Prisma client with `npx prisma generate` in `frontend/`
 
 ## Pull Request Checklist
 
