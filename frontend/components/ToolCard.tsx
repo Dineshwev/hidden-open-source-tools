@@ -15,8 +15,7 @@ interface ToolCardProps {
 }
 
 const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
-  const [imgError, setImgError] = React.useState(false);
-  const imageSrc = !imgError && tool.image_url ? tool.image_url : FALLBACK_IMAGE;
+  const [imageIndex, setImageIndex] = React.useState(0);
 
   const toDomainLabel = (url: string) => {
     try {
@@ -26,6 +25,39 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
     }
   };
 
+  const domainFromUrl = React.useMemo(() => {
+    try {
+      return new URL(tool.webpage_url).hostname.replace(/^www\./, "");
+    } catch {
+      return "";
+    }
+  }, [tool.webpage_url]);
+
+  const imageCandidates = React.useMemo(() => {
+    const sources: string[] = [];
+
+    if (tool.image_url) {
+      sources.push(tool.image_url);
+    }
+
+    if (tool.logo_url) {
+      sources.push(tool.logo_url);
+    }
+
+    if (tool.id.startsWith("ost__") && domainFromUrl) {
+      sources.push(`https://www.google.com/s2/favicons?domain=${domainFromUrl}&sz=128`);
+    }
+
+    return Array.from(new Set(sources.filter(Boolean)));
+  }, [tool.id, tool.image_url, tool.logo_url, domainFromUrl]);
+
+  React.useEffect(() => {
+    setImageIndex(0);
+  }, [tool.id]);
+
+  const imageSrc = imageCandidates[imageIndex] || null;
+  const initial = (tool.title?.trim().charAt(0) || "?").toUpperCase();
+
   return (
     <motion.article
       className="glass-card rounded-3xl border border-white/10 p-4"
@@ -33,15 +65,22 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25) }}
     >
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
-        <Image
-          src={imageSrc}
-          alt={tool.title}
-          width={1200}
-          height={700}
-          className="h-44 w-full object-cover"
-          onError={() => setImgError(true)}
-        />
+      <div className="relative flex h-44 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+        {imageSrc ? (
+          <Image
+            src={imageSrc}
+            alt={tool.title}
+            width={80}
+            height={80}
+            unoptimized
+            className="h-20 w-20 rounded-2xl object-cover"
+            onError={() => setImageIndex((previous) => previous + 1)}
+          />
+        ) : (
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-3xl font-bold text-white">
+            {initial}
+          </div>
+        )}
         <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/60 px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-cyan-100">
           {tool.category}
         </span>

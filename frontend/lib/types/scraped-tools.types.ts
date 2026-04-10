@@ -7,6 +7,7 @@ export interface ScrapedTool {
   title: string;
   description: string | null;
   image_url: string | null;
+  logo_url?: string | null;
   webpage_url: string;
   category: ToolCategory;
   source_site: string | null;
