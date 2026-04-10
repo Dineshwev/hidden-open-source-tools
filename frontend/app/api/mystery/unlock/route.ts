@@ -37,6 +37,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ data }, { status: 200 });
     } catch (jwtError: any) {
       console.error('[UNLOCK] JWT Verification Failed:', jwtError.message);
+
+      // Fallback for authenticated sessions to avoid hard lockouts when ad token verification flakes.
+      if (user?.userId) {
+        const data = await mysteryService.unlockMysteryFile(user.userId);
+        return NextResponse.json(
+          {
+            data,
+            warning: 'Ad unlock token verification fallback was used'
+          },
+          { status: 200 }
+        );
+      }
+
       return NextResponse.json({ error: 'Invalid or expired ad unlock token' }, { status: 401 });
     }
   } catch (error: any) {

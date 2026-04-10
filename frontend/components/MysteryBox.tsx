@@ -149,9 +149,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
       const apiErrorMessage = err.response?.data?.error || err.message;
       
       if (err.response?.status === 401 || err.response?.status === 403) {
-        localStorage.removeItem("portfolio_universe_token");
-        setUnlockError("Verification expired. Please complete sponsor verification once more.");
-        setShowAdModal(true);
+        setUnlockError("Verification failed for this attempt. Please click the box and retry sponsor verification.");
       } else {
         setUnlockError(apiErrorMessage || "Unlock failed. Please complete the sponsor verification again.");
       }
