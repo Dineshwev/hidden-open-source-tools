@@ -39,13 +39,13 @@ export async function unlockMysteryFile(userId) {
     }
 
     if (!candidateFiles.length) {
-      const scrapedCandidates = await prisma.scrapedTool.findMany({
-        where: {
-          OR: [{ status: "approved" }, { status: "APPROVED" }]
-        },
-        orderBy: { scraped_at: "desc" },
-        take: 200
-      });
+      const scrapedCandidates = await prisma.$queryRaw`
+        SELECT id, title, description, webpage_url, category, source_site
+        FROM scraped_tools
+        WHERE LOWER(COALESCE(status, '')) = 'approved'
+        ORDER BY scraped_at DESC
+        LIMIT 200
+      `;
 
       if (scrapedCandidates.length) {
         const selected = scrapedCandidates[Math.floor(Math.random() * scrapedCandidates.length)];
