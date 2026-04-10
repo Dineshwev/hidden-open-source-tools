@@ -89,6 +89,11 @@ function isPendingLike(statusValue: unknown) {
   return !raw || raw === "pending";
 }
 
+function isApprovedLike(statusValue: unknown) {
+  const raw = String(statusValue || "").trim().toLowerCase();
+  return !raw || raw === "approved";
+}
+
 function splitToolId(compositeId: string) {
   if (compositeId.startsWith(OPEN_SOURCE_ID_PREFIX)) {
     return {
@@ -299,26 +304,38 @@ export async function getApprovedTools(category?: ToolCategory, page?: number, l
   try {
     const safePage = normalizePage(page);
     const safeLimit = normalizeLimit(limit);
-    const { start, end } = getPaginationRange(safePage, safeLimit);
-
-    let query = supabaseAdmin
+    const { data: scrapedRows, error } = await supabaseAdmin
       .from("scraped_tools")
-      .select("*", { count: "exact" })
+      .select("*")
       .or("status.eq.approved,status.eq.APPROVED")
       .order("scraped_at", { ascending: false });
-
-    if (category) {
-      query = query.in("category", CATEGORY_DB_VALUES[category]);
-    }
-
-    const { data, count, error } = await query.range(start, end);
 
     if (error) {
       throw new Error(`Failed to fetch approved tools: ${error.message}`);
     }
 
-    const mappedData = Array.isArray(data) ? data.map(mapDbTool) : [];
-    return toPaginatedResult(mappedData, count, safeLimit, safePage);
+    const { data: openSourceRows, error: openSourceError } = await supabaseAdmin
+      .from("open_source_tools")
+      .select("*");
+
+    if (openSourceError) {
+      throw new Error(`Failed to fetch open source tools: ${openSourceError.message}`);
+    }
+
+    const mappedScraped = Array.isArray(scrapedRows) ? scrapedRows.map(mapDbTool) : [];
+    const mappedOpenSource = Array.isArray(openSourceRows)
+      ? openSourceRows.filter((row) => isApprovedLike(row?.status)).map(mapOpenSourceTool)
+      : [];
+
+    const merged = [...mappedScraped, ...mappedOpenSource]
+      .filter((tool) => (category ? tool.category === category : true))
+      .sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime());
+
+    const count = merged.length;
+    const { start, end } = getPaginationRange(safePage, safeLimit);
+    const pageRows = merged.slice(start, end + 1);
+
+    return toPaginatedResult(pageRows, count, safeLimit, safePage);
   } catch (error: any) {
     throw new Error(error?.message || "Failed to fetch approved tools");
   }

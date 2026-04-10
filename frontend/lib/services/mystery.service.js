@@ -39,6 +39,58 @@ export async function unlockMysteryFile(userId) {
     }
 
     if (!candidateFiles.length) {
+      let openSourceCandidates = [];
+
+      try {
+        openSourceCandidates = await prisma.$queryRaw`
+          SELECT id, name, title, description, url, webpage_url, source_site, category
+          FROM open_source_tools
+          WHERE LOWER(COALESCE(status, 'approved')) = 'approved'
+          ORDER BY COALESCE(updated_at, created_at) DESC
+          LIMIT 200
+        `;
+      } catch (openSourceError) {
+        const message = String(openSourceError?.message || '').toLowerCase();
+
+        // Legacy variants may not have a status column yet.
+        if (message.includes('status') && message.includes('column')) {
+          openSourceCandidates = await prisma.$queryRaw`
+            SELECT id, name, title, description, url, webpage_url, source_site, category
+            FROM open_source_tools
+            ORDER BY COALESCE(updated_at, created_at) DESC
+            LIMIT 200
+          `;
+        } else {
+          throw openSourceError;
+        }
+      }
+
+      if (openSourceCandidates.length) {
+        const selected = openSourceCandidates[Math.floor(Math.random() * openSourceCandidates.length)];
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            streakDays: {
+              increment: 1
+            }
+          }
+        });
+
+        return {
+          id: selected.id,
+          title: selected.name || selected.title || 'Untitled',
+          description: selected.description || 'Curated resource from open source tools.',
+          rarity: 'COMMON',
+          category: selected.category || 'other',
+          uploader: selected.source_site || 'open-source',
+          downloadUrl: selected.url || selected.webpage_url,
+          tags: [],
+          license: 'Source site terms',
+          mimeType: 'Link'
+        };
+      }
+
       const scrapedCandidates = await prisma.$queryRaw`
         SELECT id, title, description, webpage_url, category, source_site
         FROM scraped_tools

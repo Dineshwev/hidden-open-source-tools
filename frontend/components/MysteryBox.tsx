@@ -21,10 +21,10 @@ interface Reward {
 }
 
 const rarities = {
-  common: { color: 'bg-gray-400/20 border-gray-400/50', glow: 'shadow-gray-400/20', text: 'bg-gradient-to-r from-gray-300 to-gray-400', rarityIcon: Download },
-  rare: { color: 'bg-blue-500/20 border-blue-500/50', glow: 'shadow-blue-500/30', text: 'bg-gradient-to-r from-blue-400 to-cyan-400', rarityIcon: Star },
-  epic: { color: 'bg-purple-500/30 border-purple-500/60', glow: 'shadow-purple-500/50', text: 'bg-gradient-to-r from-purple-400 to-pink-400', rarityIcon: Crown },
-  legendary: { color: 'bg-orange-500/40 border-orange-500/70', glow: 'shadow-orange-500/70', text: 'bg-gradient-to-r from-orange-400 to-yellow-400', rarityIcon: Sparkles },
+  common: { color: 'bg-gray-400/20 border-gray-400/50', threeColor: '#94a3b8', glow: 'shadow-gray-400/20', text: 'bg-gradient-to-r from-gray-300 to-gray-400', rarityIcon: Download },
+  rare: { color: 'bg-blue-500/20 border-blue-500/50', threeColor: '#3b82f6', glow: 'shadow-blue-500/30', text: 'bg-gradient-to-r from-blue-400 to-cyan-400', rarityIcon: Star },
+  epic: { color: 'bg-purple-500/30 border-purple-500/60', threeColor: '#a855f7', glow: 'shadow-purple-500/50', text: 'bg-gradient-to-r from-purple-400 to-pink-400', rarityIcon: Crown },
+  legendary: { color: 'bg-orange-500/40 border-orange-500/70', threeColor: '#f59e0b', glow: 'shadow-orange-500/70', text: 'bg-gradient-to-r from-orange-400 to-yellow-400', rarityIcon: Sparkles },
 };
 
 const boxVariants: Variants = {
@@ -108,7 +108,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
 
   const openBox = () => {
     if (hasInventory === false) {
-      setUnlockError("No approved files are available yet. Ask admin to approve uploads first.");
+      setUnlockError("No approved tools are available yet. Approve tools in Control Room and try again.");
       return;
     }
     
@@ -207,7 +207,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         <div className="relative z-10 flex flex-col items-center">
           <MysteryBox3D 
             isOpening={isOpening} 
-            color={reward ? rarities[reward.rarity].color.split(' ')[0].replace('bg-', '') : "#7f96ff"}
+            color={reward ? rarities[reward.rarity].threeColor : "#7f96ff"}
             onClick={openBox}
           />
           

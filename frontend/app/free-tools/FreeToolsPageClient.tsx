@@ -16,10 +16,12 @@ import type { PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/s
 type ToolsApiResponse = PaginatedResponse<ScrapedTool>;
 
 type CategoryTab = {
-  key: "all" | "ui-kits" | "courses" | "templates" | "ai-tools" | "components";
+  key: "all" | "ui-kits" | "courses" | "templates" | "ai-tools" | "components" | "other";
   label: string;
   queryValue?: ToolCategory;
 };
+
+type SortOption = "newest" | "az" | "random";
 
 const LIMIT = 12;
 const FALLBACK_IMAGE =
@@ -31,11 +33,12 @@ const categoryTabs: CategoryTab[] = [
   { key: "courses", label: "📚 Courses", queryValue: "course" },
   { key: "templates", label: "🖼️ Templates", queryValue: "template" },
   { key: "ai-tools", label: "🤖 AI Tools", queryValue: "ai-tool" },
-  { key: "components", label: "🧩 Components", queryValue: "ui-component" }
+  { key: "components", label: "🧩 Components", queryValue: "ui-component" },
+  { key: "other", label: "✨ Other", queryValue: "other" }
 ];
 
 export default function FreeToolsPageClient() {
-  const [selectedCategory, setSelectedCategory] = useState<CategoryTab["key"]>("all");
+  const [selectedCategories, setSelectedCategories] = useState<ToolCategory[]>([]);
   const [tools, setTools] = useState<ScrapedTool[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,11 +47,41 @@ export default function FreeToolsPageClient() {
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [targetUrl, setTargetUrl] = useState("");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
+  const [randomSeed, setRandomSeed] = useState(0);
 
-  const activeCategory = useMemo(
-    () => categoryTabs.find((tab) => tab.key === selectedCategory) || categoryTabs[0],
-    [selectedCategory]
-  );
+  const serverCategory = useMemo(() => {
+    if (selectedCategories.length === 1) {
+      return selectedCategories[0];
+    }
+
+    return undefined;
+  }, [selectedCategories]);
+
+  const visibleTools = useMemo(() => {
+    const categoryFiltered = selectedCategories.length
+      ? tools.filter((tool) => selectedCategories.includes(tool.category))
+      : tools;
+
+    const sorted = [...categoryFiltered];
+
+    if (sortOption === "az") {
+      sorted.sort((a, b) => a.title.localeCompare(b.title));
+      return sorted;
+    }
+
+    if (sortOption === "random") {
+      for (let i = sorted.length - 1; i > 0; i -= 1) {
+        const j = (i * (randomSeed + 17)) % (i + 1);
+        [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+      }
+
+      return sorted;
+    }
+
+    sorted.sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime());
+    return sorted;
+  }, [tools, selectedCategories, sortOption, randomSeed]);
 
   const hasMore = page < totalPages;
 
@@ -67,7 +100,7 @@ export default function FreeToolsPageClient() {
           params: {
             page: targetPage,
             limit: LIMIT,
-            ...(activeCategory.queryValue ? { category: activeCategory.queryValue } : {})
+            ...(serverCategory ? { category: serverCategory } : {})
           }
         });
 
@@ -91,7 +124,7 @@ export default function FreeToolsPageClient() {
         setLoadingMore(false);
       }
     },
-    [activeCategory.queryValue]
+    [serverCategory]
   );
 
   useEffect(() => {
@@ -99,7 +132,7 @@ export default function FreeToolsPageClient() {
     setPage(1);
     setTotalPages(1);
     void fetchTools(1, true);
-  }, [fetchTools, selectedCategory]);
+  }, [fetchTools, selectedCategories]);
 
   const handleLoadMore = async () => {
     if (!hasMore || loadingMore) {
@@ -116,6 +149,33 @@ export default function FreeToolsPageClient() {
     setModalOpen(true);
   };
 
+  const toggleCategory = (tab: CategoryTab) => {
+    if (!tab.queryValue) {
+      setSelectedCategories([]);
+      return;
+    }
+
+    setSelectedCategories((previous) =>
+      previous.includes(tab.queryValue as ToolCategory)
+        ? previous.filter((value) => value !== tab.queryValue)
+        : [...previous, tab.queryValue as ToolCategory]
+    );
+  };
+
+  const shuffleTools = () => {
+    setSortOption("random");
+    setRandomSeed(Date.now());
+  };
+
+  const surpriseMe = () => {
+    if (!visibleTools.length) {
+      return;
+    }
+
+    const pick = visibleTools[Math.floor(Math.random() * visibleTools.length)];
+    handleOpenTool(pick.webpage_url);
+  };
+
   return (
     <div className="space-y-10 pb-8">
       <SectionHeading
@@ -130,15 +190,58 @@ export default function FreeToolsPageClient() {
             <button
               key={tab.key}
               type="button"
-              onClick={() => setSelectedCategory(tab.key)}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${selectedCategory === tab.key
-                ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
-                : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
-                }`}
+              onClick={() => toggleCategory(tab)}
+              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
+                tab.key === "all"
+                  ? selectedCategories.length === 0
+                    ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
+                    : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+                  : selectedCategories.includes(tab.queryValue as ToolCategory)
+                    ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
+                    : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+              }`}
             >
               {tab.label}
             </button>
           ))}
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <select
+            value={sortOption}
+            onChange={(event) => {
+              const nextSort = event.target.value as SortOption;
+              setSortOption(nextSort);
+              if (nextSort === "random") {
+                setRandomSeed(Date.now());
+              }
+            }}
+            className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white outline-none"
+          >
+            <option value="newest">Sort: Newest</option>
+            <option value="az">Sort: A-Z</option>
+            <option value="random">Sort: Random</option>
+          </select>
+
+          <button
+            type="button"
+            onClick={shuffleTools}
+            disabled={loading || visibleTools.length < 2}
+            className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-300/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Shuffle
+          </button>
+          <button
+            type="button"
+            onClick={surpriseMe}
+            disabled={loading || visibleTools.length === 0}
+            className="rounded-full border border-fuchsia-300/35 bg-fuchsia-300/10 px-4 py-2 text-sm font-medium text-fuchsia-100 transition hover:bg-fuchsia-300/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Surprise Me
+          </button>
+          <p className="self-center text-xs text-white/55">
+            Tip: select multiple categories, then sort, shuffle, or surprise yourself.
+          </p>
         </div>
       </section>
 
@@ -160,7 +263,7 @@ export default function FreeToolsPageClient() {
               <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
             </div>
           ))
-          : tools.map((tool, toolIdx) => (
+          : visibleTools.map((tool, toolIdx) => (
             <ToolCard
               key={tool.id}
               tool={tool}
@@ -176,7 +279,7 @@ export default function FreeToolsPageClient() {
         targetUrl={targetUrl}
       />
 
-      {!loading && tools.length === 0 ? (
+      {!loading && visibleTools.length === 0 ? (
         <section className="glass-panel flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">
           <Frown className="h-10 w-10 text-white/55" />
           <h3 className="font-display text-2xl text-white">No tools found</h3>
