@@ -74,6 +74,7 @@ export default function ScrapedToolsAdminPanel() {
   const [categoryFilter, setCategoryFilter] = useState<ToolCategory | "all">("all");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [jumpPageInput, setJumpPageInput] = useState("");
   const [bulkNote, setBulkNote] = useState("");
   const [notesByToolId, setNotesByToolId] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -413,6 +414,21 @@ export default function ScrapedToolsAdminPanel() {
     }
   };
 
+  const handleJumpToPage = () => {
+    const parsed = Number.parseInt(jumpPageInput, 10);
+
+    if (!Number.isFinite(parsed) || parsed < 1) {
+      setError("Enter a valid page number.");
+      return;
+    }
+
+    const maxPage = Math.max(1, totalPages || 1);
+    const safePage = Math.min(parsed, maxPage);
+    setError("");
+    setPage(safePage);
+    setJumpPageInput("");
+  };
+
   return (
     <div className="space-y-8">
       <SectionHeading
@@ -670,26 +686,72 @@ export default function ScrapedToolsAdminPanel() {
           })}
         </div>
 
-        <div className="mt-8 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setPage((previous) => Math.max(1, previous - 1))}
-            disabled={page <= 1 || loading}
-            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <p className="text-sm text-white/65">
-            {page} / {Math.max(1, totalPages || 1)}
-          </p>
-          <button
-            type="button"
-            onClick={() => setPage((previous) => previous + 1)}
-            disabled={loading || (totalPages > 0 && page >= totalPages)}
-            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Next
-          </button>
+        <div className="mt-8 space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setPage((previous) => Math.max(1, previous - 1))}
+              disabled={page <= 1 || loading}
+              className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <p className="text-sm text-white/65">
+              {page} / {Math.max(1, totalPages || 1)}
+            </p>
+            <button
+              type="button"
+              onClick={() => setPage((previous) => previous + 1)}
+              disabled={loading || (totalPages > 0 && page >= totalPages)}
+              className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPage(1)}
+              disabled={loading || page === 1}
+              className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              First
+            </button>
+
+            <input
+              type="number"
+              min={1}
+              max={Math.max(1, totalPages || 1)}
+              value={jumpPageInput}
+              onChange={(event) => setJumpPageInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  handleJumpToPage();
+                }
+              }}
+              placeholder="Go to page"
+              className="w-32 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white outline-none transition focus:border-cyan-300/40"
+            />
+
+            <button
+              type="button"
+              onClick={handleJumpToPage}
+              disabled={loading || !jumpPageInput.trim()}
+              className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Go
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPage(Math.max(1, totalPages || 1))}
+              disabled={loading || page >= Math.max(1, totalPages || 1)}
+              className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Last
+            </button>
+          </div>
         </div>
       </section>
 
