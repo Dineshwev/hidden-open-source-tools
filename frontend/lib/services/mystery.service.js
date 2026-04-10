@@ -43,7 +43,7 @@ export async function unlockMysteryFile(userId) {
 
       try {
         openSourceCandidates = await prisma.$queryRaw`
-          SELECT id, name, title, description, url, webpage_url, source_site, category
+          SELECT id, name, description, url, source_site, category, github_stars
           FROM open_source_tools
           WHERE LOWER(COALESCE(status, 'approved')) = 'approved'
           ORDER BY COALESCE(updated_at, created_at) DESC
@@ -55,7 +55,7 @@ export async function unlockMysteryFile(userId) {
         // Legacy variants may not have a status column yet.
         if (message.includes('status') && message.includes('column')) {
           openSourceCandidates = await prisma.$queryRaw`
-            SELECT id, name, title, description, url, webpage_url, source_site, category
+            SELECT id, name, description, url, source_site, category, github_stars
             FROM open_source_tools
             ORDER BY COALESCE(updated_at, created_at) DESC
             LIMIT 200
@@ -79,12 +79,12 @@ export async function unlockMysteryFile(userId) {
 
         return {
           id: selected.id,
-          title: selected.name || selected.title || 'Untitled',
+          title: selected.name || 'Untitled',
           description: selected.description || 'Curated resource from open source tools.',
           rarity: 'COMMON',
           category: selected.category || 'other',
           uploader: selected.source_site || 'open-source',
-          downloadUrl: selected.url || selected.webpage_url,
+          downloadUrl: selected.url,
           tags: [],
           license: 'Source site terms',
           mimeType: 'Link'
