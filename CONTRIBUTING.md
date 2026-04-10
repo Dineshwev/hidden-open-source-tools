@@ -1,6 +1,5 @@
-# Contributing to Portfolio Universe
-
-Thanks for helping build Portfolio Universe.
+# Contributing to The Cloud Rain 
+Thanks for helping build The Cloud Rain .
 
 ## Workflow
 
