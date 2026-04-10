@@ -3,7 +3,8 @@ import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
-import AdsterraScripts from "@/components/AdsterraScripts";
+import DesktopOnlyAdsterraScripts from "@/components/DesktopOnlyAdsterraScripts";
+import MobileMonetagVignette from "@/components/MobileMonetagVignette";
 import { AuthProvider } from "@/lib/AuthProvider";
 
 const siteName = "The Cloud Rain";
@@ -86,13 +87,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <AdsterraScripts />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
       <body className="flex min-h-screen flex-col">
+        <DesktopOnlyAdsterraScripts />
+        <MobileMonetagVignette />
         <AuthProvider>
           <Navbar />
           <ScrollProgress />

@@ -3,7 +3,6 @@ import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-rea
 import StatGrid from "@/components/StatGrid";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import AdBanner from "@/components/AdBanner";
-import AdNativeBanner from "@/components/AdNativeBanner";
 
 const mobileSteps = [
   {
@@ -78,7 +77,6 @@ export default function HomeMobileLanding() {
              className="mx-auto max-w-[320px]"
            />
         </div>
-        <AdNativeBanner />
       </div>
 
       <section className="glass-panel rounded-[1.8rem] p-5">
