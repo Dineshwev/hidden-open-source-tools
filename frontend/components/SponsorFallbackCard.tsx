@@ -1,4 +1,8 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getAdsterraSmartlinkUrl } from "@/lib/adsterra";
+import { isMobileUserAgent } from "@/lib/utils/device";
 
 type SponsorFallbackCardProps = {
   title?: string;
@@ -19,7 +23,13 @@ export default function SponsorFallbackCard({
   compact = false,
   horizontal = false
 }: SponsorFallbackCardProps) {
-  const resolvedHref = href ?? getAdsterraSmartlinkUrl();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileUserAgent(globalThis.navigator?.userAgent));
+  }, []);
+
+  const resolvedHref = href ?? (isMobile ? "" : getAdsterraSmartlinkUrl());
   const isExternal = /^https?:\/\//i.test(resolvedHref);
 
   return (
@@ -50,7 +60,7 @@ export default function SponsorFallbackCard({
           </a>
         ) : (
           <div className={`inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 font-semibold text-white/45 ${horizontal ? "w-full px-4 py-2 text-sm md:w-auto" : "w-fit px-5 py-3 text-sm"}`}>
-            Sponsor offer unavailable
+            {isMobile ? "Mobile ad experience active" : "Sponsor offer unavailable"}
           </div>
         )}
       </div>

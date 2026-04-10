@@ -25,7 +25,7 @@ export default function MobileMonetagVignette() {
       return;
     }
 
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) {
       return;
     }

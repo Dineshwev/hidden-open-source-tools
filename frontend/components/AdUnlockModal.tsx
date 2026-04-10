@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import api from "@/lib/api";
 import { getToken, setToken } from "@/lib/auth";
+import { isMobileUserAgent } from "@/lib/utils/device";
 
 type AdOffer = {
   id: string;
@@ -29,8 +30,61 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
   const [isFetchingChallenge, setIsFetchingChallenge] = useState(false);
   const [isExchangingPass, setIsExchangingPass] = useState(false);
   const [adPassToken, setAdPassToken] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const [deviceChecked, setDeviceChecked] = useState(false);
   
   const unlockWaitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setIsMobile(isMobileUserAgent(globalThis.navigator?.userAgent));
+    setDeviceChecked(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile && unlockReady && adPassToken) {
+      onUnlock(adPassToken);
+    }
+  }, [adPassToken, isMobile, onUnlock, unlockReady]);
+
+  const resetUnlockTimer = useCallback(() => {
+    if (unlockWaitTimer.current) {
+      clearTimeout(unlockWaitTimer.current);
+      unlockWaitTimer.current = null;
+    }
+  }, []);
+
+  const startPassExchange = useCallback((nextChallengeToken: string, nextWaitSeconds: number, offerId: string) => {
+    setHasClickedSponsor(true);
+    setSelectedOfferId(offerId);
+    setUnlockReady(false);
+    setErrorMsg("");
+    setIsExchangingPass(true);
+
+    resetUnlockTimer();
+
+    unlockWaitTimer.current = setTimeout(() => {
+      const exchangeChallenge = async () => {
+        try {
+          const response = await api.post('/mystery/ad-pass', {
+            challengeToken: nextChallengeToken
+          });
+
+          const passToken = response.data?.data?.adPassToken || "";
+          setAdPassToken(passToken);
+          setUnlockReady(Boolean(passToken));
+          setErrorMsg("");
+        } catch {
+          setUnlockReady(false);
+          setErrorMsg("Verification failed. Please try again.");
+        } finally {
+          setIsExchangingPass(false);
+          unlockWaitTimer.current = null;
+        }
+      };
+
+      void exchangeChallenge();
+    }, Math.max(nextWaitSeconds, 5) * 1000);
+  }, [resetUnlockTimer]);
 
   const ensureSessionToken = async () => {
     const existingToken = getToken();
@@ -68,12 +122,15 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
       setAdPassToken("");
       setIsFetchingChallenge(false);
       setIsExchangingPass(false);
-      if (unlockWaitTimer.current) {
-        clearTimeout(unlockWaitTimer.current);
-        unlockWaitTimer.current = null;
-      }
+      resetUnlockTimer();
       return;
     }
+
+    if (!deviceChecked) {
+      return;
+    }
+
+    let isActive = true;
 
     const fetchChallenge = async () => {
       setIsFetchingChallenge(true);
@@ -87,19 +144,46 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
           api.get('/mystery/ad-offer')
         ]);
 
-        setChallengeToken(challengeResponse.data?.data?.challengeToken || "");
-        setAdOffers(Array.isArray(offerResponse.data?.data?.offers) ? offerResponse.data.data.offers : []);
-        setWaitSeconds(Number(offerResponse.data?.data?.waitSeconds) || 6);
+        const nextChallengeToken = challengeResponse.data?.data?.challengeToken || "";
+        const nextOffers = Array.isArray(offerResponse.data?.data?.offers) ? offerResponse.data.data.offers : [];
+        const nextWaitSeconds = Number(offerResponse.data?.data?.waitSeconds) || 6;
+
+        if (!isActive) {
+          return;
+        }
+
+        setChallengeToken(nextChallengeToken);
+        setAdOffers(nextOffers);
+        setWaitSeconds(nextWaitSeconds);
+
+        if (!nextChallengeToken) {
+          throw new Error("Challenge token missing");
+        }
+
+        if (isMobile || nextOffers.length === 0) {
+          startPassExchange(nextChallengeToken, nextWaitSeconds, isMobile ? "mobile-verification" : "no-offers");
+        }
       } catch (error: any) {
+        if (!isActive) {
+          return;
+        }
+
         const apiError = error?.response?.data?.error;
         setErrorMsg(apiError || "Unable to prepare unlock verification. Please try again.");
       } finally {
+        if (!isActive) {
+          return;
+        }
+
         setIsFetchingChallenge(false);
       }
     };
 
     void fetchChallenge();
-  }, [open]);
+    return () => {
+      isActive = false;
+    };
+  }, [deviceChecked, isMobile, open, resetUnlockTimer, startPassExchange]);
 
   const beginUnlockVerification = (offer: AdOffer) => {
     if (!challengeToken) {
@@ -114,38 +198,8 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
       return;
     }
 
-    setHasClickedSponsor(true);
-    setSelectedOfferId(offer.id);
-    setUnlockReady(false);
-    setErrorMsg("");
-    setIsExchangingPass(true);
-
-    if (unlockWaitTimer.current) {
-      clearTimeout(unlockWaitTimer.current);
-    }
-
-    unlockWaitTimer.current = setTimeout(() => {
-      const exchangeChallenge = async () => {
-        try {
-          const response = await api.post('/mystery/ad-pass', {
-            challengeToken
-          });
-
-          const passToken = response.data?.data?.adPassToken || "";
-          setAdPassToken(passToken);
-          setUnlockReady(Boolean(passToken));
-          setErrorMsg("");
-        } catch {
-          setUnlockReady(false);
-          setErrorMsg("Verification failed. Please try again.");
-        } finally {
-          setIsExchangingPass(false);
-          unlockWaitTimer.current = null;
-        }
-      };
-
-      void exchangeChallenge();
-    }, Math.max(waitSeconds, 5) * 1000);
+    globalThis.window?.open(offer.url, "_blank", "noopener,noreferrer");
+    startPassExchange(challengeToken, waitSeconds, offer.id);
   };
 
   if (!open) {
@@ -165,30 +219,42 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         <div className="mb-6 w-full rounded-2xl bg-black/60 border border-white/10 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-purple-500/10 pointer-events-none" />
 
-          <p className="text-white/80 mb-6 relative z-10 text-lg">Choose any sponsor offer, stay there for at least {waitSeconds} seconds, then return.</p>
+          <p className="text-white/80 mb-6 relative z-10 text-lg">
+            {isMobile
+              ? `Mobile verification runs automatically for about ${waitSeconds} seconds.`
+              : `Choose any sponsor offer, stay there for at least ${waitSeconds} seconds, then return.`}
+          </p>
 
           <div className="relative z-10 grid w-full gap-3">
-            {adOffers.map((offer) => (
-              <a
-                key={offer.id}
-                href={offer.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => beginUnlockVerification(offer)}
-                className={`btn-premium block w-full transform text-center hover:scale-[1.01] active:scale-95 shadow-[0_0_20px_rgba(0,255,212,0.25)] ${(isFetchingChallenge || isExchangingPass) ? 'pointer-events-none opacity-70' : ''}`}
-              >
-                {isExchangingPass && selectedOfferId === offer.id ? 'Verifying...' : `Open ${offer.label}`}
-              </a>
-            ))}
-
-            {!isFetchingChallenge && adOffers.length === 0 && (
-              <p className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                No Adsterra smartlinks are configured right now.
+            {isMobile ? (
+              <p className="rounded-xl border border-cyan-400/30 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-200">
+                Mobile verification is handled by the mobile ad experience. Please wait for the unlock timer.
               </p>
-            )}
+            ) : (
+              <>
+                {adOffers.map((offer) => (
+                  <a
+                    key={offer.id}
+                    href={offer.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => beginUnlockVerification(offer)}
+                    className={`btn-premium block w-full transform text-center hover:scale-[1.01] active:scale-95 shadow-[0_0_20px_rgba(0,255,212,0.25)] ${(isFetchingChallenge || isExchangingPass) ? 'pointer-events-none opacity-70' : ''}`}
+                  >
+                    {isExchangingPass && selectedOfferId === offer.id ? 'Verifying...' : `Open ${offer.label}`}
+                  </a>
+                ))}
 
-            {isFetchingChallenge && (
-              <p className="text-sm text-cyan-300">Preparing Adsterra smartlinks...</p>
+                {!isFetchingChallenge && adOffers.length === 0 && (
+                  <p className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                    No sponsor offers are configured right now.
+                  </p>
+                )}
+
+                {isFetchingChallenge && (
+                  <p className="text-sm text-cyan-300">Preparing sponsor offers...</p>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -43,10 +43,10 @@ export async function unlockMysteryFile(userId) {
 
       try {
         openSourceCandidates = await prisma.$queryRaw`
-          SELECT id, name, description, url, source_site, category, github_stars
+          SELECT id, name, description, url, NULL::text AS source_site, category, github_stars
           FROM open_source_tools
           WHERE LOWER(COALESCE(status, 'approved')) = 'approved'
-          ORDER BY COALESCE(updated_at, created_at) DESC
+          ORDER BY created_at DESC
           LIMIT 200
         `;
       } catch (openSourceError) {
@@ -55,9 +55,9 @@ export async function unlockMysteryFile(userId) {
         // Legacy variants may not have a status column yet.
         if (message.includes('status') && message.includes('column')) {
           openSourceCandidates = await prisma.$queryRaw`
-            SELECT id, name, description, url, source_site, category, github_stars
+            SELECT id, name, description, url, NULL::text AS source_site, category, github_stars
             FROM open_source_tools
-            ORDER BY COALESCE(updated_at, created_at) DESC
+            ORDER BY created_at DESC
             LIMIT 200
           `;
         } else {

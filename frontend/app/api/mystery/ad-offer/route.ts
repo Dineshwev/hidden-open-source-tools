@@ -1,13 +1,27 @@
 import { NextResponse } from 'next/server';
-import { getServerUser, unauthorizedResponse, errorResponse } from '@/lib/utils/authHelper';
+import { errorResponse } from '@/lib/utils/authHelper';
 import { getMysteryAdOffers, getMysteryAdWaitSeconds } from '@/lib/utils/mysteryAdOffers';
+import { isMobileUserAgent } from '@/lib/utils/device';
 
 export async function GET(req: Request) {
   try {
-    const user = getServerUser(req);
-    // Allowing public access to offers - user session is optional here
-    const offers = await getMysteryAdOffers();
     const waitSeconds = getMysteryAdWaitSeconds();
+    const userAgent = req.headers.get('user-agent');
+
+    if (isMobileUserAgent(userAgent)) {
+      return NextResponse.json(
+        {
+          data: {
+            offers: [],
+            waitSeconds,
+            message: 'Mobile devices use the Monetag ad experience instead of Adsterra smartlinks.'
+          }
+        },
+        { status: 200 }
+      );
+    }
+
+    const offers = await getMysteryAdOffers();
 
     return NextResponse.json(
       {

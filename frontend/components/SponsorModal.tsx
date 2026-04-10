@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ExternalLink, ShieldCheck } from "lucide-react";
 import { getAdsterraSmartlinkUrl } from "@/lib/adsterra";
+import { isMobileUserAgent } from "@/lib/utils/device";
 
 interface SponsorModalProps {
   readonly isOpen: boolean;
@@ -12,10 +13,18 @@ interface SponsorModalProps {
 
 export default function SponsorModal({ isOpen, onClose, targetUrl }: SponsorModalProps) {
   const [adClicked, setAdClicked] = useState(false);
-  const smartlink = getAdsterraSmartlinkUrl();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(isMobileUserAgent(globalThis.navigator?.userAgent));
+  }, []);
+
+  const smartlink = isMobile ? "" : getAdsterraSmartlinkUrl();
 
   const handleAction = () => {
-    if (adClicked) {
+    const mobileBrowser = isMobile || isMobileUserAgent(globalThis.navigator?.userAgent);
+
+    if (adClicked || mobileBrowser) {
       globalThis.window?.open(targetUrl, "_blank", "noopener,noreferrer");
       onClose();
       setAdClicked(false);
@@ -64,7 +73,7 @@ export default function SponsorModal({ isOpen, onClose, targetUrl }: SponsorModa
               onClick={handleAction}
               className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all group"
             >
-              {adClicked ? "Unlock Resource →" : "Visit Sponsor & Unlock"}
+              {adClicked || isMobile ? "Unlock Resource →" : "Visit Sponsor & Unlock"}
               <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
 
