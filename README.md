@@ -5,14 +5,8 @@ The Cloud Rain is an open-source Next.js platform where users unlock curated dev
 ## Stack
 
 - Frontend: Next.js 14 App Router, TypeScript, Tailwind CSS, Framer Motion, Three.js, Zustand
-- Data and APIs: Next.js route handlers, Prisma ORM, PostgreSQL/Supabase, JWT
-- Ops readiness: Docker, environment templates, sitemap generation
-
-## Features
-
-- Mystery box engine with rarity weighting and duplicate avoidance
-- JWT auth with protected dashboard-ready flows
-- Moderated upload and messaging flows
+- Firebase Auth with protected dashboard-ready flows
+- Moderated upload and messaging flows using Supabase
 - Admin analytics and approval queue
 - Contributor points, streaks, and leaderboard foundations
 - Open-source contributor docs and issue templates
@@ -21,7 +15,7 @@ The Cloud Rain is an open-source Next.js platform where users unlock curated dev
 
 ```text
 root/
-  frontend/
+  core/
     app/
     components/
     lib/
@@ -43,10 +37,10 @@ cd frontend && npm install
 ### 2. Configure environment files
 
 ```bash
-cp frontend/.env.example frontend/.env.local
+cp core/.env.example core/.env.local
 ```
 
-Set a private admin panel key in `frontend/.env.local`:
+Set a private admin panel key in `core/.env.local`:
 
 ```bash
 ADMIN_PANEL_ACCESS_KEY=replace-with-a-long-random-secret
@@ -81,24 +75,18 @@ Create a storage bucket named `mystery-bucket` and make it public, because the u
 
 If any of those values are missing, the upload API will return a configuration error instead of saving the file.
 
-### 3. Start services and Prisma
+### 3. Start local database (Optional)
 
 ```bash
 docker compose up -d postgres
-cd frontend
-npx prisma generate
 ```
 
-If you run with local Postgres instead of Supabase, also run migrations:
+If you are using Supabase Cloud, you can skip this step and go straight to starting the app.
+
+### 4. Run the app
 
 ```bash
-npx prisma migrate deploy
-```
-
-### 4. Run the apps
-
-```bash
-cd frontend && npm run dev
+cd core && npm run dev
 ```
 
 ## Important Notes
@@ -106,10 +94,10 @@ cd frontend && npm run dev
 - Uploaded files are stored in `assets/uploads/`
 - Preview assets can live in `assets/previews/`
 - `database/schema.sql` is included for SQL-first inspection, but Prisma is the source of truth
-- API endpoints are implemented in `frontend/app/api/*`
+- API endpoints are implemented in `core/app/api/*`
 
 ## Open Source Workflow
 
 - Read [CONTRIBUTING.md](CONTRIBUTING.md)
 - Use the issue templates in `.github/ISSUE_TEMPLATE/`
-- Keep business logic in `frontend/lib/services` and UI logic in reusable `frontend/components`
+- Keep business logic in `core/lib/services` and UI logic in reusable `core/components`

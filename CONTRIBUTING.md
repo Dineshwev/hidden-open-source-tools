@@ -12,9 +12,9 @@ Thanks for helping improve The Cloud Rain.
 ## Local Setup
 
 1. Start PostgreSQL with `docker compose up -d postgres`
-2. Configure `frontend/.env.local` from `frontend/.env.example`
-3. Run `npm install` in `frontend/`
-4. Generate Prisma client with `npx prisma generate` in `frontend/`
+2. Configure `core/.env.local` from `core/.env.example`
+3. Run `npm install` in `core/`
+4. Start the development server with `npm run dev` in `core/`
 
 ## Pull Request Checklist
 

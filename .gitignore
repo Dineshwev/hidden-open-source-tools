@@ -1,16 +1,37 @@
-node_modules
-.next
-frontend/.next
-dist
-coverage
+# Dependencies
+node_modules/
+dist/
+coverage/
+.next/
+core/.next/
+core/node_modules/
+postgres_data/
+
+# Environment files - CRITICAL
 .env
-.env.*
 .env.local
-*.log
-frontend/build-log.txt
-backend/.env
-frontend/.env.local
+.env.*.local
+.env.development
+.env.production
+core/.env
+core/.env.local
+core/.env.*.local
+
+# Legacy folder protections
+frontend/
+backend/
 frontend/.env
-backend/node_modules
-frontend/node_modules
-postgres_data
+frontend/.env.local
+
+# Logs
+*.log
+*.local.log
+backend-dev*.log
+core-dev*.log
+npm-debug.log*
+yarn-debug.log*
+core/build-log.txt
+
+# OS Files
+.DS_Store
+Thumbs.db
