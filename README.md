@@ -31,7 +31,7 @@ root/
 ### 1. Install dependencies
 
 ```bash
-cd frontend && npm install
+cd core && npm install
 ```
 
 ### 2. Configure environment files
