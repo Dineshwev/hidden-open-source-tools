@@ -209,20 +209,18 @@ export default function GeneralQueriesClient() {
 
   return (
     <div className="space-y-10 pb-10 md:space-y-12">
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_30%),linear-gradient(180deg,rgba(15,15,15,0.98),rgba(8,8,8,0.96))] p-6 md:p-8 lg:p-10">
-        <div className="absolute inset-0 bg-grid-cyber opacity-25" />
-        <div className="relative flex flex-col gap-4">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
-            <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_0_4px_rgba(34,211,238,0.14)]" />
-            Updated every Sunday
-          </div>
+      <section className="mb-10 pt-4">
+        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Community</p>
+        <h1 className="mt-2 font-display text-4xl text-white">
+          General Queries
+        </h1>
+        <p className="mt-3 text-white/60">
+          Anonymous questions answered publicly to help the whole developer community.
+        </p>
 
-          <div className="space-y-3">
-            <h1 className="font-display text-4xl font-bold text-white md:text-5xl">General Queries</h1>
-            <p className="max-w-2xl text-sm leading-7 text-white/65 md:text-base">
-              Anonymous questions answered publicly to help the whole community
-            </p>
-          </div>
+        <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
+          <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_0_4px_rgba(34,211,238,0.14)]" />
+          Updated every Sunday
         </div>
       </section>
 
@@ -463,3 +461,4 @@ function QuerySkeleton() {
     </div>
   );
 }
+

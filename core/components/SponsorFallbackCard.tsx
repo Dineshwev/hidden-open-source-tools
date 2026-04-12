@@ -54,7 +54,7 @@ export default function SponsorFallbackCard({
             href={resolvedHref}
             target={isExternal ? "_blank" : undefined}
             rel={isExternal ? "noopener noreferrer" : undefined}
-            className={`inline-flex items-center justify-center rounded-full border border-white/15 bg-white font-semibold text-black transition hover:scale-[1.02] ${horizontal ? "w-full px-4 py-2 text-sm md:w-auto" : "w-fit px-5 py-3 text-sm"}`}
+            className={`inline-flex items-center justify-center rounded-full border border-white/15 bg-transparent font-semibold text-black transition hover:scale-[1.02] ${horizontal ? "w-full px-4 py-2 text-sm md:w-auto" : "w-fit px-5 py-3 text-sm"}`}
           >
             {cta}
           </a>
@@ -67,3 +67,5 @@ export default function SponsorFallbackCard({
     </div>
   );
 }
+
+

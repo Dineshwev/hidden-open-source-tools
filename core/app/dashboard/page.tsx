@@ -40,12 +40,12 @@ export default function CreatorDashboard() {
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-aurora to-nebula-400 bg-clip-text text-transparent">
                   Alex Rivera
                 </h1>
-                <p className="mt-1 text-sm text-white/60">Creator dashboard overview</p>
+                <p className="mt-1 text-sm text-white/60">Your free open-source contribution hub</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <motion.button className="px-6 py-3 rounded-2xl bg-gradient-to-r from-nebula-500 to-aurora text-white font-semibold shadow-glow hover:shadow-glow-lg transition-all">
-                New Upload
+                Add Free Resource
               </motion.button>
               <motion.button className="px-6 py-3 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 transition-all">
                 View Analytics
@@ -236,3 +236,5 @@ export default function CreatorDashboard() {
     </div>
   );
 }
+
+

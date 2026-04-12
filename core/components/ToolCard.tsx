@@ -60,7 +60,7 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
 
   return (
     <motion.article
-      className="glass-card rounded-3xl border border-white/10 p-4"
+      className="glass-panel rounded-[1.5rem] p-5 hover:border-white/20 transition-all"
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25) }}

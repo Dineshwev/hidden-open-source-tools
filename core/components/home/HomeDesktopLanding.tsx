@@ -28,8 +28,32 @@ export default function HomeDesktopLanding() {
                 <span className="text-gradient-magic"> Premium Developer Resources</span>
               </h1>
 
+              <div className="flex flex-wrap gap-3 items-center">
+                <span className="inline-flex items-center gap-1.5 
+                  rounded-full border border-green-500/30 
+                  bg-green-500/10 px-3 py-1 text-xs 
+                  font-medium text-green-400">
+                  ✓ 100% Free Forever
+                </span>
+                <span className="inline-flex items-center gap-1.5 
+                  rounded-full border border-blue-500/30 
+                  bg-blue-500/10 px-3 py-1 text-xs 
+                  font-medium text-blue-400">
+                  ⟨/⟩ Open Source
+                </span>
+                <span className="inline-flex items-center gap-1.5 
+                  rounded-full border border-purple-500/30 
+                  bg-purple-500/10 px-3 py-1 text-xs 
+                  font-medium text-purple-400">
+                  ✦ No Login Required
+                </span>
+              </div>
+
               <p className="max-w-2xl text-lg leading-relaxed text-white/72">
-                Access curated UI kits, source codes, AI tools, and exclusive templates. Unlock high-quality assets through our interactive mystery box experience and support the open-source community.
+                Discover and unlock free developer resources, 
+                open-source tools, UI kits, and templates. 
+                Everything is completely free — no subscriptions, 
+                no hidden fees, no credit card required.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">

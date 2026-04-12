@@ -105,40 +105,25 @@ export default function ContactPageClient() {
 
   return (
     <div className="space-y-10 md:space-y-14">
-      <motion.section
-        className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_30%),linear-gradient(180deg,rgba(15,15,15,0.98),rgba(8,8,8,0.96))] p-6 md:p-8 lg:p-10"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55 }}
-      >
-        <div className="absolute inset-0 bg-grid-cyber opacity-30" />
-        <div className="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-          <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(34,197,94,0.16)]" />
-              Platform Active
-            </div>
+      <section className="mb-10 pt-4">
+        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Support & Community</p>
+        <h1 className="mt-2 font-display text-4xl text-white">
+          Contact Dinesh
+        </h1>
+        <p className="mt-3 text-white/60 max-w-2xl text-lg">
+          Reach out with a verified profile or stay anonymous. Identified messages get a private reply, while anonymous queries are shared publicly for the community.
+        </p>
 
-            <div className="space-y-4">
-              <h1 className="font-display text-4xl font-bold tracking-tight text-white md:text-5xl">
-                Contact Dinesh
-              </h1>
-              <p className="max-w-2xl text-sm leading-7 text-white/65 md:text-base">
-                Reach out with a verified profile or stay anonymous. Identified messages get a private reply,
-                while anonymous queries are shared publicly for the community.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/80">
-                <BadgeCheck className="h-4 w-4 text-emerald-400" />
-                Verified creator support
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/70">
-                <ClockPill />
-                Typical response time: Within 24-48 hours
-              </div>
-            </div>
+        <div className="mt-6 flex flex-wrap gap-4 items-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(34,197,94,0.16)]" />
+            No account required
+          </div>
+          <div className="text-sm text-white/40">
+            Typical response: 24-48 hours
+          </div>
+        </div>
+      </section>
 
             <div className="flex flex-wrap gap-3">
               <Link
@@ -418,3 +403,4 @@ function SubmitButton({
 function ClockPill() {
   return <span className="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_0_4px_rgba(34,211,238,0.12)]" />;
 }
+

@@ -86,3 +86,5 @@ export default function SponsorModal({ isOpen, onClose, targetUrl }: SponsorModa
     </AnimatePresence>
   );
 }
+
+

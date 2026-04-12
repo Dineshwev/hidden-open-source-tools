@@ -68,9 +68,14 @@ export default function Navbar() {
         >
           <Link href="/" className="flex items-center gap-3">
             <Logo size={32} className="rounded-lg shadow-glow-sm" />
-            <div>
-              <p className="font-display text-sm uppercase tracking-[0.28em] text-[color:var(--nav-muted)]">The Cloud</p>
-              <p className="font-display text-lg leading-none text-gradient">Rain</p>
+            <div className="flex items-center">
+              <div>
+                <p className="font-display text-sm uppercase tracking-[0.28em] text-[color:var(--nav-muted)]">The Cloud</p>
+                <p className="font-display text-lg leading-none text-gradient">Rain</p>
+              </div>
+              <span className="ml-3 whitespace-nowrap rounded-full border border-green-500/30 px-2 py-0.5 text-[10px] font-medium text-green-400">
+                Free & Open Source
+              </span>
             </div>
           </Link>
         </motion.div>

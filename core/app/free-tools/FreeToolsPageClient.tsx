@@ -178,11 +178,37 @@ export default function FreeToolsPageClient() {
 
   return (
     <div className="space-y-10 pb-8">
-      <SectionHeading
-        eyebrow="Explore"
-        title="Free Developer Resources"
-        description="Curated free tools, UI kits, courses & templates for developers"
-      />
+      <section className="mb-10 pt-4">
+        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Open Source Directory</p>
+        <h1 className="mt-2 font-display text-4xl text-white">
+          Free Developer Resources
+        </h1>
+        <p className="mt-3 text-white/60 max-w-2xl">
+          153+ curated free tools, UI kits, courses & templates. 
+          All completely free. No account needed to browse.
+        </p>
+        
+        <div className="mt-6 flex flex-wrap gap-3 items-center">
+          <span className="inline-flex items-center gap-1.5 
+            rounded-full border border-green-500/30 
+            bg-green-500/10 px-3 py-1 text-xs 
+            font-medium text-green-400">
+            ✓ 100% Free Forever
+          </span>
+          <span className="inline-flex items-center gap-1.5 
+            rounded-full border border-blue-500/30 
+            bg-blue-500/10 px-3 py-1 text-xs 
+            font-medium text-blue-400">
+            ⟨/⟩ Open Source
+          </span>
+          <span className="inline-flex items-center gap-1.5 
+            rounded-full border border-purple-500/30 
+            bg-purple-500/10 px-3 py-1 text-xs 
+            font-medium text-purple-400">
+            ✦ No Login Required
+          </span>
+        </div>
+      </section>
 
       <section className="glass-panel rounded-3xl p-4 md:p-5">
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
@@ -346,3 +372,4 @@ export default function FreeToolsPageClient() {
     </div>
   );
 }
+

@@ -28,7 +28,14 @@ export default function MysteryBoxPage() {
       <SectionHeading
         eyebrow="Randomized reward flow"
         title="Mystery Box"
-        description="Experience our premium unlock system. Verified developer resources, rarity-weighted drops, and a smooth reveal experience."
+        description={
+          <span className="block">
+            Open your free daily mystery box and discover hidden open-source tools and resources.
+            <span className="ml-2 font-medium text-green-400">
+              Always free. No subscription needed.
+            </span>
+          </span>
+        }
       />
 
       <div className="relative mx-auto max-w-4xl">
@@ -73,3 +80,5 @@ export default function MysteryBoxPage() {
     </div>
   );
 }
+
+

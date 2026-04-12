@@ -37,6 +37,28 @@ export default function HomeMobileLanding() {
               Sponsor-powered downloads built for
               <span className="text-gradient-magic"> mobile sessions</span>
             </h1>
+
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="inline-flex items-center gap-1 
+                rounded-full border border-green-500/30 
+                bg-green-500/10 px-2 py-0.5 text-[10px] 
+                font-medium text-green-400">
+                ✓ 100% Free
+              </span>
+              <span className="inline-flex items-center gap-1 
+                rounded-full border border-blue-500/30 
+                bg-blue-500/10 px-2 py-0.5 text-[10px] 
+                font-medium text-blue-400">
+                ⟨/⟩ Open Source
+              </span>
+              <span className="inline-flex items-center gap-1 
+                rounded-full border border-purple-500/30 
+                bg-purple-500/10 px-2 py-0.5 text-[10px] 
+                font-medium text-purple-400">
+                ✦ No Login
+              </span>
+            </div>
+
             <p className="text-sm leading-relaxed text-white/70">
               The Cloud Rain helps visitors unlock curated files, keep moving through the site, and still reach sponsor offers even when embedded ads fail.
             </p>
