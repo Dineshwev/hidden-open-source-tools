@@ -87,7 +87,7 @@ export default function ContactPageClient() {
         setNotice({
           kind: "identified",
           title: "Message sent",
-          message: "We\'ll reply to your handle/email privately ✅"
+          message: "We'll reply to your handle/email privately ✅"
         });
       } else {
         setNotice({
@@ -105,6 +105,7 @@ export default function ContactPageClient() {
 
   return (
     <div className="space-y-10 md:space-y-14">
+      {/* Redesigned Header */}
       <section className="mb-10 pt-4">
         <p className="text-xs uppercase tracking-[0.3em] text-white/50">Support & Community</p>
         <h1 className="mt-2 font-display text-4xl text-white">
@@ -125,6 +126,11 @@ export default function ContactPageClient() {
         </div>
       </section>
 
+      {/* Main Content Grid */}
+      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.12),transparent_30%),linear-gradient(180deg,rgba(15,15,15,0.98),rgba(8,8,8,0.96))] p-6 md:p-8 lg:p-10">
+        <div className="absolute inset-0 bg-grid-cyber opacity-30" />
+        <div className="relative grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="space-y-5">
             <div className="flex flex-wrap gap-3">
               <Link
                 href="https://github.com/Dineshwev"
@@ -189,7 +195,7 @@ export default function ContactPageClient() {
             </div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       <motion.section
         className="grid gap-6 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8 lg:grid-cols-[0.8fr_1.2fr] lg:p-10"
@@ -399,8 +405,3 @@ function SubmitButton({
     </button>
   );
 }
-
-function ClockPill() {
-  return <span className="inline-flex h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_0_4px_rgba(34,211,238,0.12)]" />;
-}
-
