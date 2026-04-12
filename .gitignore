@@ -18,10 +18,9 @@ core/.env.local
 core/.env.*.local
 
 # Legacy folder protections
-frontend/
-backend/
-frontend/.env
-frontend/.env.local
+core/
+core/.env
+core/.env.local
 
 # Logs
 *.log
