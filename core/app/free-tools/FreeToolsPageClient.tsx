@@ -40,6 +40,7 @@ const categoryTabs: CategoryTab[] = [
 export default function FreeToolsPageClient() {
   const [selectedCategories, setSelectedCategories] = useState<ToolCategory[]>([]);
   const [tools, setTools] = useState<ScrapedTool[]>([]);
+  const [toolCount, setToolCount] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -134,6 +135,23 @@ export default function FreeToolsPageClient() {
     void fetchTools(1, true);
   }, [fetchTools, selectedCategories]);
 
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const res = await fetch("/api/files/scraped-tools?page=1&limit=1");
+        const data = await res.json();
+
+        if (typeof data?.count === "number") {
+          setToolCount(data.count);
+        }
+      } catch {
+        // Keep null and show fallback text.
+      }
+    };
+
+    void fetchCount();
+  }, []);
+
   const handleLoadMore = async () => {
     if (!hasMore || loadingMore) {
       return;
@@ -180,11 +198,18 @@ export default function FreeToolsPageClient() {
     <div className="space-y-10 pb-8">
       <section className="mb-10 pt-4">
         <p className="text-xs uppercase tracking-[0.3em] text-white/50">Open Source Directory</p>
-        <h1 className="mt-2 font-display text-4xl text-white">
-          Free Developer Resources
-        </h1>
+        <div className="mt-2 flex items-center gap-3">
+          <h1 className="font-display text-4xl text-white">Free Developer Resources</h1>
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/20
+            bg-white/5 px-3 py-1 text-xs text-white/60"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+            {toolCount !== null ? toolCount : "..."} tools live
+          </span>
+        </div>
         <p className="mt-3 text-white/60 max-w-2xl">
-          153+ curated free tools, UI kits, courses & templates. 
+          {toolCount !== null ? `${toolCount}+` : "153+"} curated free tools, UI kits, courses & templates.
           All completely free. No account needed to browse.
         </p>
         
