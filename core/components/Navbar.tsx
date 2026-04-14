@@ -3,16 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import { Search, LockKeyhole, Menu, X, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, User, Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import Logo from "./Logo";
+import { useAuth } from "@/lib/AuthProvider";
 
 const primaryDesktopLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/dashboard", label: "Dashboard" }
+  { href: "/article-museum", label: "Article Museum", badge: "✦" }
 ];
 
 const communityLinks = [
@@ -25,17 +26,18 @@ const mobileLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/article-museum", label: "Article Museum", badge: "✦" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
-  { href: "/upload", label: "Upload" },
-  { href: "/login", label: "Login" }
+  { href: "/upload", label: "Upload" }
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const isActive = (href: string) => {
     if (href === "/") {
@@ -81,7 +83,7 @@ export default function Navbar() {
         </motion.div>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {primaryDesktopLinks.map(({ href, label, isNew }, index) => {
+          {primaryDesktopLinks.map(({ href, label, isNew, badge }, index) => {
             const active = isActive(href);
 
             return (
@@ -103,6 +105,11 @@ export default function Navbar() {
                   {isNew ? (
                     <span className="rounded-full border border-cyan-300/45 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
                       New
+                    </span>
+                  ) : null}
+                  {badge ? (
+                    <span className="rounded-full border border-purple-300/45 bg-purple-300/15 px-1.5 py-0.5 text-[10px] font-semibold text-purple-100">
+                      {badge}
                     </span>
                   ) : null}
                 </Link>
@@ -163,17 +170,70 @@ export default function Navbar() {
 
           <ThemeToggle />
 
-          <Link
-            href="/login"
-            className={`hidden items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition lg:inline-flex ${
-              isActive("/login")
-                ? "border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
-                : "border-[color:var(--nav-border)] bg-transparent text-[color:var(--nav-muted)] hover:border-[color:var(--nav-pill-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-            }`}
-          >
-            <LockKeyhole className="h-4 w-4" />
-            Login
-          </Link>
+          {/* Profile/Login Icon */}
+          {user ? (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] font-semibold text-[color:var(--nav-text)] transition hover:border-[color:var(--nav-pill-border)] hover:bg-[color:var(--nav-pill-hover)]"
+              >
+                {(user.displayName || user.email || "?")[0].toUpperCase()}
+              </button>
+              
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-white/10 bg-[#0a0a0a] p-2 shadow-2xl z-50 text-white"
+                  >
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+                    >
+                      <span className="text-base text-white">👤</span> My Profile
+                    </Link>
+                    <Link
+                      href="/dashboard#downloads"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+                    >
+                      <span className="text-base text-white">📥</span> Downloads
+                    </Link>
+                    <Link
+                      href="/dashboard#settings"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+                    >
+                      <span className="text-base text-white">⚙️</span> Settings
+                    </Link>
+                    <div className="my-1 h-px w-full bg-white/10" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        logout();
+                      }}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+                    >
+                      <span className="text-base text-white">🚪</span> Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--nav-border)] bg-transparent text-[color:var(--nav-muted)] transition hover:border-[color:var(--nav-pill-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
+            >
+              <User className="h-4 w-4" />
+            </Link>
+          )}
 
           <button
             type="button"
@@ -211,7 +271,7 @@ export default function Navbar() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="grid grid-cols-1 gap-2">
-            {mobileLinks.map(({ href, label, isNew }) => {
+            {mobileLinks.map(({ href, label, isNew, badge }) => {
               const active = isActive(href);
 
               return (
@@ -229,6 +289,11 @@ export default function Navbar() {
                   {isNew ? (
                     <span className="ml-auto rounded-full border border-cyan-300/45 bg-cyan-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
                       New
+                    </span>
+                  ) : null}
+                  {badge ? (
+                    <span className="ml-auto rounded-full border border-purple-300/45 bg-purple-300/15 px-1.5 py-0.5 text-[10px] font-semibold text-purple-100">
+                      {badge}
                     </span>
                   ) : null}
                 </Link>
