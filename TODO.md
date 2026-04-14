@@ -31,7 +31,7 @@
 
 **Demo (now smooth 60fps):**
 ```
-cd frontend
+cd core
 npm run dev
 ```
 

@@ -1,6 +1,22 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Article Museum | The Cloud Rain",
+  description: "The hidden stories behind open source software. Deep dives into open-source history, developer tools, and digital archaeology.",
+  openGraph: {
+    title: "Article Museum | The Cloud Rain",
+    description: "The hidden stories behind open source software. Deep dives into open-source history, developer tools, and digital archaeology.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Article Museum | The Cloud Rain",
+    description: "The hidden stories behind open source software. Deep dives into open-source history, developer tools, and digital archaeology.",
+  }
+};
 
 // Force fresh data on every visit
 export const dynamic = "force-dynamic";
