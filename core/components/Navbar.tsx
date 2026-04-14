@@ -26,7 +26,7 @@ const mobileLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/article-museum", label: "Article Museum", badge: "✦" },
+  { href: "/stories", label: "Article Museum", badge: "✦" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
   { href: "/upload", label: "Upload" }
@@ -95,11 +95,10 @@ export default function Navbar() {
               >
                 <Link
                   href={href}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
-                    active
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${active
                       ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                       : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-                  }`}
+                    }`}
                 >
                   <span>{label}</span>
                   {isNew ? (
@@ -125,11 +124,10 @@ export default function Navbar() {
           >
             <button
               type="button"
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
-                communityActive
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${communityActive
                   ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                   : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-              }`}
+                }`}
             >
               <span>Community</span>
               <ChevronDown className="h-4 w-4" />
@@ -143,11 +141,10 @@ export default function Navbar() {
                   <Link
                     key={href}
                     href={href}
-                    className={`mb-1 flex items-center rounded-xl px-3 py-2 text-sm last:mb-0 ${
-                      active
+                    className={`mb-1 flex items-center rounded-xl px-3 py-2 text-sm last:mb-0 ${active
                         ? "bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                         : "text-[color:var(--nav-muted)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-                    }`}
+                      }`}
                   >
                     {label}
                   </Link>
@@ -180,7 +177,7 @@ export default function Navbar() {
               >
                 {(user.displayName || user.email || "?")[0].toUpperCase()}
               </button>
-              
+
               <AnimatePresence>
                 {profileOpen && (
                   <motion.div
@@ -279,11 +276,10 @@ export default function Navbar() {
                   key={href}
                   href={href}
                   onClick={closePanels}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
-                    active
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${active
                       ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                       : "border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)]"
-                  }`}
+                    }`}
                 >
                   {label}
                   {isNew ? (
