@@ -28,27 +28,63 @@ function getFirebaseAdmin() {
   return getAuth();
 }
 
+import { getAdmin } from '@/lib/backend_lib/supabase-server';
+
 export async function POST(req: Request) {
   try {
     // Get Firebase token from Authorization header
     const authHeader = req.headers.get('Authorization') || '';
     const idToken = authHeader.replace('Bearer ', '').trim();
 
-    let userId = 'anonymous_box_user';
+    const ANON_UUID = '00000000-0000-0000-0000-000000000000';
+    let userId = ANON_UUID;
 
     // If token provided, verify with Firebase
     if (idToken && !idToken.startsWith('guest:')) {
       try {
         const auth = getFirebaseAdmin();
         const decoded = await auth.verifyIdToken(idToken);
-        userId = decoded.uid;
+        const firebaseUid = decoded.uid;
+
+        const supabase = getAdmin();
+
+        // 1. Look up Supabase user by firebase_uid
+        const { data: supabaseUser, error: lookupError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('firebase_uid', firebaseUid)
+          .single();
+
+        if (supabaseUser?.id) {
+          userId = supabaseUser.id;
+        } else {
+          // 2. If user not found, create new user
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert({
+              firebase_uid: firebaseUid,
+              username: `user_${firebaseUid.slice(0, 8)}`,
+              email: decoded.email || '',
+              role: 'USER'
+            })
+            .select('id')
+            .single();
+
+          if (insertError) {
+            console.error('[UNLOCK] Failed to create new user:', insertError.message);
+            // Fallback to anonymous on insert fail
+            userId = ANON_UUID;
+          } else if (newUser?.id) {
+            userId = newUser.id;
+          }
+        }
       } catch (firebaseError: any) {
         console.warn('[UNLOCK] Firebase token invalid, using anonymous:', firebaseError.message);
         // Allow anonymous unlock - do not block
       }
     }
 
-    // Call mystery service - no JWT needed anymore
+    // Call mystery service - passing true Supabase UUID
     const data = await mysteryService.unlockMysteryFile(userId);
     return NextResponse.json({ data }, { status: 200 });
 

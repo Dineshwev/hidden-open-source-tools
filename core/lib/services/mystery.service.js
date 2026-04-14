@@ -22,7 +22,8 @@ function normalizeFileRecord(file) {
 }
 
 function isAnonymousUser(userId) {
-  return !userId || userId === "anonymous_box_user" || String(userId).startsWith("guest:");
+  const ANON_UUID = '00000000-0000-0000-0000-000000000000';
+  return !userId || userId === "anonymous_box_user" || userId === ANON_UUID || String(userId).startsWith("guest:");
 }
 
 async function incrementUserStreak(userId) {
