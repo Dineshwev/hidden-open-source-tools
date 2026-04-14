@@ -1,0 +1,5 @@
+Contact: https://thecloudrain.site/contact
+Expires: 2027-01-01T00:00:00.000Z
+Preferred-Languages: en, hi
+Canonical: https://thecloudrain.site/.well-known/security.txt
+Policy: https://thecloudrain.site/privacy
