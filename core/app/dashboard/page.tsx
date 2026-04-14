@@ -3,8 +3,6 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BarChart3, TrendingUp, Upload, Eye, Award, Flame, Download, ArrowRight } from 'lucide-react';
-import AdBanner from '@/components/AdBanner';
-import AdNativeBanner from '@/components/AdNativeBanner';
 
 const stats = [
   { name: 'Uploads', value: 247, change: '+12%', icon: Upload, color: 'emerald' },
@@ -202,34 +200,6 @@ export default function CreatorDashboard() {
                 </span>
               </motion.a>
             ))}
-          </div>
-        </motion.section>
-
-        <motion.section className="mt-12 rounded-3xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
-          <div className="text-center space-y-2 mb-6">
-            <p className="text-xs uppercase tracking-[0.28em] text-white/45">Sponsored</p>
-            <h3 className="text-lg font-semibold text-white/85">Supporter Spotlight</h3>
-            <p className="text-sm text-white/60">Sponsor visibility appears after primary dashboard content.</p>
-          </div>
-
-          <div className="space-y-5">
-            <AdNativeBanner />
-            <div className="space-y-3">
-              <AdBanner
-                title="Dashboard Partner Banner"
-                description="Optional sponsor slot placed lower to keep the dashboard focused on user actions first."
-                width={320}
-                height={50}
-                className="mx-auto max-w-[320px] md:hidden"
-              />
-              <AdBanner
-                title="Dashboard Partner Banner"
-                description="Optional sponsor slot placed lower to keep the dashboard focused on user actions first."
-                width={468}
-                height={60}
-                className="mx-auto hidden max-w-[468px] md:flex"
-              />
-            </div>
           </div>
         </motion.section>
       </div>

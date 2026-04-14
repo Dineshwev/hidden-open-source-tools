@@ -5,9 +5,6 @@ import StatsTicker from "@/components/StatsTicker";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
-import AdBanner from "@/components/AdBanner";
-import AdNativeBanner from "@/components/AdNativeBanner";
-
 export default function HomeDesktopLanding() {
   return (
     <>
@@ -20,7 +17,7 @@ export default function HomeDesktopLanding() {
           <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/70">
-                Sponsor-Safe Download Platform
+                Free Curated Download Platform
               </div>
 
               <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
@@ -113,11 +110,6 @@ export default function HomeDesktopLanding() {
                   </article>
                 ))}
               </div>
-
-              <div className="mt-8 pt-8 border-t border-white/5">
-                 <p className="text-xs uppercase tracking-[0.3em] text-white/40 mb-4 text-center text-center">Featured Supporter</p>
-                 <AdBanner width={300} height={250} className="mx-auto" />
-              </div>
             </aside>
           </div>
         </section>
@@ -132,13 +124,6 @@ export default function HomeDesktopLanding() {
           <TrendingDownloads />
         </section>
 
-        <div className="py-12 px-6 rounded-[3rem] bg-gradient-to-r from-nebula-900/40 via-aurora-900/20 to-nebula-900/40 border border-white/5 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-white/40">Community Sponsors</p>
-            <div className="mt-8 flex justify-center">
-               <AdNativeBanner />
-            </div>
-        </div>
-
         <section className="space-y-6">
           <div className="flex items-end justify-between gap-4">
             <div>
@@ -150,7 +135,7 @@ export default function HomeDesktopLanding() {
             {[
               {
                 title: "Zero Subscriptions",
-                desc: "Get access to high-value assets without monthly fees through our rewarded unlock system."
+                desc: "Get access to high-value assets securely and without any monthly fees."
               },
               {
                 title: "Fast Discovery",

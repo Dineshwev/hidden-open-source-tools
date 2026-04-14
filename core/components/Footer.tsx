@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AdBanner from "./AdBanner";
 import Logo from "./Logo";
 
 const mainLinks = [
@@ -30,21 +29,6 @@ const seoLinks = [
 export default function Footer() {
   return (
     <footer className="relative z-20 mt-20 border-t border-white/10 bg-[#070707]/95">
-      <div className="px-4 pt-6 md:px-6">
-        <div className="hidden md:block">
-          <AdBanner
-            width={468}
-            height={60}
-          />
-        </div>
-        <div className="md:hidden">
-          <AdBanner
-            width={320}
-            height={50}
-          />
-        </div>
-      </div>
-
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-2 xl:grid-cols-[1.2fr_1fr_1fr_1fr]">
         <div className="space-y-5">
           <p className="flex items-center gap-3 font-display text-2xl font-bold tracking-tight text-white">
@@ -52,7 +36,7 @@ export default function Footer() {
             The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">
-            A sponsor-powered download platform built with clear disclosures, moderation controls, and legal pages that make the product feel like a real company.
+            A free download platform built with clear disclosures, moderation controls, and legal pages that make the product feel like a real company.
           </p>
           <div className="rounded-2xl border border-white/15 bg-white/[0.03] p-4">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Company Standard</p>

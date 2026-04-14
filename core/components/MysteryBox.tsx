@@ -6,7 +6,6 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Download, Star, Crown, Sparkles } from 'lucide-react';
 
 const MysteryBox3D = dynamic(() => import('./MysteryBox3D'), { ssr: false });
-import AdUnlockModal from './AdUnlockModal';
 import api from '@/lib/api';
 
 type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
@@ -79,7 +78,6 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
   const [isOpening, setIsOpening] = useState(false);
   const [reward, setReward] = useState<Reward | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [showAdModal, setShowAdModal] = useState(false);
   const [unlockError, setUnlockError] = useState("");
   const [hasInventory, setHasInventory] = useState<boolean | null>(null);
 
@@ -106,29 +104,21 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
     checkInventory();
   }, []);
 
-  const openBox = () => {
+  const openBox = async () => {
     if (hasInventory === false) {
       setUnlockError("No approved tools are available yet. Approve tools in Control Room and try again.");
       return;
     }
     
     if (hasInventory === null) {
-      // Still checking
       return;
     }
 
     setUnlockError("");
-    setShowAdModal(true);
-  };
-
-  const handleAdUnlock = async (adPassToken: string) => {
-    setShowAdModal(false);
     setIsOpening(true);
-    setUnlockError("");
 
     try {
-      // Stage 2: Call Serverless Next.js API
-      const res = await api.post('/mystery/unlock', { adPassToken });
+      const res = await api.post('/mystery/unlock', {});
       
       if (!res.data?.data) {
         throw new Error("The cloud rain was unable to retrieve your reward. Please try again.");
@@ -147,12 +137,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
     } catch (err: any) {
       setIsOpening(false);
       const apiErrorMessage = err.response?.data?.error || err.message;
-      
-      if (err.response?.status === 401 || err.response?.status === 403) {
-        setUnlockError("Verification failed for this attempt. Please click the box and retry sponsor verification.");
-      } else {
-        setUnlockError(apiErrorMessage || "Unlock failed. Please complete the sponsor verification again.");
-      }
+      setUnlockError(apiErrorMessage || "Unlock failed. Please try again.");
     }
   };
 
@@ -224,12 +209,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         </div>
       </div>
 
-      {/* Ad Gateway Modal */}
-      <AdUnlockModal 
-        open={showAdModal} 
-        onClose={() => setShowAdModal(false)} 
-        onUnlock={handleAdUnlock} 
-      />
+      {/* Removed Ad Gateway Modal */}
 
       {unlockError && (
         <div className="mt-6 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">

@@ -2,13 +2,11 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-react";
 import StatGrid from "@/components/StatGrid";
 import TrendingDownloads from "@/components/TrendingDownloads";
-import AdBanner from "@/components/AdBanner";
-
 const mobileSteps = [
   {
     icon: <PlayCircle className="h-4 w-4" />,
-    title: "Open sponsor step",
-    text: "Users can take one sponsor action to unlock the next file."
+    title: "Click to unlock your free reward",
+    text: "Open your daily mystery box to unlock the next file."
   },
   {
     icon: <Shield className="h-4 w-4" />,
@@ -34,7 +32,7 @@ export default function HomeMobileLanding() {
 
           <div className="space-y-4">
             <h1 className="font-display text-4xl leading-tight text-white">
-              Sponsor-powered downloads built for
+              Curated developer downloads built for
               <span className="text-gradient-magic"> mobile sessions</span>
             </h1>
 
@@ -60,7 +58,7 @@ export default function HomeMobileLanding() {
             </div>
 
             <p className="text-sm leading-relaxed text-white/70">
-              The Cloud Rain helps visitors unlock curated files, keep moving through the site, and still reach sponsor offers even when embedded ads fail.
+              The Cloud Rain helps visitors unlock curated files and keep moving smoothly through the site.
             </p>
           </div>
 
@@ -89,17 +87,6 @@ export default function HomeMobileLanding() {
           </div>
         </div>
       </section>
-
-      <div className="space-y-6">
-        <div className="text-center py-4">
-           <p className="text-[10px] font-medium uppercase tracking-[0.4em] text-white/20 mb-4">Sponsored Content</p>
-           <AdBanner
-             width={320}
-             height={50}
-             className="mx-auto max-w-[320px]"
-           />
-        </div>
-      </div>
 
       <section className="glass-panel rounded-[1.8rem] p-5">
         <p className="text-xs uppercase tracking-[0.3em] text-white/50">Global Activity</p>
