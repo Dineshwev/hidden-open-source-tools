@@ -1,8 +1,11 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
+import { RefreshCw } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import api from "@/lib/api";
+import AdminVerification from "@/components/admin/AdminVerification";
 
 type Category = {
   id: string;
@@ -53,8 +56,6 @@ type UploadPreset = {
   previewImageUrl?: string;
 };
 
-const ACCESS_KEY_STORAGE = "cloud_rain_admin_access_key";
-
 const uploadPresets: UploadPreset[] = [
   {
     label: "UI Kit",
@@ -86,8 +87,9 @@ const uploadPresets: UploadPreset[] = [
 ];
 
 export default function AdminModerationPanel() {
-  const [keyInput, setKeyInput] = useState("");
-  const [accessKey, setAccessKey] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationSecret, setVerificationSecret] = useState("");
+  const [verifying, setVerifying] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([]);
   const [approvedUploads, setApprovedUploads] = useState<PendingUpload[]>([]);
@@ -132,26 +134,60 @@ export default function AdminModerationPanel() {
     }
   }, []);
 
-  const fetchPending = useCallback(async (providedKey: string) => {
-    if (!providedKey) {
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!verificationSecret.trim()) return;
+
+    setVerifying(true);
+    try {
+      const res = await axios.post("/api/admin/verify", { secret: verificationSecret });
+      if (res.data.success) {
+        setIsVerified(true);
+        sessionStorage.setItem("admin_secret_session", verificationSecret);
+      } else {
+        setError("Invalid admin secret.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Verification failed");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("admin_secret_session");
+    if (saved) {
+      setVerificationSecret(saved);
+      axios.post("/api/admin/verify", { secret: saved })
+        .then(res => {
+          if (res.data.success) {
+            setIsVerified(true);
+          }
+        })
+        .catch(() => {
+          sessionStorage.removeItem("admin_secret_session");
+        });
+    }
+  }, []);
+
+  const fetchPending = useCallback(async () => {
+    if (!isVerified) {
       return;
     }
 
     setLoading(true);
     setError("");
-    setStatusMessage("Verifying access key...");
+    setStatusMessage("Verifying admin session...");
 
     try {
       const response = await api.get<{ data: PendingUpload[] }>("/admin/pending-uploads", {
-        headers: {
-          "x-admin-access-key": providedKey
-        }
+        headers: { Authorization: verificationSecret }
       });
 
       const loadedUploads = response.data?.data || [];
       setPendingUploads(loadedUploads);
       setSelectedIds((previous) => previous.filter((itemId) => loadedUploads.some((item) => item.id === itemId)));
-      setStatusMessage(`Panel unlocked. Loaded ${loadedUploads.length} pending upload${loadedUploads.length === 1 ? "" : "s"}.`);
+      setStatusMessage(`Server session active. Loaded ${loadedUploads.length} pending upload${loadedUploads.length === 1 ? "" : "s"}.`);
       setHealthState((previous) => ({
         ...previous,
         adminApi: "ready",
@@ -172,10 +208,10 @@ export default function AdminModerationPanel() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isVerified, verificationSecret]);
 
   const runHealthCheck = useCallback(
-    async (providedKey?: string) => {
+    async () => {
       setHealthState((previous) => ({
         ...previous,
         database: "checking",
@@ -194,29 +230,17 @@ export default function AdminModerationPanel() {
       } catch {
         setHealthState((previous) => ({
           ...previous,
-          database: "down",
-          adminApi: providedKey ? "error" : previous.adminApi,
-          detail: "Database/API is not reachable. Check DATABASE_URL and Supabase status.",
-          checkedAt: new Date().toISOString()
-        }));
-        return;
-      }
-
-      if (!providedKey) {
-        setHealthState((previous) => ({
-          ...previous,
-          adminApi: "idle",
-          detail: "Database/API is ready. Enter key to validate admin endpoint.",
-          checkedAt: new Date().toISOString()
-        }));
+            database: "down",
+            adminApi: previous.adminApi,
+            detail: "Database/API is not reachable. Check DATABASE_URL and Supabase status.",
+            checkedAt: new Date().toISOString()
+          }));
         return;
       }
 
       try {
         await api.get("/admin/pending-uploads", {
-          headers: {
-            "x-admin-access-key": providedKey
-          }
+          headers: { Authorization: verificationSecret }
         });
         setHealthState((previous) => ({
           ...previous,
@@ -235,17 +259,16 @@ export default function AdminModerationPanel() {
         }));
       }
     },
-    []
+    [verificationSecret]
   );
 
   const fetchHistory = useCallback(
-    async (providedKey: string, status: "APPROVED" | "REJECTED") => {
+    async (status: "APPROVED" | "REJECTED") => {
+      if (!isVerified) return;
       try {
         const response = await api.get<{ data: PendingUpload[] }>("/admin/moderation-history", {
-          headers: {
-            "x-admin-access-key": providedKey
-          },
-          params: { status }
+          params: { status },
+          headers: { Authorization: verificationSecret }
         });
 
         const loadedHistory = response.data?.data || [];
@@ -263,18 +286,19 @@ export default function AdminModerationPanel() {
         }
       }
     },
-    []
+    [isVerified, verificationSecret]
   );
 
   const unlockAndLoadAll = useCallback(
-    async (providedKey: string) => {
-      await fetchPending(providedKey);
+    async () => {
+      if (!isVerified) return;
+      await fetchPending();
       await Promise.all([
-        fetchHistory(providedKey, "APPROVED"),
-        fetchHistory(providedKey, "REJECTED")
+        fetchHistory("APPROVED"),
+        fetchHistory("REJECTED")
       ]);
     },
-    [fetchPending, fetchHistory]
+    [isVerified, fetchPending, fetchHistory]
   );
 
   useEffect(() => {
@@ -282,45 +306,21 @@ export default function AdminModerationPanel() {
   }, [fetchCategories]);
 
   useEffect(() => {
-    void runHealthCheck();
-  }, [runHealthCheck]);
+    if (isVerified) {
+      void runHealthCheck();
+    }
+  }, [isVerified, runHealthCheck]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
+    if (isVerified) {
+      void unlockAndLoadAll();
     }
-
-    const storedKey = localStorage.getItem(ACCESS_KEY_STORAGE) || "";
-    if (!storedKey) {
-      return;
-    }
-
-    setAccessKey(storedKey);
-    setKeyInput(storedKey);
-    void unlockAndLoadAll(storedKey);
-  }, [unlockAndLoadAll]);
-
-  const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const trimmedKey = keyInput.trim();
-
-    if (!trimmedKey) {
-      setError("Enter your admin access key.");
-      return;
-    }
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem(ACCESS_KEY_STORAGE, trimmedKey);
-    }
-
-    setAccessKey(trimmedKey);
-    await unlockAndLoadAll(trimmedKey);
-  };
+  }, [isVerified, unlockAndLoadAll]);
 
   const handleAdminUpload = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!accessKey) {
+    if (!isVerified) {
       setError("Unlock the panel first before uploading.");
       return;
     }
@@ -336,8 +336,8 @@ export default function AdminModerationPanel() {
     try {
       await api.post("/admin/uploads", formData, {
         headers: {
-          "x-admin-access-key": accessKey,
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "multipart/form-data",
+          Authorization: verificationSecret
         }
       });
 
@@ -345,7 +345,7 @@ export default function AdminModerationPanel() {
       setUploadErrorMessage("");
       setUploadDiagnostics(null);
       event.currentTarget.reset();
-      await fetchPending(accessKey);
+      await fetchPending();
     } catch (err: unknown) {
       const maybeError = err as {
         response?: {
@@ -368,7 +368,7 @@ export default function AdminModerationPanel() {
   const setFormValue = (form: HTMLFormElement, fieldName: string, value: string) => {
     const field = form.elements.namedItem(fieldName);
     if (field && "value" in field) {
-      field.value = value;
+      (field as any).value = value;
     }
   };
 
@@ -396,7 +396,7 @@ export default function AdminModerationPanel() {
   };
 
   const handleQuickTestUpload = async (preset: UploadPreset) => {
-    if (!accessKey) {
+    if (!isVerified) {
       setError("Unlock the panel first before uploading.");
       return;
     }
@@ -435,13 +435,13 @@ export default function AdminModerationPanel() {
     try {
       await api.post("/admin/uploads", formData, {
         headers: {
-          "x-admin-access-key": accessKey,
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "multipart/form-data",
+          Authorization: verificationSecret
         }
       });
 
       setUploadStatusMessage(`Test ${preset.label.toLowerCase()} uploaded and marked pending.`);
-      await fetchPending(accessKey);
+      await fetchPending();
     } catch (err: unknown) {
       const maybeError = err as { response?: { data?: { error?: string } } };
       setUploadStatusMessage("");
@@ -452,11 +452,9 @@ export default function AdminModerationPanel() {
   };
 
   const clearStoredAccess = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(ACCESS_KEY_STORAGE);
-    }
-    setAccessKey("");
-    setKeyInput("");
+    setIsVerified(false);
+    setVerificationSecret("");
+    sessionStorage.removeItem("admin_secret_session");
     setPendingUploads([]);
     setApprovedUploads([]);
     setRejectedUploads([]);
@@ -486,7 +484,6 @@ export default function AdminModerationPanel() {
     }
 
     for (const fileId of selectedIds) {
-      // Process items one by one so each moderation action is logged cleanly.
       await moderateUpload(fileId, status);
     }
 
@@ -494,8 +491,8 @@ export default function AdminModerationPanel() {
   };
 
   const moderateUpload = async (fileId: string, status: "APPROVED" | "REJECTED") => {
-    if (!accessKey) {
-      setError("Admin access key is missing.");
+    if (!isVerified) {
+      setError("Admin session is missing.");
       return;
     }
 
@@ -507,19 +504,14 @@ export default function AdminModerationPanel() {
       await api.patch(
         `/admin/pending-uploads/${fileId}`,
         { status },
-        {
-          headers: {
-            "x-admin-access-key": accessKey
-          }
-        }
+        { headers: { Authorization: verificationSecret } }
       );
 
       setPendingUploads((previous) => previous.filter((item) => item.id !== fileId));
       setStatusMessage(status === "APPROVED" ? "Upload approved." : "Upload rejected.");
       
-      // Refetch history after moderation
-      await fetchHistory(accessKey, "APPROVED");
-      await fetchHistory(accessKey, "REJECTED");
+      await fetchHistory("APPROVED");
+      await fetchHistory("REJECTED");
     } catch (err: unknown) {
       const maybeError = err as { response?: { data?: { error?: string } } };
       const message = maybeError?.response?.data?.error || "Moderation request failed.";
@@ -532,10 +524,10 @@ export default function AdminModerationPanel() {
   const metricCards = useMemo(
     () => [
       [String(pendingUploads.length), "Pending uploads"],
-      [accessKey ? "Active" : "Locked", "Access key status"],
+      [isVerified ? "Secured" : "Locked", "Admin session"],
       [loading ? "Syncing" : "Ready", "Panel state"]
     ],
-    [pendingUploads.length, accessKey, loading]
+    [pendingUploads.length, isVerified, loading]
   );
 
   const filteredPendingUploads = useMemo(() => {
@@ -599,7 +591,7 @@ export default function AdminModerationPanel() {
   const sidebarItems = [
     { label: "Upload", href: "#admin-upload" },
     { label: "Queue", href: "#admin-queue" },
-    { label: "Access", href: "#admin-access" },
+    { label: "Security", href: "#admin-security" },
     { label: "Presets", href: "#admin-presets" }
   ];
 
@@ -648,11 +640,24 @@ export default function AdminModerationPanel() {
     URL.revokeObjectURL(url);
   };
 
+  if (!isVerified) {
+    return (
+      <AdminVerification 
+        onVerify={handleVerify}
+        verifying={verifying}
+        secret={verificationSecret}
+        setSecret={setVerificationSecret}
+        accentColor="amber"
+        title="Moderation Desk"
+      />
+    );
+  }
+
   return (
-    <div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)]">
+    <div className="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)] pb-12">
       <aside className="glass-panel sticky top-6 h-fit rounded-[2rem] p-5">
         <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-cyan-200/80">Control Room</p>
+          <p className="text-xs uppercase tracking-[0.32em] text-amber-200/80">Control Room</p>
           <h2 className="mt-2 font-display text-2xl font-semibold text-white">Solo Admin Desk</h2>
           <p className="mt-2 text-sm leading-6 text-white/60">
             Quick actions for upload, review, and queue management.
@@ -664,7 +669,7 @@ export default function AdminModerationPanel() {
             <a
               key={item.href}
               href={item.href}
-              className="block rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 transition hover:border-cyan-300/40 hover:bg-cyan-300/10 hover:text-white"
+              className="block rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 transition hover:border-amber-300/40 hover:bg-amber-300/10 hover:text-white"
             >
               {item.label}
             </a>
@@ -682,21 +687,68 @@ export default function AdminModerationPanel() {
         <SectionHeading
           eyebrow="Private moderation"
           title="Admin queue"
-          description="Use your admin access key to unlock and moderate pending uploads from this hidden panel."
+          description="Use the private Control Room desk to moderate community uploads and manage site content."
         />
 
         <section className="grid gap-4 md:grid-cols-4">
           {[
-            { label: "Pending", value: pendingUploads.length, tone: "text-cyan-200" },
+            { label: "Pending", value: pendingUploads.length, tone: "text-amber-200" },
             { label: "Selected", value: selectedIds.length, tone: "text-white" },
             { label: "Upload Presets", value: uploadPresets.length, tone: "text-emerald-200" },
-            { label: "Access", value: accessKey ? "Open" : "Locked", tone: "text-amber-200" }
+            { label: "Access", value: "Verified", tone: "text-cyan-200" }
           ].map((item) => (
             <div key={item.label} className="glass-panel rounded-3xl p-5">
               <p className="text-xs uppercase tracking-[0.25em] text-white/45">{item.label}</p>
               <p className={`mt-3 font-display text-3xl font-semibold ${item.tone}`}>{item.value}</p>
             </div>
           ))}
+        </section>
+
+        <section id="admin-security" className="glass-panel rounded-[2rem] p-6 md:p-8">
+          <div
+            className={`mb-4 rounded-2xl border p-4 text-sm ${
+              healthState.database === "down"
+                ? "border-rose-300/40 bg-rose-400/10 text-rose-100"
+                : healthState.database === "checking"
+                  ? "border-amber-300/40 bg-amber-400/10 text-amber-100"
+                  : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
+            }`}
+          >
+            <p className="font-semibold">Service health</p>
+            <p className="mt-1 text-white/90">{healthState.detail}</p>
+            <p className="mt-2 text-xs text-white/70">
+              Database: {healthState.database} · Admin API: {healthState.adminApi}
+              {healthState.checkedAt ? ` · Checked ${new Date(healthState.checkedAt).toLocaleTimeString()}` : ""}
+            </p>
+            <button
+              type="button"
+              onClick={() => void runHealthCheck()}
+              className="mt-3 rounded-full border border-white/20 px-4 py-2 text-xs text-white/90 transition hover:bg-white/10"
+            >
+              Re-check services
+            </button>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+             <div className="flex-1 rounded-2xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/75">
+              Secure admin session is active. All interactions are verified against the master secret.
+            </div>
+            <button
+              onClick={() => void fetchPending()}
+              className="rounded-full bg-amber-400 px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-amber-500"
+            >
+              Refresh Data
+            </button>
+            <button
+              onClick={clearStoredAccess}
+              className="rounded-full border border-white/20 px-5 py-3 text-sm text-white/90 transition hover:bg-white/5"
+            >
+              Log Out
+            </button>
+          </div>
+
+          {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
+          {statusMessage ? <p className={`mt-3 text-sm ${statusToneClass}`}>{statusMessage}</p> : null}
         </section>
 
         <section id="admin-upload" className="glass-panel rounded-[2rem] p-6 md:p-8">
@@ -709,7 +761,7 @@ export default function AdminModerationPanel() {
                 key={preset.label}
                 type="button"
                 onClick={() => applyPreset(preset)}
-                className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+                className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-amber-300/40 hover:bg-amber-300/10"
               >
                 Load {preset.label}
               </button>
@@ -731,7 +783,7 @@ export default function AdminModerationPanel() {
               <input
                 required
                 name="title"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
                 placeholder="Admin uploaded UI kit"
               />
             </label>
@@ -740,7 +792,7 @@ export default function AdminModerationPanel() {
               <select
                 required
                 name="categoryId"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
                 defaultValue=""
               >
                 <option value="" disabled>Select a category</option>
@@ -757,7 +809,7 @@ export default function AdminModerationPanel() {
               required
               name="description"
               rows={4}
-              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
               placeholder="Describe what this file contains."
             />
           </label>
@@ -768,7 +820,7 @@ export default function AdminModerationPanel() {
               <input
                 required
                 name="tags"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
                 placeholder="ui kit, template, design"
               />
             </label>
@@ -777,7 +829,7 @@ export default function AdminModerationPanel() {
               <input
                 required
                 name="license"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
                 placeholder="CC BY 4.0"
               />
             </label>
@@ -789,7 +841,7 @@ export default function AdminModerationPanel() {
               <select
                 name="rarity"
                 defaultValue="COMMON"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
               >
                 <option value="COMMON">Common</option>
                 <option value="RARE">Rare</option>
@@ -801,7 +853,7 @@ export default function AdminModerationPanel() {
               <span className="text-sm text-white/75">Preview image URL</span>
               <input
                 name="previewImageUrl"
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-amber-400"
                 placeholder="https://example.com/preview.png"
               />
             </label>
@@ -813,7 +865,7 @@ export default function AdminModerationPanel() {
               required
               type="file"
               name="file"
-              className="w-full rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-4 text-sm"
+              className="w-full rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-4 text-sm text-white/70"
             />
           </label>
 
@@ -822,7 +874,7 @@ export default function AdminModerationPanel() {
             <button
               type="submit"
               disabled={uploadSubmitting}
-              className="rounded-full bg-gradient-to-r from-nebula-500 to-ember px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-white px-8 py-3 text-sm font-bold text-black transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {uploadSubmitting ? "Uploading..." : "Upload File"}
             </button>
@@ -847,74 +899,12 @@ export default function AdminModerationPanel() {
 
         </section>
 
-        <section id="admin-access" className="glass-panel rounded-[2rem] p-6 md:p-8">
-          <div
-            className={`mb-4 rounded-2xl border p-4 text-sm ${
-              healthState.database === "down"
-                ? "border-rose-300/40 bg-rose-400/10 text-rose-100"
-                : healthState.database === "checking"
-                  ? "border-amber-300/40 bg-amber-400/10 text-amber-100"
-                  : "border-emerald-300/30 bg-emerald-400/10 text-emerald-100"
-            }`}
-          >
-            <p className="font-semibold">Service health</p>
-            <p className="mt-1 text-white/90">{healthState.detail}</p>
-            <p className="mt-2 text-xs text-white/70">
-              Database: {healthState.database} · Admin API: {healthState.adminApi}
-              {healthState.checkedAt ? ` · Checked ${new Date(healthState.checkedAt).toLocaleTimeString()}` : ""}
-            </p>
-            <button
-              type="button"
-              onClick={() => void runHealthCheck(accessKey || keyInput.trim() || undefined)}
-              className="mt-3 rounded-full border border-white/20 px-4 py-2 text-xs text-white/90 transition hover:bg-white/10"
-            >
-              Re-check services
-            </button>
-          </div>
-
-          <form className="grid gap-3 md:grid-cols-[1fr_auto_auto]" onSubmit={handleUnlock}>
-            <input
-              type="password"
-              value={keyInput}
-              onChange={(event) => setKeyInput(event.target.value)}
-              placeholder="Enter admin access key"
-              className="rounded-2xl border border-white/15 bg-black/20 px-4 py-3 text-white placeholder:text-white/45 focus:border-aurora focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="rounded-full bg-aurora px-5 py-3 text-sm font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={loading}
-            >
-              {loading ? "Checking..." : "Unlock Panel"}
-            </button>
-            <button
-              type="button"
-              onClick={clearStoredAccess}
-              className="rounded-full border border-white/20 px-5 py-3 text-sm text-white/90"
-            >
-              Clear Key
-            </button>
-          </form>
-
-          {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
-          {statusMessage ? <p className={`mt-3 text-sm ${statusToneClass}`}>{statusMessage}</p> : null}
-        </section>
-
-        <section className="grid gap-5 md:grid-cols-3">
-          {metricCards.map(([value, label]) => (
-            <div key={label} className="glass-panel rounded-3xl p-6">
-              <p className="font-display text-3xl font-bold text-white">{value}</p>
-              <p className="mt-2 text-sm text-white/60">{label}</p>
-            </div>
-          ))}
-        </section>
-
         <section id="admin-queue" className="glass-panel rounded-[2rem] p-8">
           {activeTab === "pending" && (
             <div className="sticky top-4 z-10 -mx-2 mb-6 rounded-[1.5rem] border border-white/10 bg-slate-950/85 px-4 py-4 backdrop-blur-xl md:-mx-4 md:px-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-cyan-200/75">Queue Commander</p>
+                  <p className="text-xs uppercase tracking-[0.28em] text-amber-200/75">Queue Commander</p>
                   <p className="mt-1 text-sm text-white/65">
                     {queueSummary.visible} visible · {queueSummary.selected} selected · {queueSummary.total} total pending
                   </p>
@@ -923,7 +913,7 @@ export default function AdminModerationPanel() {
                   <button
                     type="button"
                     onClick={() => setSelectedIds(filteredPendingUploads.map((item) => item.id))}
-                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-amber-300/40 hover:bg-amber-300/10"
                     disabled={!filteredPendingUploads.length}
                   >
                     Select all visible
@@ -931,7 +921,7 @@ export default function AdminModerationPanel() {
                   <button
                     type="button"
                     onClick={clearSelection}
-                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+                    className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-amber-300/40 hover:bg-amber-300/10"
                     disabled={!selectedIds.length}
                   >
                     Clear selection
@@ -954,7 +944,7 @@ export default function AdminModerationPanel() {
                   </button>
                 </div>
               </div>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/55">
+              <div className="mt-4 flex flex-wrap gap-2 text-xs text-white/45">
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">Esc clears selection</span>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">A selects visible rows</span>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">P approves selected</span>
@@ -976,12 +966,12 @@ export default function AdminModerationPanel() {
                 Showing {filteredPendingUploads.length} of {tabCounts[activeTab]} {activeTab} uploads.
               </p>
             </div>
-            <div className="w-full md:max-w-sm">
+            <div className="w-full md:max-sm">
               <input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search title, category, creator..."
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/40"
+                placeholder="Search..."
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-amber-400"
               />
             </div>
           </div>
@@ -992,7 +982,7 @@ export default function AdminModerationPanel() {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === tab ? "bg-cyan-300 text-slate-900" : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"}`}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === tab ? "bg-amber-300 text-slate-900" : "border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"}`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)} ({tabCounts[tab]})
               </button>
@@ -1000,7 +990,7 @@ export default function AdminModerationPanel() {
             <button
               type="button"
               onClick={exportQueueCsv}
-              className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+              className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/85 transition hover:border-amber-300/40 hover:bg-amber-300/10"
               disabled={!filteredPendingUploads.length}
             >
               Export CSV
@@ -1008,27 +998,31 @@ export default function AdminModerationPanel() {
           </div>
 
           <div className="mt-6 grid gap-4">
-            {!filteredPendingUploads.length && accessKey ? (
+            {loading && filteredPendingUploads.length === 0 ? (
+              <div className="flex justify-center p-12">
+                <RefreshCw className="h-8 w-8 animate-spin text-amber-400" />
+              </div>
+            ) : !filteredPendingUploads.length && isVerified ? (
               <div className="rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/70">
-                No pending uploads match your search.
+                No {activeTab} uploads found.
               </div>
             ) : null}
 
             {filteredPendingUploads.map((row) => (
               <div
                 key={row.id}
-                className={`grid gap-3 rounded-3xl border p-5 md:grid-cols-[1.7fr_1fr_1fr_auto] ${selectedIds.includes(row.id) ? "border-cyan-300/40 bg-cyan-300/10" : "border-white/10 bg-black/20"}`}
+                className={`grid gap-3 rounded-3xl border p-5 md:grid-cols-[1.7fr_1fr_1fr_auto] ${selectedIds.includes(row.id) ? "border-amber-300/40 bg-amber-300/10" : "border-white/10 bg-black/20"}`}
               >
-                <div className="flex items-start gap-3 md:col-span-4">
+                <div className="flex items-start gap-4 md:col-span-4">
                   {activeTab === "pending" && (
                     <input
                       type="checkbox"
                       checked={selectedIds.includes(row.id)}
                       onChange={() => toggleSelection(row.id)}
-                      className="mt-1 h-4 w-4 rounded border-white/25 bg-transparent text-cyan-300"
+                      className="mt-1.5 h-4 w-4 rounded border-white/25 bg-transparent text-amber-400"
                     />
                   )}
-                  <div className="flex-1 grid gap-3 md:grid-cols-[1.7fr_1fr_1fr_auto]">
+                  <div className="flex-1 grid gap-4 md:grid-cols-[1.7fr_1fr_1fr_auto]">
                     <div>
                       <h3 className="font-display text-xl text-white">{row.title}</h3>
                       <p className="mt-1 text-sm text-white/60">{row.category.name}</p>
@@ -1036,30 +1030,30 @@ export default function AdminModerationPanel() {
                         {new Date(row.createdAt).toLocaleString()} • {(row.fileSize / (1024 * 1024)).toFixed(2)} MB
                       </p>
                       {row.reviewedAt && (
-                        <p className="mt-2 text-xs text-white/45">
+                        <p className="mt-2 text-xs text-white/45 italic">
                           Reviewed: {new Date(row.reviewedAt).toLocaleString()}
                         </p>
                       )}
                     </div>
                     <div className="text-sm text-white/70">
-                      <p>{row.uploader.username}</p>
+                      <p className="font-semibold">{row.uploader.username}</p>
                       <p className="text-xs text-white/45">{row.uploader.email}</p>
                     </div>
-                    <p className={`text-sm ${activeTab === "pending" ? "text-amber-300" : activeTab === "approved" ? "text-emerald-300" : "text-rose-300"}`}>
+                    <p className={`text-sm font-semibold ${activeTab === "pending" ? "text-amber-300" : activeTab === "approved" ? "text-emerald-300" : "text-rose-300"}`}>
                       {activeTab === "pending" ? "Pending" : activeTab === "approved" ? "Approved" : "Rejected"}
                     </p>
                     {activeTab === "pending" && (
                       <div className="flex gap-2">
                         <button
                           onClick={() => void moderateUpload(row.id, "APPROVED")}
-                          className="rounded-full bg-aurora px-4 py-2 text-sm font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition hover:bg-zinc-200 disabled:opacity-50"
                           disabled={activeFileId === row.id}
                         >
                           Approve
                         </button>
                         <button
                           onClick={() => void moderateUpload(row.id, "REJECTED")}
-                          className="rounded-full border border-white/20 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-60"
+                          className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
                           disabled={activeFileId === row.id}
                         >
                           Reject
@@ -1076,4 +1070,3 @@ export default function AdminModerationPanel() {
     </div>
   );
 }
-

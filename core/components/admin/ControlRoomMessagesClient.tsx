@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { AnimatePresence, motion } from "framer-motion";
@@ -42,8 +42,9 @@ type ToastState = {
   message: string;
 } | null;
 
-const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET?.trim() || "";
 const REFRESH_INTERVAL_MS = 60_000;
+
+import AdminVerification from "@/components/admin/AdminVerification";
 
 const filterTabs: Array<{ key: FilterKey; label: string }> = [
   { key: "all", label: "All" },
@@ -56,6 +57,9 @@ const filterTabs: Array<{ key: FilterKey; label: string }> = [
 export default function ControlRoomMessagesClient() {
   const [messages, setMessages] = useState<AdminMessageRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationSecret, setVerificationSecret] = useState("");
+  const [verifying, setVerifying] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<FilterKey>("all");
@@ -70,33 +74,59 @@ export default function ControlRoomMessagesClient() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [awaitingReplyCount, setAwaitingReplyCount] = useState(0);
 
-  const adminHeaders = useMemo(
-    () => ({
-      Authorization: ADMIN_SECRET
-    }),
-    []
-  );
-
   const showToast = useCallback((tone: "success" | "error", message: string) => {
     setToast({ tone, message });
     window.setTimeout(() => setToast(null), 2600);
   }, []);
 
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!verificationSecret.trim()) return;
+
+    setVerifying(true);
+    try {
+      const res = await axios.post("/api/admin/verify", { secret: verificationSecret });
+      if (res.data.success) {
+        setIsVerified(true);
+        showToast("success", "Admin session verified.");
+        sessionStorage.setItem("admin_secret_session", verificationSecret);
+      } else {
+        showToast("error", "Invalid admin secret.");
+      }
+    } catch (err: any) {
+      showToast("error", err.response?.data?.error || "Verification failed");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("admin_secret_session");
+    if (saved) {
+      setVerificationSecret(saved);
+      axios.post("/api/admin/verify", { secret: saved })
+        .then(res => {
+          if (res.data.success) {
+            setIsVerified(true);
+          }
+        })
+        .catch(() => {
+          sessionStorage.removeItem("admin_secret_session");
+        });
+    }
+  }, []);
+
   const fetchMessagesPage = useCallback(
     async (targetPage: number) => {
-      if (!ADMIN_SECRET) {
-        setError("Admin secret is not configured. Set NEXT_PUBLIC_ADMIN_SECRET.");
-        setLoading(false);
-        return;
-      }
-
       try {
         const response = await axios.get<MessagesResponse>("/api/admin/messages", {
           params: {
             page: targetPage,
             limit: 8
           },
-          headers: adminHeaders
+          headers: {
+            Authorization: verificationSecret
+          }
         });
 
         return response.data;
@@ -104,7 +134,7 @@ export default function ControlRoomMessagesClient() {
         throw new Error(requestError?.response?.data?.error || "Failed to load admin messages.");
       }
     },
-    [adminHeaders]
+    [verificationSecret]
   );
 
   const loadPage = useCallback(
@@ -175,6 +205,8 @@ export default function ControlRoomMessagesClient() {
   }, [fetchMessagesPage, page]);
 
   useEffect(() => {
+    if (!isVerified) return;
+
     void loadPage(1, true);
 
     const intervalId = window.setInterval(() => {
@@ -184,7 +216,7 @@ export default function ControlRoomMessagesClient() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [loadPage, refreshVisiblePages]);
+  }, [loadPage, refreshVisiblePages, isVerified]);
 
   const filteredMessages = useMemo(() => {
     return messages.filter((message) => {
@@ -205,8 +237,8 @@ export default function ControlRoomMessagesClient() {
       updateMessage(messageId, (message) => ({ ...message, is_read: true }));
 
       try {
-        await axios.post(`/api/admin/messages/${messageId}/read`, null, {
-          headers: adminHeaders
+        await axios.post(`/api/admin/messages/${messageId}/read`, {}, {
+          headers: { Authorization: verificationSecret }
         });
         void refreshVisiblePages();
         showToast("success", "Message marked as read.");
@@ -215,7 +247,7 @@ export default function ControlRoomMessagesClient() {
         showToast("error", markError?.response?.data?.error || "Unable to mark message as read.");
       }
     },
-    [adminHeaders, refreshVisiblePages, showToast, updateMessage]
+    [refreshVisiblePages, showToast, updateMessage, verificationSecret]
   );
 
   const handleReplyPost = useCallback(
@@ -256,7 +288,7 @@ export default function ControlRoomMessagesClient() {
             is_public: isPublic
           },
           {
-            headers: adminHeaders
+            headers: { Authorization: verificationSecret }
           }
         );
 
@@ -281,8 +313,19 @@ export default function ControlRoomMessagesClient() {
         setActionLoadingId(null);
       }
     },
-    [adminHeaders, messages, publicToggles, refreshVisiblePages, replyDrafts, showToast, updateMessage]
+    [messages, publicToggles, refreshVisiblePages, replyDrafts, showToast, updateMessage, verificationSecret]
   );
+
+  if (!isVerified) {
+    return (
+      <AdminVerification
+        onVerify={handleVerify}
+        verifying={verifying}
+        secret={verificationSecret}
+        setSecret={setVerificationSecret}
+      />
+    );
+  }
 
   const unreadBadge = unreadCount > 0 ? `${unreadCount} Unread Messages` : "0 Unread Messages";
 
@@ -674,4 +717,3 @@ function dedupeMessages(messages: AdminMessageRecord[]) {
     return true;
   });
 }
-

@@ -1,15 +1,30 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import {
+  ADMIN_SESSION_COOKIE,
+  getConfiguredAdminSecret,
+  getLegacyAdminToken,
+  isValidAdminSessionCookieValue,
+  isValidLegacyAdminToken
+} from "@/lib/admin-session";
 
-// Authentication check for admin routes
-function verifyAdmin(req: Request) {
-  const secret = req.headers.get("x-admin-secret");
-  const validSecret = process.env.ADMIN_SECRET;
-  return validSecret && secret === validSecret;
+async function verifyAdmin(req: Request) {
+  const sessionCookie = cookies().get(ADMIN_SESSION_COOKIE)?.value;
+
+  if (await isValidAdminSessionCookieValue(sessionCookie)) {
+    return true;
+  }
+
+  if (!getConfiguredAdminSecret()) {
+    return false;
+  }
+
+  return isValidLegacyAdminToken(getLegacyAdminToken(req));
 }
 
 export async function GET(req: Request) {
-  if (!verifyAdmin(req)) {
+  if (!(await verifyAdmin(req))) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -31,7 +46,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  if (!verifyAdmin(req)) {
+  if (!(await verifyAdmin(req))) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 

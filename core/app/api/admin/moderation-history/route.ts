@@ -1,29 +1,46 @@
-import { NextResponse } from 'next/server';
-import * as adminService from '@/lib/services/admin.service.js';
-import { errorResponse } from '@/lib/utils/authHelper';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import * as adminService from "@/lib/services/admin.service.js";
+import { errorResponse } from "@/lib/utils/authHelper";
+import {
+  ADMIN_SESSION_COOKIE,
+  getConfiguredAdminSecret,
+  getLegacyAdminToken,
+  isValidAdminSessionCookieValue,
+  isValidLegacyAdminToken
+} from "@/lib/admin-session";
+
+async function isAuthorized(req: Request) {
+  const sessionCookie = cookies().get(ADMIN_SESSION_COOKIE)?.value;
+
+  if (await isValidAdminSessionCookieValue(sessionCookie)) {
+    return { ok: true as const };
+  }
+
+  if (!getConfiguredAdminSecret()) {
+    return { ok: false, status: 503, error: "Admin panel is not configured. Set ADMIN_SECRET." };
+  }
+
+  if (!isValidLegacyAdminToken(getLegacyAdminToken(req))) {
+    return { ok: false, status: 401, error: "Invalid admin secret." };
+  }
+
+  return { ok: true as const };
+}
 
 export async function GET(req: Request) {
   try {
-    const adminAccessKey = req.headers.get('x-admin-access-key') || req.headers.get('Authorization')?.replace('Bearer ', '');
-    const configuredAdminAccessKey = process.env.ADMIN_SECRET;
-
-    if (!configuredAdminAccessKey) {
-      return NextResponse.json(
-        { error: 'Admin panel is not configured. Set ADMIN_SECRET.' },
-        { status: 503 }
-      );
-    }
-
-    if (!adminAccessKey || adminAccessKey !== configuredAdminAccessKey) {
-      return NextResponse.json({ error: 'Invalid admin secret.' }, { status: 401 });
+    const auth = await isAuthorized(req);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const url = new URL(req.url);
-    const status = url.searchParams.get('status');
+    const status = url.searchParams.get("status");
 
-    if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
+    if (!status || !["APPROVED", "REJECTED"].includes(status)) {
       return NextResponse.json(
-        { error: 'Invalid or missing status parameter. Expected APPROVED or REJECTED.' },
+        { error: "Invalid or missing status parameter. Expected APPROVED or REJECTED." },
         { status: 400 }
       );
     }
@@ -34,7 +51,7 @@ export async function GET(req: Request) {
     if (String(error?.message || "").includes("Can't reach database server")) {
       return NextResponse.json(
         {
-          error: 'Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY.'
+          error: "Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY."
         },
         { status: 503 }
       );

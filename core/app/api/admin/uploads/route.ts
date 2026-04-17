@@ -1,36 +1,53 @@
-import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import crypto from "crypto";
 import {
   ensureSupabaseBucket,
   getSupabaseClient,
   getSupabaseConfigDiagnostics,
   hasSupabaseConfig
-} from '@/lib/backend_lib/supabase.js';
-import { getAdmin } from '@/lib/backend_lib/supabase-server.ts';
-import * as fileService from '@/lib/services/file.service.js';
-import { errorResponse } from '@/lib/utils/authHelper';
+} from "@/lib/backend_lib/supabase.js";
+import { getAdmin } from "@/lib/backend_lib/supabase-server.ts";
+import * as fileService from "@/lib/services/file.service.js";
+import { errorResponse } from "@/lib/utils/authHelper";
+import {
+  ADMIN_SESSION_COOKIE,
+  getConfiguredAdminSecret,
+  getLegacyAdminToken,
+  isValidAdminSessionCookieValue,
+  isValidLegacyAdminToken
+} from "@/lib/admin-session";
+
+async function isAuthorized(req: Request) {
+  const sessionCookie = cookies().get(ADMIN_SESSION_COOKIE)?.value;
+
+  if (await isValidAdminSessionCookieValue(sessionCookie)) {
+    return { ok: true as const };
+  }
+
+  if (!getConfiguredAdminSecret()) {
+    return { ok: false, status: 503, error: "Admin panel is not configured. Set ADMIN_SECRET." };
+  }
+
+  if (!isValidLegacyAdminToken(getLegacyAdminToken(req))) {
+    return { ok: false, status: 401, error: "Invalid admin secret." };
+  }
+
+  return { ok: true as const };
+}
 
 export async function POST(req: Request) {
   try {
-    const adminAccessKey = req.headers.get('x-admin-access-key') || req.headers.get('Authorization')?.replace('Bearer ', '');
-    const configuredAdminAccessKey = process.env.ADMIN_SECRET;
-
-    if (!configuredAdminAccessKey) {
-      return NextResponse.json(
-        { error: 'Admin panel is not configured. Set ADMIN_SECRET.' },
-        { status: 503 }
-      );
-    }
-
-    if (!adminAccessKey || adminAccessKey !== configuredAdminAccessKey) {
-      return NextResponse.json({ error: 'Invalid admin secret.' }, { status: 401 });
+    const auth = await isAuthorized(req);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     if (!hasSupabaseConfig()) {
       const diagnostics = getSupabaseConfigDiagnostics();
       return NextResponse.json(
         {
-          error: 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.',
+          error: "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.",
           diagnostics
         },
         { status: 503 }
@@ -44,7 +61,7 @@ export async function POST(req: Request) {
       const diagnostics = getSupabaseConfigDiagnostics();
       return NextResponse.json(
         {
-          error: 'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.',
+          error: "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.",
           diagnostics
         },
         { status: 503 }
@@ -60,35 +77,35 @@ export async function POST(req: Request) {
 
     if (adminUserError) {
       return NextResponse.json(
-        { error: adminUserError.message || 'Failed to fetch admin account.' },
+        { error: adminUserError.message || "Failed to fetch admin account." },
         { status: 503 }
       );
     }
 
     if (!adminUser) {
       return NextResponse.json(
-        { error: 'No admin account found. Create at least one ADMIN user first.' },
+        { error: "No admin account found. Create at least one ADMIN user first." },
         { status: 503 }
       );
     }
 
     const formData = await req.formData();
-    const file = formData.get('file') as File;
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
-    const categoryId = formData.get('categoryId') as string;
-    const tags = formData.get('tags') as string;
-    const license = formData.get('license') as string;
-    const rarity = formData.get('rarity') as string;
+    const file = formData.get("file") as File;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const categoryId = formData.get("categoryId") as string;
+    const tags = formData.get("tags") as string;
+    const license = formData.get("license") as string;
+    const rarity = formData.get("rarity") as string;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const checksum = crypto.createHash('sha256').update(buffer).digest('hex');
-    const filename = `${Date.now()}-${file.name.replace(/\s+/g, '_')}`;
+    const checksum = crypto.createHash("sha256").update(buffer).digest("hex");
+    const filename = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
     const { bucketName } = await ensureSupabaseBucket(supabase);
 
     const { error: uploadError } = await supabase.storage
@@ -98,10 +115,10 @@ export async function POST(req: Request) {
       });
 
     if (uploadError) {
-      if (String(uploadError.message || '').toLowerCase().includes('invalid compact jws')) {
+      if (String(uploadError.message || "").toLowerCase().includes("invalid compact jws")) {
         return NextResponse.json(
           {
-            error: 'Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).',
+            error: "Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).",
             diagnostics: getSupabaseConfigDiagnostics()
           },
           { status: 503 }
@@ -129,17 +146,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ data: uploadedRecord }, { status: 201 });
   } catch (error: any) {
-    if (String(error?.message || '').includes("Can't reach database server")) {
+    if (String(error?.message || "").includes("Can't reach database server")) {
       return NextResponse.json(
-        { error: 'Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY.' },
+        { error: "Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY." },
         { status: 503 }
       );
     }
 
-    if (String(error?.message || '').toLowerCase().includes('invalid compact jws')) {
+    if (String(error?.message || "").toLowerCase().includes("invalid compact jws")) {
       return NextResponse.json(
         {
-          error: 'Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).',
+          error: "Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).",
           diagnostics: getSupabaseConfigDiagnostics()
         },
         { status: 503 }

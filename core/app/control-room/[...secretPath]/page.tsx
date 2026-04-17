@@ -46,7 +46,7 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
   }
 
   if (isArticlesView) {
-    return <ArticleMuseumAdminClient secret={process.env.ADMIN_SECRET || ""} />;
+    return <ArticleMuseumAdminClient />;
   }
 
   const baseSecretPath = `/control-room/${secretSegments.join("/")}`;

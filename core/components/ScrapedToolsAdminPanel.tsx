@@ -1,8 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
+import { RefreshCw } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import api from "@/lib/api";
+import AdminVerification from "@/components/admin/AdminVerification";
 import type { AdminUpdatePayload, PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
 type PendingToolsResponse = PaginatedResponse<ScrapedTool> & {
@@ -16,7 +19,6 @@ type ToastState = {
 
 type SourceFilter = "all" | "open-source" | "scraped";
 
-const ACCESS_KEY_STORAGE = "cloud_rain_admin_access_key";
 const SOURCE_FILTER_STORAGE = "cloud_rain_admin_source_filter";
 const CATEGORY_FILTER_STORAGE = "cloud_rain_admin_category_filter";
 const SEARCH_QUERY_STORAGE = "cloud_rain_admin_search_query";
@@ -60,8 +62,9 @@ function isCategoryFilter(value: string): value is ToolCategory | "all" {
 }
 
 export default function ScrapedToolsAdminPanel() {
-  const [accessKey, setAccessKey] = useState("");
-  const [keyInput, setKeyInput] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationSecret, setVerificationSecret] = useState("");
+  const [verifying, setVerifying] = useState(false);
   const [tools, setTools] = useState<ScrapedTool[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [failedImageIds, setFailedImageIds] = useState<string[]>([]);
@@ -93,9 +96,46 @@ export default function ScrapedToolsAdminPanel() {
     }, 2600);
   }, []);
 
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!verificationSecret.trim()) return;
+
+    setVerifying(true);
+    try {
+      const res = await axios.post("/api/admin/verify", { secret: verificationSecret });
+      if (res.data.success) {
+        setIsVerified(true);
+        showToast("success", "Admin session verified.");
+        sessionStorage.setItem("admin_secret_session", verificationSecret);
+      } else {
+        showToast("error", "Invalid admin secret.");
+      }
+    } catch (err: any) {
+      showToast("error", err.response?.data?.error || "Verification failed");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("admin_secret_session");
+    if (saved) {
+      setVerificationSecret(saved);
+      axios.post("/api/admin/verify", { secret: saved })
+        .then(res => {
+          if (res.data.success) {
+            setIsVerified(true);
+          }
+        })
+        .catch(() => {
+          sessionStorage.removeItem("admin_secret_session");
+        });
+    }
+  }, []);
+
   const loadPendingTools = useCallback(
-    async (providedKey: string, targetPage = page) => {
-      if (!providedKey) {
+    async (targetPage = page) => {
+      if (!isVerified) {
         return;
       }
 
@@ -110,7 +150,7 @@ export default function ScrapedToolsAdminPanel() {
             limit: PAGE_SIZE
           },
           headers: {
-            "x-admin-access-key": providedKey
+            Authorization: verificationSecret
           }
         });
 
@@ -130,15 +170,12 @@ export default function ScrapedToolsAdminPanel() {
         setLoading(false);
       }
     },
-    [page]
+    [isVerified, verificationSecret, page]
   );
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+    if (!isVerified) return;
 
-    const storedKey = localStorage.getItem(ACCESS_KEY_STORAGE) || "";
     const storedSourceFilter = localStorage.getItem(SOURCE_FILTER_STORAGE) || "all";
     const storedCategoryFilter = localStorage.getItem(CATEGORY_FILTER_STORAGE) || "all";
     const storedSearchQuery = localStorage.getItem(SEARCH_QUERY_STORAGE) || "";
@@ -153,36 +190,18 @@ export default function ScrapedToolsAdminPanel() {
 
     setSearchQuery(storedSearchQuery);
 
-    if (!storedKey) {
-      return;
-    }
-
-    setAccessKey(storedKey);
-    setKeyInput(storedKey);
-    void loadPendingTools(storedKey, 1);
-  }, [loadPendingTools]);
+    void loadPendingTools(1);
+  }, [isVerified, loadPendingTools]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     localStorage.setItem(SOURCE_FILTER_STORAGE, sourceFilter);
   }, [sourceFilter]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     localStorage.setItem(CATEGORY_FILTER_STORAGE, categoryFilter);
   }, [categoryFilter]);
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     localStorage.setItem(SEARCH_QUERY_STORAGE, searchQuery);
   }, [searchQuery]);
 
@@ -195,12 +214,9 @@ export default function ScrapedToolsAdminPanel() {
   }, []);
 
   useEffect(() => {
-    if (!accessKey) {
-      return;
-    }
-
-    void loadPendingTools(accessKey, page);
-  }, [accessKey, page, loadPendingTools]);
+    if (!isVerified) return;
+    void loadPendingTools(page);
+  }, [isVerified, page, loadPendingTools]);
 
   const filteredTools = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -272,31 +288,10 @@ export default function ScrapedToolsAdminPanel() {
     setSelectedIds(filteredTools.map((tool) => tool.id));
   };
 
-  const handleUnlock = async () => {
-    const trimmed = keyInput.trim();
-
-    if (!trimmed) {
-      setError("Enter your admin access key.");
-      return;
-    }
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem(ACCESS_KEY_STORAGE, trimmed);
-    }
-
-    setAccessKey(trimmed);
-    setPage(1);
-    await loadPendingTools(trimmed, 1);
-    showToast("success", "Scraped tools panel unlocked.");
-  };
-
   const clearStoredAccess = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(ACCESS_KEY_STORAGE);
-    }
-
-    setAccessKey("");
-    setKeyInput("");
+    setIsVerified(false);
+    setVerificationSecret("");
+    sessionStorage.removeItem("admin_secret_session");
     setTools([]);
     setSelectedIds([]);
     setPendingCount(0);
@@ -307,7 +302,7 @@ export default function ScrapedToolsAdminPanel() {
   };
 
   const applySingleDecision = async (id: string, status: AdminUpdatePayload["status"]) => {
-    if (!accessKey) {
+    if (!isVerified) {
       setError("Unlock the panel first.");
       return;
     }
@@ -324,11 +319,7 @@ export default function ScrapedToolsAdminPanel() {
       await api.patch(
         `/admin/scraped-tools/${id}`,
         { status, note: note || undefined },
-        {
-          headers: {
-            "x-admin-access-key": accessKey
-          }
-        }
+        { headers: { Authorization: verificationSecret } }
       );
 
       setNotesByToolId((previous) => {
@@ -355,7 +346,7 @@ export default function ScrapedToolsAdminPanel() {
   };
 
   const applyBulkDecision = async (status: AdminUpdatePayload["status"]) => {
-    if (!accessKey) {
+    if (!isVerified) {
       setError("Unlock the panel first.");
       return;
     }
@@ -383,11 +374,7 @@ export default function ScrapedToolsAdminPanel() {
           status,
           note: note || undefined
         },
-        {
-          headers: {
-            "x-admin-access-key": accessKey
-          }
-        }
+        { headers: { Authorization: verificationSecret } }
       );
 
       setBulkNote("");
@@ -429,6 +416,19 @@ export default function ScrapedToolsAdminPanel() {
     setJumpPageInput("");
   };
 
+  if (!isVerified) {
+    return (
+      <AdminVerification
+        onVerify={handleVerify}
+        verifying={verifying}
+        secret={verificationSecret}
+        setSecret={setVerificationSecret}
+        accentColor="cyan"
+        title="Tools Moderation"
+      />
+    );
+  }
+
   return (
     <div className="space-y-8">
       <SectionHeading
@@ -442,7 +442,7 @@ export default function ScrapedToolsAdminPanel() {
           { label: "Pending", value: pendingCount, tone: "text-cyan-200" },
           { label: "Visible", value: filteredTools.length, tone: "text-white" },
           { label: "Selected", value: selectedIds.length, tone: "text-amber-200" },
-          { label: "Access", value: accessKey ? "Open" : "Locked", tone: "text-emerald-200" }
+          { label: "Access", value: "Secured", tone: "text-emerald-200" }
         ].map((item) => (
           <div key={item.label} className="glass-panel rounded-3xl p-5">
             <p className="text-xs uppercase tracking-[0.25em] text-white/45">{item.label}</p>
@@ -453,27 +453,23 @@ export default function ScrapedToolsAdminPanel() {
 
       <section className="glass-panel rounded-[2rem] p-6 md:p-8">
         <div className="grid gap-3 md:grid-cols-[1fr_auto_auto]">
-          <input
-            type="password"
-            value={keyInput}
-            onChange={(event) => setKeyInput(event.target.value)}
-            placeholder="Enter admin access key"
-            className="rounded-2xl border border-white/15 bg-black/20 px-4 py-3 text-white placeholder:text-white/45 focus:border-white/40 focus:outline-none"
-          />
+          <div className="rounded-2xl border border-white/15 bg-black/20 px-4 py-3 text-sm text-white/75">
+            Server-side admin session is active. All requests are securely authenticated.
+          </div>
           <button
             type="button"
-            onClick={() => void handleUnlock()}
+            onClick={() => void loadPendingTools(page)}
             disabled={loading}
-            className="rounded-full bg-aurora px-5 py-3 text-sm font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Checking..." : "Unlock"}
+            {loading ? "Refreshing..." : "Refresh"}
           </button>
           <button
             type="button"
             onClick={clearStoredAccess}
             className="rounded-full border border-white/20 px-5 py-3 text-sm text-white/90"
           >
-            Clear Key
+            Clear Session
           </button>
         </div>
 
@@ -566,7 +562,11 @@ export default function ScrapedToolsAdminPanel() {
         </div>
 
         <div className="mt-6 grid gap-4">
-          {!loading && filteredTools.length === 0 ? (
+          {loading && tools.length === 0 ? (
+            <div className="flex justify-center p-12">
+              <RefreshCw className="h-8 w-8 animate-spin text-cyan-400" />
+            </div>
+          ) : !loading && filteredTools.length === 0 ? (
             <div className="rounded-3xl border border-white/10 bg-black/20 p-5 text-sm text-white/70">
               No pending tools match the current filters.
             </div>
@@ -769,4 +769,3 @@ export default function ScrapedToolsAdminPanel() {
     </div>
   );
 }
-

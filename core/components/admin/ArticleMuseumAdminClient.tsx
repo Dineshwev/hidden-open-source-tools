@@ -1,6 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
+import axios from "axios";
+import { 
+  RefreshCw, 
+  ShieldAlert, 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Eye, 
+  EyeOff,
+  ChevronLeft,
+  ChevronRight
+} from "lucide-react";
 
 type Article = {
   id: string;
@@ -19,54 +31,95 @@ type Article = {
   views: number;
 };
 
-export default function ArticleMuseumAdminClient({ secret }: { secret: string }) {
+import AdminVerification from "@/components/admin/AdminVerification";
+
+export default function ArticleMuseumAdminClient() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationSecret, setVerificationSecret] = useState("");
+  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<Article>>({});
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
-
-  async function fetchArticles() {
+  const fetchArticles = useCallback(async () => {
+    if (!verificationSecret) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/articles", {
-        headers: { "x-admin-secret": secret }
+      const res = await axios.get("/api/admin/articles", {
+        headers: { Authorization: verificationSecret }
       });
-      const data = await res.json();
-      if (data.success) {
-        setArticles(data.data || []);
+      if (res.data.success) {
+        setArticles(res.data.data || []);
       } else {
-        setError(data.error || "Failed to load articles");
+        setError(res.data.error || "Failed to load articles");
       }
-    } catch (e) {
-      setError("Network error");
+    } catch {
+      setError("Network error or unauthorized access");
     } finally {
       setLoading(false);
     }
-  }
+  }, [verificationSecret]);
+
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!verificationSecret.trim()) return;
+
+    setVerifying(true);
+    try {
+      const res = await axios.post("/api/admin/verify", { secret: verificationSecret });
+      if (res.data.success) {
+        setIsVerified(true);
+        sessionStorage.setItem("admin_secret_session", verificationSecret);
+      } else {
+        setError("Invalid admin secret.");
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Verification failed");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem("admin_secret_session");
+    if (saved) {
+      setVerificationSecret(saved);
+      axios.post("/api/admin/verify", { secret: saved })
+        .then(res => {
+          if (res.data.success) {
+            setIsVerified(true);
+          }
+        })
+        .catch(() => {
+          sessionStorage.removeItem("admin_secret_session");
+        });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isVerified) {
+      void fetchArticles();
+    }
+  }, [isVerified, fetchArticles]);
 
   async function togglePublish(article: Article) {
     if (actionLoading) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/admin/articles/${article.id}/publish`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": secret
-        },
-        body: JSON.stringify({ is_published: !article.is_published })
-      });
-      const data = await res.json();
-      if (data.success) {
-        fetchArticles();
+      const res = await axios.patch(`/api/admin/articles/${article.id}/publish`, 
+        { is_published: !article.is_published },
+        { headers: { Authorization: verificationSecret } }
+      );
+      if (res.data.success) {
+        void fetchArticles();
       } else {
-        alert(data.error || "Failed to update");
+        alert(res.data.error || "Failed to update");
       }
-    } catch (e) {
+    } catch {
       alert("Network error");
     } finally {
       setActionLoading(false);
@@ -77,38 +130,29 @@ export default function ArticleMuseumAdminClient({ secret }: { secret: string })
     if (actionLoading || !confirm("Are you sure you want to delete this article?")) return;
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/admin/articles/${id}`, {
-        method: "DELETE",
-        headers: {
-          "x-admin-secret": secret
-        }
+      const res = await axios.delete(`/api/admin/articles/${id}`, {
+        headers: { Authorization: verificationSecret }
       });
-      const data = await res.json();
-      if (data.success) {
-        fetchArticles();
+      if (res.data.success) {
+        void fetchArticles();
       } else {
-        alert(data.error || "Failed to delete");
+        alert(res.data.error || "Failed to delete");
       }
-    } catch (e) {
+    } catch {
       alert("Network error");
     } finally {
       setActionLoading(false);
     }
   }
 
-  // Basic Form State
-  const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<Article>>({});
-
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const tags = e.target.value.split(",").map(t => t.trim()).filter(Boolean);
-    setFormData(prev => ({ ...prev, tags }));
+    const tags = e.target.value.split(",").map((t) => t.trim()).filter(Boolean);
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   const submitForm = async (e: React.FormEvent) => {
@@ -116,27 +160,24 @@ export default function ArticleMuseumAdminClient({ secret }: { secret: string })
     setActionLoading(true);
     try {
       const url = editingId ? `/api/admin/articles/${editingId}` : "/api/admin/articles";
-      const method = editingId ? "PATCH" : "POST";
-      
-      const res = await fetch(url, {
+      const method = editingId ? "patch" : "post";
+
+      const res = await axios({
         method,
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-secret": secret
-        },
-        body: JSON.stringify(formData)
+        url,
+        data: formData,
+        headers: { Authorization: verificationSecret }
       });
-      
-      const data = await res.json();
-      if (data.success) {
+
+      if (res.data.success) {
         setShowForm(false);
         setFormData({});
         setEditingId(null);
-        fetchArticles();
+        void fetchArticles();
       } else {
-        alert(data.error || "Failed to save article");
+        alert(res.data.error || "Failed to save article");
       }
-    } catch (e) {
+    } catch {
       alert("Network error");
     } finally {
       setActionLoading(false);
@@ -151,137 +192,183 @@ export default function ArticleMuseumAdminClient({ secret }: { secret: string })
 
   const openCreateForm = () => {
     setFormData({
-      slug: "", tool_name: "", title: "", mystery_intro: "", superpower: "", 
-      origin_story: "", why_care: "", hands_on_code: "", read_time: "5 min", tags: []
+      slug: "",
+      tool_name: "",
+      title: "",
+      mystery_intro: "",
+      superpower: "",
+      origin_story: "",
+      why_care: "",
+      hands_on_code: "",
+      read_time: "5 min",
+      tags: []
     });
     setEditingId(null);
     setShowForm(true);
   };
 
-  return (
-    <div className="space-y-6 text-white min-h-[50vh]">
-      <div className="flex justify-between items-center bg-black/30 p-4 rounded-xl border border-white/10">
-        <h1 className="text-2xl font-bold font-display">Manage Articles</h1>
-        <button 
-          onClick={openCreateForm}
-          className="bg-cyan-400 hover:bg-cyan-500 text-black px-4 py-2 rounded-lg font-medium transition"
-        >
-          Create New Article
-        </button>
-      </div>
+  if (!isVerified) {
+    return (
+      <AdminVerification 
+        onVerify={handleVerify} 
+        verifying={verifying} 
+        secret={verificationSecret} 
+        setSecret={setVerificationSecret} 
+        accentColor="purple"
+        title="Article Museum Management"
+        description="This section is protected. Please enter the master admin secret to access the Article Museum gallery tools."
+      />
+    );
+  }
 
-      {error ? <div className="text-red-400 p-4 bg-red-400/10 rounded-lg">{error}</div> : null}
+  return (
+    <div className="space-y-6 text-white min-h-[50vh] pb-12">
+      <section className="glass-panel overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-purple-500/10 to-transparent p-6 md:p-8">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.3em] text-white/45">Article Museum</p>
+            <h1 className="font-display text-3xl font-bold text-white md:text-4xl">Manage Content</h1>
+            <p className="max-w-2xl text-sm text-white/60">
+              Create, edit, and publish deep-dive articles for the Article Museum gallery.
+            </p>
+          </div>
+          <button
+            onClick={openCreateForm}
+            className="flex items-center gap-2 rounded-2xl bg-white px-6 py-3 font-display font-bold text-black transition hover:bg-zinc-200"
+          >
+            <Plus className="h-5 w-5" />
+            New Article
+          </button>
+        </div>
+      </section>
+
+      {error ? (
+        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-200">
+          {error}
+        </div>
+      ) : null}
 
       {showForm && (
-        <div className="bg-black/40 p-6 rounded-2xl border border-white/10">
-          <h2 className="text-xl mb-4">{editingId ? "Edit Article" : "New Article"}</h2>
-          <form onSubmit={submitForm} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs mb-1 text-white/50">Slug</label>
-                <input required name="slug" value={formData.slug || ""} onChange={handleFormChange} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+        <section className="glass-panel animate-in fade-in slide-in-from-bottom-4 rounded-[2rem] border border-white/10 p-6 md:p-10">
+          <div className="mb-8 flex items-center justify-between">
+            <h2 className="font-display text-2xl font-bold text-white">{editingId ? "Edit Article" : "New Article"}</h2>
+            <button onClick={() => setShowForm(false)} className="text-white/40 hover:text-white transition">Cancel</button>
+          </div>
+          
+          <form onSubmit={submitForm} className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-widest text-white/45">Slug (URL segment)</label>
+                <input required name="slug" value={formData.slug || ""} onChange={handleFormChange} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" placeholder="my-amazing-tool" />
               </div>
-              <div>
-                <label className="block text-xs mb-1 text-white/50">Tool Name</label>
-                <input required name="tool_name" value={formData.tool_name || ""} onChange={handleFormChange} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-widest text-white/45">Tool Name</label>
+                <input required name="tool_name" value={formData.tool_name || ""} onChange={handleFormChange} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" placeholder="Tool.js" />
               </div>
-              <div className="col-span-2">
-                <label className="block text-xs mb-1 text-white/50">Title</label>
-                <input required name="title" value={formData.title || ""} onChange={handleFormChange} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-xs uppercase tracking-widest text-white/45">Full Title</label>
+                <input required name="title" value={formData.title || ""} onChange={handleFormChange} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" placeholder="The Ultimate Guide to Tool.js" />
               </div>
-              <div>
-                <label className="block text-xs mb-1 text-white/50">Read Time</label>
-                <input name="read_time" value={formData.read_time || ""} onChange={handleFormChange} className="w-full bg-white/5 border border-white/10 p-2 rounded" placeholder="5 min" />
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-widest text-white/45">Read Time</label>
+                <input name="read_time" value={formData.read_time || ""} onChange={handleFormChange} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" placeholder="5 min" />
               </div>
-              <div>
-                <label className="block text-xs mb-1 text-white/50">Tags (comma separated)</label>
-                <input name="tags" value={(formData.tags || []).join(", ")} onChange={handleTagsChange} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+              <div className="space-y-2">
+                <label className="text-xs uppercase tracking-widest text-white/45">Tags (comma separated)</label>
+                <input name="tags" value={(formData.tags || []).join(", ")} onChange={handleTagsChange} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" placeholder="react, library, devtools" />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs mb-1 text-white/50">Mystery Intro</label>
-              <textarea name="mystery_intro" value={formData.mystery_intro || ""} onChange={handleFormChange} rows={3} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
-            </div>
-            
-            <div>
-              <label className="block text-xs mb-1 text-white/50">Superpower</label>
-              <textarea name="superpower" value={formData.superpower || ""} onChange={handleFormChange} rows={3} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-white/45">Mystery Intro</label>
+              <textarea name="mystery_intro" value={formData.mystery_intro || ""} onChange={handleFormChange} rows={3} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" />
             </div>
 
-            <div>
-              <label className="block text-xs mb-1 text-white/50">Origin Story</label>
-              <textarea name="origin_story" value={formData.origin_story || ""} onChange={handleFormChange} rows={4} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-white/45">Superpower (The hook)</label>
+              <textarea name="superpower" value={formData.superpower || ""} onChange={handleFormChange} rows={3} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" />
             </div>
 
-            <div>
-              <label className="block text-xs mb-1 text-white/50">Why You Should Care</label>
-              <textarea name="why_care" value={formData.why_care || ""} onChange={handleFormChange} rows={3} className="w-full bg-white/5 border border-white/10 p-2 rounded" />
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-white/45">Origin Story</label>
+              <textarea name="origin_story" value={formData.origin_story || ""} onChange={handleFormChange} rows={4} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" />
             </div>
 
-            <div>
-              <label className="block text-xs mb-1 text-white/50">Hands On Code</label>
-              <textarea name="hands_on_code" value={formData.hands_on_code || ""} onChange={handleFormChange} rows={5} className="w-full bg-white/5 border border-white/10 p-2 rounded font-mono" />
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-white/45">Why You Should Care</label>
+              <textarea name="why_care" value={formData.why_care || ""} onChange={handleFormChange} rows={3} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" />
             </div>
 
-            <div className="flex gap-4 pt-4">
-              <button disabled={actionLoading} type="submit" className="bg-cyan-400 text-black px-6 py-2 rounded-lg font-medium hover:bg-cyan-500 transition">
-                {actionLoading ? "Saving..." : "Save Article"}
-              </button>
-              <button disabled={actionLoading} type="button" onClick={() => setShowForm(false)} className="bg-white/10 px-6 py-2 rounded-lg hover:bg-white/20 transition">
-                Cancel
+            <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-white/45">Hands On Code (Markdown or Snippets)</label>
+              <textarea name="hands_on_code" value={formData.hands_on_code || ""} onChange={handleFormChange} rows={8} className="w-full font-mono rounded-2xl border border-white/10 bg-black/40 px-4 py-3 outline-none focus:border-purple-400/40" />
+            </div>
+
+            <div className="flex gap-4 pt-4 border-t border-white/5">
+              <button disabled={actionLoading} type="submit" className="flex-1 rounded-2xl bg-purple-500 py-4 font-display font-bold text-white transition hover:bg-purple-600 disabled:opacity-50">
+                {actionLoading ? "Saving..." : editingId ? "Update Article" : "Create Article"}
               </button>
             </div>
           </form>
-        </div>
+        </section>
       )}
 
       {loading && !showForm ? (
-        <div className="animate-pulse flex items-center justify-center p-12 text-white/50">Loading articles...</div>
+        <div className="flex flex-col items-center justify-center p-24 text-white/30 space-y-4">
+          <RefreshCw className="h-8 w-8 animate-spin" />
+          <p>Syncing gallery content...</p>
+        </div>
       ) : (
         <div className="grid gap-4">
-          {articles.map(article => (
-            <div key={article.id} className="flex items-center justify-between bg-black/20 border border-white/10 p-4 rounded-xl">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-2 h-2 rounded-full ${article.is_published ? "bg-green-400" : "bg-yellow-400"}`}></span>
-                  <span className="font-medium">{article.title}</span>
-                  <span className="text-xs text-white/40">({article.slug})</span>
+          {articles.map((article) => (
+            <article key={article.id} className="glass-panel group relative flex flex-wrap items-center justify-between gap-6 rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-5 transition hover:bg-white/[0.05]">
+              <div className="flex flex-1 flex-col gap-1 min-w-[240px]">
+                <div className="flex items-center gap-3">
+                  <div className={`h-2 w-2 rounded-full ${article.is_published ? "bg-emerald-400" : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.3)]"}`} />
+                  <h3 className="font-display text-lg font-semibold text-white group-hover:text-purple-300 transition-colors line-clamp-1">{article.title}</h3>
                 </div>
-                <div className="text-xs text-white/50 flex gap-4">
-                  <span>Tool: {article.tool_name}</span>
-                  <span>Views: {article.views || 0}</span>
+                <div className="flex items-center gap-4 text-xs text-white/40">
+                  <span className="font-mono text-purple-400/80">/{article.slug}</span>
+                  <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {article.views || 0}</span>
+                  <span className="line-clamp-1">Tool: {article.tool_name}</span>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={() => togglePublish(article)}
                   disabled={actionLoading}
-                  className={`px-3 py-1 text-xs rounded border transition ${article.is_published ? "border-yellow-400/30 text-yellow-400 hover:bg-yellow-400/10" : "border-green-400/30 text-green-400 hover:bg-green-400/10"}`}
+                  className={`flex h-10 items-center gap-2 rounded-xl border px-4 text-sm font-medium transition ${
+                    article.is_published 
+                      ? "border-amber-400/20 bg-amber-400/10 text-amber-200 hover:bg-amber-400/20" 
+                      : "border-emerald-400/20 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20"
+                  }`}
                 >
-                  {article.is_published ? "Unpublish" : "Publish"}
+                  {article.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  <span className="hidden sm:inline">{article.is_published ? "Unpublish" : "Publish"}</span>
                 </button>
-                <button 
+                <button
                   onClick={() => openEditForm(article)}
                   disabled={actionLoading}
-                  className="px-3 py-1 text-xs rounded border border-blue-400/30 text-blue-400 hover:bg-blue-400/10 transition"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/80 transition hover:bg-white/10 hover:text-white"
                 >
-                  Edit
+                  <Pencil className="h-4 w-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => deleteArticle(article.id)}
                   disabled={actionLoading}
-                  className="px-3 py-1 text-xs rounded border border-red-400/30 text-red-400 hover:bg-red-400/10 transition"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-300 transition hover:bg-rose-500/20"
                 >
-                  Delete
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
-            </div>
+            </article>
           ))}
           {articles.length === 0 && !loading && (
-            <div className="text-center p-10 text-white/40 bg-black/20 rounded-xl border border-white/5">
-              No articles found.
+            <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.02] p-24 text-center">
+              <EyeOff className="mx-auto h-12 w-12 text-white/20" />
+              <h3 className="mt-4 text-xl font-bold text-white/40">The museum is empty</h3>
+              <p className="mt-2 text-sm text-white/30">Start by creating your first deep-dive article.</p>
             </div>
           )}
         </div>

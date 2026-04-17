@@ -1,7 +1,15 @@
-import { NextResponse } from 'next/server';
-import * as adminService from '@/lib/services/admin.service.js';
-import { getServerUser, errorResponse } from '@/lib/utils/authHelper';
-import { getAdmin } from '@/lib/backend_lib/supabase-server.ts';
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import * as adminService from "@/lib/services/admin.service.js";
+import { getServerUser, errorResponse } from "@/lib/utils/authHelper";
+import { getAdmin } from "@/lib/backend_lib/supabase-server.ts";
+import {
+  ADMIN_SESSION_COOKIE,
+  getConfiguredAdminSecret,
+  getLegacyAdminToken,
+  isValidAdminSessionCookieValue,
+  isValidLegacyAdminToken
+} from "@/lib/admin-session";
 
 type RouteContext = {
   params: {
@@ -9,24 +17,33 @@ type RouteContext = {
   };
 };
 
+async function isAuthorized(req: Request) {
+  const sessionCookie = cookies().get(ADMIN_SESSION_COOKIE)?.value;
+
+  if (await isValidAdminSessionCookieValue(sessionCookie)) {
+    return { ok: true as const };
+  }
+
+  if (!getConfiguredAdminSecret()) {
+    return { ok: false, status: 503, error: "Admin panel is not configured. Set ADMIN_SECRET." };
+  }
+
+  if (!isValidLegacyAdminToken(getLegacyAdminToken(req))) {
+    return { ok: false, status: 401, error: "Invalid admin secret." };
+  }
+
+  return { ok: true as const };
+}
+
 export async function PATCH(req: Request, { params }: RouteContext) {
   try {
-    const adminAccessKey = req.headers.get('x-admin-access-key') || req.headers.get('Authorization')?.replace('Bearer ', '');
-    const configuredAdminAccessKey = process.env.ADMIN_SECRET;
-
-    if (!configuredAdminAccessKey) {
-      return NextResponse.json(
-        { error: 'Admin panel is not configured. Set ADMIN_SECRET.' },
-        { status: 503 }
-      );
-    }
-
-    if (!adminAccessKey || adminAccessKey !== configuredAdminAccessKey) {
-      return NextResponse.json({ error: 'Invalid admin secret.' }, { status: 401 });
+    const auth = await isAuthorized(req);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const user = await getServerUser(req);
-    let adminId = user?.role === 'ADMIN' ? user.userId : null;
+    let adminId = user?.role === "ADMIN" ? user.userId : null;
 
     if (!adminId) {
       const { data: fallbackAdmin, error: fallbackAdminError } = await getAdmin()
@@ -38,14 +55,14 @@ export async function PATCH(req: Request, { params }: RouteContext) {
 
       if (fallbackAdminError) {
         return NextResponse.json(
-          { error: fallbackAdminError.message || 'Failed to fetch admin account.' },
+          { error: fallbackAdminError.message || "Failed to fetch admin account." },
           { status: 503 }
         );
       }
 
       if (!fallbackAdmin) {
         return NextResponse.json(
-          { error: 'No admin account found. Create at least one ADMIN user first.' },
+          { error: "No admin account found. Create at least one ADMIN user first." },
           { status: 503 }
         );
       }
@@ -56,9 +73,9 @@ export async function PATCH(req: Request, { params }: RouteContext) {
     const body = await req.json().catch(() => ({}));
     const status = body?.status;
 
-    if (status !== 'APPROVED' && status !== 'REJECTED') {
+    if (status !== "APPROVED" && status !== "REJECTED") {
       return NextResponse.json(
-        { error: 'Invalid status. Expected APPROVED or REJECTED.' },
+        { error: "Invalid status. Expected APPROVED or REJECTED." },
         { status: 400 }
       );
     }
@@ -74,7 +91,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
     if (String(error?.message || "").includes("Can't reach database server")) {
       return NextResponse.json(
         {
-          error: 'Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY.'
+          error: "Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY."
         },
         { status: 503 }
       );
