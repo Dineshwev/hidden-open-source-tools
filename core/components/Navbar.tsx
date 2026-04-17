@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, User, Menu, X, ChevronDown } from "lucide-react";
-import ThemeToggle from "./ThemeToggle";
 import Logo from "./Logo";
 import { useAuth } from "@/lib/AuthProvider";
 
@@ -26,7 +25,7 @@ const mobileLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/stories", label: "Article Museum", badge: "✦" },
+  { href: "/article-museum", label: "Article Museum", badge: "✦" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
   { href: "/upload", label: "Upload" }
@@ -165,7 +164,6 @@ export default function Navbar() {
             <Search className="h-5 w-5" />
           </motion.button>
 
-          <ThemeToggle />
 
           {/* Profile/Login Icon */}
           {user ? (

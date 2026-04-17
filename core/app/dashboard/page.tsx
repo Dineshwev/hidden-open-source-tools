@@ -20,10 +20,18 @@ const recentUploads = [
 
 export default function CreatorDashboard() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-void via-[#0a0f23] to-[#1a0a2a]">
+    <div className="min-h-screen bg-[#050505] relative overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white/[0.03] blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-white/[0.02] blur-[100px]" />
+        <div className="absolute inset-0 bg-grid-cyber opacity-[0.4]" />
+      </div>
+
+      <div className="relative z-10">
       {/* Header */}
       <motion.header 
-        className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10 bg-black/30"
+        className="sticky top-0 z-40 backdrop-blur-xl border-b border-white/10 glass-panel"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
@@ -35,10 +43,10 @@ export default function CreatorDashboard() {
                 <Image src="/avatar.svg" alt="Profile" width={56} height={56} className="w-full h-full rounded-xl object-cover" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-aurora to-nebula-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold text-white tracking-tight">
                   Alex Rivera
                 </h1>
-                <p className="mt-1 text-sm text-white/60">Your free open-source contribution hub</p>
+                <p className="mt-1 text-sm text-white/45 uppercase tracking-widest">Open Source Creator</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -57,7 +65,7 @@ export default function CreatorDashboard() {
         {/* Stats Cards */}
         <motion.section className="mb-12">
           <motion.h2 
-            className="text-2xl font-bold mb-8 bg-gradient-to-r from-white via-aurora to-nebula-400 bg-clip-text text-transparent flex items-center gap-3"
+            className="text-2xl font-bold mb-8 text-gradient-magic flex items-center gap-3"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -76,9 +84,9 @@ export default function CreatorDashboard() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-${stat.color}-500 flex items-center justify-center mb-6 shadow-glow group-hover:shadow-glow-lg transition-all mx-auto`}>
-                  <stat.icon className={`h-8 w-8 text-white drop-shadow-lg ${stat.icon === 'heart' ? 'fill-current' : ''}`} />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent" />
+                <div className={`w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6 shadow-glow transition-all mx-auto`}>
+                  <stat.icon className={`h-7 w-7 text-white drop-shadow-lg ${stat.icon === 'heart' ? 'fill-current' : ''}`} />
                 </div>
                 <div className="text-3xl font-bold text-white mb-2 text-center">
                   {stat.value}
@@ -202,6 +210,7 @@ export default function CreatorDashboard() {
             ))}
           </div>
         </motion.section>
+      </div>
       </div>
     </div>
   );
