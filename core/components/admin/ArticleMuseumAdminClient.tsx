@@ -23,6 +23,7 @@ type Article = {
   superpower: string;
   origin_story: string;
   why_care: string;
+  user_case?: string;
   hands_on_code: string;
   read_time: string;
   tags: string[];
@@ -199,6 +200,7 @@ export default function ArticleMuseumAdminClient() {
       superpower: "",
       origin_story: "",
       why_care: "",
+      user_case: "",
       hands_on_code: "",
       read_time: "5 min",
       tags: []
@@ -295,6 +297,11 @@ export default function ArticleMuseumAdminClient() {
             </div>
 
             <div className="space-y-2">
+              <label className="text-xs uppercase tracking-widest text-white/45">User Case (Optional)</label>
+              <textarea name="user_case" value={formData.user_case || ""} onChange={handleFormChange} rows={3} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" placeholder="When would a developer choose this over alternatives?" />
+            </div>
+
+            <div className="space-y-2">
               <label className="text-xs uppercase tracking-widest text-white/45">Why You Should Care</label>
               <textarea name="why_care" value={formData.why_care || ""} onChange={handleFormChange} rows={3} className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none focus:border-purple-400/40" />
             </div>
@@ -305,8 +312,19 @@ export default function ArticleMuseumAdminClient() {
             </div>
 
             <div className="flex gap-4 pt-4 border-t border-white/5">
-              <button disabled={actionLoading} type="submit" className="flex-1 rounded-2xl bg-purple-500 py-4 font-display font-bold text-white transition hover:bg-purple-600 disabled:opacity-50">
+              <button disabled={actionLoading} type="submit" className="flex-[2] rounded-2xl bg-purple-500 py-4 font-display font-bold text-white transition hover:bg-purple-600 disabled:opacity-50">
                 {actionLoading ? "Saving..." : editingId ? "Update Article" : "Create Article"}
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingId(null);
+                  setFormData({});
+                }} 
+                className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-4 font-display font-bold text-white transition hover:bg-white/10"
+              >
+                Cancel
               </button>
             </div>
           </form>

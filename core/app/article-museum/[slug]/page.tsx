@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ChevronLeft, Zap, BookOpen, Lightbulb, Code2, Search } from "lucide-react";
+import { ChevronLeft, Zap, BookOpen, Lightbulb, Code2, Search, Briefcase } from "lucide-react";
 
 type Article = {
   id: string;
@@ -14,6 +14,7 @@ type Article = {
   superpower: string;
   origin_story: string;
   why_care: string;
+  user_case?: string;
   hands_on_code: string;
   read_time: string;
   tags: string[];
@@ -105,6 +106,16 @@ export default function ArticleMuseumSinglePage() {
           </div>
           <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.superpower}</p>
         </section>
+
+        {article.user_case && (
+          <section>
+            <div className="mb-4 flex items-center gap-3">
+              <Briefcase className="h-6 w-6 text-blue-400" />
+              <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">Use Case</h2>
+            </div>
+            <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.user_case}</p>
+          </section>
+        )}
 
         <section>
           <div className="mb-4 flex items-center gap-3">
