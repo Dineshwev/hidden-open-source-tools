@@ -1,0 +1,17 @@
+{
+  "name": "The Cloud Rain",
+  "short_name": "CloudRain",
+  "description": "Unlock premium developer resources, UI kits, and mystery box drops.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["developer-tools", "productivity", "open-source"]
+}

@@ -63,22 +63,38 @@ export const metadata: Metadata = {
 
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteName,
-  url: siteUrl,
-  description:
-    "Open-source platform for free developer resources, curated tools, and mystery-box style unlock experiences.",
-  inLanguage: "en",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${siteUrl}/free-tools`,
-    "query-input": "required name=search_term_string"
-  },
-  publisher: {
-    "@type": "Organization",
-    name: siteName,
-    url: siteUrl
-  }
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "name": siteName,
+      "url": siteUrl,
+      "description": "Open-source platform for free developer resources, curated tools, and mystery-box style unlock experiences.",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": siteUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Free Tools",
+          "item": `${siteUrl}/free-tools`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Article Museum",
+          "item": `${siteUrl}/article-museum`
+        }
+      ]
+    }
+  ]
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

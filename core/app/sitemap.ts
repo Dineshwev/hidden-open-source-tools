@@ -1,11 +1,26 @@
 import type { MetadataRoute } from "next";
+import { getAdmin } from "@/lib/backend_lib/supabase-server";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const supabase = getAdmin();
 
-  return [
+  // Fetch all articles for the Article Museum
+  const { data: articles } = await supabase
+    .from("articles")
+    .select("slug, updated_at")
+    .eq("is_published", true);
+
+  const articleEntries: MetadataRoute.Sitemap = (articles || []).map((art) => ({
+    url: `${siteUrl}/article-museum/${art.slug}`,
+    lastModified: art.updated_at ? new Date(art.updated_at) : now,
+    changeFrequency: "weekly",
+    priority: 0.8
+  }));
+
+  const staticEntries: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
       lastModified: now,
@@ -25,58 +40,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9
     },
     {
-      url: `${siteUrl}/open-source-software`,
+      url: `${siteUrl}/article-museum`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.9
     },
     {
-      url: `${siteUrl}/hidden-tools`,
+      url: `${siteUrl}/open-source-software`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.85
-    },
-    {
-      url: `${siteUrl}/best-free-developer-tools`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88
-    },
-    {
-      url: `${siteUrl}/weekly-roundups`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.84
-    },
-    {
-      url: `${siteUrl}/weekly-roundups/2026-04-10`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.74
-    },
-    {
-      url: `${siteUrl}/weekly-roundups/2026-04-03`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.72
-    },
-    {
-      url: `${siteUrl}/weekly-roundups/2026-03-27`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7
-    },
-    {
-      url: `${siteUrl}/dashboard`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7
-    },
-    {
-      url: `${siteUrl}/upload`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7
     },
     {
       url: `${siteUrl}/privacy`,
@@ -91,12 +64,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.4
     },
     {
-      url: `${siteUrl}/dmca`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.3
-    },
-    {
       url: `${siteUrl}/contact`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -107,12 +74,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6
-    },
-    {
-      url: `${siteUrl}/general-queries`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.6
     }
   ];
-}
+
+  return [...staticEntries, ...articleEntries];
+}
