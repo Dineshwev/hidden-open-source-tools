@@ -69,20 +69,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const supabase = getAdmin();
     const { data: articles, error } = await supabase
       .from("articles")
-      .select("slug, updated_at")
-      .eq("is_published", true);
+      .select("id, slug, published_at")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false });
 
-    if (!error && articles) {
-      articleEntries = articles.map((art: any) => ({
-        url: `${siteUrl}/article-museum/${art.slug}`,
-        lastModified: art.updated_at ? new Date(art.updated_at) : staticLastModified,
-        changeFrequency: "monthly",
-        priority: 0.8
-      }));
+    if (error) {
+      throw error;
     }
-  } catch (err) {
-    console.error("Sitemap generation error:", err);
-    // Graceful error handling - return static entries if fetch fails
+
+    articleEntries = (articles ?? []).map((art: any) => ({
+      url: `${siteUrl}/article-museum/${art.slug}`,
+      lastModified: art.published_at ? new Date(art.published_at) : staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.8
+    }));
+  } catch (error) {
+    console.error("Sitemap articles fetch failed:", error);
+    return staticEntries;
   }
 
   return [...staticEntries, ...articleEntries];
