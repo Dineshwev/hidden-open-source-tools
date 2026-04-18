@@ -1,9 +1,7 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { ChevronLeft, Zap, BookOpen, Lightbulb, Code2, Search, Briefcase } from "lucide-react";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import ArticleMuseumArticleClient from "@/components/article-museum/ArticleMuseumArticleClient";
 
 type Article = {
   id: string;
@@ -19,171 +17,64 @@ type Article = {
   read_time: string;
   tags: string[];
   published_at: string;
+  image_url?: string;
 };
 
-export default function ArticleMuseumSinglePage() {
-  const params = useParams();
-  const slug = params.slug as string;
-  const [article, setArticle] = useState<Article | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+const siteUrl = "https://thecloudrain.site";
 
-  useEffect(() => {
-    async function fetchArticle() {
-      try {
-        const res = await fetch(`/api/articles/${slug}`);
-        const json = await res.json();
-        if (json.success && json.data) {
-          setArticle(json.data);
-        } else {
-          setError(json.error || "Article not found.");
-        }
-      } catch (e) {
-        setError("Network error loading article.");
-      } finally {
-        setLoading(false);
+export const revalidate = 3600;
+
+async function getArticleBySlug(slug: string): Promise<Article | null> {
+  const supabase = getAdmin();
+  const { data: article } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  return (article as Article | null) || null;
+}
+
+function getArticleDescription(article: Article) {
+  return article.mystery_intro?.slice(0, 160) || "Deep dive into open source history.";
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const article = await getArticleBySlug(params.slug);
+  const canonicalUrl = `${siteUrl}/article-museum/${params.slug}`;
+
+  if (!article) {
+    return {
+      title: "Article Not Found | The Cloud Rain",
+      alternates: {
+        canonical: canonicalUrl
       }
+    };
+  }
+
+  const description = getArticleDescription(article);
+
+  return {
+    title: article.title,
+    description,
+    alternates: {
+      canonical: canonicalUrl
+    },
+    openGraph: {
+      title: article.title,
+      description,
+      url: canonicalUrl,
+      type: "article"
     }
-    fetchArticle();
-  }, [slug]);
+  };
+}
 
-  if (loading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
-      </div>
-    );
+export default async function ArticleMuseumSinglePage({ params }: { params: { slug: string } }) {
+  const article = await getArticleBySlug(params.slug);
+
+  if (!article) {
+    notFound();
   }
 
-  if (error || !article) {
-    return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
-        <div className="text-rose-400">{error || "Article not found."}</div>
-        <Link href="/article-museum" className="text-sm text-white/50 hover:text-white">
-          &larr; Back to Museum
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <article className="mx-auto max-w-3xl space-y-12 pb-20 pt-6">
-      <Link
-        href="/article-museum"
-        className="inline-flex items-center gap-2 text-sm font-medium text-white/50 transition hover:text-white"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Museum
-      </Link>
-
-      <header className="space-y-4">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Article",
-              "headline": article.title,
-              "description": article.mystery_intro,
-              "image": article.image_url || "",
-              "datePublished": article.published_at,
-              "author": {
-                "@type": "Organization",
-                "name": "The Cloud Rain"
-              }
-            })
-          }}
-        />
-        <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
-          {article.tool_name}
-        </span>
-        <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
-          {article.title}
-        </h1>
-        <div className="flex flex-wrap items-center gap-3 text-sm text-white/40">
-          <span>{article.read_time || "5 min read"}</span>
-          <span>•</span>
-          <span>{new Date(article.published_at).toLocaleDateString()}</span>
-        </div>
-      </header>
-
-      <div className="space-y-16">
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <Search className="h-6 w-6 text-purple-400" />
-            <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">The Mystery</h2>
-          </div>
-          <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.mystery_intro}</p>
-        </section>
-
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <Zap className="h-6 w-6 text-yellow-400" />
-            <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">The Superpower</h2>
-          </div>
-          <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.superpower}</p>
-        </section>
-
-        {article.user_case && (
-          <section>
-            <div className="mb-4 flex items-center gap-3">
-              <Briefcase className="h-6 w-6 text-blue-400" />
-              <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">Use Case</h2>
-            </div>
-            <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.user_case}</p>
-          </section>
-        )}
-
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <BookOpen className="h-6 w-6 text-emerald-400" />
-            <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">Origin Story</h2>
-          </div>
-          <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.origin_story}</p>
-        </section>
-
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <Lightbulb className="h-6 w-6 text-amber-400" />
-            <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">Why You Should Care</h2>
-          </div>
-          <p className="whitespace-pre-wrap text-base leading-relaxed text-white/70">{article.why_care}</p>
-        </section>
-
-        {article.hands_on_code && (
-          <section>
-            <div className="mb-4 flex items-center gap-3">
-              <Code2 className="h-6 w-6 text-blue-400" />
-              <h2 className="font-display text-xl font-bold uppercase tracking-wider text-white">Get Hands-On</h2>
-            </div>
-            <pre className="overflow-x-auto rounded-xl border border-white/10 bg-black/50 p-6 font-mono text-sm leading-relaxed text-green-400 shadow-xl">
-              <code>{article.hands_on_code}</code>
-            </pre>
-          </section>
-        )}
-      </div>
-
-      <footer className="mt-12 border-t border-white/10 pt-8">
-        <div className="flex flex-wrap items-center justify-between gap-6">
-          <div className="flex flex-wrap gap-2">
-            <span className="mr-2 text-sm font-semibold text-white/40">Tags:</span>
-            {(article.tags || []).map((tag) => (
-              <span key={tag} className="rounded-lg bg-white/5 px-2.5 py-1 text-[10px] uppercase tracking-wider text-white/60">
-                {tag}
-              </span>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-white/50">Related Tool:</span>
-            <Link
-              href="/free-tools"
-              className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/20"
-            >
-              Explore directory &rarr;
-            </Link>
-          </div>
-        </div>
-      </footer>
-    </article>
-  );
+  return <ArticleMuseumArticleClient article={article} />;
 }

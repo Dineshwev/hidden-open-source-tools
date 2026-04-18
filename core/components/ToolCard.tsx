@@ -82,6 +82,14 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
         <p className="text-xs uppercase tracking-[0.18em] text-white/45">
           {tool.source_site || getDomain(tool.webpage_url) || "external"}
         </p>
+        <a
+          href={tool.webpage_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sr-only"
+        >
+          Open {tool.title}
+        </a>
         <button
           type="button"
           onClick={() => onOpen(tool.webpage_url)}

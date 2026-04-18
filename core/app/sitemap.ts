@@ -4,61 +4,60 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  const staticLastModified = new Date("2026-04-17");
   
-  // 1. Static Pages (as per requirements)
   const staticEntries: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 1
     },
     {
       url: `${siteUrl}/free-tools`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 0.95
     },
     {
       url: `${siteUrl}/mystery-box`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9
     },
     {
       url: `${siteUrl}/article-museum`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9
     },
     {
       url: `${siteUrl}/open-source-software`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 0.85
     },
     {
       url: `${siteUrl}/privacy`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.4
     },
     {
       url: `${siteUrl}/terms`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.4
     },
     {
       url: `${siteUrl}/contact`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.5
     },
     {
       url: `${siteUrl}/about`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.6
     }
@@ -76,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (!error && articles) {
       articleEntries = articles.map((art: any) => ({
         url: `${siteUrl}/article-museum/${art.slug}`,
-        lastModified: art.updated_at ? new Date(art.updated_at) : now,
+        lastModified: art.updated_at ? new Date(art.updated_at) : staticLastModified,
         changeFrequency: "monthly",
         priority: 0.8
       }));

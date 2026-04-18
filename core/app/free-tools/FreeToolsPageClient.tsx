@@ -34,13 +34,21 @@ const categoryTabs: CategoryTab[] = [
   { key: "other", label: "✨ Other", queryValue: "other" }
 ];
 
-export default function FreeToolsPageClient() {
+export default function FreeToolsPageClient({
+  initialTools = [],
+  initialCount = null,
+  initialTotalPages = 1
+}: {
+  initialTools?: ScrapedTool[];
+  initialCount?: number | null;
+  initialTotalPages?: number;
+}) {
   const [selectedCategories, setSelectedCategories] = useState<ToolCategory[]>([]);
-  const [tools, setTools] = useState<ScrapedTool[]>([]);
-  const [toolCount, setToolCount] = useState<number | null>(null);
+  const [tools, setTools] = useState<ScrapedTool[]>(initialTools);
+  const [toolCount, setToolCount] = useState<number | null>(initialCount);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(initialTotalPages > 0 ? initialTotalPages : 1);
+  const [loading, setLoading] = useState(initialTools.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
@@ -131,6 +139,10 @@ export default function FreeToolsPageClient() {
   }, [fetchTools, selectedCategories]);
 
   useEffect(() => {
+    if (initialCount !== null) {
+      return;
+    }
+
     const fetchCount = async () => {
       try {
         const res = await fetch("/api/files/scraped-tools?page=1&limit=1");
@@ -145,7 +157,7 @@ export default function FreeToolsPageClient() {
     };
 
     void fetchCount();
-  }, []);
+  }, [initialCount]);
 
   const handleLoadMore = async () => {
     if (!hasMore || loadingMore) {

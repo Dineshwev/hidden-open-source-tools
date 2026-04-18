@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import UploadForm from "@/components/UploadForm";
 import SectionHeading from "@/components/SectionHeading";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default function UploadPage() {
   return (

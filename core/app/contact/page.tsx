@@ -24,7 +24,7 @@ const structuredData = {
     contactType: "customer support",
     url: `${siteUrl}/contact`
   },
-  sameAs: ["https://github.com/Dineshwev", "https://twitter.com/YOUR_TWITTER"]
+  sameAs: ["https://github.com/Dineshwev"]
 };
 
 export default function ContactPage() {
