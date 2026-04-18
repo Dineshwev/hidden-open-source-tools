@@ -1,9 +1,15 @@
-# *
 User-agent: *
 Allow: /
 
-# Host
-Host: https://thecloudrain.site
+Disallow: /control-room/
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/internal/
 
-# Sitemaps
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
 Sitemap: https://thecloudrain.site/sitemap.xml

@@ -5,21 +5,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const supabase = getAdmin();
-
-  // Fetch all articles for the Article Museum
-  const { data: articles } = await supabase
-    .from("articles")
-    .select("slug, updated_at")
-    .eq("is_published", true);
-
-  const articleEntries: MetadataRoute.Sitemap = (articles || []).map((art) => ({
-    url: `${siteUrl}/article-museum/${art.slug}`,
-    lastModified: art.updated_at ? new Date(art.updated_at) : now,
-    changeFrequency: "weekly",
-    priority: 0.8
-  }));
-
+  
+  // 1. Static Pages (as per requirements)
   const staticEntries: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
@@ -36,13 +23,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: `${siteUrl}/mystery-box`,
       lastModified: now,
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 0.9
     },
     {
       url: `${siteUrl}/article-museum`,
       lastModified: now,
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 0.9
     },
     {
@@ -77,5 +64,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ];
 
+  let articleEntries: MetadataRoute.Sitemap = [];
+
+  try {
+    const supabase = getAdmin();
+    const { data: articles, error } = await supabase
+      .from("articles")
+      .select("slug, updated_at")
+      .eq("is_published", true);
+
+    if (!error && articles) {
+      articleEntries = articles.map((art: any) => ({
+        url: `${siteUrl}/article-museum/${art.slug}`,
+        lastModified: art.updated_at ? new Date(art.updated_at) : now,
+        changeFrequency: "monthly",
+        priority: 0.8
+      }));
+    }
+  } catch (err) {
+    console.error("Sitemap generation error:", err);
+    // Graceful error handling - return static entries if fetch fails
+  }
+
   return [...staticEntries, ...articleEntries];
-}
+}
