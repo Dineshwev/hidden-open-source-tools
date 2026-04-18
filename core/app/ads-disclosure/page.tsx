@@ -56,12 +56,18 @@ export default function AdsDisclosurePage() {
           <p className="mt-3 text-sm">
             The Cloud Rain uses Adsterra as a primary ad provider for sponsor placements such as banners and native units.
           </p>
+          <p className="mt-3 text-sm">
+            Provider relationships may change over time as we test availability, quality, and user experience impact. If that happens, this page is where we explain the update instead of leaving ad behavior undocumented.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">How ads appear</h2>
           <p className="mt-3 text-sm">
             Sponsor content may appear as banners, social bars, popunders, native units, or optional smartlink offers near content sections. We place these units where users naturally pause so they are visible without blocking the task at hand.
+          </p>
+          <p className="mt-3 text-sm">
+            Placement choices are guided by page purpose. Legal pages, editorial pages, and discovery pages should remain readable, and ads should not make core navigation or support information harder to access.
           </p>
         </section>
 
@@ -77,12 +83,18 @@ export default function AdsDisclosurePage() {
           <p className="mt-3 text-sm">
             Adsterra may process basic technical information such as browser details, approximate location, referral context, or device signals needed to deliver, render, and measure sponsor placements. For details on Adsterra&apos;s privacy practices, see their privacy policy via their website.
           </p>
+          <p className="mt-3 text-sm">
+            This may include impression measurement, fraud prevention, frequency controls, or deciding which promotional unit to show. For broader information about how technical data is handled on the platform, see our Privacy Policy as well.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">No forced popups</h2>
           <p className="mt-3 text-sm">
             We avoid popup-heavy or deceptive ad flows. Sponsor links should open from a direct user click, and the page should remain usable even if a provider is unavailable.
+          </p>
+          <p className="mt-3 text-sm">
+            If a format becomes too disruptive, misleading, or inconsistent with the rest of the product, we may disable it, reposition it, or replace it with a lower-friction format.
           </p>
         </section>
 
@@ -97,6 +109,9 @@ export default function AdsDisclosurePage() {
           <h2 className="text-xl font-semibold text-white">User experience priority</h2>
           <p className="mt-3 text-sm">
             Ads should support the platform, not frustrate the user. If a sponsor unit fails to load, the page should continue functioning and still provide access to the main content.
+          </p>
+          <p className="mt-3 text-sm">
+            We treat readability, loading stability, and trust as hard constraints. Monetization matters, but not enough to justify disguised buttons, clutter-heavy layouts, or sponsor behavior that makes the site feel unsafe or confusing.
           </p>
         </section>
 
@@ -118,6 +133,19 @@ export default function AdsDisclosurePage() {
           <h2 className="text-xl font-semibold text-white">Issue handling</h2>
           <p className="mt-3 text-sm">
             We review ad quality reports and may disable or replace units that conflict with our disclosure or user-experience standards.
+          </p>
+          <p className="mt-3 text-sm">
+            Reports are most helpful when they include the exact page URL, a short description of what appeared, and whether the issue involved misleading copy, unexpected redirects, broken rendering, or content that seemed unsafe for a general developer audience.
+          </p>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <h2 className="text-xl font-semibold text-white">Why this disclosure exists</h2>
+          <p className="mt-3 text-sm">
+            Sites that use sponsor placements should not leave users guessing about where monetization begins or how promotional units differ from editorial content. This page exists so the monetization layer is documented in the open rather than hidden behind ambiguous layout choices.
+          </p>
+          <p className="mt-3 text-sm">
+            Transparent ad disclosures also help contributors, returning visitors, and search engines understand that promotional elements are labeled, reviewable, and part of a broader effort to keep the platform readable and trustworthy.
           </p>
         </section>
 

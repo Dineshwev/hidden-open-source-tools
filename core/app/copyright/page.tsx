@@ -56,6 +56,9 @@ export default function CopyrightPage() {
           <p className="mt-3 text-sm">
             Uploaders keep ownership of their own submissions unless a separate license is stated. By uploading content, you confirm you have rights to share it on this platform.
           </p>
+          <p className="mt-3 text-sm">
+            Ownership and platform visibility are separate ideas. A creator may still fully own a work while granting the platform limited rights to host, display, index, and review that work as part of the service.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
@@ -66,12 +69,18 @@ export default function CopyrightPage() {
           <p className="mt-3 text-sm">
             This license exists only to operate the service and does not transfer your copyright ownership to us.
           </p>
+          <p className="mt-3 text-sm">
+            That operational license may include caching, preview generation, moderation review, or temporary restriction during an investigation. These actions help run the service, but they do not convert creator-owned work into platform-owned intellectual property.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">Platform content</h2>
           <p className="mt-3 text-sm">
             The site layout, branding, code, copy, and visual components are protected as platform assets. Reuse should follow the applicable license or written permission.
+          </p>
+          <p className="mt-3 text-sm">
+            This includes custom interface presentation, brand identifiers, editorial descriptions, and original platform copy. Linking to the site is generally fine, but copying branded product presentation or repackaging it as your own service is not.
           </p>
         </section>
 
@@ -80,12 +89,18 @@ export default function CopyrightPage() {
           <p className="mt-3 text-sm">
             You are responsible for ensuring your uploads do not infringe copyright, trademark, or related rights. You should include accurate attribution and the correct license whenever a third-party license requires it.
           </p>
+          <p className="mt-3 text-sm">
+            If your upload contains third-party assets, bundled code, fonts, screenshots, or derivative material, you are responsible for confirming that redistribution is allowed and that required notices remain intact. Missing attribution or unclear authorship may delay publication or trigger removal.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">Takedown requests</h2>
           <p className="mt-3 text-sm">
             If you believe material on the site infringes your copyright, submit a DMCA request with the file URL, proof of ownership, and a signed statement to the contact listed on the DMCA page.
+          </p>
+          <p className="mt-3 text-sm">
+            Specific reports help us move faster. If several pages are involved, list each affected URL and explain what work is allegedly infringed so we can review the correct material without guessing.
           </p>
         </section>
 
@@ -94,12 +109,28 @@ export default function CopyrightPage() {
           <p className="mt-3 text-sm">
             Accounts or submitters who repeatedly violate intellectual property rules may be restricted, suspended, or removed. We may also disable related listings and preserve relevant moderation records for legal review.
           </p>
+          <p className="mt-3 text-sm">
+            Enforcement decisions may consider the number of incidents, the clarity of the evidence, whether the uploader corrected the issue after notice, and whether the conduct appears accidental or systematic.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">Questions and clarifications</h2>
           <p className="mt-3 text-sm">
             For ownership clarifications, licensing conflicts, or attribution fixes, contact support and include the exact page URL plus evidence of rights ownership. Clear reports help us act faster.
+          </p>
+          <p className="mt-3 text-sm">
+            The most useful reports explain the exact problem, such as unauthorized copying, missing credit, relicensing without permission, or false authorship claims. That level of detail helps us review the issue more accurately.
+          </p>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <h2 className="text-xl font-semibold text-white">Relationship to license terms</h2>
+          <p className="mt-3 text-sm">
+            Copyright protection and license permissions often overlap. A work may remain fully protected by copyright while still being distributed under an open-source or conditional license. That is why this page should be read together with our License Information page.
+          </p>
+          <p className="mt-3 text-sm">
+            If a listing description, uploader statement, and source repository license do not align, we may temporarily restrict visibility while the legal status is reviewed. This helps reduce confusion for users making implementation decisions based on directory listings.
           </p>
         </section>
 

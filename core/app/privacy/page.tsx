@@ -59,6 +59,9 @@ export default function PrivacyPage() {
           <p className="text-sm leading-relaxed">
             If you create an account to upload or moderate tools, we collect personal information that you voluntarily provide to us when registering. You may provide us with your name, email address, usernames, passwords, and other similar information.
           </p>
+          <p className="text-sm leading-relaxed">
+            We may also collect submission-related details, moderation records, contact form information, and security signals that help us investigate abuse, respond to disputes, and maintain reliable platform operations.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
@@ -86,6 +89,9 @@ export default function PrivacyPage() {
           <h2 className="font-display text-2xl font-semibold text-white">4. Third-Party Services</h2>
           <p className="text-sm leading-relaxed">
             We use trusted providers for hosting, storage, analytics, and support workflows (for example Supabase and Netlify). We share only the data needed for those services to work.
+          </p>
+          <p className="text-sm leading-relaxed">
+            Depending on the feature, those providers may help with hosting, database operations, authentication support, delivery infrastructure, or analytics. They process only the information needed to perform the service we rely on.
           </p>
         </section>
 
@@ -131,24 +137,40 @@ export default function PrivacyPage() {
           <p className="text-sm leading-relaxed">
             We use access controls, environment-based secrets, and monitoring to protect data. No system is perfect, but we continuously improve security to lower risk.
           </p>
+          <p className="text-sm leading-relaxed">
+            Security measures may include role-based access, server-side validation, operational logging, environment separation, and targeted review of sensitive workflows. These controls are intended to reduce risk while keeping the platform usable.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
-          <h2 className="font-display text-2xl font-semibold text-white">10. Children&apos;s Privacy</h2>
+          <h2 className="font-display text-2xl font-semibold text-white">10. Account and Submission Data</h2>
+          <p className="text-sm leading-relaxed">
+            If you upload tools, submit listings, or contact us about moderation or legal concerns, we may retain records necessary to process that activity. These records can include timestamps, URLs, submission metadata, communication history, and moderation notes connected to the request.
+          </p>
+          <p className="text-sm leading-relaxed">
+            We aim to keep this data proportional to the purpose it serves. We do not collect information simply because it might be useful later. We collect it when there is a clear operational, legal, or security reason to do so.
+          </p>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
+          <h2 className="font-display text-2xl font-semibold text-white">11. Children&apos;s Privacy</h2>
           <p className="text-sm leading-relaxed">
             Our services are not directed to children under the age required by local law to consent to data processing. If you believe a child has provided personal data without proper authorization, contact us and we will review and remove the information when appropriate.
           </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
-          <h2 className="font-display text-2xl font-semibold text-white">11. Policy Updates</h2>
+          <h2 className="font-display text-2xl font-semibold text-white">12. Policy Updates</h2>
           <p className="text-sm leading-relaxed">
             We may update this policy to reflect legal, technical, or operational changes. Material updates will be published on this page with a revised "Last updated" date.
+          </p>
+          <p className="text-sm leading-relaxed">
+            Updates may reflect new features, changes in providers, revised compliance expectations, or improvements in how we explain our practices. Continued use of the platform after an update means the revised policy applies to future use to the extent allowed by law.
           </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
-          <h2 className="font-display text-2xl font-semibold text-white">12. Contact Us</h2>
+          <h2 className="font-display text-2xl font-semibold text-white">13. Contact Us</h2>
           <p className="text-sm leading-relaxed">
             If you have questions or comments about this privacy policy, or if you wish to exercise your data protection rights, you can contact our Data Protection Officer at:
           </p>

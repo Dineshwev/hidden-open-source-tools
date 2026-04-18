@@ -56,6 +56,9 @@ export default function TermsPage() {
           <p className="text-sm leading-relaxed">
             By using The Cloud Rain ("the platform", "we", "us", or "our"), you agree to these Terms. If you do not agree, do not use the platform. We may update these Terms from time to time and will update the date on this page.
           </p>
+          <p className="text-sm leading-relaxed">
+            These Terms apply to visitors, registered users, contributors, uploaders, and anyone using platform features or interacting with site content. More specific policies may apply to certain situations, but these Terms remain the general baseline for using the service.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
@@ -97,6 +100,9 @@ export default function TermsPage() {
           <p className="text-sm leading-relaxed">
             We may limit access, suspend accounts, or remove uploads if we detect abuse, security risks, or policy violations. We may also remove listings to protect platform quality and legal compliance.
           </p>
+          <p className="text-sm leading-relaxed">
+            Moderation decisions may be based on legal risk, suspicious packaging, poor-quality submissions, missing license details, broken source links, or behavior that disrupts the experience for other users. Not every removal implies malicious intent, but platform safety may still require action.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
@@ -104,12 +110,18 @@ export default function TermsPage() {
           <p className="text-sm leading-relaxed">
             You must use accurate account details and keep credentials secure. You are responsible for activity occurring under your account, including uploads, moderation actions, and API interactions performed with your credentials.
           </p>
+          <p className="text-sm leading-relaxed">
+            If you suspect unauthorized access, contact support promptly and provide relevant details such as the affected account, approximate timing, and any URLs or actions that look suspicious. Fast reporting helps us reduce platform risk more effectively.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">7. External Links and Third-Party Content</h2>
           <p className="text-sm leading-relaxed">
             The platform may link to third-party websites, repositories, and hosted files. We do not control third-party terms, privacy practices, or code safety. You should review those terms directly before downloading or executing any external resource.
+          </p>
+          <p className="text-sm leading-relaxed">
+            A listing on The Cloud Rain is not a blanket warranty that the linked material is fit for production, legally complete, or safe in every environment. Users remain responsible for testing, legal review, and implementation decisions before using third-party material at scale.
           </p>
         </section>
 
@@ -132,12 +144,28 @@ export default function TermsPage() {
           <p className="text-sm leading-relaxed">
             These Terms are interpreted under applicable governing law based on our operating jurisdiction, unless mandatory local consumer laws provide otherwise. Disputes should first be raised through support so we can attempt a practical resolution.
           </p>
+          <p className="text-sm leading-relaxed">
+            When contacting us about a dispute, include the relevant page URLs, timestamps, account details, and a short explanation of the issue. Clear context helps us investigate faster and may avoid unnecessary escalation.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">11. Contact</h2>
           <p className="text-sm leading-relaxed">
             For legal and terms questions, contact support and include relevant URLs, timestamps, and details so our team can review quickly.
+          </p>
+          <p className="text-sm leading-relaxed">
+            If your question is mainly about privacy, copyright, licensing, or DMCA procedures, we may review it together with the corresponding policy page so the response reflects the most relevant platform rule.
+          </p>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
+          <h2 className="font-display text-2xl font-semibold text-white">12. Relationship to Other Policies</h2>
+          <p className="text-sm leading-relaxed">
+            These Terms work alongside our Privacy Policy, Copyright Policy, DMCA Policy, License Information page, and Ads Disclosure page. Each document explains a different part of how the platform operates, and together they form the practical rule set for using The Cloud Rain.
+          </p>
+          <p className="text-sm leading-relaxed">
+            Where a more specific policy applies to a particular issue, that specific policy may control for that issue while these Terms continue to apply more generally.
           </p>
         </section>
 

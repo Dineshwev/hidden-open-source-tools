@@ -133,7 +133,7 @@ export default function ContactPageClient() {
           <div className="space-y-5">
             <div className="flex flex-wrap gap-3">
               <Link
-                href="https://github.com/Dineshwev"
+                href="https://github.com/dineshwev"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
@@ -142,7 +142,7 @@ export default function ContactPageClient() {
                 GitHub verified
               </Link>
               <Link
-                href="https://github.com/Dineshwev"
+                href="https://github.com/dineshwev"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
@@ -150,6 +150,19 @@ export default function ContactPageClient() {
                 <Github className="h-4 w-4" />
                 GitHub Profile
               </Link>
+              <Link
+                href="https://x.com/TheCloudRain_"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/80 transition hover:border-white/20 hover:bg-white/[0.08]"
+              >
+                <Twitter className="h-4 w-4" />
+                X Contact
+              </Link>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-black/25 p-4 text-sm leading-7 text-white/65">
+              If you want to collaborate, report an issue, discuss a listing, or verify ownership details, the contact form is the main support route. Public profile links are also available for quick credibility checks and social contact.
             </div>
           </div>
 
@@ -244,7 +257,7 @@ export default function ContactPageClient() {
                     required
                     value={handle}
                     onChange={(event) => setHandle(event.target.value)}
-                    placeholder="@dineshwev or github.com/Dineshwev"
+                    placeholder="@TheCloudRain_ or github.com/dineshwev"
                     className={fieldClassName}
                   />
                 </div>
@@ -320,6 +333,9 @@ export default function ContactPageClient() {
         <p className="mx-auto max-w-3xl text-sm leading-7 text-white/55">
           Anonymous queries are answered publicly on our General Queries page to help the community. Identified
           messages receive private responses.
+        </p>
+        <p className="mx-auto mt-3 max-w-3xl text-sm leading-7 text-white/45">
+          For faster replies, include the exact page URL, tool name, policy question, or issue you are reporting. Clear context makes moderation, support, and collaboration follow-up much easier.
         </p>
       </section>
 

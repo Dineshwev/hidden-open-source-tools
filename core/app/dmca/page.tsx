@@ -64,6 +64,9 @@ export default function DmcaPage() {
             <li>A statement that the complaining party has a good faith belief that use of the material is not authorized by the copyright owner, its agent, or the law.</li>
             <li>A statement that the information in the notification is accurate, and under penalty of perjury, that the complaining party is authorized to act on behalf of the owner.</li>
           </ul>
+          <p className="text-sm leading-relaxed">
+            Notices that include exact URLs, original source references, and a clear explanation of the allegedly infringed work are usually processed faster because they reduce ambiguity during review.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
@@ -77,12 +80,18 @@ export default function DmcaPage() {
             <li>A statement under penalty of perjury that you have a good-faith belief that the material was removed or disabled as a result of mistake or misidentification.</li>
             <li>Your name, address, and telephone number, and a statement that you consent to the jurisdiction of the federal district court.</li>
           </ul>
+          <p className="text-sm leading-relaxed">
+            Counter-notices are formal legal responses. If you are unsure whether your situation qualifies, it may be wise to get legal advice before filing one.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">3. Repeat Infringer Policy</h2>
           <p className="text-sm leading-relaxed">
             In accordance with the DMCA and other applicable legal frameworks, The Cloud Rain maintains a strict repeat-infringer policy. Users whose accounts are found to repeatedly abuse our networks to distribute illicit or plagiarized material will have their accounts terminated without appeal or refund.
+          </p>
+          <p className="text-sm leading-relaxed">
+            Reviews may consider the number of complaints, the quality of the evidence, whether prior warnings were ignored, and whether the pattern suggests deliberate infringement instead of an isolated error.
           </p>
         </section>
 
@@ -94,12 +103,18 @@ export default function DmcaPage() {
           <p className="text-sm leading-relaxed">
             During review, content may be temporarily limited, removed, or flagged pending verification.
           </p>
+          <p className="text-sm leading-relaxed">
+            We may also request clarification before taking final action if ownership is disputed, if bundled works are involved, or if the report does not clearly identify what material is at issue.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">5. Misrepresentation and False Claims</h2>
           <p className="text-sm leading-relaxed">
             Submitting knowingly false or misleading infringement claims can result in legal consequences. Please ensure all statements are accurate and submitted in good faith.
+          </p>
+          <p className="text-sm leading-relaxed">
+            Abuse of the reporting system may also affect access to our legal channels or platform features where appropriate. We keep records of serious misuse to help protect both creators and the platform.
           </p>
         </section>
 
@@ -111,10 +126,23 @@ export default function DmcaPage() {
             <li>Attach clear screenshots or archive references where relevant.</li>
             <li>State whether emergency removal is requested and why.</li>
           </ul>
+          <p className="text-sm leading-relaxed">
+            For software or template disputes, it also helps to explain whether the issue is full copying, unauthorized redistribution, missing attribution, or improper relicensing. That gives our team more concrete review criteria.
+          </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
-          <h2 className="font-display text-2xl font-semibold text-white">7. Designated Agent Contact</h2>
+          <h2 className="font-display text-2xl font-semibold text-white">7. Temporary Restrictions During Review</h2>
+          <p className="text-sm leading-relaxed">
+            While a claim is being reviewed, we may temporarily disable a listing, limit download access, remove a page from discovery surfaces, or internally annotate the content for moderation review. Temporary restriction does not automatically mean the claim has been finally accepted.
+          </p>
+          <p className="text-sm leading-relaxed">
+            This step exists to limit potential harm while facts are checked. After review, the content may remain removed, be restored, or be republished with corrected attribution or licensing details.
+          </p>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
+          <h2 className="font-display text-2xl font-semibold text-white">8. Designated Agent Contact</h2>
           <p className="text-sm leading-relaxed">
             Please direct all official DMCA requests, complaints, and counter-notices exclusively to:
           </p>

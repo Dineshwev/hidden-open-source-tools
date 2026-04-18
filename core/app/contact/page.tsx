@@ -24,7 +24,7 @@ const structuredData = {
     contactType: "customer support",
     url: `${siteUrl}/contact`
   },
-  sameAs: ["https://github.com/Dineshwev"]
+  sameAs: ["https://github.com/dineshwev", "https://x.com/TheCloudRain_"]
 };
 
 export default function ContactPage() {
@@ -35,6 +35,32 @@ export default function ContactPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <ContactPageClient />
+
+      <section className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Public contact routes</p>
+        <h2 className="mt-2 text-xl text-white">Reach The Cloud Rain outside the form</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/65">
+          If you prefer public profile-based contact, you can also reach the project through GitHub and X. These links help users, collaborators, and search engines connect the platform to its active public identity.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <a
+            href="https://github.com/dineshwev"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 transition hover:border-white/35 hover:bg-white/[0.05]"
+          >
+            GitHub: @dineshwev
+          </a>
+          <a
+            href="https://x.com/TheCloudRain_"
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 transition hover:border-white/35 hover:bg-white/[0.05]"
+          >
+            X: @TheCloudRain_
+          </a>
+        </div>
+      </section>
 
       <section className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-6">
         <p className="text-xs uppercase tracking-[0.25em] text-white/45">Explore</p>

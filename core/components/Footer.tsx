@@ -26,6 +26,11 @@ const seoLinks = [
   { href: "/free-tools", label: "Free Tools" }
 ];
 
+const socialLinks = [
+  { href: "https://github.com/dineshwev", label: "GitHub" },
+  { href: "https://x.com/TheCloudRain_", label: "X" }
+];
+
 export default function Footer() {
   return (
     <footer className="relative z-20 mt-20 border-t border-white/10 bg-[#070707]/95">
@@ -41,6 +46,19 @@ export default function Footer() {
           <div className="rounded-2xl border border-white/15 bg-white/[0.03] p-4">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Company Standard</p>
             <p className="mt-2 text-sm text-white/70">Every unlock flow is transparent, moderated, and designed to avoid unnecessary user frustration.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {socialLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition hover:border-white/25 hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))}
           </div>
         </div>
 
