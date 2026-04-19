@@ -17,7 +17,7 @@ export default function HomeDesktopLanding() {
           <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/70">
-                Free Curated Download Platform
+                FREE · OPEN SOURCE · SELF-HOSTED
               </div>
 
               <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
@@ -37,6 +37,12 @@ export default function HomeDesktopLanding() {
                   bg-blue-500/10 px-3 py-1 text-xs 
                   font-medium text-blue-400">
                   ⟨/⟩ Open Source
+                </span>
+                <span className="inline-flex items-center gap-1.5 
+                  rounded-full border border-amber-500/30 
+                  bg-amber-500/10 px-3 py-1 text-xs 
+                  font-medium text-amber-400">
+                  🏠 Self-Hosted
                 </span>
                 <span className="inline-flex items-center gap-1.5 
                   rounded-full border border-purple-500/30 

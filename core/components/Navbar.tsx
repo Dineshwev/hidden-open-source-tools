@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, User, Menu, X, ChevronDown } from "lucide-react";
 import Logo from "./Logo";
 import { useAuth } from "@/lib/AuthProvider";
+import GitHubStarButton from "./GitHubStarButton";
 
 const primaryDesktopLinks = [
   { href: "/", label: "Home" },
@@ -154,6 +155,8 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
+          <GitHubStarButton />
+          
           <motion.button
             onClick={() => setSearchOpen(!searchOpen)}
             className="rounded-full border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] p-2 text-[color:var(--nav-text)] transition-all hover:bg-[color:var(--nav-pill-hover)]"

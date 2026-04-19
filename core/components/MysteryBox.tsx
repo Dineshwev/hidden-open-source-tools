@@ -221,82 +221,98 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
       <AnimatePresence>
         {reward && !isPending && (
           <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-8 bg-black/90 backdrop-blur-2xl"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/95 backdrop-blur-3xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeModal}
           >
             <motion.div 
-              className={`relative max-w-sm w-full max-h-[90vh] overflow-hidden rounded-3xl p-8 shadow-2xl ${rarities[reward.rarity].color} ${rarities[reward.rarity].glow}`}
-              initial={{ scale: 0.7, rotateX: -20 }}
-              animate={{ scale: 1, rotateX: 0 }}
-              exit={{ scale: 0.7, rotateX: 20 }}
-              transition={{ type: 'spring', damping: 20 }}
+              className={`relative max-w-lg w-full overflow-hidden rounded-[2.5rem] border-2 border-white/20 bg-[#050505]/80 p-8 md:p-12 shadow-[0_0_100px_-20px_rgba(255,255,255,0.1)] backdrop-blur-xl group`}
+              initial={{ scale: 0.9, y: 20, rotateX: 10 }}
+              animate={{ scale: 1, y: 0, rotateX: 0 }}
+              exit={{ scale: 0.9, y: 20, rotateX: 10 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Rarity Badge */}
-              <div className="absolute top-6 right-6">
-                <motion.div 
-                  className="flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm shadow-glow"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                >
-                  {(() => {
-                    const Icon = rarities[reward.rarity].rarityIcon;
-                    return <Icon size={20} />;
-                  })()}
-                  <span>{reward.rarity.toUpperCase()}</span>
-
-                </motion.div>
-              </div>
-
-              {/* Reward Card */}
-              <div className="relative z-10 text-center">
-                <motion.div 
-                  className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-nebula-500 p-6 shadow-glow-lg"
-                  animate={{ rotateY: 360 }}
-                  transition={{ duration: 1 }}
-                >
-                  <Download className="h-12 w-12 mx-auto text-white" />
-                </motion.div>
-                
-                <h2 className="text-3xl font-bold mb-4 bg-clip-text text-transparent" style={{ WebkitBackgroundClip: 'text', backgroundImage: rarities[reward.rarity].text }}>
-                  {reward.name}
-                </h2>
-                <p className="text-lg text-white/80 mb-6 max-w-md mx-auto">{reward.description}</p>
-                
-                <div className="flex items-center justify-center gap-2 text-sm text-white/70 mb-8">
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    {reward.fileType.split(' ')[0][0]}
+              {/* Dynamic Rarity Glow - Corner Accents */}
+              <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full blur-[80px] opacity-20 transition-colors duration-1000 ${reward.rarity === 'legendary' ? 'bg-orange-500' : reward.rarity === 'epic' ? 'bg-purple-500' : 'bg-cyan-500'}`} />
+              
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Rarity Header */}
+                <div className="mb-8 flex w-full items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2 w-2 rounded-full animate-pulse ${reward.rarity === 'legendary' ? 'bg-orange-400' : reward.rarity === 'epic' ? 'bg-purple-400' : 'bg-cyan-400'}`} />
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-white/40 font-bold">System Drop</span>
                   </div>
-                  <span>{reward.fileType}</span>
-                  <span>•</span>
-                  by <span className="font-semibold text-white">{reward.creator}</span>
+                  <div className={`rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white/80 shadow-inner`}>
+                    {reward.rarity}
+                  </div>
                 </div>
 
-                <div className="flex gap-4">
+                {/* Geometric Icon Container */}
+                <div className="relative mb-10">
+                  <div className="absolute inset-0 rotate-45 rounded-3xl border border-white/10 bg-white/5 blur-sm" />
+                  <motion.div 
+                    className="relative flex h-24 w-24 items-center justify-center rounded-[2rem] border border-white/20 bg-gradient-to-br from-white/10 to-transparent shadow-2xl backdrop-blur-md"
+                    animate={{ rotateY: [0, 15, 0, -15, 0] }}
+                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                  >
+                    <Download className="h-10 w-10 text-white" />
+                  </motion.div>
+                  {/* Floating sparkles for high rarity */}
+                  {['epic', 'legendary'].includes(reward.rarity) && (
+                    <Sparkles className="absolute -right-2 -top-2 h-6 w-6 text-yellow-400 animate-pulse" />
+                  )}
+                </div>
+                
+                {/* Text Content */}
+                <div className="text-center space-y-6">
+                  <h2 className="font-display text-4xl font-bold tracking-tight text-white md:text-5xl">
+                    {reward.name}
+                  </h2>
+                  
+                  <div className="group relative mx-auto max-w-md">
+                    <div className="absolute -inset-2 rounded-2xl bg-white/5 opacity-0 blur transition-opacity group-hover:opacity-100" />
+                    <p className="relative line-clamp-4 text-center text-lg leading-relaxed text-white/60">
+                      {/* Stripping markdown-like links for a cleaner look */}
+                      {reward.description.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1').replace(/[()]/g, '')}
+                    </p>
+                  </div>
+                  
+                  {/* Origin Tag */}
+                  <div className="flex items-center justify-center gap-3 pt-4">
+                    <div className="h-px w-8 bg-white/10" />
+                    <span className="text-[11px] uppercase tracking-[0.25em] text-white/30">
+                      Authorized by <span className="text-white/70 font-bold">{reward.creator}</span>
+                    </span>
+                    <div className="h-px w-8 bg-white/10" />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-12 flex w-full flex-col gap-4 sm:flex-row">
                   <motion.button 
-                    className="flex-1 px-6 py-4 rounded-2xl bg-gradient-to-r from-nebula-500 to-aurora text-white font-semibold shadow-glow hover:shadow-glow-lg hover:scale-105 transition-all"
+                    className="flex-1 rounded-2xl bg-white py-5 font-display text-sm font-black uppercase tracking-[0.1em] text-black transition-all hover:bg-zinc-200"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleDownload}
                   >
-                    Download
+                    Download Asset
                   </motion.button>
                   <motion.button 
-                    className="px-6 py-4 rounded-2xl border border-white/30 bg-white/10 backdrop-blur-sm text-white font-semibold hover:bg-white/20 transition-all"
+                    className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-5 font-display text-sm font-black uppercase tracking-[0.1em] text-white transition-all hover:bg-white/10"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => void handleShare()}
                   >
-                    Share Reward
+                    Share
                   </motion.button>
                 </div>
               </div>
 
-              {/* Outer glow */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-radial from-white/20 to-transparent opacity-75 blur-3xl animate-pulse" />
+              {/* Decorative Scanlines */}
+              <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
             </motion.div>
           </motion.div>
         )}
