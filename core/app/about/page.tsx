@@ -146,6 +146,30 @@ export default function AboutPage() {
           They also create a stronger trust layer for search engines and returning visitors by showing that the site is maintained with clear documentation rather than only marketing copy.
         </p>
       </section>
+      <section className="rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-white/[0.05] to-transparent p-8 md:p-12">
+        <div className="flex flex-col items-center gap-8 md:flex-row">
+          <div className="relative h-24 w-24 flex-shrink-0">
+             <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 blur-lg opacity-40" />
+             <div className="relative flex h-full w-full items-center justify-center rounded-full border-2 border-white/20 bg-[#0a0a0a] text-3xl font-bold text-white shadow-2xl">
+               D
+             </div>
+          </div>
+          <div className="space-y-4 text-center md:text-left">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Founder & Maintainer</p>
+              <h2 className="mt-1 font-display text-3xl font-bold text-white">Dineshwev</h2>
+            </div>
+            <p className="max-w-xl text-sm leading-relaxed text-white/60">
+              The Cloud Rain was started as a personal mission to clean up the "Free Resource" space. I believe that being free shouldn't mean being low-quality or unsafe. Every tool added here is something I would use in my own workflow.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 md:justify-start">
+              <a href="https://github.com/Dineshwev" target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">GitHub</a>
+              <a href="https://github.com/Dineshwev/hidden-open-source-tools" target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">Project Repo</a>
+              <a href="/contact" className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-400 transition hover:bg-cyan-400/20">Contact Me</a>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
         <p className="text-xs uppercase tracking-[0.26em] text-white/45">Explore resources</p>
@@ -168,5 +192,3 @@ export default function AboutPage() {
     </div>
   );
 }
-
-

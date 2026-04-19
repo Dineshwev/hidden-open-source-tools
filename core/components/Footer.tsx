@@ -9,6 +9,7 @@ const mainLinks = [
 
 const legalLinks = [
   { href: "/about", label: "About" },
+  { href: "/security", label: "Security & Trust" },
   { href: "/ads-disclosure", label: "Ads Disclosure" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
