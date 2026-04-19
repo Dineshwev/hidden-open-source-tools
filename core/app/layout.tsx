@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/AuthProvider";
+import Script from 'next/script';
 
 const siteName = "The Cloud Rain";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
@@ -104,6 +105,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <Script
+          defer
+          data-domain="thecloudrain.site"
+          src="https://plausible.io/js/script.js"
+          strategy="afterInteractive"
         />
       </head>
       <body className="flex min-h-screen flex-col">
