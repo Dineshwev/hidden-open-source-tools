@@ -59,6 +59,12 @@ export default function ContactPage() {
           >
             X: @TheCloudRain_
           </a>
+          <a
+            href="mailto:dineshwev.tcr@gmail.com"
+            className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-400 transition hover:bg-cyan-400/20"
+          >
+            Email: dineshwev.tcr@gmail.com
+          </a>
         </div>
       </section>
 

@@ -100,7 +100,7 @@ export default function SecurityPage() {
           <h3 className="text-xl font-bold text-white">Report a Concern</h3>
           <p className="text-sm text-white/60 leading-relaxed">
             Spotted a broken link or a suspicious resource? Your reports help keep the community safe. 
-            Send a report to <span className="text-white font-medium">dineshwev@gmail.com</span> with the URL of the listing.
+            Send a report to <span className="text-white font-medium">dineshwev.tcr@gmail.com</span> with the URL of the listing.
           </p>
         </div>
       </div>
