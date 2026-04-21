@@ -5,6 +5,7 @@ import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/AuthProvider";
 import Script from 'next/script';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const siteName = "The Cloud Rain";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
@@ -119,6 +120,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ScrollProgress />
           <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10 pt-4">{children}</main>
           <Footer />
+          <SpeedInsights />
         </AuthProvider>
       </body>
     </html>
