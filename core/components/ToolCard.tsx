@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
 interface ToolCardProps {
@@ -72,7 +73,9 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
       </div>
 
       <div className="mt-4 space-y-3">
-        <h3 className="font-display text-xl text-white">{tool.title}</h3>
+        <Link href={`/free-tools/${tool.id}`} className="block">
+          <h3 className="font-display text-xl text-white hover:text-cyan-400 transition-colors cursor-pointer">{tool.title}</h3>
+        </Link>
         <p
           className="text-sm leading-6 text-white/65 line-clamp-3"
           title={tool.description || ""}

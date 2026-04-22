@@ -64,29 +64,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   let articleEntries: MetadataRoute.Sitemap = [];
+  let toolEntries: MetadataRoute.Sitemap = [];
 
   try {
     const supabase = getAdmin();
-    const { data: articles, error } = await supabase
+    
+    // Fetch Articles
+    const { data: articles } = await supabase
       .from("articles")
       .select("id, slug, published_at")
       .eq("is_published", true)
       .order("published_at", { ascending: false });
 
-    if (error) {
-      throw error;
+    if (articles) {
+      articleEntries = articles.map((art: any) => ({
+        url: `${siteUrl}/article-museum/${art.slug}`,
+        lastModified: art.published_at ? new Date(art.published_at) : staticLastModified,
+        changeFrequency: "monthly",
+        priority: 0.8
+      }));
     }
 
-    articleEntries = (articles ?? []).map((art: any) => ({
-      url: `${siteUrl}/article-museum/${art.slug}`,
-      lastModified: art.published_at ? new Date(art.published_at) : staticLastModified,
-      changeFrequency: "monthly",
-      priority: 0.8
-    }));
+    // Fetch Approved Tools
+    const { data: tools } = await supabase
+      .from("open_source_tools")
+      .select("id, scraped_at, status")
+      .or('status.eq.approved,status.is.null')
+      .order("scraped_at", { ascending: false });
+
+    if (tools) {
+      toolEntries = tools.map((tool: any) => ({
+        url: `${siteUrl}/free-tools/${tool.id}`,
+        lastModified: tool.scraped_at ? new Date(tool.scraped_at) : staticLastModified,
+        changeFrequency: "monthly",
+        priority: 0.8
+      }));
+    }
+
   } catch (error) {
-    console.error("Sitemap articles fetch failed:", error);
-    return staticEntries;
+    console.error("Sitemap fetch failed:", error);
+    // Continue with static entries if dynamic fetch fails
   }
 
-  return [...staticEntries, ...articleEntries];
+  return [...staticEntries, ...articleEntries, ...toolEntries];
 }
