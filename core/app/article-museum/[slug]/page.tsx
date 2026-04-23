@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import ArticleMuseumArticleClient from "@/components/article-museum/ArticleMuseumArticleClient";
 
@@ -126,7 +127,9 @@ export default async function ArticleMuseumSinglePage({ params }: { params: { sl
 
   return (
     <>
-      <script
+      <Script
+        id={`article-json-ld-${article.slug}`}
+        strategy="beforeInteractive"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
