@@ -22,7 +22,7 @@ type Article = {
 };
 
 const siteUrl = "https://thecloudrain.site";
-const fallbackOgImage = `${siteUrl}/og-default.png`;
+const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
 export const revalidate = 86400;
 
