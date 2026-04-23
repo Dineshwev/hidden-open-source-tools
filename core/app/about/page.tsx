@@ -21,11 +21,38 @@ export const metadata: Metadata = {
 
 const aboutSchema = {
   "@context": "https://schema.org",
-  "@type": "AboutPage",
-  name: "About The Cloud Rain",
-  url: `${siteUrl}/about`,
-  description:
-    "About The Cloud Rain and its moderation-first approach to free tools, open source software, and hidden developer resources."
+  "@graph": [
+    {
+      "@type": "AboutPage",
+      name: "About The Cloud Rain",
+      url: `${siteUrl}/about`,
+      description:
+        "About The Cloud Rain and its moderation-first approach to free tools, open source software, and hidden developer resources."
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: siteUrl
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "About",
+          item: `${siteUrl}/about`
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      name: "The Cloud Rain",
+      url: siteUrl,
+      sameAs: ["https://github.com/dineshwev", "https://x.com/TheCloudRain_"]
+    }
+  ]
 };
 
 export default function AboutPage() {

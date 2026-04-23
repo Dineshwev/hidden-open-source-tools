@@ -110,7 +110,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 border-t border-white/10 px-6 py-6 md:flex-row md:items-center">
-        <p className="text-xs text-white/45">© {new Date().getFullYear()} The Cloud Rain. All rights reserved.</p>
+        <p className="text-xs text-white/45">Copyright {new Date().getFullYear()} The Cloud Rain. All rights reserved.</p>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Fast Unlocks</span>
           <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Verified Files</span>
@@ -120,5 +120,3 @@ export default function Footer() {
     </footer>
   );
 }
-
-

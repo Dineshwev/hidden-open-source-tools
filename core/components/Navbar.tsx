@@ -13,7 +13,7 @@ const primaryDesktopLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/article-museum", label: "Article Museum", badge: "✦" }
+  { href: "/article-museum", label: "Article Museum", badge: "Featured" }
 ];
 
 const communityLinks = [
@@ -26,7 +26,7 @@ const mobileLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "Free Tools", isNew: true },
   { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/article-museum", label: "Article Museum", badge: "✦" },
+  { href: "/article-museum", label: "Article Museum", badge: "Featured" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
   { href: "/upload", label: "Upload" }
@@ -95,10 +95,11 @@ export default function Navbar() {
               >
                 <Link
                   href={href}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${active
+                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+                    active
                       ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                       : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-                    }`}
+                  }`}
                 >
                   <span>{label}</span>
                   {isNew ? (
@@ -124,10 +125,11 @@ export default function Navbar() {
           >
             <button
               type="button"
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${communityActive
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+                communityActive
                   ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                   : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-                }`}
+              }`}
             >
               <span>Community</span>
               <ChevronDown className="h-4 w-4" />
@@ -141,10 +143,11 @@ export default function Navbar() {
                   <Link
                     key={href}
                     href={href}
-                    className={`mb-1 flex items-center rounded-xl px-3 py-2 text-sm last:mb-0 ${active
+                    className={`mb-1 flex items-center rounded-xl px-3 py-2 text-sm last:mb-0 ${
+                      active
                         ? "bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                         : "text-[color:var(--nav-muted)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
-                      }`}
+                    }`}
                   >
                     {label}
                   </Link>
@@ -156,7 +159,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 md:gap-3">
           <GitHubStarButton />
-          
+
           <motion.button
             onClick={() => setSearchOpen(!searchOpen)}
             className="rounded-full border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] p-2 text-[color:var(--nav-text)] transition-all hover:bg-[color:var(--nav-pill-hover)]"
@@ -167,8 +170,6 @@ export default function Navbar() {
             <Search className="h-5 w-5" />
           </motion.button>
 
-
-          {/* Profile/Login Icon */}
           {user ? (
             <div className="relative">
               <button
@@ -186,28 +187,28 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-white/10 bg-[#0a0a0a] p-2 shadow-2xl z-50 text-white"
+                    className="absolute right-0 top-full z-50 mt-2 w-48 rounded-2xl border border-white/10 bg-[#0a0a0a] p-2 text-white shadow-2xl"
                   >
                     <Link
                       href="/dashboard"
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
                     >
-                      <span className="text-base text-white">👤</span> My Profile
+                      <span className="text-base text-white">P</span> My Profile
                     </Link>
                     <Link
                       href="/dashboard#downloads"
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
                     >
-                      <span className="text-base text-white">📥</span> Downloads
+                      <span className="text-base text-white">D</span> Downloads
                     </Link>
                     <Link
                       href="/dashboard#settings"
                       onClick={() => setProfileOpen(false)}
                       className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
                     >
-                      <span className="text-base text-white">⚙️</span> Settings
+                      <span className="text-base text-white">S</span> Settings
                     </Link>
                     <div className="my-1 h-px w-full bg-white/10" />
                     <button
@@ -218,7 +219,7 @@ export default function Navbar() {
                       }}
                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
                     >
-                      <span className="text-base text-white">🚪</span> Sign Out
+                      <span className="text-base text-white">X</span> Sign Out
                     </button>
                   </motion.div>
                 )}
@@ -251,7 +252,7 @@ export default function Navbar() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
         >
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[color:var(--nav-muted)]" />
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[color:var(--nav-muted)]" />
             <input
               type="text"
               placeholder="Search files, creators, categories..."
@@ -277,10 +278,11 @@ export default function Navbar() {
                   key={href}
                   href={href}
                   onClick={closePanels}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${active
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm ${
+                    active
                       ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                       : "border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)]"
-                    }`}
+                  }`}
                 >
                   {label}
                   {isNew ? (

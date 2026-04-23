@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-react";
 import StatGrid from "@/components/StatGrid";
 import TrendingDownloads from "@/components/TrendingDownloads";
+
 const mobileSteps = [
   {
     icon: <PlayCircle className="h-4 w-4" />,
@@ -27,7 +28,7 @@ export default function HomeMobileLanding() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_38%)]" />
         <div className="relative space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-[11px] uppercase tracking-[0.24em] text-white/65">
-            FREE · OPEN SOURCE · SELF-HOSTED
+            FREE | OPEN SOURCE | SELF-HOSTED
           </div>
 
           <div className="space-y-4">
@@ -37,29 +38,17 @@ export default function HomeMobileLanding() {
             </h1>
 
             <div className="flex flex-wrap gap-2 items-center">
-              <span className="inline-flex items-center gap-1 
-                rounded-full border border-green-500/30 
-                bg-green-500/10 px-2 py-0.5 text-[10px] 
-                font-medium text-green-400">
-                ✓ 100% Free
+              <span className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-400">
+                100% Free
               </span>
-              <span className="inline-flex items-center gap-1 
-                rounded-full border border-blue-500/30 
-                bg-blue-500/10 px-2 py-0.5 text-[10px] 
-                font-medium text-blue-400">
-                ⟨/⟩ Open Source
+              <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-[10px] font-medium text-blue-400">
+                Open Source
               </span>
-              <span className="inline-flex items-center gap-1 
-                rounded-full border border-amber-500/30 
-                bg-amber-500/10 px-2 py-0.5 text-[10px] 
-                font-medium text-amber-400">
-                🏠 Self-Hosted
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-400">
+                Self-Hosted
               </span>
-              <span className="inline-flex items-center gap-1 
-                rounded-full border border-purple-500/30 
-                bg-purple-500/10 px-2 py-0.5 text-[10px] 
-                font-medium text-purple-400">
-                ✦ No Login
+              <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-medium text-purple-400">
+                No Login
               </span>
             </div>
 

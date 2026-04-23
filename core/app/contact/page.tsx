@@ -16,15 +16,41 @@ export const metadata: Metadata = {
 
 const structuredData = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Dinesh",
-  url: siteUrl,
-  contactPoint: {
-    "@type": "ContactPoint",
-    contactType: "customer support",
-    url: `${siteUrl}/contact`
-  },
-  sameAs: ["https://github.com/dineshwev", "https://x.com/TheCloudRain_"]
+  "@graph": [
+    {
+      "@type": "ContactPage",
+      name: "Contact The Cloud Rain",
+      url: `${siteUrl}/contact`
+    },
+    {
+      "@type": "Person",
+      name: "Dinesh",
+      url: siteUrl,
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        url: `${siteUrl}/contact`
+      },
+      sameAs: ["https://github.com/dineshwev", "https://x.com/TheCloudRain_"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: siteUrl
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Contact",
+          item: `${siteUrl}/contact`
+        }
+      ]
+    }
+  ]
 };
 
 export default function ContactPage() {

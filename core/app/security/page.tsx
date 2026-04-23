@@ -1,14 +1,58 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ShieldCheck, Lock, Eye, CheckCircle, Search, AlertCircle } from "lucide-react";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export const metadata: Metadata = {
   title: "Security & Trust | The Cloud Rain",
   description: "Learn about The Cloud Rain's manual review process, security standards, and commitment to safe developer tool discovery.",
+  alternates: {
+    canonical: "/security"
+  },
+  openGraph: {
+    title: "Security & Trust | The Cloud Rain",
+    description:
+      "Learn how The Cloud Rain handles review standards, trust signals, and safer developer tool discovery.",
+    url: `${siteUrl}/security`
+  }
 };
 
 export default function SecurityPage() {
+  const securitySchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        name: "Security & Trust",
+        url: `${siteUrl}/security`,
+        description:
+          "The Cloud Rain security and trust page covering moderation standards, verification checks, and reporting guidance."
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: siteUrl
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Security & Trust",
+            item: `${siteUrl}/security`
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-20 px-6 py-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(securitySchema) }} />
+
       <div className="space-y-6 text-center">
         <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-cyan-500/10 shadow-glow mb-4">
           <ShieldCheck className="h-10 w-10 text-cyan-400" />
@@ -104,6 +148,25 @@ export default function SecurityPage() {
           </p>
         </div>
       </div>
+
+      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Related pages</p>
+        <h2 className="mt-2 text-xl text-white">Supporting trust pages</h2>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link href="/about" className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
+            About
+          </Link>
+          <Link href="/privacy" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Privacy Policy
+          </Link>
+          <Link href="/ads-disclosure" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Ads Disclosure
+          </Link>
+          <Link href="/contact" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Contact
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

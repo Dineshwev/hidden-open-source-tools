@@ -24,6 +24,39 @@ export const metadata: Metadata = {
   }
 };
 
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: siteUrl
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Weekly Roundups",
+      item: `${siteUrl}/weekly-roundups`
+    }
+  ]
+};
+
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Weekly Roundups",
+  url: `${siteUrl}/weekly-roundups`,
+  description:
+    "Editorial weekly roundups covering free developer tools, open source software, and hidden workflow picks.",
+  isPartOf: {
+    "@type": "WebSite",
+    name: "The Cloud Rain",
+    url: siteUrl
+  }
+};
+
 const roundupItems = [
   {
     href: "/weekly-roundups/2026-04-10",
@@ -45,6 +78,9 @@ const roundupItems = [
 export default function WeeklyRoundupsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
+
       <header className="space-y-3">
         <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundups</p>
         <h1 className="font-display text-3xl text-white md:text-5xl">Fresh weekly picks for developers</h1>
@@ -63,6 +99,26 @@ export default function WeeklyRoundupsPage() {
             </Link>
           </article>
         ))}
+      </section>
+
+      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-8">
+        <h2 className="text-2xl text-white">How these roundups help discovery</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/70">
+          Weekly roundups give The Cloud Rain an editorial layer on top of the main directory. They help developers
+          discover free tools, open source software, and hidden utilities through short practical summaries instead of
+          only raw listings. That makes the site more useful for comparison, recurring discovery, and intent-based browsing.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/free-tools" className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900">
+            Browse Free Tools
+          </Link>
+          <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Hidden Tools
+          </Link>
+          <Link href="/best-free-developer-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Best Free Developer Tools
+          </Link>
+        </div>
       </section>
     </div>
   );

@@ -5,6 +5,10 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "General Queries",
   description: "Anonymous questions answered publicly to help the whole community.",
+  robots: {
+    index: false,
+    follow: true
+  },
   alternates: {
     canonical: "/general-queries"
   }

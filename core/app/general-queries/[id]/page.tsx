@@ -33,6 +33,10 @@ export async function generateMetadata({ params }: ThreadPageProps): Promise<Met
   return {
     title,
     description,
+    robots: {
+      index: false,
+      follow: true
+    },
     openGraph: {
       title,
       description,

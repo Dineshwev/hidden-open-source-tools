@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, PlayCircle, Shield, TimerReset, Sparkles } from "lucide-react";
+import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-react";
 import StatGrid from "@/components/StatGrid";
 import StatsTicker from "@/components/StatsTicker";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
 import SpaceBackground from "@/components/SpaceBackground";
+
 export default function HomeDesktopLanding() {
   return (
     <>
@@ -17,45 +18,33 @@ export default function HomeDesktopLanding() {
           <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/70">
-                FREE · OPEN SOURCE · SELF-HOSTED
+                FREE | OPEN SOURCE | SELF-HOSTED
               </div>
 
               <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
-                The Ultimate Hub for 
+                The Ultimate Hub for
                 <span className="text-gradient-magic"> Premium Developer Resources</span>
               </h1>
 
               <div className="flex flex-wrap gap-3 items-center">
-                <span className="inline-flex items-center gap-1.5 
-                  rounded-full border border-green-500/30 
-                  bg-green-500/10 px-3 py-1 text-xs 
-                  font-medium text-green-400">
-                  ✓ 100% Free Forever
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
+                  100% Free Forever
                 </span>
-                <span className="inline-flex items-center gap-1.5 
-                  rounded-full border border-blue-500/30 
-                  bg-blue-500/10 px-3 py-1 text-xs 
-                  font-medium text-blue-400">
-                  ⟨/⟩ Open Source
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+                  Open Source
                 </span>
-                <span className="inline-flex items-center gap-1.5 
-                  rounded-full border border-amber-500/30 
-                  bg-amber-500/10 px-3 py-1 text-xs 
-                  font-medium text-amber-400">
-                  🏠 Self-Hosted
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
+                  Self-Hosted
                 </span>
-                <span className="inline-flex items-center gap-1.5 
-                  rounded-full border border-purple-500/30 
-                  bg-purple-500/10 px-3 py-1 text-xs 
-                  font-medium text-purple-400">
-                  ✦ No Login Required
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+                  No Login Required
                 </span>
               </div>
 
               <p className="max-w-2xl text-lg leading-relaxed text-white/72">
-                Discover and unlock free developer resources, 
-                open-source tools, UI kits, and templates. 
-                Everything is completely free — no subscriptions, 
+                Discover and unlock free developer resources,
+                open-source tools, UI kits, and templates.
+                Everything is completely free - no subscriptions,
                 no hidden fees, no credit card required.
               </p>
 
@@ -126,7 +115,7 @@ export default function HomeDesktopLanding() {
             <h2 className="mt-4 font-display text-4xl text-white">Most Downloaded This Week</h2>
             <p className="mt-4 text-white/50">Discover what other developers are using to build the next generation of web applications.</p>
           </div>
-          
+
           <TrendingDownloads />
         </section>
 

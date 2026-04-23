@@ -1,14 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { Frown } from "lucide-react";
-import SectionHeading from "@/components/SectionHeading";
 import ToolCard from "@/components/ToolCard";
 import type { PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
+import {
+  FREE_TOOLS_CATEGORY_PAGES,
+  FREE_TOOLS_PAGE_SIZE,
+  buildFreeToolsRoute,
+  getCategoryPageByCategory
+} from "./free-tools-data";
 
 type ToolsApiResponse = PaginatedResponse<ScrapedTool>;
 
@@ -20,39 +24,49 @@ type CategoryTab = {
 
 type SortOption = "newest" | "az" | "random";
 
-const LIMIT = 12;
-const FALLBACK_IMAGE =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23161616'/%3E%3Cstop offset='100%25' stop-color='%23070707'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23a7a7a7' font-family='Arial,sans-serif' font-size='34'%3ENo preview available%3C/text%3E%3C/svg%3E";
-
 const categoryTabs: CategoryTab[] = [
   { key: "all", label: "All" },
-  { key: "ui-kits", label: "🎨 UI Kits", queryValue: "ui-kit" },
-  { key: "courses", label: "📚 Courses", queryValue: "course" },
-  { key: "templates", label: "🖼️ Templates", queryValue: "template" },
-  { key: "ai-tools", label: "🤖 AI Tools", queryValue: "ai-tool" },
-  { key: "components", label: "🧩 Components", queryValue: "ui-component" },
-  { key: "other", label: "✨ Other", queryValue: "other" }
+  { key: "ui-kits", label: "UI Kits", queryValue: "ui-kit" },
+  { key: "courses", label: "Courses", queryValue: "course" },
+  { key: "templates", label: "Templates", queryValue: "template" },
+  { key: "ai-tools", label: "AI Tools", queryValue: "ai-tool" },
+  { key: "components", label: "Components", queryValue: "ui-component" },
+  { key: "other", label: "Other", queryValue: "other" }
 ];
+
+function getPaginationItems(currentPage: number, totalPages: number) {
+  if (totalPages <= 1) return [];
+
+  const pages = new Set<number>([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
+  return Array.from(pages)
+    .filter((value) => value >= 1 && value <= totalPages)
+    .sort((a, b) => a - b);
+}
 
 export default function FreeToolsPageClient({
   initialTools = [],
   initialCount = null,
-  initialTotalPages = 1
+  initialTotalPages = 1,
+  initialPage = 1,
+  initialCategory
 }: {
   initialTools?: ScrapedTool[];
   initialCount?: number | null;
   initialTotalPages?: number;
+  initialPage?: number;
+  initialCategory?: ToolCategory;
 }) {
-  const [selectedCategories, setSelectedCategories] = useState<ToolCategory[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<ToolCategory[]>(initialCategory ? [initialCategory] : []);
   const [tools, setTools] = useState<ScrapedTool[]>(initialTools);
   const [toolCount, setToolCount] = useState<number | null>(initialCount);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(initialTotalPages > 0 ? initialTotalPages : 1);
   const [loading, setLoading] = useState(initialTools.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [randomSeed, setRandomSeed] = useState(0);
+  const hasSkippedInitialFetch = useRef(false);
 
   const serverCategory = useMemo(() => {
     if (selectedCategories.length === 1) {
@@ -61,6 +75,9 @@ export default function FreeToolsPageClient({
 
     return undefined;
   }, [selectedCategories]);
+
+  const activeCategoryPage = getCategoryPageByCategory(serverCategory || null);
+  const paginationItems = getPaginationItems(page, totalPages);
 
   const visibleTools = useMemo(() => {
     const categoryFiltered = selectedCategories.length
@@ -103,7 +120,7 @@ export default function FreeToolsPageClient({
         const response = await axios.get<ToolsApiResponse>("/api/files/scraped-tools", {
           params: {
             page: targetPage,
-            limit: LIMIT,
+            limit: FREE_TOOLS_PAGE_SIZE,
             ...(serverCategory ? { category: serverCategory } : {})
           }
         });
@@ -132,6 +149,11 @@ export default function FreeToolsPageClient({
   );
 
   useEffect(() => {
+    if (!hasSkippedInitialFetch.current) {
+      hasSkippedInitialFetch.current = true;
+      return;
+    }
+
     setTools([]);
     setPage(1);
     setTotalPages(1);
@@ -206,38 +228,57 @@ export default function FreeToolsPageClient({
         <p className="text-xs uppercase tracking-[0.3em] text-white/50">Open Source Directory</p>
         <div className="mt-2 flex items-center gap-3">
           <h1 className="font-display text-4xl text-white">Free Developer Resources</h1>
-          <span
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/20
-            bg-white/5 px-3 py-1 text-xs text-white/60"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs text-white/60">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" />
             {toolCount !== null ? toolCount : "..."} tools live
           </span>
         </div>
-        <p className="mt-3 text-white/60 max-w-2xl">
-          {toolCount !== null ? `${toolCount}+` : "153+"} curated free tools, UI kits, courses & templates.
+        <p className="mt-3 max-w-2xl text-white/60">
+          {toolCount !== null ? `${toolCount}+` : "153+"} curated free tools, UI kits, courses, templates, AI tools, and components for developers.
           All completely free. No account needed to browse.
         </p>
-        
-        <div className="mt-6 flex flex-wrap gap-3 items-center">
-          <span className="inline-flex items-center gap-1.5 
-            rounded-full border border-green-500/30 
-            bg-green-500/10 px-3 py-1 text-xs 
-            font-medium text-green-400">
-            ✓ 100% Free Forever
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
+            100% Free Forever
           </span>
-          <span className="inline-flex items-center gap-1.5 
-            rounded-full border border-blue-500/30 
-            bg-blue-500/10 px-3 py-1 text-xs 
-            font-medium text-blue-400">
-            ⟨/⟩ Open Source
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+            Open Source
           </span>
-          <span className="inline-flex items-center gap-1.5 
-            rounded-full border border-purple-500/30 
-            bg-purple-500/10 px-3 py-1 text-xs 
-            font-medium text-purple-400">
-            ✦ No Login Required
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+            No Login Required
           </span>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Crawlable categories</p>
+        <h2 className="mt-2 text-xl text-white">Browse by category</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/65">
+          These category pages create stable directory routes for search engines and visitors who want to browse a narrower slice of the library.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href={buildFreeToolsRoute(null, 1)}
+            className={`rounded-full px-4 py-2 text-sm transition ${
+              !activeCategoryPage ? "bg-cyan-300 font-semibold text-slate-900" : "border border-white/20 text-white/90"
+            }`}
+          >
+            All Resources
+          </Link>
+          {FREE_TOOLS_CATEGORY_PAGES.map((entry) => (
+            <Link
+              key={entry.slug}
+              href={buildFreeToolsRoute(entry.slug, 1)}
+              className={`rounded-full px-4 py-2 text-sm transition ${
+                activeCategoryPage?.slug === entry.slug
+                  ? "bg-cyan-300 font-semibold text-slate-900"
+                  : "border border-white/20 text-white/90"
+              }`}
+            >
+              {entry.label}
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -296,9 +337,7 @@ export default function FreeToolsPageClient({
           >
             Surprise Me
           </button>
-          <p className="self-center text-xs text-white/55">
-            Tip: select multiple categories, then sort, shuffle, or surprise yourself.
-          </p>
+          <p className="self-center text-xs text-white/55">Tip: use category routes for browsing and the filters for quick on-page exploration.</p>
         </div>
       </section>
 
@@ -310,24 +349,19 @@ export default function FreeToolsPageClient({
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
         {renderSkeletons
-          ? Array.from({ length: 6 }).map((_, skeletonIdx) => (
-            <div key={`skeleton-${skeletonIdx}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
-              <div className="h-44 rounded-2xl bg-white/10" />
-              <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
-              <div className="mt-3 h-3 w-full rounded bg-white/10" />
-              <div className="mt-2 h-3 w-11/12 rounded bg-white/10" />
-              <div className="mt-2 h-3 w-2/3 rounded bg-white/10" />
-              <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
-            </div>
-          ))
+          ? Array.from({ length: FREE_TOOLS_PAGE_SIZE }).map((_, skeletonIdx) => (
+              <div key={`skeleton-${skeletonIdx}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
+                <div className="h-44 rounded-2xl bg-white/10" />
+                <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
+                <div className="mt-3 h-3 w-full rounded bg-white/10" />
+                <div className="mt-2 h-3 w-11/12 rounded bg-white/10" />
+                <div className="mt-2 h-3 w-2/3 rounded bg-white/10" />
+                <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
+              </div>
+            ))
           : visibleTools.map((tool, toolIdx) => (
-            <ToolCard
-              key={tool.id}
-              tool={tool}
-              index={toolIdx}
-              onOpen={handleOpenTool}
-            />
-          ))}
+              <ToolCard key={tool.id} tool={tool} index={toolIdx} onOpen={handleOpenTool} />
+            ))}
       </section>
 
       {!loading && visibleTools.length === 0 ? (
@@ -335,6 +369,36 @@ export default function FreeToolsPageClient({
           <Frown className="h-10 w-10 text-white/55" />
           <h3 className="font-display text-2xl text-white">No tools found</h3>
           <p className="max-w-lg text-sm text-white/60">Try another category to discover more free resources.</p>
+        </section>
+      ) : null}
+
+      {totalPages > 1 ? (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/45">Crawlable pagination</p>
+          <h3 className="mt-2 font-display text-xl text-white">Directory pages</h3>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {page > 1 ? (
+              <Link href={buildFreeToolsRoute(activeCategoryPage?.slug || null, page - 1)} className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+                Previous Page
+              </Link>
+            ) : null}
+            {paginationItems.map((pageNumber) => (
+              <Link
+                key={pageNumber}
+                href={buildFreeToolsRoute(activeCategoryPage?.slug || null, pageNumber)}
+                className={`rounded-full px-4 py-2 text-sm transition ${
+                  pageNumber === page ? "bg-cyan-300 font-semibold text-slate-900" : "border border-white/20 text-white/90"
+                }`}
+              >
+                Page {pageNumber}
+              </Link>
+            ))}
+            {page < totalPages ? (
+              <Link href={buildFreeToolsRoute(activeCategoryPage?.slug || null, page + 1)} className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+                Next Page
+              </Link>
+            ) : null}
+          </div>
         </section>
       ) : null}
 
@@ -369,4 +433,3 @@ export default function FreeToolsPageClient({
     </div>
   );
 }
-
