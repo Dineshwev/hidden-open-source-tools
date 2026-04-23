@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { ChevronLeft, Zap, BookOpen, Lightbulb, Code2, Search, Briefcase } from "lucide-react";
 
@@ -32,23 +30,6 @@ export default function ArticleMuseumArticleClient({ article }: { article: Artic
       </Link>
 
       <header className="space-y-4">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Article",
-              headline: article.title,
-              description: article.mystery_intro,
-              image: article.image_url || "",
-              datePublished: article.published_at,
-              author: {
-                "@type": "Organization",
-                name: "The Cloud Rain"
-              }
-            })
-          }}
-        />
         <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
           {article.tool_name}
         </span>

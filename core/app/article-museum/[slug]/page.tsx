@@ -21,8 +21,9 @@ type Article = {
 };
 
 const siteUrl = "https://thecloudrain.site";
+const fallbackOgImage = `${siteUrl}/og-default.png`;
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
   const supabase = getAdmin();
@@ -30,13 +31,32 @@ async function getArticleBySlug(slug: string): Promise<Article | null> {
     .from("articles")
     .select("*")
     .eq("slug", slug)
+    .eq("is_published", true)
     .single();
 
   return (article as Article | null) || null;
 }
 
+async function getPublishedArticleSlugs(): Promise<string[]> {
+  const supabase = getAdmin();
+  const { data } = await supabase
+    .from("articles")
+    .select("slug")
+    .eq("is_published", true)
+    .not("slug", "is", null);
+
+  return (Array.isArray(data) ? data : [])
+    .map((entry: any) => String(entry?.slug || "").trim())
+    .filter(Boolean);
+}
+
 function getArticleDescription(article: Article) {
   return article.mystery_intro?.slice(0, 160) || "Deep dive into open source history.";
+}
+
+export async function generateStaticParams() {
+  const slugs = await getPublishedArticleSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
@@ -53,6 +73,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   const description = getArticleDescription(article);
+  const imageUrl = article.image_url || fallbackOgImage;
 
   return {
     title: article.title,
@@ -64,7 +85,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: article.title,
       description,
       url: canonicalUrl,
-      type: "article"
+      type: "article",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630
+        }
+      ]
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description,
+      images: [imageUrl]
     }
   };
 }
@@ -76,5 +110,27 @@ export default async function ArticleMuseumSinglePage({ params }: { params: { sl
     notFound();
   }
 
-  return <ArticleMuseumArticleClient article={article} />;
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.mystery_intro,
+    image: article.image_url || fallbackOgImage,
+    datePublished: article.published_at,
+    author: {
+      "@type": "Organization",
+      name: "The Cloud Rain"
+    },
+    mainEntityOfPage: `${siteUrl}/article-museum/${article.slug}`
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <ArticleMuseumArticleClient article={article} />
+    </>
+  );
 }
