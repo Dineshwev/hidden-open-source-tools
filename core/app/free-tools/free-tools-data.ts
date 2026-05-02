@@ -135,7 +135,9 @@ export async function getFreeToolsPageData({
       throw error;
     }
 
-    const filteredRows = (Array.isArray(rows) ? rows : [])
+    const toolRows = (Array.isArray(rows) ? rows : []) as Array<{ status?: unknown }>;
+
+    const filteredRows = toolRows
       .filter((row) => isApprovedLike(row?.status))
       .map(mapOpenSourceTool)
       .filter((tool) => (category ? tool.category === category : true))

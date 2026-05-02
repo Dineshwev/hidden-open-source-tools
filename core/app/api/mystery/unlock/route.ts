@@ -55,8 +55,10 @@ export async function POST(req: Request) {
           .eq('firebase_uid', firebaseUid)
           .single();
 
-        if (supabaseUser?.id) {
-          userId = supabaseUser.id;
+        const supabaseUserId = typeof supabaseUser?.id === 'string' ? supabaseUser.id : null;
+
+        if (supabaseUserId) {
+          userId = supabaseUserId;
         } else {
           // 2. If user not found, create new user
           const { data: newUser, error: insertError } = await supabase
@@ -74,8 +76,11 @@ export async function POST(req: Request) {
             console.error('[UNLOCK] Failed to create new user:', insertError.message);
             // Fallback to anonymous on insert fail
             userId = ANON_UUID;
-          } else if (newUser?.id) {
-            userId = newUser.id;
+          } else {
+            const newUserId = typeof newUser?.id === 'string' ? newUser.id : null;
+            if (newUserId) {
+              userId = newUserId;
+            }
           }
         }
       } catch (firebaseError: any) {

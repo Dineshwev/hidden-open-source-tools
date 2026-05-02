@@ -17,6 +17,17 @@ function getPublicClient() {
   return supabasePublic;
 }
 
+function getAdminClient() {
+  if (!supabaseAdmin) {
+    throw new Error("Supabase admin client is not configured");
+  }
+
+  return supabaseAdmin;
+}
+
+type PublicClient = ReturnType<typeof getPublicClient>;
+type AdminClient = ReturnType<typeof getAdminClient>;
+
 function normalizePage(page: number) {
   return Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
 }
@@ -25,7 +36,7 @@ function normalizeLimit(limit: number) {
   return Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 10;
 }
 
-async function fetchLatestReply(client: typeof supabasePublic, messageId: string) {
+async function fetchLatestReply(client: PublicClient, messageId: string) {
   const { data, error } = await client
     .from("admin_replies")
     .select(ADMIN_REPLY_FIELDS)
@@ -59,7 +70,7 @@ async function fetchLatestReply(client: typeof supabasePublic, messageId: string
   } as AdminReply;
 }
 
-async function fetchFollowUps(client: typeof supabasePublic, parentId: string) {
+async function fetchFollowUps(client: PublicClient, parentId: string) {
   const { data, error } = await client
     .from("contact_messages")
     .select(CONTACT_MESSAGE_FIELDS)
@@ -74,7 +85,7 @@ async function fetchFollowUps(client: typeof supabasePublic, parentId: string) {
 }
 
 async function buildPublicQueryThread(
-  client: typeof supabasePublic,
+  client: PublicClient,
   message: ContactMessage,
   includeFollowUps: boolean
 ): Promise<PublicQueryThread> {
@@ -98,6 +109,7 @@ export async function sendMessage(data: {
   email?: string;
   thread_id?: string;
 }) {
+  const adminClient = getAdminClient();
   const payload = {
     message: data.message,
     mode: data.mode,
@@ -108,7 +120,7 @@ export async function sendMessage(data: {
     is_read: false
   };
 
-  const { data: insertedMessage, error } = await supabaseAdmin
+  const { data: insertedMessage, error } = await adminClient
     .from("contact_messages")
     .insert(payload)
     .select(CONTACT_MESSAGE_FIELDS)
@@ -170,7 +182,8 @@ export async function getThreadReplies(thread_id: string) {
 }
 
 export async function addReaction(reply_id: string, reaction: "helpful" | "not_helpful") {
-  const { error } = await supabaseAdmin.from("query_reactions").insert({ reply_id, reaction });
+  const adminClient = getAdminClient();
+  const { error } = await adminClient.from("query_reactions").insert({ reply_id, reaction });
 
   if (error) {
     throw error;
@@ -180,12 +193,13 @@ export async function addReaction(reply_id: string, reaction: "helpful" | "not_h
 }
 
 export async function getAllMessagesAdmin(page = 1, limit = 10) {
+  const adminClient = getAdminClient();
   const currentPage = normalizePage(page);
   const pageSize = normalizeLimit(limit);
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize - 1;
 
-  const { count, error: countError } = await supabaseAdmin
+  const { count, error: countError } = await adminClient
     .from("contact_messages")
     .select("id", { count: "exact", head: true });
 
@@ -193,7 +207,7 @@ export async function getAllMessagesAdmin(page = 1, limit = 10) {
     throw countError;
   }
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await adminClient
     .from("contact_messages")
     .select(CONTACT_MESSAGE_FIELDS)
     .order("created_at", { ascending: false })
@@ -206,7 +220,7 @@ export async function getAllMessagesAdmin(page = 1, limit = 10) {
   const messages = (data ?? []) as ContactMessage[];
 
   const { data: pagedReplies, error: repliesError } = messages.length
-    ? await supabaseAdmin
+    ? await adminClient
       .from("admin_replies")
       .select(ADMIN_REPLY_FIELDS)
       .in(
@@ -220,7 +234,7 @@ export async function getAllMessagesAdmin(page = 1, limit = 10) {
     throw repliesError;
   }
 
-  const { data: allReplies, error: allRepliesError } = await supabaseAdmin
+  const { data: allReplies, error: allRepliesError } = await adminClient
     .from("admin_replies")
     .select(ADMIN_REPLY_FIELDS)
     .order("created_at", { ascending: false });
@@ -237,7 +251,7 @@ export async function getAllMessagesAdmin(page = 1, limit = 10) {
     }
   }
 
-  const { count: unreadCount = 0 } = await supabaseAdmin
+  const { count: unreadCount = 0 } = await adminClient
     .from("contact_messages")
     .select("id", { count: "exact", head: true })
     .eq("is_read", false);
@@ -259,7 +273,9 @@ export async function getAllMessagesAdmin(page = 1, limit = 10) {
 }
 
 export async function replyToMessage(message_id: string, reply_text: string, is_public: boolean) {
-  const { data: reply, error: replyError } = await supabaseAdmin
+  const adminClient = getAdminClient();
+
+  const { data: reply, error: replyError } = await adminClient
     .from("admin_replies")
     .insert({
       message_id,
@@ -281,7 +297,7 @@ export async function replyToMessage(message_id: string, reply_text: string, is_
     updatePayload.is_private = false;
   }
 
-  const { error: messageError } = await supabaseAdmin
+  const { error: messageError } = await adminClient
     .from("contact_messages")
     .update(updatePayload)
     .eq("id", message_id);
@@ -294,7 +310,9 @@ export async function replyToMessage(message_id: string, reply_text: string, is_
 }
 
 export async function markAsRead(message_id: string) {
-  const { error } = await supabaseAdmin
+  const adminClient = getAdminClient();
+
+  const { error } = await adminClient
     .from("contact_messages")
     .update({ is_read: true })
     .eq("id", message_id);

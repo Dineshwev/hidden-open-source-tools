@@ -162,7 +162,7 @@ export default function PrivacyPage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">12. Policy Updates</h2>
           <p className="text-sm leading-relaxed">
-            We may update this policy to reflect legal, technical, or operational changes. Material updates will be published on this page with a revised "Last updated" date.
+            We may update this policy to reflect legal, technical, or operational changes. Material updates will be published on this page with a revised &quot;Last updated&quot; date.
           </p>
           <p className="text-sm leading-relaxed">
             Updates may reflect new features, changes in providers, revised compliance expectations, or improvements in how we explain our practices. Continued use of the platform after an update means the revised policy applies to future use to the extent allowed by law.

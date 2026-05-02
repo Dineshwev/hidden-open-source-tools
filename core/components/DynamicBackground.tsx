@@ -145,7 +145,7 @@ function HologramPlane() {
 
 function FloatingParticles() {
   const materialRef = useRef<any>(null);
-  const geometryRef = useRef<THREE.BufferGeometry>(null);
+  const pointsRef = useRef<THREE.Points>(null);
   const count = 1500;
 
   const positions = useMemo(() => {
@@ -169,7 +169,7 @@ function FloatingParticles() {
   });
 
   return (
-    <points ref={geometryRef}>
+    <points ref={pointsRef}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"

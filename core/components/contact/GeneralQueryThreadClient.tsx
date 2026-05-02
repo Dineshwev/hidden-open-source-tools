@@ -253,7 +253,7 @@ export default function GeneralQueryThreadClient({ threadId }: { threadId: strin
                         </p>
                         <button
                           type="button"
-                          onClick={() => onHelpful(item.reply?.id || "")}
+                          onClick={() => handleHelpful(item.reply?.id || "")}
                           className={`mt-4 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${helpfulIds.includes(item.reply.id)
                             ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
                             : "border-white/10 bg-white/[0.04] text-white/75 hover:bg-white/[0.07]"

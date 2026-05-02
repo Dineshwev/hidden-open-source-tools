@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import * as adminService from "@/lib/services/admin.service.js";
 import { getServerUser, errorResponse } from "@/lib/utils/authHelper";
-import { getAdmin } from "@/lib/backend_lib/supabase-server.ts";
+import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import {
   ADMIN_SESSION_COOKIE,
   getConfiguredAdminSecret,
@@ -67,7 +67,16 @@ export async function PATCH(req: Request, { params }: RouteContext) {
         );
       }
 
-      adminId = fallbackAdmin.id;
+      const fallbackAdminId = typeof fallbackAdmin.id === "string" ? fallbackAdmin.id : null;
+
+      if (!fallbackAdminId) {
+        return NextResponse.json(
+          { error: "Admin account is missing a valid string ID." },
+          { status: 503 }
+        );
+      }
+
+      adminId = fallbackAdminId;
     }
 
     const body = await req.json().catch(() => ({}));

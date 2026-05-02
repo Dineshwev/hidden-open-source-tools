@@ -74,7 +74,7 @@ export default function AdsDisclosurePage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">How sponsor content is labeled</h2>
           <p className="mt-3 text-sm">
-            We aim to label paid placements with terms like "Sponsored," "Ad," or equivalent visual cues so users can distinguish promotional content from editorial and community listings.
+            We aim to label paid placements with terms like &quot;Sponsored,&quot; &quot;Ad,&quot; or equivalent visual cues so users can distinguish promotional content from editorial and community listings.
           </p>
         </section>
 

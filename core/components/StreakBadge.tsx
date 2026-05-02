@@ -58,7 +58,7 @@ export default function StreakBadge({
           size={size === 'lg' ? 20 : size === 'md' ? 16 : 12}
         />
         {/* Flame glow */}
-        <div 
+        <motion.div
           className="absolute inset-0 rounded-full blur-xl opacity-60"
           style={{ backgroundColor: color }}
           animate={animateFlame ? { scale: [1, 1.3, 1] } : {}}

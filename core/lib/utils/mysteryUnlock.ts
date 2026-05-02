@@ -40,7 +40,7 @@ const LOOT_TABLE: ReadonlyArray<{ rarity: Rarity; weight: number }> = [
 ];
 
 function normalizeUnlockContext(input: UnlockInput): { userXP: number; keyType: KeyType | null } {
-  if ("userXP" in input) {
+  if (typeof input.userXP === "number") {
     return {
       userXP: input.userXP,
       keyType: null

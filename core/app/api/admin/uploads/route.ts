@@ -7,7 +7,7 @@ import {
   getSupabaseConfigDiagnostics,
   hasSupabaseConfig
 } from "@/lib/backend_lib/supabase.js";
-import { getAdmin } from "@/lib/backend_lib/supabase-server.ts";
+import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import * as fileService from "@/lib/services/file.service.js";
 import { errorResponse } from "@/lib/utils/authHelper";
 import {

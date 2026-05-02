@@ -1,7 +1,7 @@
 type SectionHeadingProps = {
   eyebrow: string;
   title: string;
-  description: string;
+  description: React.ReactNode;
 };
 
 export default function SectionHeading({ eyebrow, title, description }: SectionHeadingProps) {

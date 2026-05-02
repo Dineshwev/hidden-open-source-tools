@@ -54,7 +54,7 @@ export default function TermsPage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">1. Agreement to Terms</h2>
           <p className="text-sm leading-relaxed">
-            By using The Cloud Rain ("the platform", "we", "us", or "our"), you agree to these Terms. If you do not agree, do not use the platform. We may update these Terms from time to time and will update the date on this page.
+            By using The Cloud Rain (&quot;the platform&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), you agree to these Terms. If you do not agree, do not use the platform. We may update these Terms from time to time and will update the date on this page.
           </p>
           <p className="text-sm leading-relaxed">
             These Terms apply to visitors, registered users, contributors, uploaders, and anyone using platform features or interacting with site content. More specific policies may apply to certain situations, but these Terms remain the general baseline for using the service.
@@ -88,7 +88,7 @@ export default function TermsPage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">4. Disclaimers and Limitations of Liability</h2>
           <p className="text-sm leading-relaxed">
-            THE CLOUD RAIN IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. We cannot guarantee that every third-party upload is safe, accurate, or suitable for your use case. Please review and test resources before using them in production.
+            THE CLOUD RAIN IS PROVIDED ON AN &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; BASIS. We cannot guarantee that every third-party upload is safe, accurate, or suitable for your use case. Please review and test resources before using them in production.
           </p>
           <p className="text-sm leading-relaxed">
             To the extent allowed by law, The Cloud Rain and its operators are not liable for indirect or consequential damages arising from your use of the platform or listed resources.

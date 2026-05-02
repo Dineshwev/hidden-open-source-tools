@@ -19,10 +19,12 @@ export async function GET(request: Request, { params }: { params: { slug: string
 
     // Increment views (naively using update)
     if (article) {
+      const articleRow = article as { id: string; views?: number | null };
+
       await supabase
         .from("articles")
-        .update({ views: (article.views || 0) + 1 })
-        .eq("id", article.id);
+        .update({ views: (articleRow.views || 0) + 1 })
+        .eq("id", articleRow.id);
     }
 
     return NextResponse.json({ success: true, data: article });

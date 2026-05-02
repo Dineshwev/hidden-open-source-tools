@@ -258,7 +258,7 @@ export default function ScrapedToolsAdminPanel() {
     ];
   }, [tools]);
 
-  const categoryTabs = useMemo(() => {
+  const categoryTabs = useMemo<Array<{ key: ToolCategory | "all"; label: string; count: number }>>(() => {
     const categoryMap = new Map<string, number>();
 
     for (const tool of tools) {

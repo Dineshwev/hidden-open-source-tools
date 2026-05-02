@@ -44,7 +44,7 @@ export default function WeeklyRoundup20260327Page() {
       <header className="space-y-3">
         <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundup</p>
         <h1 className="font-display text-3xl text-white md:text-5xl">March 27, 2026: Best free tools this week</h1>
-        <p className="text-white/70">Highlights from this week's free software and open source discoveries for practical development teams.</p>
+        <p className="text-white/70">Highlights from this week&apos;s free software and open source discoveries for practical development teams.</p>
       </header>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-white/70">

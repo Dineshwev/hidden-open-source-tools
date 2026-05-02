@@ -22,6 +22,17 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+type ArticleRow = {
+  id: string;
+  slug: string;
+  tool_name?: string | null;
+  published_at?: string | null;
+  read_time?: string | null;
+  title?: string | null;
+  mystery_intro?: string | null;
+  tags?: string[] | null;
+};
+
 export default async function ArticleMuseumPage() {
   const supabase = getAdmin();
   
@@ -31,6 +42,8 @@ export default async function ArticleMuseumPage() {
     .select("*")
     .eq("is_published", true)
     .order("published_at", { ascending: false });
+
+  const articleRows = (articles || []) as ArticleRow[];
 
   return (
     <div className="space-y-10 md:space-y-14">
@@ -53,13 +66,13 @@ export default async function ArticleMuseumPage() {
       ) : null}
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {!articles || articles.length === 0 ? (
+        {!articleRows.length ? (
           <div className="col-span-1 md:col-span-2 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-10 text-center">
             <h2 className="font-display text-xl text-white">First article coming soon...</h2>
             <p className="mt-2 text-white/50">Stay tuned for deep dives into open-source history.</p>
           </div>
         ) : (
-          articles.map((article) => (
+          articleRows.map((article) => (
             <div
               key={article.id}
               className="glass-panel flex flex-col justify-between rounded-[1.5rem] border border-white/10 p-6 transition-colors hover:border-white/20"

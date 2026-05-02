@@ -77,14 +77,14 @@ export default function LicensePage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">3. Commercial Reuse and Whitelabeling</h2>
           <p className="text-sm leading-relaxed">
-            You may not scrape, frame, or repackage The Cloud Rain's user interface, databases, or moderation queues to build a competing product. Direct syndication of our free tool feeds requires a partnership agreement and access to a sanctioned API key. Modifying or stripping our branding to sell access to free tools is strictly forbidden.
+            You may not scrape, frame, or repackage The Cloud Rain&apos;s user interface, databases, or moderation queues to build a competing product. Direct syndication of our free tool feeds requires a partnership agreement and access to a sanctioned API key. Modifying or stripping our branding to sell access to free tools is strictly forbidden.
           </p>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">4. Trademarks & Brand Guidelines</h2>
           <p className="text-sm leading-relaxed">
-            The name "The Cloud Rain," "Cloud Rain," and all associated logos, color palettes, and typographic locked designs are trademarks of the platform. You may use our logo exclusively for the purpose of backlinking to our site or providing proper attribution in community circles.
+            The name &quot;The Cloud Rain,&quot; &quot;Cloud Rain,&quot; and all associated logos, color palettes, and typographic locked designs are trademarks of the platform. You may use our logo exclusively for the purpose of backlinking to our site or providing proper attribution in community circles.
           </p>
         </section>
 

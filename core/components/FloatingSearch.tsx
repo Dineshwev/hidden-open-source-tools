@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight, User, Download, Star } from 'lucide-react';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 interface SearchResult {
   id: string;
@@ -30,37 +29,53 @@ export default function FloatingSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Hotkey to open search
-  useHotkeys('/', () => {
-    setIsOpen(true);
-    setQuery('');
-    setSelectedIndex(0);
-  }, { preventDefault: true });
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName;
+      const isTypingField =
+        tagName === 'INPUT' ||
+        tagName === 'TEXTAREA' ||
+        target?.isContentEditable;
 
-  // Close on Escape
-  useHotkeys('Escape', () => {
-    setIsOpen(false);
-    setQuery('');
-  }, { enabled: isOpen });
+      if (event.key === '/' && !isTypingField) {
+        event.preventDefault();
+        setIsOpen(true);
+        setQuery('');
+        setSelectedIndex(0);
+        return;
+      }
 
-  // Keyboard navigation
-  useHotkeys('ArrowDown', () => {
-    if (isOpen && results.length > 0) {
-      setSelectedIndex((prev) => (prev + 1) % results.length);
+      if (!isOpen) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        setQuery('');
+        return;
+      }
+
+      if (event.key === 'ArrowDown' && results.length > 0) {
+        event.preventDefault();
+        setSelectedIndex((prev) => (prev + 1) % results.length);
+        return;
+      }
+
+      if (event.key === 'ArrowUp' && results.length > 0) {
+        event.preventDefault();
+        setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
+        return;
+      }
+
+      if (event.key === 'Enter' && results.length > 0) {
+        window.location.href = results[selectedIndex].href;
+      }
     }
-  }, { enabled: isOpen });
 
-  useHotkeys('ArrowUp', () => {
-    if (isOpen && results.length > 0) {
-      setSelectedIndex((prev) => (prev - 1 + results.length) % results.length);
-    }
-  }, { enabled: isOpen });
-
-  useHotkeys('Enter', () => {
-    if (isOpen && results.length > 0) {
-      window.location.href = results[selectedIndex].href;
-    }
-  }, { enabled: isOpen });
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, results, selectedIndex]);
 
   // Search logic
   useEffect(() => {
