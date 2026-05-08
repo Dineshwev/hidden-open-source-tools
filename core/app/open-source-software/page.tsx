@@ -4,23 +4,21 @@ import Link from "next/link";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export const metadata: Metadata = {
-  title: "Open Source Software Directory for Developers",
+  title: "Self-Hosted Open Source Software Alternatives for Teams",
   description:
-    "Browse curated open source software, free tools, and practical developer resources on The Cloud Rain. Discover trusted projects for web, AI, and productivity.",
+    "Browse curated self-hosted and open-source tools for developers, DevOps teams, and indie hackers comparing lightweight SaaS alternatives.",
   keywords: [
-    "open source software",
-    "open source tools",
-    "best open source software",
-    "developer tools",
-    "free open source projects"
+    "self-hosted software",
+    "open source SaaS alternatives",
+    "lightweight developer tools"
   ],
   alternates: {
     canonical: "/open-source-software"
   },
   openGraph: {
-    title: "Open Source Software Directory for Developers",
+    title: "Self-Hosted Open Source Software Alternatives for Teams",
     description:
-      "Discover curated open source software and free developer tools in one searchable resource hub.",
+      "Browse curated self-hosted and open-source tools for developers, DevOps teams, and indie hackers comparing lightweight SaaS alternatives.",
     url: `${siteUrl}/open-source-software`
   }
 };
@@ -29,12 +27,12 @@ const faqItems = [
   {
     question: "What is the best way to find open source software for developers?",
     answer:
-      "Start with curated lists that filter by use-case and quality. The Cloud Rain helps developers discover practical open source software and free tools without sorting through noisy directories."
+      "Start with curated lists that filter by use case, deployment model, and maintenance signals. The Cloud Rain helps developers compare practical open-source software without sorting through noisy directories."
   },
   {
-    question: "Are the tools on The Cloud Rain free to use?",
+    question: "Can these tools reduce SaaS costs?",
     answer:
-      "Most tools highlighted in the open source and free tools sections are free to use, with licensing determined by each project. Always review each tool's license before using it in production."
+      "Many projects listed here can replace paid SaaS workflows when your team is comfortable hosting, maintaining, or integrating open-source software."
   },
   {
     question: "How often are open source software resources updated?",
@@ -42,9 +40,9 @@ const faqItems = [
       "New tools and resources are added regularly, and moderation helps keep the directory useful, relevant, and safe for developers."
   },
   {
-    question: "Where can I discover hidden or underrated developer tools?",
+    question: "Where can I discover lesser-known developer tools?",
     answer:
-      "You can explore hidden and underrated options through the Hidden Tools and Mystery Box sections, which surface less obvious tools with practical developer value."
+      "You can explore focused developer utilities and randomized discovery pages that surface less obvious tools with practical value."
   }
 ];
 
@@ -87,10 +85,10 @@ export default function OpenSourceSoftwarePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <header className="space-y-3">
-        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Open Source Software</p>
-        <h1 className="font-display text-3xl text-white md:text-5xl">Curated open source software and free tools</h1>
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Open Source Alternatives</p>
+        <h1 className="font-display text-3xl text-white md:text-5xl">Self-hosted open-source software alternatives</h1>
         <p className="max-w-3xl text-white/70">
-          The Cloud Rain curates open source software and free developer tools so you can discover useful projects faster, with less noise.
+          The Cloud Rain curates open-source tools for developers, DevOps engineers, self-hosters, and indie hackers evaluating lightweight alternatives to expensive SaaS platforms.
         </p>
       </header>
 
@@ -113,13 +111,13 @@ export default function OpenSourceSoftwarePage() {
         <h2 className="text-2xl text-white">Start exploring now</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/free-tools" className="rounded-full bg-cyan-300 px-5 py-2 text-sm font-semibold text-slate-900">
-            Browse Free Tools
+            Browse No-Cost Resources
           </Link>
           <Link href="/mystery-box" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">
-            Explore Hidden Tools
+            Try Random Tool Finder
           </Link>
           <Link href="/best-free-developer-tools" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">
-            Compare Best Free Tools
+            Compare Developer Tools
           </Link>
         </div>
       </section>

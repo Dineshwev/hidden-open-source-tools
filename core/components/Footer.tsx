@@ -3,7 +3,7 @@ import Logo from "./Logo";
 
 const mainLinks = [
   { href: "/", label: "Home" },
-  { href: "/mystery-box", label: "Mystery Box" },
+  { href: "/mystery-box", label: "Random Tool Finder" },
   { href: "/upload", label: "Upload" }
 ];
 
@@ -20,11 +20,12 @@ const legalLinks = [
 ];
 
 const seoLinks = [
-  { href: "/best-free-developer-tools", label: "Best Free Developer Tools" },
-  { href: "/weekly-roundups", label: "Weekly Roundups" },
-  { href: "/open-source-software", label: "Open Source Software" },
-  { href: "/hidden-tools", label: "Hidden Tools" },
-  { href: "/free-tools", label: "Free Tools" }
+  { href: "/best-free-developer-tools", label: "Developer Tool Comparisons" },
+  { href: "/weekly-roundups", label: "Weekly Tool Briefs" },
+  { href: "/open-source-software", label: "Open Source Alternatives" },
+  { href: "/hidden-tools", label: "Developer Utilities" },
+  { href: "/free-tools", label: "No-Cost Resources" },
+  { href: "/article-museum", label: "Tool Deep Dives" }
 ];
 
 const socialLinks = [
@@ -42,11 +43,11 @@ export default function Footer() {
             The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">
-            A free download platform built with clear disclosures, moderation controls, and legal pages that make the product feel like a real company.
+            A curated resource hub for lightweight open-source tools, self-hosted software, and practical SaaS alternatives for developers.
           </p>
           <div className="rounded-2xl border border-white/15 bg-white/[0.03] p-4">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Company Standard</p>
-            <p className="mt-2 text-sm text-white/70">Every unlock flow is transparent, moderated, and designed to avoid unnecessary user frustration.</p>
+            <p className="mt-2 text-sm text-white/70">Every discovery flow is transparent, moderated, and designed around useful developer evaluation.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             {socialLinks.map((link) => (

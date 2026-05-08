@@ -11,9 +11,9 @@ import GitHubStarButton from "./GitHubStarButton";
 
 const primaryDesktopLinks = [
   { href: "/", label: "Home" },
-  { href: "/free-tools", label: "Free Tools", isNew: true },
-  { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/article-museum", label: "Article Museum", badge: "Featured" }
+  { href: "/free-tools", label: "No-Cost Resources", isNew: true },
+  { href: "/mystery-box", label: "Random Tool Finder" },
+  { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" }
 ];
 
 const communityLinks = [
@@ -24,9 +24,11 @@ const communityLinks = [
 
 const mobileLinks = [
   { href: "/", label: "Home" },
-  { href: "/free-tools", label: "Free Tools", isNew: true },
-  { href: "/mystery-box", label: "Mystery Box" },
-  { href: "/article-museum", label: "Article Museum", badge: "Featured" },
+  { href: "/free-tools", label: "No-Cost Resources", isNew: true },
+  { href: "/mystery-box", label: "Random Tool Finder" },
+  { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
+  { href: "/weekly-roundups", label: "Weekly Tool Briefs" },
+  { href: "/hidden-tools", label: "Developer Utilities" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
   { href: "/upload", label: "Upload" }

@@ -4,41 +4,45 @@ import Link from "next/link";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export const metadata: Metadata = {
-  title: "Hidden Tools and Underrated Software for Developers",
+  title: "Lesser-Known Developer Utilities and SaaS Alternatives",
   description:
-    "Find hidden tools, underrated software, and lesser-known developer resources on The Cloud Rain. Discover practical free tools and open source gems.",
-  keywords: ["hidden tools", "underrated software", "developer hidden gems", "free hidden tools"],
+    "Find lesser-known developer utilities, open-source projects, and lightweight SaaS alternatives curated for practical engineering workflows.",
+  keywords: [
+    "developer utilities",
+    "lesser-known open source tools",
+    "SaaS alternatives for developers"
+  ],
   alternates: {
     canonical: "/hidden-tools"
   },
   openGraph: {
-    title: "Hidden Tools and Underrated Software for Developers",
+    title: "Lesser-Known Developer Utilities and SaaS Alternatives",
     description:
-      "Discover hidden and underrated tools for developers, including open source and free productivity resources.",
+      "Find lesser-known developer utilities, open-source projects, and lightweight SaaS alternatives curated for practical engineering workflows.",
     url: `${siteUrl}/hidden-tools`
   }
 };
 
 const faqItems = [
   {
-    question: "What are hidden tools for developers?",
+    question: "What are lesser-known developer utilities?",
     answer:
-      "Hidden tools are useful software projects that are less marketed or less known, but still solve real development workflow problems effectively."
+      "They are useful software projects that are not heavily marketed, but still solve real development, DevOps, automation, or self-hosting workflow problems effectively."
   },
   {
     question: "How can I find underrated software that is still reliable?",
     answer:
-      "Look for curated collections, active repositories, clear documentation, and community feedback. The Cloud Rain moderation flow helps surface reliable hidden tools."
+      "Look for curated collections, active repositories, clear documentation, and community feedback. The Cloud Rain moderation flow helps surface reliable developer utilities."
   },
   {
-    question: "Are hidden tools usually free or open source?",
+    question: "Are these utilities open source?",
     answer:
-      "Many hidden tools are free or open source, though some include paid tiers. Always check licensing and usage terms before integrating into your stack."
+      "Many listed utilities are open source or offer no-cost usage, though some include paid tiers. Always check licensing and usage terms before integrating into your stack."
   },
   {
-    question: "Where should I start if I want hidden tools and free alternatives?",
+    question: "Where should I start if I want SaaS alternatives?",
     answer:
-      "Start with the Hidden Tools page, then expand into the Open Source Software directory and Free Tools section for related alternatives."
+      "Start with the Developer Utilities page, then expand into Open Source Alternatives and No-Cost Resources for related projects."
   }
 ];
 
@@ -68,7 +72,7 @@ const breadcrumbSchema = {
     {
       "@type": "ListItem",
       position: 2,
-      name: "Hidden Tools",
+      name: "Developer Utilities",
       item: `${siteUrl}/hidden-tools`
     }
   ]
@@ -81,16 +85,16 @@ export default function HiddenToolsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <header className="space-y-3">
-        <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-200/80">Hidden Tools</p>
-        <h1 className="font-display text-3xl text-white md:text-5xl">Hidden tools worth adding to your workflow</h1>
+        <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-200/80">Developer Utilities</p>
+        <h1 className="font-display text-3xl text-white md:text-5xl">Lesser-known developer utilities for practical workflows</h1>
         <p className="max-w-3xl text-white/70">
-          This page highlights lesser-known tools and curated discoveries from The Cloud Rain so developers can find practical options beyond mainstream lists.
+          This page highlights lesser-known open-source utilities and SaaS alternatives so developers can find practical options beyond mainstream lists.
         </p>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2">
         <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-          <h2 className="text-lg text-white">Why hidden tools matter</h2>
+          <h2 className="text-lg text-white">Why focused utilities matter</h2>
           <p className="mt-2 text-sm text-white/65">
             Many of the best tools are not heavily marketed. Curated discovery helps you find real value earlier.
           </p>
@@ -98,7 +102,7 @@ export default function HiddenToolsPage() {
         <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-lg text-white">What you can find here</h2>
           <p className="mt-2 text-sm text-white/65">
-            Open source projects, free developer resources, and utility tools that solve specific workflow problems.
+            Open-source projects, no-cost developer resources, and utility tools that solve specific workflow problems.
           </p>
         </article>
       </section>
@@ -107,19 +111,19 @@ export default function HiddenToolsPage() {
         <h2 className="text-2xl text-white">Continue with curated discovery</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/mystery-box" className="rounded-full bg-fuchsia-300 px-5 py-2 text-sm font-semibold text-slate-900">
-            Open Mystery Box
+            Try Random Tool Finder
           </Link>
           <Link href="/open-source-software" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">
             Open Source Directory
           </Link>
           <Link href="/best-free-developer-tools" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">
-            Compare Best Free Tools
+            Compare Developer Tools
           </Link>
         </div>
       </section>
 
       <section className="space-y-4 rounded-[2rem] border border-white/10 bg-white/[0.03] p-8">
-        <h2 className="text-2xl text-white">Hidden Tools FAQ</h2>
+        <h2 className="text-2xl text-white">Developer Utilities FAQ</h2>
         <div className="space-y-4">
           {faqItems.map((item) => (
             <article key={item.question} className="rounded-2xl border border-white/10 bg-black/20 p-5">

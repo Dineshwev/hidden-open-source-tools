@@ -7,14 +7,14 @@ const pagePath = "/weekly-roundups/2026-04-10";
 export const metadata: Metadata = {
   title: "Weekly Developer Tools Roundup - April 10, 2026",
   description:
-    "This week's curated roundup of free developer tools, open source software, and hidden workflow gems.",
+    "This week's curated roundup of open-source developer tools, self-hosted software, and practical workflow utilities.",
   alternates: {
     canonical: pagePath
   },
   openGraph: {
     title: "Weekly Developer Tools Roundup - April 10, 2026",
     description:
-      "Curated weekly picks: free tools, open source software, and hidden gems for practical development workflows.",
+      "Curated weekly picks: open-source software, no-cost resources, and practical development workflow utilities.",
     url: `${siteUrl}${pagePath}`
   }
 };
@@ -25,7 +25,7 @@ const picks = [
     note: "Strong for teams needing self-hosted project and code collaboration workflows."
   },
   {
-    title: "Free SSL and security validators",
+    title: "No-cost SSL and security validators",
     note: "Useful for deployment checks, certificate monitoring, and basic security hygiene."
   },
   {
@@ -59,7 +59,7 @@ export default function WeeklyRoundup20260410Page() {
 
       <header className="space-y-3">
         <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundup</p>
-        <h1 className="font-display text-3xl text-white md:text-5xl">April 10, 2026: Free tools and open source picks</h1>
+        <h1 className="font-display text-3xl text-white md:text-5xl">April 10, 2026: Open-source tool picks</h1>
         <p className="text-white/70">A practical weekly shortlist of useful software discoveries for developers.</p>
       </header>
 
@@ -73,9 +73,9 @@ export default function WeeklyRoundup20260410Page() {
       </section>
 
       <div className="flex flex-wrap gap-3">
-        <Link href="/free-tools" className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900">Browse Free Tools</Link>
-        <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">Open Source Software</Link>
-        <Link href="/weekly-roundups" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">All Weekly Roundups</Link>
+        <Link href="/free-tools" className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900">Browse No-Cost Resources</Link>
+        <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">Open Source Alternatives</Link>
+        <Link href="/weekly-roundups" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">All Weekly Briefs</Link>
       </div>
     </div>
   );

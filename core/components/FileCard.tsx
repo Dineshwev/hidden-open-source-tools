@@ -25,7 +25,7 @@ export default function FileCard({
   description,
   category,
   status = "Verified",
-  hint = "Contains: premium asset drop",
+  hint = "Contains: reviewed developer resource",
   mystery = false,
   previewLabel
 }: FileCardProps) {
@@ -67,7 +67,7 @@ export default function FileCard({
               <div className="absolute inset-x-6 top-6 h-14 rounded-full bg-nebula-400/20 blur-2xl" />
               <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">Mystery Asset</p>
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">Discovery Asset</p>
                   <p className="mt-2 font-display text-xl text-white/85">{previewLabel ?? "Encrypted Preview"}</p>
                 </div>
                 <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/65">sealed</div>

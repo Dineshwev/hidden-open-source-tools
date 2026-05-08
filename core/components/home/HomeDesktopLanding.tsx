@@ -18,17 +18,17 @@ export default function HomeDesktopLanding() {
           <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/70">
-                FREE | OPEN SOURCE | SELF-HOSTED
+                OPEN SOURCE | SELF-HOSTED | SAAS ALTERNATIVES
               </div>
 
               <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
-                The Ultimate Hub for
-                <span className="text-gradient-magic"> Premium Developer Resources</span>
+                Open-source SaaS alternatives for
+                <span className="text-gradient-magic"> practical developer workflows</span>
               </h1>
 
               <div className="flex flex-wrap gap-3 items-center">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
-                  100% Free Forever
+                  No-Cost Options
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
                   Open Source
@@ -42,21 +42,19 @@ export default function HomeDesktopLanding() {
               </div>
 
               <p className="max-w-2xl text-lg leading-relaxed text-white/72">
-                Discover and unlock free developer resources,
-                open-source tools, UI kits, and templates.
-                Everything is completely free - no subscriptions,
-                no hidden fees, no credit card required.
+                Discover lightweight open-source tools, self-hosted software,
+                UI kits, and templates for reducing SaaS costs without adding noise to your stack.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
                 <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base px-8 py-4">
-                  Open Mystery Box <Sparkles className="h-4 w-4" />
+                  Try Random Tool Finder <Sparkles className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/free-tools"
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Explore Free Tools <ArrowRight className="h-4 w-4" />
+                  Browse No-Cost Resources <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
 
@@ -67,7 +65,7 @@ export default function HomeDesktopLanding() {
                 </div>
                 <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
                   <p className="font-display text-2xl text-white">Daily</p>
-                  New Mystery Drops
+                  New Tool Picks
                 </div>
                 <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
                   <p className="font-display text-2xl text-white">Verified</p>
@@ -82,8 +80,8 @@ export default function HomeDesktopLanding() {
                 {[
                   {
                     icon: <Sparkles className="h-5 w-5 text-yellow-400" />,
-                    title: "Legendary Reward Unlocked",
-                    text: "A user just unlocked a Premium Next.js Dashboard Template!"
+                    title: "Developer Resource Reviewed",
+                    text: "A new Next.js dashboard template was added after moderation."
                   },
                   {
                     icon: <Shield className="h-5 w-5 text-blue-400" />,
@@ -129,8 +127,8 @@ export default function HomeDesktopLanding() {
           <div className="grid gap-5 md:grid-cols-3">
             {[
               {
-                title: "Zero Subscriptions",
-                desc: "Get access to high-value assets securely and without any monthly fees."
+                title: "Reduce SaaS Spend",
+                desc: "Evaluate open-source and self-hosted alternatives before adding another monthly subscription."
               },
               {
                 title: "Fast Discovery",
@@ -177,17 +175,17 @@ export default function HomeDesktopLanding() {
             <p className="text-xs uppercase tracking-[0.3em] text-white/60">Join The Community</p>
             <h2 className="mt-3 font-display text-4xl text-white md:text-6xl">Ready to upgrade your workflow?</h2>
             <p className="mt-6 text-xl text-white/70">
-              Start your journey with a daily mystery box unlock and discover the best resources for your next big project.
+              Start with randomized discovery or browse the directory to evaluate practical tools for your next project.
             </p>
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-lg px-10 py-5">
-                Start Mystery Unlock <Sparkles className="h-5 w-5" />
+                Try Random Tool Finder <Sparkles className="h-5 w-5" />
               </Link>
               <Link
                 href="/register"
                 className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-8 py-5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                Create Free Account <ArrowRight className="h-4 w-4" />
+                Create Account <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>

@@ -166,7 +166,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
     const shareUrl = reward.downloadUrl || window.location.href;
     const payload = {
       title: reward.name,
-      text: `I unlocked ${reward.name} on The Cloud Rain`,
+      text: `I found ${reward.name} on The Cloud Rain`,
       url: shareUrl
     };
 
@@ -198,12 +198,12 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
           
           <div className="mt-8 text-center space-y-2">
             <h3 className="text-2xl font-display text-white">
-              {isOpening ? "Unlocking Your Reward..." : "Mystery Reward Box"}
+              {isOpening ? "Preparing Your Resource..." : "Mystery Reward Box"}
             </h3>
             <p className="text-white/60 max-w-xs mx-auto text-sm">
               {hasInventory === null 
                 ? "Verifying inventory availability..." 
-                : "Unlock randomized premium developer tools and resources every day."}
+                : "Surface randomized developer tools and resources through the Mystery Box experience."}
             </p>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
                 <div className="mb-8 flex w-full items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className={`h-2 w-2 rounded-full animate-pulse ${reward.rarity === 'legendary' ? 'bg-orange-400' : reward.rarity === 'epic' ? 'bg-purple-400' : 'bg-cyan-400'}`} />
-                    <span className="text-[10px] uppercase tracking-[0.4em] text-white/40 font-bold">System Drop</span>
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-white/40 font-bold">System Pick</span>
                   </div>
                   <div className={`rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white/80 shadow-inner`}>
                     {reward.rarity}

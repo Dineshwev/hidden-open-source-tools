@@ -53,6 +53,7 @@ function normalizeStatus(value: unknown): ToolStatus {
 function mapDbTool(row: any): ScrapedTool {
   return {
     id: String(row?.id || ""),
+    slug: row?.slug ? String(row.slug) : null,
     title: String(row?.title || "Untitled"),
     description: row?.description ?? null,
     image_url: row?.image_url ?? null,
@@ -80,6 +81,7 @@ function mapOpenSourceTool(row: any): ScrapedTool {
 
   return {
     id: `${OPEN_SOURCE_ID_PREFIX}${rawId}`,
+    slug: row?.slug ? String(row.slug) : null,
     title: fallbackTitle || "Untitled",
     description: row?.description ?? null,
     image_url: row?.image_url ?? row?.image ?? null,

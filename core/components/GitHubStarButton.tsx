@@ -11,14 +11,12 @@ export default function GitHubStarButton() {
   useEffect(() => {
     async function fetchStars() {
       try {
-        const res = await fetch("https://api.github.com/repos/Dineshwev/hidden-open-source-tools", {
-          next: { revalidate: 3600 }
-        } as any);
+        const res = await fetch("/api/github-stars?repo=Dineshwev/hidden-open-source-tools");
         
         if (!res.ok) throw new Error("Failed to fetch");
         
         const data = await res.json();
-        setStars(data.stargazers_count);
+        setStars(data.stars);
       } catch (error) {
         console.error("Github fetch error:", error);
         setFailed(true);

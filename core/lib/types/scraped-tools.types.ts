@@ -4,6 +4,7 @@ export type ToolStatus = "pending" | "approved" | "rejected";
 
 export interface ScrapedTool {
   id: string;
+  slug?: string | null;
   title: string;
   description: string | null;
   image_url: string | null;

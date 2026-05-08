@@ -133,7 +133,7 @@ export default function FreeToolsPageClient({
         setPage(payload.currentPage || targetPage);
       } catch (err: unknown) {
         const maybeError = err as { response?: { data?: { error?: string } } };
-        setError(maybeError?.response?.data?.error || "Unable to load free tools right now.");
+        setError(maybeError?.response?.data?.error || "Unable to load developer resources right now.");
 
         if (replace) {
           setTools([]);
@@ -225,28 +225,28 @@ export default function FreeToolsPageClient({
   return (
     <div className="space-y-10 pb-8">
       <section className="mb-10 pt-4">
-        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Open Source Directory</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-white/50">No-Cost Resources</p>
         <div className="mt-2 flex items-center gap-3">
-          <h1 className="font-display text-4xl text-white">Free Developer Resources</h1>
+          <h1 className="font-display text-4xl text-white">No-cost developer resources and open-source tools</h1>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs text-white/60">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" />
             {toolCount !== null ? toolCount : "..."} tools live
           </span>
         </div>
         <p className="mt-3 max-w-2xl text-white/60">
-          {toolCount !== null ? `${toolCount}+` : "153+"} curated free tools, UI kits, courses, templates, AI tools, and components for developers.
-          All completely free. No account needed to browse.
+          {toolCount !== null ? `${toolCount}+` : "153+"} curated open-source tools, UI kits, courses, templates, AI utilities, and components for developers.
+          No account needed to browse.
         </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
-            100% Free Forever
+            No-Cost Options
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
             Open Source
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
-            No Login Required
+            Lightweight Tools
           </span>
         </div>
       </section>
@@ -420,13 +420,13 @@ export default function FreeToolsPageClient({
         <h3 className="mt-2 font-display text-xl text-white">Compare and discover more tools</h3>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/best-free-developer-tools" className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
-            Best Free Developer Tools
+            Developer Tool Comparisons
           </Link>
           <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Open Source Software
+            Open Source Alternatives
           </Link>
           <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Hidden Tools
+            Developer Utilities
           </Link>
         </div>
       </section>

@@ -5,10 +5,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 const mysteryBoxStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "Mystery Box Downloads",
+  name: "Random Tool Finder",
   url: `${siteUrl}/mystery-box`,
   description:
-    "Unlock randomized developer resources through a moderated mystery-box flow with transparent sponsor steps.",
+    "Randomized discovery for open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives.",
   isPartOf: {
     "@type": "WebSite",
     name: "The Cloud Rain",
@@ -16,25 +16,23 @@ const mysteryBoxStructuredData = {
   },
   mainEntity: {
     "@type": "CreativeWork",
-    name: "Mystery Unlock Experience",
+    name: "Randomized Developer Tool Discovery",
     audience: {
       "@type": "Audience",
       audienceType: "Developers and creators"
     },
-    about: ["Open source downloads", "Developer resources", "Rewarded unlock flow"]
+    about: ["Open-source tools", "Developer resources", "Self-hosted software"]
   }
 };
 
 export const metadata: Metadata = {
-  title: "Mystery Box Downloads",
+  title: "Random Open Source Tool Discovery for Developer Teams",
   description:
-    "Unlock randomized developer resources through a moderated mystery-box flow with transparent sponsor steps.",
+    "Use randomized discovery to find open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives curated by The Cloud Rain.",
   keywords: [
-    "mystery box downloads",
     "random developer resources",
-    "rewarded unlock flow",
-    "open source downloads",
-    "developer mystery box"
+    "open source discovery",
+    "lightweight SaaS alternatives"
   ],
   alternates: {
     canonical: "/mystery-box"
@@ -42,14 +40,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: `${siteUrl}/mystery-box`,
-    title: "Mystery Box Downloads | The Cloud Rain",
+    title: "Random Open Source Tool Discovery for Developer Teams",
     description:
-      "Experience a premium mystery unlock flow for curated digital resources with moderation-backed quality control."
+      "Use randomized discovery to find open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives."
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mystery Box Downloads | The Cloud Rain",
-    description: "Unlock curated random digital resources in a transparent, moderation-backed flow."
+    title: "Random Open Source Tool Discovery for Developer Teams",
+    description: "Find curated random developer resources in a transparent, moderation-backed flow."
   }
 };
 

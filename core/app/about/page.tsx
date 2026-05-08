@@ -6,15 +6,15 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 export const metadata: Metadata = {
   title: "About The Cloud Rain",
   description:
-    "Learn how The Cloud Rain curates free tools, open source software, and hidden developer resources with moderation-first quality control.",
-  keywords: ["about the cloud rain", "developer resource platform", "moderated free tools"],
+    "Learn how The Cloud Rain curates open-source developer tools, self-hosted software, and lightweight SaaS alternatives with moderation-first quality control.",
+  keywords: ["about the cloud rain", "developer resource platform", "moderated open source tools"],
   alternates: {
     canonical: "/about"
   },
   openGraph: {
     title: "About The Cloud Rain",
     description:
-      "The Cloud Rain is a moderation-first platform for discovering free developer resources, open source software, and hidden tools.",
+      "The Cloud Rain is a moderation-first platform for discovering open-source developer tools and lightweight SaaS alternatives.",
     url: `${siteUrl}/about`
   }
 };
@@ -27,7 +27,7 @@ const aboutSchema = {
       name: "About The Cloud Rain",
       url: `${siteUrl}/about`,
       description:
-        "About The Cloud Rain and its moderation-first approach to free tools, open source software, and hidden developer resources."
+        "About The Cloud Rain and its moderation-first approach to open-source software, developer utilities, and SaaS alternatives."
     },
     {
       "@type": "BreadcrumbList",
@@ -67,7 +67,7 @@ export default function AboutPage() {
           The Cloud Rain is a moderated resource platform for creators, developers, and learners. Our goal is simple: make discovery fast, keep rules clear, and avoid wasting user attention.
         </p>
         <p className="max-w-3xl text-white/65 leading-relaxed text-sm">
-          This About page explains how The Cloud Rain reviews free developer tools, open source software, UI kits, templates, and related resources. We publish clear moderation and policy standards so users, contributors, and search engines can understand how platform decisions are made.
+          This About page explains how The Cloud Rain reviews open-source developer tools, self-hosted software, UI kits, templates, and related resources. We publish clear moderation and policy standards so users, contributors, and search engines can understand how platform decisions are made.
         </p>
       </div>
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
         <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-xl font-semibold text-white">What we do</h2>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
-            We host moderated digital resources, present them through a mystery box experience, and support the site with sponsor placements that stay out of the way.
+            We host moderated digital resources, present them through structured and randomized discovery experiences, and support the site with sponsor placements that stay out of the way.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
             We try to add enough context around each discovery route that users can understand what a page is for, what kind of resource they are looking at, and how platform rules shape the experience. That includes clearer navigation, readable support pages, and moderation language that explains why a listing is visible.
@@ -99,7 +99,7 @@ export default function AboutPage() {
             The platform is built for solo developers, early-stage teams, and learners who need practical tools fast. We focus on resources that are usable today, not just trendy links that go stale after a week.
           </p>
           <p className="mt-3 text-sm leading-relaxed text-white/65">
-            That means the site should still feel useful whether you are looking for free developer tools, browsing open source software, comparing resource directories, or simply trying to understand whether a download page is maintained with real operational standards.
+            That means the site should still feel useful whether you are looking for no-cost developer tools, browsing open-source software, comparing resource directories, or simply trying to understand whether a download page is maintained with real operational standards.
           </p>
         </article>
         <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
@@ -187,7 +187,7 @@ export default function AboutPage() {
               <h2 className="mt-1 font-display text-3xl font-bold text-white">Dineshwev</h2>
             </div>
             <p className="max-w-xl text-sm leading-relaxed text-white/60">
-              The Cloud Rain was started as a personal mission to clean up the &quot;Free Resource&quot; space. I believe that being free shouldn&apos;t mean being low-quality or unsafe. Every tool added here is something I would use in my own workflow.
+              The Cloud Rain was started as a personal mission to clean up developer resource discovery. I believe no-cost software should still be evaluated for quality, safety, and usefulness. Every tool added here is something I would use in my own workflow.
             </p>
             <div className="flex flex-wrap justify-center gap-3 md:justify-start">
               <a href="https://github.com/Dineshwev" target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10">GitHub</a>
@@ -203,16 +203,16 @@ export default function AboutPage() {
         <h2 className="mt-2 text-xl text-white">Developer discovery routes</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/best-free-developer-tools" className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
-            Best Free Developer Tools
+            Developer Tool Comparisons
           </Link>
           <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Open Source Software
+            Open Source Alternatives
           </Link>
           <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Hidden Tools
+            Developer Utilities
           </Link>
           <Link href="/free-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Free Tools
+            No-Cost Resources
           </Link>
         </div>
       </section>

@@ -4,17 +4,22 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Article Museum | The Cloud Rain",
-  description: "The hidden stories behind open source software. Deep dives into open-source history, developer tools, and digital archaeology.",
+  title: "Open Source Tool Deep Dives for Developers and DevOps",
+  description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",
+  keywords: [
+    "open source tool reviews",
+    "developer tool deep dives",
+    "self-hosted software analysis"
+  ],
   openGraph: {
-    title: "Article Museum | The Cloud Rain",
-    description: "The hidden stories behind open source software. Deep dives into open-source history, developer tools, and digital archaeology.",
+    title: "Open Source Tool Deep Dives for Developers and DevOps",
+    description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Article Museum | The Cloud Rain",
-    description: "The hidden stories behind open source software. Deep dives into open-source history, developer tools, and digital archaeology.",
+    title: "Open Source Tool Deep Dives for Developers and DevOps",
+    description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",
   }
 };
 
@@ -49,13 +54,13 @@ export default async function ArticleMuseumPage() {
     <div className="space-y-10 md:space-y-14">
       <section className="mb-10 pt-4">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
-          Digital Archaeology
+          Tool Deep Dives
         </p>
         <h1 className="mt-2 font-display text-4xl text-white">
-          Article Museum
+          Deep dives into open-source developer tools
         </h1>
         <p className="mt-3 text-white/60 max-w-2xl text-lg leading-relaxed">
-          The hidden stories behind open source software. Why was it built? Who built it? And why should you care?
+          Practical analysis of open-source tools, self-hosted software, and lightweight SaaS alternatives worth evaluating for real projects.
         </p>
       </section>
 

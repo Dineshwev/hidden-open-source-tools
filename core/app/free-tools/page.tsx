@@ -4,20 +4,17 @@ import { getFreeToolsPageData } from "./free-tools-data";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 const pagePath = "/free-tools";
-const pageTitle = "Free Developer Resources Directory | The Cloud Rain";
+const pageTitle = "No-Cost Developer Resources and Open Source Tools";
 const pageDescription =
-  "Browse free developer resources, UI kits, courses, templates, AI tools, and components curated for developers.";
+  "Browse no-cost developer resources, open-source tools, UI kits, courses, templates, and components curated for practical engineering work.";
 
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
   keywords: [
-    "free developer resources",
-    "free ui kits",
-    "free developer courses",
-    "developer templates",
-    "ai tools for developers",
-    "The Cloud Rain"
+    "no-cost developer tools",
+    "open-source resources",
+    "developer templates"
   ],
   alternates: {
     canonical: pagePath
@@ -31,7 +28,7 @@ export const metadata: Metadata = {
         url: `${siteUrl}/og/free-tools.png`,
         width: 1200,
         height: 630,
-        alt: "Free Developer Resources Directory"
+        alt: "No-Cost Developer Resources Directory"
       }
     ]
   }

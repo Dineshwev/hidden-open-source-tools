@@ -5,17 +5,17 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 const freeToolsStructuredData = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Free Developer Resources",
+  name: "No-Cost Developer Resources",
   url: `${siteUrl}/free-tools`,
   description:
-    "Curated free tools, UI kits, templates, courses, AI tools, and components for developers.",
+    "Curated no-cost developer resources, open-source tools, templates, courses, AI utilities, and components for engineering teams.",
   isPartOf: {
     "@type": "WebSite",
     name: "The Cloud Rain",
     url: siteUrl
   },
   about: [
-    "Free developer tools",
+    "No-cost developer tools",
     "Open source resources",
     "UI kits",
     "Templates",
@@ -24,16 +24,13 @@ const freeToolsStructuredData = {
 };
 
 export const metadata: Metadata = {
-  title: "Free Developer Resources",
+  title: "No-Cost Developer Resources and Open Source Tools",
   description:
-    "Browse curated free tools, UI kits, templates, courses, AI tools, and components for developers.",
+    "Browse no-cost developer resources, open-source tools, UI kits, courses, templates, and components curated for practical engineering work.",
   keywords: [
-    "free developer resources",
-    "free UI kits",
-    "free templates",
-    "free coding courses",
-    "AI tools for developers",
-    "frontend components"
+    "no-cost developer tools",
+    "open-source resources",
+    "developer templates"
   ],
   alternates: {
     canonical: "/free-tools"
@@ -41,14 +38,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: `${siteUrl}/free-tools`,
-    title: "Free Developer Resources | The Cloud Rain",
+    title: "No-Cost Developer Resources and Open Source Tools",
     description:
-      "Discover hand-picked free developer tools and open source resources updated through a moderated pipeline."
+      "Browse no-cost developer resources, open-source tools, UI kits, courses, templates, and components curated for practical engineering work."
   },
   twitter: {
     card: "summary_large_image",
-    title: "Free Developer Resources | The Cloud Rain",
-    description: "Curated free tools, templates, courses, and components for developers."
+    title: "No-Cost Developer Resources and Open Source Tools",
+    description: "Curated no-cost tools, templates, courses, and components for developers."
   }
 };
 

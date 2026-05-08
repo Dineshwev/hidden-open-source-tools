@@ -23,6 +23,7 @@ function normalizeDbCategory(value: unknown): ToolCategory {
 function mapOpenSourceTool(row: any): ScrapedTool {
   return {
     id: String(row?.id || ""),
+    slug: row?.slug ? String(row.slug) : null,
     title: String(row?.name || row?.title || "Untitled"),
     description: row?.description ?? null,
     image_url: row?.image_url ?? row?.image ?? null,
@@ -67,13 +68,13 @@ function getUseCaseCopy(category: ToolCategory) {
     case "ui-component":
       return "Best for product teams who need reusable building blocks for frontend systems, dashboards, and production-ready interfaces.";
     default:
-      return "Best for developers looking for a practical free resource that can reduce setup time, improve workflows, or expand their toolkit.";
+      return "Best for developers looking for a practical no-cost resource that can reduce setup time, improve workflows, or expand their toolkit.";
   }
 }
 
 function getReviewCopy(tool: ScrapedTool) {
   const categoryLabel = formatCategoryLabel(tool.category).toLowerCase();
-  return `This ${categoryLabel} is listed in The Cloud Rain free tools directory after a manual review for clarity, basic trust signals, and fit with the public resource library.`;
+  return `This ${categoryLabel} is listed in The Cloud Rain no-cost resource directory after a manual review for clarity, basic trust signals, and fit with the public resource library.`;
 }
 
 async function getTool(id: string): Promise<ScrapedTool | null> {
@@ -112,18 +113,18 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   if (!tool) return {};
 
   const categoryLabel = formatCategoryLabel(tool.category);
-  const title = `${tool.title} | Free ${categoryLabel} for Developers`;
+  const title = `${tool.title} | ${categoryLabel} for Developers`;
   const description =
     tool.description ||
-    `${tool.title} is a free ${categoryLabel.toLowerCase()} featured on The Cloud Rain free tools directory for developers.`;
+    `${tool.title} is a no-cost ${categoryLabel.toLowerCase()} featured on The Cloud Rain developer resource directory.`;
 
   return {
     title,
     description,
     keywords: [
       tool.title,
-      `free ${categoryLabel.toLowerCase()}`,
-      "free developer tools",
+      `${categoryLabel.toLowerCase()} for developers`,
+      "no-cost developer tools",
       "open source software",
       "developer resources"
     ],
@@ -161,7 +162,7 @@ export default async function ToolDetailPage({ params }: { params: { id: string 
   const categoryLabel = formatCategoryLabel(tool.category);
   const description =
     tool.description ||
-    `${tool.title} is a free ${categoryLabel.toLowerCase()} listed in The Cloud Rain developer resource directory.`;
+    `${tool.title} is a no-cost ${categoryLabel.toLowerCase()} listed in The Cloud Rain developer resource directory.`;
   const pageUrl = `${siteUrl}/free-tools/${tool.id}`;
 
   const structuredData = {
@@ -194,7 +195,7 @@ export default async function ToolDetailPage({ params }: { params: { id: string 
           {
             "@type": "ListItem",
             position: 2,
-            name: "Free Tools",
+            name: "No-Cost Resources",
             item: `${siteUrl}/free-tools`
           },
           {
@@ -306,7 +307,7 @@ export default async function ToolDetailPage({ params }: { params: { id: string 
                   <article key={relatedTool.id} className="rounded-2xl border border-white/10 bg-black/20 p-5">
                     <h3 className="text-lg text-white">{relatedTool.title}</h3>
                     <p className="mt-2 line-clamp-4 text-sm leading-6 text-white/65">
-                      {relatedTool.description || `Explore another ${categoryLabel.toLowerCase()} from the free tools directory.`}
+                      {relatedTool.description || `Explore another ${categoryLabel.toLowerCase()} from the no-cost resource directory.`}
                     </p>
                     <Link
                       href={`/free-tools/${relatedTool.id}`}
@@ -365,13 +366,13 @@ export default async function ToolDetailPage({ params }: { params: { id: string 
               <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/30">Keep browsing</p>
               <div className="flex flex-wrap gap-2">
                 <Link href="/free-tools" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/80">
-                  Free Tools
+                  No-Cost Resources
                 </Link>
                 <Link href="/best-free-developer-tools" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/80">
-                  Best Free Tools
+                  Tool Comparisons
                 </Link>
                 <Link href="/open-source-software" className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-white/80">
-                  Open Source Software
+                  Open Source Alternatives
                 </Link>
               </div>
             </div>

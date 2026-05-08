@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "sync-stars": "tsx core/scripts/sync-github-stars.ts"
+  },
   "dependencies": {
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.6"
   }
 }

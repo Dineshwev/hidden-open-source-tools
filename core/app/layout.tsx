@@ -14,22 +14,18 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "The Cloud Rain | Premium Developer Resources & Mystery Box Drops",
+    default: "The Cloud Rain | Open Source SaaS Alternatives",
     template: "%s | The Cloud Rain"
   },
   description:
-    "The Cloud Rain is the ultimate hub for premium developer resources. Access curated UI kits, source codes, AI tools, and exclusive templates for free through our interactive mystery box experience.",
+    "The Cloud Rain curates lightweight open-source tools, self-hosted software, and practical SaaS alternatives for developers, DevOps teams, and indie hackers.",
   keywords: [
-    "premium developer resources",
-    "free UI kits",
-    "source code downloads",
-    "mystery box developer tools",
-    "web development templates",
-    "free SaaS templates",
-    "coding assets",
-    "digital designer resources",
-    "open source software library",
-    "frontend developer tools"
+    "open source SaaS alternatives",
+    "self-hosted software",
+    "lightweight developer tools",
+    "DevOps tools",
+    "indie hacker tools",
+    "open source software library"
   ],
   applicationName: siteName,
   category: "technology",
@@ -40,16 +36,16 @@ export const metadata: Metadata = {
     type: "website",
     url: siteUrl,
     siteName,
-    title: "The Cloud Rain | Premium Developer Resources & Mystery Box Drops",
+    title: "The Cloud Rain | Open Source SaaS Alternatives",
     description:
-      "Unlock curated, high-quality developer assets for free. Join The Cloud Rain community and discover exclusive UI kits, templates, and tools.",
+      "Curated lightweight open-source tools, self-hosted software, and practical SaaS alternatives for developers and DevOps teams.",
     locale: "en_US"
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Cloud Rain | Premium Developer Resources",
+    title: "The Cloud Rain | Open Source SaaS Alternatives",
     description:
-      "The ultimate destination for developers. Unlock premium UI kits, source codes, and templates through our daily mystery box."
+      "Curated open-source tools, self-hosted software, and lightweight SaaS alternatives for builders."
   },
   robots: {
     index: true,
@@ -71,7 +67,7 @@ const structuredData = {
       "@type": "WebSite",
       "name": siteName,
       "url": siteUrl,
-      "description": "Open-source platform for free developer resources, curated tools, and mystery-box style unlock experiences.",
+      "description": "Open-source platform for self-hosted software, lightweight developer tools, and SaaS alternatives.",
       "inLanguage": "en"
     },
     {
@@ -86,13 +82,13 @@ const structuredData = {
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Free Tools",
+          "name": "No-Cost Resources",
           "item": `${siteUrl}/free-tools`
         },
         {
           "@type": "ListItem",
           "position": 3,
-          "name": "Article Museum",
+          "name": "Tool Deep Dives",
           "item": `${siteUrl}/article-museum`
         }
       ]

@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
 import MysteryBox from "@/components/MysteryBox";
-import SectionHeading from "@/components/SectionHeading";const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+import SectionHeading from "@/components/SectionHeading";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export const metadata: Metadata = {
-  title: "Hidden Tools and Mystery Developer Resources",
+  title: "Random Open Source Tool Discovery for Developer Teams",
   description:
-    "Explore hidden tools and surprise developer resources through The Cloud Rain Mystery Box. Discover curated open source and premium-quality free tools.",
-  keywords: ["hidden tools", "mystery developer tools", "surprise software", "developer resource drops"],
+    "Use a randomized discovery flow to find open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives curated by The Cloud Rain.",
+  keywords: [
+    "random developer tools",
+    "open source discovery",
+    "lightweight SaaS alternatives"
+  ],
   alternates: {
     canonical: "/mystery-box"
   },
   openGraph: {
-    title: "Hidden Tools and Mystery Developer Resources",
+    title: "Random Open Source Tool Discovery for Developer Teams",
     description:
-      "Unlock hidden tools and curated developer resources through an interactive mystery box experience.",
+      "Use a randomized discovery flow to find open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives curated by The Cloud Rain.",
     url: `${siteUrl}/mystery-box`
   }
 };
@@ -22,13 +28,13 @@ export default function MysteryBoxPage() {
   return (
     <div className="space-y-12">
       <SectionHeading
-        eyebrow="Randomized reward flow"
-        title="Mystery Box"
+        eyebrow="Random Tool Finder"
+        title="Randomized discovery for open-source tools"
         description={
           <span className="block">
-            Open your free daily mystery box and discover hidden open-source tools and resources.
+            Use the Mystery Box experience to surface a curated developer resource without browsing a long directory.
             <span className="ml-2 font-medium text-green-400">
-              Always free. No subscription needed.
+              Built for lightweight tool discovery.
             </span>
           </span>
         }

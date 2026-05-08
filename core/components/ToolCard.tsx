@@ -100,6 +100,14 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
         >
           Visit Resource →
         </button>
+        {tool.slug ? (
+          <Link
+            href={`/tools/${tool.slug}`}
+            className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+          >
+            View Details
+          </Link>
+        ) : null}
       </div>
     </motion.article>
   );

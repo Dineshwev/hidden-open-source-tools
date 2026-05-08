@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Contact",
   description:
     "Reach Dinesh with identified or anonymous messages. Private replies for identified messages and public community answers for anonymous queries.",
-  keywords: ["contact the cloud rain", "developer resources contact", "free tools support"],
+  keywords: ["contact the cloud rain", "developer resources contact", "open source tools support"],
   alternates: {
     canonical: "/contact"
   }
@@ -99,16 +99,16 @@ export default function ContactPage() {
         <h2 className="mt-2 text-xl text-white">Popular developer search pages</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/best-free-developer-tools" className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
-            Best Free Developer Tools
+            Developer Tool Comparisons
           </Link>
           <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Open Source Software
+            Open Source Alternatives
           </Link>
           <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Hidden Tools
+            Developer Utilities
           </Link>
           <Link href="/free-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Free Tools
+            No-Cost Resources
           </Link>
         </div>
       </section>

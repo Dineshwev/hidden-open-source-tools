@@ -4,22 +4,21 @@ import Link from "next/link";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export const metadata: Metadata = {
-  title: "Weekly Roundups | Free Developer Tools and Open Source Picks",
+  title: "Weekly Open Source Tool Roundups for Developers and DevOps",
   description:
-    "Weekly curated roundup of free developer tools, open source software, and hidden gems from The Cloud Rain.",
+    "Read weekly curated briefs on open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives for engineering teams.",
   keywords: [
-    "weekly developer tools roundup",
-    "open source weekly picks",
-    "free tools weekly",
-    "developer resources updates"
+    "weekly developer tool roundup",
+    "open source tool discoveries",
+    "self-hosted software updates"
   ],
   alternates: {
     canonical: "/weekly-roundups"
   },
   openGraph: {
-    title: "Weekly Roundups | Free Developer Tools and Open Source Picks",
+    title: "Weekly Open Source Tool Roundups for Developers and DevOps",
     description:
-      "Explore fresh weekly picks across free developer tools, open source software, and hidden productivity resources.",
+      "Read weekly curated briefs on open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives for engineering teams.",
     url: `${siteUrl}/weekly-roundups`
   }
 };
@@ -37,7 +36,7 @@ const breadcrumbSchema = {
     {
       "@type": "ListItem",
       position: 2,
-      name: "Weekly Roundups",
+      name: "Weekly Tool Briefs",
       item: `${siteUrl}/weekly-roundups`
     }
   ]
@@ -46,10 +45,10 @@ const breadcrumbSchema = {
 const collectionSchema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "Weekly Roundups",
+  name: "Weekly Tool Briefs",
   url: `${siteUrl}/weekly-roundups`,
   description:
-    "Editorial weekly roundups covering free developer tools, open source software, and hidden workflow picks.",
+    "Editorial weekly briefs covering open-source developer tools, self-hosted software, and lightweight workflow alternatives.",
   isPartOf: {
     "@type": "WebSite",
     name: "The Cloud Rain",
@@ -61,17 +60,17 @@ const roundupItems = [
   {
     href: "/weekly-roundups/2026-04-10",
     title: "Weekly Roundup - April 10, 2026",
-    summary: "Open source productivity stack, free UI kits, and underrated workflow tools for faster shipping."
+    summary: "Open-source productivity stack, no-cost UI kits, and practical workflow tools for faster shipping."
   },
   {
     href: "/weekly-roundups/2026-04-03",
     title: "Weekly Roundup - April 3, 2026",
-    summary: "Hidden dev utilities, AI helpers, and free template picks for frontend and SaaS builders."
+    summary: "Lesser-known developer utilities, AI helpers, and no-cost template picks for frontend and SaaS builders."
   },
   {
     href: "/weekly-roundups/2026-03-27",
     title: "Weekly Roundup - March 27, 2026",
-    summary: "Best free developer tools this week with practical categories and quick-start recommendations."
+    summary: "Developer tool picks this week with practical categories and quick-start recommendations."
   }
 ];
 
@@ -82,10 +81,10 @@ export default function WeeklyRoundupsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
 
       <header className="space-y-3">
-        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundups</p>
-        <h1 className="font-display text-3xl text-white md:text-5xl">Fresh weekly picks for developers</h1>
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Tool Briefs</p>
+        <h1 className="font-display text-3xl text-white md:text-5xl">Weekly open-source tool briefs for developers</h1>
         <p className="max-w-3xl text-white/70">
-          Each week we publish curated picks across open source software, free tools, and hidden gems so you can discover high-value resources faster.
+          Each week we publish curated picks across open-source software, self-hosted utilities, and lightweight SaaS alternatives so engineering teams can evaluate useful resources faster.
         </p>
       </header>
 
@@ -105,18 +104,18 @@ export default function WeeklyRoundupsPage() {
         <h2 className="text-2xl text-white">How these roundups help discovery</h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-white/70">
           Weekly roundups give The Cloud Rain an editorial layer on top of the main directory. They help developers
-          discover free tools, open source software, and hidden utilities through short practical summaries instead of
+          discover open-source software, no-cost resources, and developer utilities through short practical summaries instead of
           only raw listings. That makes the site more useful for comparison, recurring discovery, and intent-based browsing.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Link href="/free-tools" className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900">
-            Browse Free Tools
+            Browse No-Cost Resources
           </Link>
           <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Hidden Tools
+            Developer Utilities
           </Link>
           <Link href="/best-free-developer-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Best Free Developer Tools
+            Developer Tool Comparisons
           </Link>
         </div>
       </section>

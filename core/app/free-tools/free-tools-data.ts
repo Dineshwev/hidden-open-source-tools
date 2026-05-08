@@ -16,43 +16,43 @@ export const FREE_TOOLS_CATEGORY_PAGES: FreeToolsCategoryPage[] = [
     slug: "ui-kits",
     label: "UI Kits",
     category: "ui-kit",
-    title: "Free UI Kits for Developers",
-    description: "Browse free UI kits, interface packs, and design resources curated for frontend teams and product builders."
+    title: "No-Cost UI Kits for Developers",
+    description: "Browse no-cost UI kits, interface packs, and design resources curated for frontend teams and product builders."
   },
   {
     slug: "courses",
     label: "Courses",
     category: "course",
-    title: "Free Developer Courses",
-    description: "Browse free developer courses and practical learning resources curated for developers who want to build faster."
+    title: "No-Cost Developer Courses",
+    description: "Browse no-cost developer courses and practical learning resources curated for developers who want to build faster."
   },
   {
     slug: "templates",
     label: "Templates",
     category: "template",
-    title: "Free Templates for Developers",
-    description: "Browse free templates, starters, and reusable project foundations curated for developers."
+    title: "No-Cost Templates for Developers",
+    description: "Browse no-cost templates, starters, and reusable project foundations curated for developers."
   },
   {
     slug: "ai-tools",
     label: "AI Tools",
     category: "ai-tool",
-    title: "Free AI Tools for Developers",
-    description: "Browse free AI tools and automation resources curated for coding, research, and workflow acceleration."
+    title: "No-Cost AI Tools for Developers",
+    description: "Browse no-cost AI tools and automation resources curated for coding, research, and workflow acceleration."
   },
   {
     slug: "components",
     label: "Components",
     category: "ui-component",
-    title: "Free UI Components for Developers",
-    description: "Browse free UI components and reusable interface building blocks for modern frontend teams."
+    title: "No-Cost UI Components for Developers",
+    description: "Browse no-cost UI components and reusable interface building blocks for modern frontend teams."
   },
   {
     slug: "other",
     label: "Other",
     category: "other",
-    title: "More Free Developer Resources",
-    description: "Browse additional free developer resources that do not fit a primary category but still offer practical value."
+    title: "More No-Cost Developer Resources",
+    description: "Browse additional no-cost developer resources that do not fit a primary category but still offer practical value."
   }
 ];
 
@@ -102,6 +102,7 @@ function isApprovedLike(value: unknown) {
 function mapOpenSourceTool(row: any): ScrapedTool {
   return {
     id: String(row?.id || ""),
+    slug: row?.slug ? String(row.slug) : null,
     title: String(row?.name || row?.title || "Untitled"),
     description: row?.description ?? null,
     image_url: row?.image_url ?? row?.image ?? null,

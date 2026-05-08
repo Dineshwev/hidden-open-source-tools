@@ -35,8 +35,8 @@ export default function TrendingDownloads() {
     <section className="space-y-8">
       <SectionHeading
         eyebrow="Trending downloads"
-        title="Community-approved drops rising across the universe"
-        description="These assets represent the kinds of verified files the mystery engine can surface based on rarity, freshness, and community demand."
+        title="Community-reviewed resources gaining attention"
+        description="These examples represent the kinds of verified files the discovery engine can surface based on category, freshness, and community demand."
       />
 
       <div className="grid gap-5 md:grid-cols-3">
