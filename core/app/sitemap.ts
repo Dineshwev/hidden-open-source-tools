@@ -1,12 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { getSiteUrl } from "@/lib/site-url";
 import {
   FREE_TOOLS_CATEGORY_PAGES,
   FREE_TOOLS_PAGE_SIZE,
   buildFreeToolsRoute
 } from "@/app/free-tools/free-tools-data";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = getSiteUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticLastModified = new Date("2026-04-17");

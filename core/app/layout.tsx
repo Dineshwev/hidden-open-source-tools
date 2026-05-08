@@ -4,11 +4,12 @@ import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/AuthProvider";
+import { getSiteUrl } from "@/lib/site-url";
 import Script from 'next/script';
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const siteName = "The Cloud Rain";
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
