@@ -283,62 +283,9 @@ export default function FreeToolsPageClient({
       </section>
 
       <section className="glass-panel rounded-3xl p-4 md:p-5">
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          {categoryTabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => toggleCategory(tab)}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition ${
-                tab.key === "all"
-                  ? selectedCategories.length === 0
-                    ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
-                    : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
-                  : selectedCategories.includes(tab.queryValue as ToolCategory)
-                    ? "border-cyan-300/35 bg-cyan-300/15 text-cyan-100"
-                    : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <select
-            value={sortOption}
-            onChange={(event) => {
-              const nextSort = event.target.value as SortOption;
-              setSortOption(nextSort);
-              if (nextSort === "random") {
-                setRandomSeed(Date.now());
-              }
-            }}
-            className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white outline-none"
-          >
-            <option value="newest">Sort: Newest</option>
-            <option value="az">Sort: A-Z</option>
-            <option value="random">Sort: Random</option>
-          </select>
-
-          <button
-            type="button"
-            onClick={shuffleTools}
-            disabled={loading || visibleTools.length < 2}
-            className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-300/20 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Shuffle
-          </button>
-          <button
-            type="button"
-            onClick={surpriseMe}
-            disabled={loading || visibleTools.length === 0}
-            className="rounded-full border border-fuchsia-300/35 bg-fuchsia-300/10 px-4 py-2 text-sm font-medium text-fuchsia-100 transition hover:bg-fuchsia-300/20 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Surprise Me
-          </button>
-          <p className="self-center text-xs text-white/55">Tip: use category routes for browsing and the filters for quick on-page exploration.</p>
-        </div>
+        
       </section>
 
       {error ? (
@@ -378,25 +325,48 @@ export default function FreeToolsPageClient({
           <h3 className="mt-2 font-display text-xl text-white">Directory pages</h3>
           <div className="mt-4 flex flex-wrap gap-3">
             {page > 1 ? (
-              <Link href={buildFreeToolsRoute(activeCategoryPage?.slug || null, page - 1)} className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+              <button
+                type="button"
+                onClick={() => void (async () => {
+                  const target = page - 1;
+                  setPage(target);
+                  await fetchTools(target, true);
+                  try { window.history.pushState(null, '', buildFreeToolsRoute(activeCategoryPage?.slug || null, target)); } catch {}
+                })()}
+                className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90"
+              >
                 Previous Page
-              </Link>
+              </button>
             ) : null}
             {paginationItems.map((pageNumber) => (
-              <Link
+              <button
                 key={pageNumber}
-                href={buildFreeToolsRoute(activeCategoryPage?.slug || null, pageNumber)}
+                type="button"
+                onClick={() => void (async () => {
+                  setPage(pageNumber);
+                  await fetchTools(pageNumber, true);
+                  try { window.history.pushState(null, '', buildFreeToolsRoute(activeCategoryPage?.slug || null, pageNumber)); } catch {}
+                })()}
                 className={`rounded-full px-4 py-2 text-sm transition ${
                   pageNumber === page ? "bg-cyan-300 font-semibold text-slate-900" : "border border-white/20 text-white/90"
                 }`}
               >
                 Page {pageNumber}
-              </Link>
+              </button>
             ))}
             {page < totalPages ? (
-              <Link href={buildFreeToolsRoute(activeCategoryPage?.slug || null, page + 1)} className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+              <button
+                type="button"
+                onClick={() => void (async () => {
+                  const target = page + 1;
+                  setPage(target);
+                  await fetchTools(target, true);
+                  try { window.history.pushState(null, '', buildFreeToolsRoute(activeCategoryPage?.slug || null, target)); } catch {}
+                })()}
+                className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90"
+              >
                 Next Page
-              </Link>
+              </button>
             ) : null}
           </div>
         </section>

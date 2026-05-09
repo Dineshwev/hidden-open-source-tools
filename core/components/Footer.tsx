@@ -7,6 +7,12 @@ const mainLinks = [
   { href: "/upload", label: "Upload" }
 ];
 
+const communityLinks = [
+  { href: "/contact", label: "Contact" },
+  { href: "/general-queries", label: "General Queries" },
+  { href: "/upload", label: "Upload" }
+];
+
 const legalLinks = [
   { href: "/about", label: "About" },
   { href: "/security", label: "Security & Trust" },
@@ -80,6 +86,25 @@ export default function Footer() {
             className="inline-flex items-center rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
           >
             Contact Us
+          </Link>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Community</p>
+          <ul className="flex flex-col gap-3">
+            {communityLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-cyan-200">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/contact"
+            className="inline-flex items-center rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+          >
+            Community Contact
           </Link>
         </div>
 

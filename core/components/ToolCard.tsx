@@ -103,6 +103,8 @@ const ToolCard = React.memo(({ tool, index, onOpen }: ToolCardProps) => {
         {tool.slug ? (
           <Link
             href={`/tools/${tool.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
           >
             View Details
