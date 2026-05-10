@@ -42,6 +42,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
     const body = await req.json().catch(() => ({}));
     const status = body?.status as AdminUpdatePayload["status"] | undefined;
     const note = typeof body?.note === "string" ? body.note.trim().slice(0, 500) : undefined;
+    const category = typeof body?.category === "string" && body.category.trim() ? body.category.trim() : undefined;
 
     if (status !== "approved" && status !== "rejected") {
       return NextResponse.json(
@@ -50,7 +51,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
       );
     }
 
-    const tool = await updateToolStatus(params.id, status, note);
+    const tool = await updateToolStatus(params.id, status, note, category);
 
     return NextResponse.json(
       {

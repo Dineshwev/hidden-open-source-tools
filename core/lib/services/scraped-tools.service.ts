@@ -174,10 +174,17 @@ async function updateToolByIdWithFallback(
   table: "scraped_tools" | "open_source_tools",
   id: string,
   status: AdminUpdatePayload["status"],
-  note?: string
+  note?: string,
+  category?: string
 ) {
   const client = ensureSupabaseAdmin();
-  const payloadVariants = buildUpdatePayloadVariants(status, note);
+  const payloadVariants = buildUpdatePayloadVariants(status, note).map((p) => {
+    if (typeof category === "string" && category.trim()) {
+      return { ...p, category: category.trim() };
+    }
+
+    return p;
+  });
   let lastResult: any = null;
 
   for (const payload of payloadVariants) {
@@ -224,16 +231,16 @@ async function bulkUpdateToolsWithFallback(
   return lastResult as any;
 }
 
-async function updateOpenSourceToolById(id: string, status: AdminUpdatePayload["status"], note?: string) {
-  return updateToolByIdWithFallback("open_source_tools", id, status, note);
+async function updateOpenSourceToolById(id: string, status: AdminUpdatePayload["status"], note?: string, category?: string) {
+  return updateToolByIdWithFallback("open_source_tools", id, status, note, category);
 }
 
 async function bulkUpdateOpenSourceTools(ids: string[], status: AdminUpdatePayload["status"], note?: string) {
   return bulkUpdateToolsWithFallback("open_source_tools", ids, status, note);
 }
 
-async function updateScrapedToolById(id: string, status: AdminUpdatePayload["status"], note?: string) {
-  return updateToolByIdWithFallback("scraped_tools", id, status, note);
+async function updateScrapedToolById(id: string, status: AdminUpdatePayload["status"], note?: string, category?: string) {
+  return updateToolByIdWithFallback("scraped_tools", id, status, note, category);
 }
 
 async function bulkUpdateScrapedTools(ids: string[], status: AdminUpdatePayload["status"], note?: string) {
@@ -362,12 +369,12 @@ export async function getApprovedTools(category?: ToolCategory, page?: number, l
   }
 }
 
-export async function updateToolStatus(id: string, status: AdminUpdatePayload["status"], note?: string): Promise<ScrapedTool> {
+export async function updateToolStatus(id: string, status: AdminUpdatePayload["status"], note?: string, category?: string): Promise<ScrapedTool> {
   try {
     const toolRef = splitToolId(id);
 
     if (toolRef.table === "open_source_tools") {
-      const { data: openSourceData, error: openSourceError } = await updateOpenSourceToolById(toolRef.id, status, note);
+      const { data: openSourceData, error: openSourceError } = await updateOpenSourceToolById(toolRef.id, status, note, category);
 
       if (openSourceError) {
         throw new Error(`Failed to update tool status: ${openSourceError.message}`);
@@ -376,7 +383,7 @@ export async function updateToolStatus(id: string, status: AdminUpdatePayload["s
       return mapOpenSourceTool(openSourceData);
     }
 
-    const { data, error } = await updateScrapedToolById(toolRef.id, status, note);
+    const { data, error } = await updateScrapedToolById(toolRef.id, status, note, category);
 
     if (error) {
       throw new Error(`Failed to update tool status: ${error.message}`);

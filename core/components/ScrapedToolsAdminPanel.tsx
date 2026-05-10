@@ -80,6 +80,7 @@ export default function ScrapedToolsAdminPanel() {
   const [jumpPageInput, setJumpPageInput] = useState("");
   const [bulkNote, setBulkNote] = useState("");
   const [notesByToolId, setNotesByToolId] = useState<Record<string, string>>({});
+  const [categoriesByToolId, setCategoriesByToolId] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<ToastState | null>(null);
   const toastTimerRef = useRef<number | null>(null);
 
@@ -95,6 +96,11 @@ export default function ScrapedToolsAdminPanel() {
       toastTimerRef.current = null;
     }, 2600);
   }, []);
+
+  function toolCategoryFallback(toolId: string) {
+    const found = tools.find((t) => t.id === toolId);
+    return found ? String(found.category || "").trim() : "";
+  }
 
   const handleVerify = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -218,6 +224,19 @@ export default function ScrapedToolsAdminPanel() {
     void loadPendingTools(page);
   }, [isVerified, page, loadPendingTools]);
 
+  // initialize category selections for visible tools without overwriting admin picks
+  useEffect(() => {
+    setCategoriesByToolId((previous) => {
+      const next = { ...previous };
+      for (const t of tools) {
+        if (!next[t.id]) {
+          next[t.id] = String(t.category || "");
+        }
+      }
+      return next;
+    });
+  }, [tools]);
+
   const filteredTools = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -316,9 +335,17 @@ export default function ScrapedToolsAdminPanel() {
     setPendingCount((previous) => Math.max(0, previous - 1));
 
     try {
+      const payload: Record<string, any> = { status };
+      if (note) payload.note = note;
+      // include category override if the admin selected one
+      const selectedCategory = categoriesByToolId[id];
+      if (selectedCategory && selectedCategory !== toolCategoryFallback(id)) {
+        payload.category = selectedCategory;
+      }
+
       await api.patch(
         `/admin/scraped-tools/${id}`,
-        { status, note: note || undefined },
+        payload,
         { headers: { Authorization: verificationSecret } }
       );
 
@@ -651,6 +678,28 @@ export default function ScrapedToolsAdminPanel() {
                       placeholder="Add a note before approve/reject (optional)"
                       className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder:text-white/45 outline-none transition focus:border-cyan-300/40"
                     />
+
+                    <div className="mt-2">
+                      <label className="text-xs text-white/70">Assign category</label>
+                      <select
+                        value={categoriesByToolId[tool.id] ?? tool.category ?? ""}
+                        onChange={(e) =>
+                          setCategoriesByToolId((previous) => ({ ...previous, [tool.id]: e.target.value }))
+                        }
+                        className="mt-1 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white outline-none"
+                      >
+                        <option value="">-- Keep current --</option>
+                        <option>Developer Tools</option>
+                        <option>Self-Hosting & Infrastructure</option>
+                        <option>Analytics & Search</option>
+                        <option>Media & Utilities</option>
+                        <option>Productivity</option>
+                        <option>Community & Events</option>
+                        <option>Business Tools</option>
+                        <option>Security</option>
+                        <option>Miscellaneous</option>
+                      </select>
+                    </div>
 
                     <div className="flex flex-wrap items-center gap-3 pt-1">
                       <label className="flex items-center gap-2 text-sm text-white/80">

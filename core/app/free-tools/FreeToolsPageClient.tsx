@@ -38,22 +38,57 @@ export default function FreeToolsPageClient({
   initialCount = null,
   initialTotalPages: _initialTotalPages,
   initialPage: _initialPage,
-  initialCategory: _initialCategory
+  initialCategory: _initialCategory,
+  categoryCounts: categoryCountsProp
 }: {
   initialTools?: ScrapedTool[];
   initialCount?: number | null;
   initialTotalPages?: number;
   initialPage?: number;
   initialCategory?: ToolCategory;
+  categoryCounts?: Record<string, number> | null;
 }) {
   const [sortOption, setSortOption] = useState<SortOption>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [shuffleSeed, setShuffleSeed] = useState(Date.now());
   const [error, setError] = useState("");
   const tools = initialTools;
   const toolCount = initialCount ?? initialTools.length;
 
+  // Category definitions and simple keyword heuristics for counting/matching
+  const CATEGORY_DEFS: { key: string; label: string; keywords?: string[] }[] = [
+    { key: "all", label: "All" },
+    { key: "developer-tools", label: "Developer Tools", keywords: ["tool", "dev", "developer", "cli", "sdk"] },
+    { key: "self-hosting", label: "Self-Hosting & Infrastructure", keywords: ["self-host", "self host", "docker", "kubernetes", "infra", "infrastructure", "server"] },
+    { key: "analytics", label: "Analytics & Search", keywords: ["analytics", "search", "monitor", "metrics", "log"] },
+    { key: "media", label: "Media & Utilities", keywords: ["image", "media", "video", "audio", "converter", "compress"] },
+    { key: "productivity", label: "Productivity", keywords: ["productivity", "todo", "notes", "workflow", "task"] },
+    { key: "community", label: "Community & Events", keywords: ["community", "events", "chat", "forum", "meetup"] },
+    { key: "business", label: "Business Tools", keywords: ["business", "crm", "invoice", "billing", "saas"] },
+    { key: "security", label: "Security", keywords: ["security", "auth", "oauth", "jwt", "vault", "scan"] },
+    { key: "misc", label: "Miscellaneous", keywords: [] }
+  ];
+
+  function toolMatchesCategory(tool: ScrapedTool, catKey: string) {
+    if (catKey === "all") return true;
+
+    const def = CATEGORY_DEFS.find((c) => c.key === catKey);
+    if (!def) return false;
+
+    const hay = `${tool.title} ${tool.description || ""} ${tool.category || ""} ${tool.source_site || ""}`.toLowerCase();
+
+    if (!def.keywords || def.keywords.length === 0) return true;
+
+    return def.keywords.some((kw) => hay.includes(kw));
+  }
+
+  // Precompute category counts from the initial tool set
+  // Use server-provided counts where available. Keys are the user-facing labels.
+  const categoryCounts = categoryCountsProp ?? null;
+
   const visibleTools = useMemo(() => {
-    const sorted = [...tools];
+    const filtered = tools.filter((t) => toolMatchesCategory(t, selectedCategory));
+    const sorted = [...filtered];
 
     if (sortOption === "shuffle") {
       return shuffleTools(sorted, shuffleSeed);
@@ -70,7 +105,7 @@ export default function FreeToolsPageClient({
     }
 
     return sorted;
-  }, [tools, sortOption, shuffleSeed]);
+  }, [tools, sortOption, shuffleSeed, selectedCategory]);
 
   const handleOpenTool = (url: string) => {
     window.open(url, "_blank");
@@ -111,11 +146,30 @@ export default function FreeToolsPageClient({
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Sort tools</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Filter & sort</p>
         <h2 className="mt-2 text-xl text-white">Browse all approved resources</h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-white/65">
-          These buttons sort the complete approved set fetched from the database, so the full directory stays visible without category filtering or paging.
+          Use the category pills to filter the directory, then sort the filtered results. Category and sort work together.
         </p>
+        {/* Category filter row */}
+        <div className="mt-4 flex flex-wrap gap-3">
+          {CATEGORY_DEFS.map((cat) => (
+            <button
+              key={cat.key}
+              type="button"
+              onClick={() => setSelectedCategory(cat.key)}
+              className={`rounded-full px-4 py-2 text-sm transition ${
+                selectedCategory === cat.key
+                  ? "bg-cyan-300 font-semibold text-slate-900"
+                  : "border border-white/20 text-white/90"
+              }`}
+            >
+              {cat.label} <span className="ml-2 text-white/60">({categoryCounts?.[cat.label] ?? 0})</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Sort row */}
         <div className="mt-4 flex flex-wrap gap-3">
           {[
             { key: "all", label: "All" },

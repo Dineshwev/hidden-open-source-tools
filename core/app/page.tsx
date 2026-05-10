@@ -5,13 +5,21 @@ import ResponsiveHomePage from "@/components/home/ResponsiveHomePage";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 export const metadata: Metadata = {
-  title: "Open Source SaaS Alternatives for Developers",
+  title: "The Cloud Rain | Free Open Source Tools & Self-Hosted Alternatives",
   description:
-    "Discover lightweight open-source tools, self-hosted software, and practical SaaS alternatives curated by The Cloud Rain for developers.",
+    "Discover 250+ free open source tools, self-hosted software alternatives, hidden gems, and practical SaaS replacements. Browse UI kits, templates, courses, and dev utilities curated by The Cloud Rain.",
   keywords: [
-    "open source SaaS alternatives",
-    "self-hosted developer tools",
-    "lightweight DevOps tools"
+    "free open source tools",
+    "free software alternatives",
+    "self-hosted tools",
+    "SaaS alternatives",
+    "hidden gems open source",
+    "free developer tools",
+    "lightweight DevOps tools",
+    "open source software library",
+    "free UI kits",
+    "free templates",
+    "no cost developer resources"
   ],
   alternates: {
     canonical: "/"

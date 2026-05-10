@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 
 export const revalidate = 86400;
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 
 type ToolRow = {
   id: string;
@@ -203,9 +205,21 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   const cleanedDescription = cleanDescription(tool.description);
   const githubUrl = (tool.url?.includes("github.com") ? tool.url : null) ?? extractGithubUrl(tool.description);
   const githubStats = githubUrl ? await fetchGithubStats(githubUrl) : null;
+  const structuredData = buildToolStructuredData(
+    {
+      name: tool.name,
+      slug: tool.slug,
+      category: tool.category,
+      description: cleanedDescription,
+      url: tool.url
+    },
+    siteUrl,
+    faviconUrl
+  );
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-start">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 p-3">

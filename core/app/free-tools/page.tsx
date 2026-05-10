@@ -5,17 +5,25 @@ import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types"
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
 const pagePath = "/free-tools";
-const pageTitle = "No-Cost Developer Resources and Open Source Tools";
+const pageTitle = "250+ Free Open Source Tools, Templates & UI Kits | The Cloud Rain";
 const pageDescription =
-  "Browse no-cost developer resources, open-source tools, UI kits, courses, templates, and components curated for practical engineering work.";
+  "Browse 250+ free open source tools, self-hosted software, UI kits, courses, templates, AI utilities, and developer components. All free, no paywalls, no vendor lock-in. Curated directory for developers.";
 
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,
   keywords: [
-    "no-cost developer tools",
-    "open-source resources",
-    "developer templates"
+    "free open source tools",
+    "free developer tools",
+    "open source software",
+    "free UI kits",
+    "free templates",
+    "free courses",
+    "open source alternatives",
+    "self-hosted tools",
+    "no cost resources",
+    "developer utilities",
+    "free software directory"
   ],
   alternates: {
     canonical: pagePath
@@ -74,10 +82,36 @@ export default async function FreeToolsPage() {
 
   const initialTools = error ? [] : (Array.isArray(data) ? data.map(mapOpenSourceTool) : []);
 
+  // Fetch exact category values and compute counts server-side
+  const { data: categoryRows } = await supabase.from("open_source_tools").select("category").eq("status", "approved");
+
+  const rawCounts = Array.isArray(categoryRows)
+    ? categoryRows.reduce<Record<string, number>>((acc, r) => {
+        const key = String((r as any).category || "").trim();
+        if (!key) return acc;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {})
+    : {};
+
+  const counts: Record<string, number> = {
+    All: initialTools.length,
+    "Developer Tools": rawCounts["Developer Tools"] || 0,
+    "Self-Hosting & Infrastructure": rawCounts["Self-Hosting & Infrastructure"] || 0,
+    "Analytics & Search": rawCounts["Analytics & Search"] || 0,
+    "Media & Utilities": rawCounts["Media & Utilities"] || 0,
+    Productivity: rawCounts["Productivity"] || 0,
+    "Community & Events": rawCounts["Community & Events"] || 0,
+    "Business Tools": rawCounts["Business Tools"] || 0,
+    Security: rawCounts["Security"] || 0,
+    Miscellaneous: rawCounts["Miscellaneous"] || 0
+  };
+
   return (
     <FreeToolsPageClient
       initialTools={initialTools}
       initialCount={initialTools.length}
+      categoryCounts={counts}
     />
   );
 }
