@@ -65,6 +65,10 @@ function truncateDescription(description: string) {
   return description.length > 160 ? `${description.slice(0, 157).trimEnd()}...` : description;
 }
 
+function getSeoDescriptionSnippet(description: string) {
+  return cleanDescription(description).slice(0, 100).trimEnd();
+}
+
 function extractGithubUrl(description: string) {
   const match = description.match(/https:\/\/github\.com\/[a-zA-Z0-9\-_.]+\/[a-zA-Z0-9\-_.]+/);
   return match?.[0] || null;
@@ -172,8 +176,9 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const tool = await getToolBySlug(params.slug);
   if (!tool) return {};
 
-  const title = `${tool.name} - Open Source ${tool.category} Tool`;
-  const description = truncateDescription(cleanDescription(tool.description));
+  const title = `${tool.name} — Open Source ${tool.category} | Self-hosted Alternative`;
+  const descriptionSnippet = getSeoDescriptionSnippet(tool.description);
+  const description = `${tool.name} is a free, self-hosted alternative for ${tool.category}. ${descriptionSnippet}. No vendor lock-in.`;
   const faviconUrl = getFaviconUrl(tool.url);
 
   return {

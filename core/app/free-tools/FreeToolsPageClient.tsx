@@ -1,54 +1,44 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import axios from "axios";
-import { motion } from "framer-motion";
 import { Frown } from "lucide-react";
 import ToolCard from "@/components/ToolCard";
-import type { PaginatedResponse, ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
-import {
-  FREE_TOOLS_CATEGORY_PAGES,
-  FREE_TOOLS_PAGE_SIZE,
-  buildFreeToolsRoute,
-  getCategoryPageByCategory
-} from "./free-tools-data";
+import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
-type ToolsApiResponse = PaginatedResponse<ScrapedTool>;
+type SortOption = "all" | "shuffle" | "newest" | "oldest";
 
-type CategoryTab = {
-  key: "all" | "ui-kits" | "courses" | "templates" | "ai-tools" | "components" | "other";
-  label: string;
-  queryValue?: ToolCategory;
-};
+function createSeededRandom(seed: number) {
+  let value = seed % 2147483647;
 
-type SortOption = "newest" | "az" | "random";
+  if (value <= 0) {
+    value += 2147483646;
+  }
 
-const categoryTabs: CategoryTab[] = [
-  { key: "all", label: "All" },
-  { key: "ui-kits", label: "UI Kits", queryValue: "ui-kit" },
-  { key: "courses", label: "Courses", queryValue: "course" },
-  { key: "templates", label: "Templates", queryValue: "template" },
-  { key: "ai-tools", label: "AI Tools", queryValue: "ai-tool" },
-  { key: "components", label: "Components", queryValue: "ui-component" },
-  { key: "other", label: "Other", queryValue: "other" }
-];
+  return () => {
+    value = (value * 16807) % 2147483647;
+    return (value - 1) / 2147483646;
+  };
+}
 
-function getPaginationItems(currentPage: number, totalPages: number) {
-  if (totalPages <= 1) return [];
+function shuffleTools<T>(items: T[], seed: number) {
+  const shuffled = [...items];
+  const random = createSeededRandom(seed);
 
-  const pages = new Set<number>([1, totalPages, currentPage, currentPage - 1, currentPage + 1]);
-  return Array.from(pages)
-    .filter((value) => value >= 1 && value <= totalPages)
-    .sort((a, b) => a - b);
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
+  }
+
+  return shuffled;
 }
 
 export default function FreeToolsPageClient({
   initialTools = [],
   initialCount = null,
-  initialTotalPages = 1,
-  initialPage = 1,
-  initialCategory
+  initialTotalPages: _initialTotalPages,
+  initialPage: _initialPage,
+  initialCategory: _initialCategory
 }: {
   initialTools?: ScrapedTool[];
   initialCount?: number | null;
@@ -56,170 +46,39 @@ export default function FreeToolsPageClient({
   initialPage?: number;
   initialCategory?: ToolCategory;
 }) {
-  const [selectedCategories, setSelectedCategories] = useState<ToolCategory[]>(initialCategory ? [initialCategory] : []);
-  const [tools, setTools] = useState<ScrapedTool[]>(initialTools);
-  const [toolCount, setToolCount] = useState<number | null>(initialCount);
-  const [page, setPage] = useState(initialPage);
-  const [totalPages, setTotalPages] = useState(initialTotalPages > 0 ? initialTotalPages : 1);
-  const [loading, setLoading] = useState(initialTools.length === 0);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [sortOption, setSortOption] = useState<SortOption>("all");
+  const [shuffleSeed, setShuffleSeed] = useState(Date.now());
   const [error, setError] = useState("");
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
-  const [randomSeed, setRandomSeed] = useState(0);
-  const hasSkippedInitialFetch = useRef(false);
-
-  const serverCategory = useMemo(() => {
-    if (selectedCategories.length === 1) {
-      return selectedCategories[0];
-    }
-
-    return undefined;
-  }, [selectedCategories]);
-
-  const activeCategoryPage = getCategoryPageByCategory(serverCategory || null);
-  const paginationItems = getPaginationItems(page, totalPages);
+  const tools = initialTools;
+  const toolCount = initialCount ?? initialTools.length;
 
   const visibleTools = useMemo(() => {
-    const categoryFiltered = selectedCategories.length
-      ? tools.filter((tool) => selectedCategories.includes(tool.category))
-      : tools;
+    const sorted = [...tools];
 
-    const sorted = [...categoryFiltered];
+    if (sortOption === "shuffle") {
+      return shuffleTools(sorted, shuffleSeed);
+    }
 
-    if (sortOption === "az") {
-      sorted.sort((a, b) => a.title.localeCompare(b.title));
+    if (sortOption === "newest") {
+      sorted.sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime());
       return sorted;
     }
 
-    if (sortOption === "random") {
-      for (let i = sorted.length - 1; i > 0; i -= 1) {
-        const j = (i * (randomSeed + 17)) % (i + 1);
-        [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
-      }
-
+    if (sortOption === "oldest") {
+      sorted.sort((a, b) => new Date(a.scraped_at).getTime() - new Date(b.scraped_at).getTime());
       return sorted;
     }
 
-    sorted.sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime());
     return sorted;
-  }, [tools, selectedCategories, sortOption, randomSeed]);
-
-  const hasMore = page < totalPages;
-
-  const fetchTools = useCallback(
-    async (targetPage: number, replace = false) => {
-      if (replace) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
-
-      setError("");
-
-      try {
-        const response = await axios.get<ToolsApiResponse>("/api/files/scraped-tools", {
-          params: {
-            page: targetPage,
-            limit: FREE_TOOLS_PAGE_SIZE,
-            ...(serverCategory ? { category: serverCategory } : {})
-          }
-        });
-
-        const payload = response.data;
-        const incoming = Array.isArray(payload.data) ? payload.data : [];
-
-        setTools((previous) => (replace ? incoming : [...previous, ...incoming]));
-        setTotalPages(payload.totalPages > 0 ? payload.totalPages : 1);
-        setPage(payload.currentPage || targetPage);
-      } catch (err: unknown) {
-        const maybeError = err as { response?: { data?: { error?: string } } };
-        setError(maybeError?.response?.data?.error || "Unable to load developer resources right now.");
-
-        if (replace) {
-          setTools([]);
-          setTotalPages(1);
-          setPage(1);
-        }
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [serverCategory]
-  );
-
-  useEffect(() => {
-    if (!hasSkippedInitialFetch.current) {
-      hasSkippedInitialFetch.current = true;
-      return;
-    }
-
-    setTools([]);
-    setPage(1);
-    setTotalPages(1);
-    void fetchTools(1, true);
-  }, [fetchTools, selectedCategories]);
-
-  useEffect(() => {
-    if (initialCount !== null) {
-      return;
-    }
-
-    const fetchCount = async () => {
-      try {
-        const res = await fetch("/api/files/scraped-tools?page=1&limit=1");
-        const data = await res.json();
-
-        if (typeof data?.count === "number") {
-          setToolCount(data.count);
-        }
-      } catch {
-        // Keep null and show fallback text.
-      }
-    };
-
-    void fetchCount();
-  }, [initialCount]);
-
-  const handleLoadMore = async () => {
-    if (!hasMore || loadingMore) {
-      return;
-    }
-
-    await fetchTools(page + 1, false);
-  };
-
-  const renderSkeletons = loading && tools.length === 0;
+  }, [tools, sortOption, shuffleSeed]);
 
   const handleOpenTool = (url: string) => {
     window.open(url, "_blank");
   };
 
-  const toggleCategory = (tab: CategoryTab) => {
-    if (!tab.queryValue) {
-      setSelectedCategories([]);
-      return;
-    }
-
-    setSelectedCategories((previous) =>
-      previous.includes(tab.queryValue as ToolCategory)
-        ? previous.filter((value) => value !== tab.queryValue)
-        : [...previous, tab.queryValue as ToolCategory]
-    );
-  };
-
-  const shuffleTools = () => {
-    setSortOption("random");
-    setRandomSeed(Date.now());
-  };
-
-  const surpriseMe = () => {
-    if (!visibleTools.length) {
-      return;
-    }
-
-    const pick = visibleTools[Math.floor(Math.random() * visibleTools.length)];
-    handleOpenTool(pick.webpage_url);
+  const handleShuffleClick = () => {
+    setSortOption("shuffle");
+    setShuffleSeed(Date.now());
   };
 
   return (
@@ -252,40 +111,39 @@ export default function FreeToolsPageClient({
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Crawlable categories</p>
-        <h2 className="mt-2 text-xl text-white">Browse by category</h2>
+        <p className="text-xs uppercase tracking-[0.25em] text-white/45">Sort tools</p>
+        <h2 className="mt-2 text-xl text-white">Browse all approved resources</h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-white/65">
-          These category pages create stable directory routes for search engines and visitors who want to browse a narrower slice of the library.
+          These buttons sort the complete approved set fetched from the database, so the full directory stays visible without category filtering or paging.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link
-            href={buildFreeToolsRoute(null, 1)}
-            className={`rounded-full px-4 py-2 text-sm transition ${
-              !activeCategoryPage ? "bg-cyan-300 font-semibold text-slate-900" : "border border-white/20 text-white/90"
-            }`}
-          >
-            All Resources
-          </Link>
-          {FREE_TOOLS_CATEGORY_PAGES.map((entry) => (
-            <Link
-              key={entry.slug}
-              href={buildFreeToolsRoute(entry.slug, 1)}
+          {[
+            { key: "all", label: "All" },
+            { key: "shuffle", label: "Shuffle" },
+            { key: "newest", label: "Newest First" },
+            { key: "oldest", label: "Oldest First" }
+          ].map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => {
+                if (option.key === "shuffle") {
+                  handleShuffleClick();
+                  return;
+                }
+
+                setSortOption(option.key as SortOption);
+              }}
               className={`rounded-full px-4 py-2 text-sm transition ${
-                activeCategoryPage?.slug === entry.slug
+                sortOption === option.key
                   ? "bg-cyan-300 font-semibold text-slate-900"
                   : "border border-white/20 text-white/90"
               }`}
             >
-              {entry.label}
-            </Link>
+              {option.label}
+            </button>
           ))}
         </div>
-      </section>
-
-      <section className="glass-panel rounded-3xl p-4 md:p-5">
-        
-
-        
       </section>
 
       {error ? (
@@ -295,93 +153,16 @@ export default function FreeToolsPageClient({
       ) : null}
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {renderSkeletons
-          ? Array.from({ length: FREE_TOOLS_PAGE_SIZE }).map((_, skeletonIdx) => (
-              <div key={`skeleton-${skeletonIdx}`} className="glass-card animate-pulse rounded-3xl border border-white/10 p-4">
-                <div className="h-44 rounded-2xl bg-white/10" />
-                <div className="mt-4 h-4 w-2/3 rounded bg-white/10" />
-                <div className="mt-3 h-3 w-full rounded bg-white/10" />
-                <div className="mt-2 h-3 w-11/12 rounded bg-white/10" />
-                <div className="mt-2 h-3 w-2/3 rounded bg-white/10" />
-                <div className="mt-5 h-10 w-40 rounded-full bg-white/10" />
-              </div>
-            ))
-          : visibleTools.map((tool, toolIdx) => (
-              <ToolCard key={tool.id} tool={tool} index={toolIdx} onOpen={handleOpenTool} />
-            ))}
+        {visibleTools.map((tool, toolIdx) => (
+          <ToolCard key={tool.id} tool={tool} index={toolIdx} onOpen={handleOpenTool} />
+        ))}
       </section>
 
-      {!loading && visibleTools.length === 0 ? (
+      {visibleTools.length === 0 ? (
         <section className="glass-panel flex flex-col items-center justify-center gap-3 rounded-3xl p-10 text-center">
           <Frown className="h-10 w-10 text-white/55" />
           <h3 className="font-display text-2xl text-white">No tools found</h3>
-          <p className="max-w-lg text-sm text-white/60">Try another category to discover more free resources.</p>
-        </section>
-      ) : null}
-
-      {totalPages > 1 ? (
-        <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-          <p className="text-xs uppercase tracking-[0.25em] text-white/45">Crawlable pagination</p>
-          <h3 className="mt-2 font-display text-xl text-white">Directory pages</h3>
-          <div className="mt-4 flex flex-wrap gap-3">
-            {page > 1 ? (
-              <button
-                type="button"
-                onClick={() => void (async () => {
-                  const target = page - 1;
-                  setPage(target);
-                  await fetchTools(target, true);
-                  try { window.history.pushState(null, '', buildFreeToolsRoute(activeCategoryPage?.slug || null, target)); } catch {}
-                })()}
-                className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90"
-              >
-                Previous Page
-              </button>
-            ) : null}
-            {paginationItems.map((pageNumber) => (
-              <button
-                key={pageNumber}
-                type="button"
-                onClick={() => void (async () => {
-                  setPage(pageNumber);
-                  await fetchTools(pageNumber, true);
-                  try { window.history.pushState(null, '', buildFreeToolsRoute(activeCategoryPage?.slug || null, pageNumber)); } catch {}
-                })()}
-                className={`rounded-full px-4 py-2 text-sm transition ${
-                  pageNumber === page ? "bg-cyan-300 font-semibold text-slate-900" : "border border-white/20 text-white/90"
-                }`}
-              >
-                Page {pageNumber}
-              </button>
-            ))}
-            {page < totalPages ? (
-              <button
-                type="button"
-                onClick={() => void (async () => {
-                  const target = page + 1;
-                  setPage(target);
-                  await fetchTools(target, true);
-                  try { window.history.pushState(null, '', buildFreeToolsRoute(activeCategoryPage?.slug || null, target)); } catch {}
-                })()}
-                className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90"
-              >
-                Next Page
-              </button>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
-      {tools.length > 0 ? (
-        <section className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => void handleLoadMore()}
-            disabled={!hasMore || loadingMore}
-            className="rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-55"
-          >
-            {loadingMore ? "Loading..." : hasMore ? "Load More" : "No More Tools"}
-          </button>
+          <p className="max-w-lg text-sm text-white/60">No approved tools were returned from the database query.</p>
         </section>
       ) : null}
 

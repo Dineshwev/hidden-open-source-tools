@@ -11,6 +11,7 @@ const siteUrl = getSiteUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticLastModified = new Date("2026-04-17");
+  const currentLastModified = new Date();
   
   const staticEntries: MetadataRoute.Sitemap = [
     {
@@ -137,19 +138,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch Approved Tools
     const { data: tools } = await supabase
       .from("open_source_tools")
-      .select("id, scraped_at, status")
-      .or('status.eq.approved,status.is.null')
-      .order("scraped_at", { ascending: false });
+      .select("slug")
+      .eq("status", "approved")
+      .not("slug", "is", null)
+      .neq("slug", "")
+      .order("created_at", { ascending: false });
 
     if (tools) {
-      const approvedTools = tools.filter((tool: any) => !tool?.status || String(tool.status).toLowerCase() === "approved");
-
       toolEntries = tools.map((tool: any) => ({
-        url: `${siteUrl}/free-tools/${tool.id}`,
-        lastModified: tool.scraped_at ? new Date(tool.scraped_at) : staticLastModified,
+        url: `${siteUrl}/tools/${tool.slug}`,
+        lastModified: currentLastModified,
         changeFrequency: "monthly",
-        priority: 0.8
+        priority: 0.7
       }));
+
+      const approvedTools = tools;
 
       const totalDirectoryPages = Math.ceil(approvedTools.length / FREE_TOOLS_PAGE_SIZE);
 
