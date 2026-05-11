@@ -3,7 +3,7 @@ import FreeToolsPageClient from "./FreeToolsPageClient";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 const pagePath = "/free-tools";
 const pageTitle = "250+ Free Open Source Tools, Templates & UI Kits | The Cloud Rain";
 const pageDescription =

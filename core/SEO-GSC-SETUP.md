@@ -2,7 +2,7 @@ Google Search Console (GSC) — Quick Setup Guide
 
 1. Choose property type
 - Domain property: verifies entire domain (recommended) via DNS TXT record.
-- URL-prefix property: verify a specific protocol+host (e.g., https://thecloudrain.site) via HTML file, HTML tag, Google Analytics, or DNS.
+-- URL-prefix property: verify a specific protocol+host (e.g., https://thecloudrain.org) via HTML file, HTML tag, Google Analytics, or DNS.
 
 2. Verify ownership (pick one)
 - DNS TXT (best for domain): add the TXT record your DNS provider gives you.
@@ -10,7 +10,7 @@ Google Search Console (GSC) — Quick Setup Guide
 - HTML tag: add the meta tag to `<head>` in `core/app/layout.tsx`.
 
 3. Submit sitemap
-- Ensure your sitemap is accessible (e.g., `https://thecloudrain.site/sitemap.xml`).
+- Ensure your sitemap is accessible (e.g., `https://thecloudrain.org/sitemap.xml`).
 - In GSC, go to Sitemaps → Add sitemap → enter `sitemap.xml`.
 
 4. Coverage & Indexing

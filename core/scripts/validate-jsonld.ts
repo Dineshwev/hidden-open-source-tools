@@ -15,7 +15,7 @@ const sample = {
   url: "https://example.com"
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 const jsonld = buildToolStructuredData(sample, siteUrl, "https://example.com/favicon.ico");
 

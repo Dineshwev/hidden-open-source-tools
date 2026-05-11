@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
   title: "DMCA Policy | The Cloud Rain",
@@ -146,8 +146,8 @@ export default function DmcaPage() {
           <p className="text-sm leading-relaxed">
             Please direct all official DMCA requests, complaints, and counter-notices exclusively to:
           </p>
-          <a href="mailto:support@thecloudrain.site" className="mt-3 inline-block font-semibold text-cyan-300 hover:text-cyan-200 transition">
-            support@thecloudrain.site
+          <a href="mailto:support@thecloudrain.org" className="mt-3 inline-block font-semibold text-cyan-300 hover:text-cyan-200 transition">
+            support@thecloudrain.org
           </a>
         </section>
 

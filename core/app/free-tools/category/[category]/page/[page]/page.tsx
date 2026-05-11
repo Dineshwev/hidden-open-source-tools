@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import FreeToolsPageClient from "@/app/free-tools/FreeToolsPageClient";
 import { buildFreeToolsRoute, getCategoryPageBySlug, getFreeToolsPageData } from "@/app/free-tools/free-tools-data";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 type PageProps = {
   params: {

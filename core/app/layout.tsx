@@ -14,11 +14,11 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "The Cloud Rain | Free Open Source Tools & Hidden Gem Software",
+    default: "The Cloud Rain | Open Source SaaS Alternatives",
     template: "%s | The Cloud Rain"
   },
   description:
-    "The Cloud Rain is a curated directory of 250+ free open source tools, hidden gems, self-hosted software, and practical SaaS alternatives for developers, DevOps teams, and indie hackers. No paywalls, no vendor lock-in.",
+    "Discover 250+ self-hosted open-source tools and lightweight SaaS alternatives curated for developers, DevOps engineers, and indie hackers.",
   keywords: [
     "free open source tools",
     "free software",
@@ -38,11 +38,11 @@ export const metadata: Metadata = {
   applicationName: siteName,
   category: "technology",
   alternates: {
-    canonical: "/"
+    canonical: "https://www.thecloudrain.org"
   },
   openGraph: {
     type: "website",
-    url: siteUrl,
+    url: "https://www.thecloudrain.org",
     siteName,
     title: "The Cloud Rain | Open Source SaaS Alternatives",
     description:
@@ -54,6 +54,8 @@ export const metadata: Metadata = {
     title: "The Cloud Rain | Open Source SaaS Alternatives",
     description:
       "Curated open-source tools, self-hosted software, and lightweight SaaS alternatives for builders."
+    ,
+    site: "@TheCloudRain_"
   },
   robots: {
     index: true,
@@ -138,7 +140,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         */}
         <Script
           defer
-          data-domain="thecloudrain.site"
+          data-domain="www.thecloudrain.org"
           src="https://plausible.io/js/script.js"
           strategy="afterInteractive"
         />

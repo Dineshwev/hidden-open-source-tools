@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ContactPageClient from "@/components/contact/ContactPageClient";
 
-const siteUrl = "https://thecloudrain.site";
+const siteUrl = "https://thecloudrain.org";
 
 export const metadata: Metadata = {
   title: "Contact",

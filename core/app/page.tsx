@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ResponsiveHomePage from "@/components/home/ResponsiveHomePage";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
   title: "The Cloud Rain | Free Open Source Tools & Self-Hosted Alternatives",

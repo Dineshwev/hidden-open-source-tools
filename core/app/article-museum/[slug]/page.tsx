@@ -21,7 +21,7 @@ type Article = {
   image_url?: string;
 };
 
-const siteUrl = "https://thecloudrain.site";
+const siteUrl = "https://thecloudrain.org";
 const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
 export const revalidate = 86400;

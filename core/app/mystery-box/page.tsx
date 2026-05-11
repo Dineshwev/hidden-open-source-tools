@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MysteryBox from "@/components/MysteryBox";
 import SectionHeading from "@/components/SectionHeading";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
   title: "Random Open Source Tool Discovery for Developer Teams",

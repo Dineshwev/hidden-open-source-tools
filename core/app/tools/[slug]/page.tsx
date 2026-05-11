@@ -4,7 +4,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 
 export const revalidate = 86400;
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.site";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 type ToolRow = {
   id: string;
