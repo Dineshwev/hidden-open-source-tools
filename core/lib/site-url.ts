@@ -7,13 +7,5 @@ export function getSiteUrl() {
     return explicitSiteUrl;
   }
 
-  const vercelUrl = process.env.VERCEL_URL?.trim();
-
-  if (vercelUrl) {
-    return vercelUrl.startsWith("http://") || vercelUrl.startsWith("https://")
-      ? vercelUrl
-      : `https://${vercelUrl}`;
-  }
-
   return DEFAULT_SITE_URL;
 }
