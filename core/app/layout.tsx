@@ -18,22 +18,19 @@ export const metadata: Metadata = {
     template: "%s | The Cloud Rain"
   },
   description:
-    "Discover 250+ self-hosted open-source tools and lightweight SaaS alternatives curated for developers, DevOps engineers, and indie hackers.",
+    "Discover 250+ self-hosted open-source tools — lightweight alternatives to expensive SaaS platforms. Curated for developers, DevOps engineers, and indie hackers.",
   keywords: [
-    "free open source tools",
-    "free software",
-    "hidden gems",
     "self-hosted software",
+    "open source tools",
     "SaaS alternatives",
-    "free developer tools",
-    "DevOps tools free",
-    "open source alternatives",
-    "lightweight tools",
+    "developer tools",
+    "DevOps tools",
+    "lightweight software",
+    "open source monitoring",
+    "self-hosted git",
+    "open source analytics",
     "indie hacker tools",
-    "open source software directory",
-    "free UI kits and templates",
-    "no cost developer resources",
-    "The Cloud Rain"
+    "free software alternatives"
   ],
   applicationName: siteName,
   category: "technology",
@@ -77,9 +74,18 @@ const structuredData = {
       "@type": "Organization",
       "name": siteName,
       "url": siteUrl,
-      "logo": `${siteUrl}/og/og-image.png`,
-      "description": "A curated directory of 250+ free open source tools, hidden gems, self-hosted software, and practical SaaS alternatives for developers.",
-      "sameAs": [],
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.thecloudrain.org/icon.svg",
+        "width": 512,
+        "height": 512
+      },
+      "description": "A curated directory of 250+ self-hosted open-source tools and lightweight alternatives to expensive SaaS platforms, built for developers, DevOps engineers, and indie hackers.",
+      "sameAs": [
+        "https://x.com/TheCloudRain_",
+        "https://github.com/Dineshwev/hidden-open-source-tools",
+        "https://dev.to/dinesh_regar"
+      ],
       "contactPoint": {
         "@type": "ContactPoint",
         "contactType": "Customer Support",
@@ -90,7 +96,7 @@ const structuredData = {
       "@type": "WebSite",
       "name": siteName,
       "url": siteUrl,
-      "description": "Free open source tools directory, self-hosted software alternatives, and hidden gems for developers.",
+      "description": "Self-hosted software directory and open-source tools curator — lightweight SaaS alternatives for developers and DevOps engineers.",
       "inLanguage": "en",
       "potentialAction": {
         "@type": "SearchAction",
