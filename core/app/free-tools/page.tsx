@@ -5,9 +5,9 @@ import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types"
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 const pagePath = "/free-tools";
-const pageTitle = "250+ Free Open Source Tools, Templates & UI Kits | The Cloud Rain";
+const pageTitle = "250+ Free Open Source Developer Tools | The Cloud Rain";
 const pageDescription =
-  "Browse 250+ free open source tools, self-hosted software, UI kits, courses, templates, AI utilities, and developer components. All free, no paywalls, no vendor lock-in. Curated directory for developers.";
+  "Browse 250+ free open-source developer tools, self-hosted software, AI utilities, and practical components. No paywalls, no vendor lock-in. Curated for builders.";
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     "free open source tools",
     "free developer tools",
     "open source software",
-    "free UI kits",
-    "free templates",
-    "free courses",
+    "self-hosted software",
+    "developer utilities",
+    "open source discovery",
     "open source alternatives",
     "self-hosted tools",
     "no cost resources",

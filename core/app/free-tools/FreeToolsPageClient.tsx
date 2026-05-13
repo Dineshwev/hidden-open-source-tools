@@ -59,14 +59,14 @@ export default function FreeToolsPageClient({
   const CATEGORY_DEFS: { key: string; label: string; keywords?: string[] }[] = [
     { key: "all", label: "All" },
     { key: "developer-tools", label: "Developer Tools", keywords: ["tool", "dev", "developer", "cli", "sdk"] },
-    { key: "self-hosting", label: "Self-Hosting & Infrastructure", keywords: ["self-host", "self host", "docker", "kubernetes", "infra", "infrastructure", "server"] },
-    { key: "analytics", label: "Analytics & Search", keywords: ["analytics", "search", "monitor", "metrics", "log"] },
-    { key: "media", label: "Media & Utilities", keywords: ["image", "media", "video", "audio", "converter", "compress"] },
+    { key: "self-hosting-infrastructure", label: "Self-Hosting & Infrastructure", keywords: ["self-host", "self host", "docker", "kubernetes", "infra", "infrastructure", "server"] },
+    { key: "analytics-search", label: "Analytics & Search", keywords: ["analytics", "search", "monitor", "metrics", "log"] },
+    { key: "media-utilities", label: "Media & Utilities", keywords: ["image", "media", "video", "audio", "converter", "compress"] },
     { key: "productivity", label: "Productivity", keywords: ["productivity", "todo", "notes", "workflow", "task"] },
-    { key: "community", label: "Community & Events", keywords: ["community", "events", "chat", "forum", "meetup"] },
-    { key: "business", label: "Business Tools", keywords: ["business", "crm", "invoice", "billing", "saas"] },
+    { key: "community-events", label: "Community & Events", keywords: ["community", "events", "chat", "forum", "meetup"] },
+    { key: "business-tools", label: "Business Tools", keywords: ["business", "crm", "invoice", "billing", "saas"] },
     { key: "security", label: "Security", keywords: ["security", "auth", "oauth", "jwt", "vault", "scan"] },
-    { key: "misc", label: "Miscellaneous", keywords: [] }
+    { key: "miscellaneous", label: "Miscellaneous", keywords: [] }
   ];
 
   function toolMatchesCategory(tool: ScrapedTool, catKey: string) {
@@ -128,7 +128,7 @@ export default function FreeToolsPageClient({
           </span>
         </div>
         <p className="mt-3 max-w-2xl text-white/60">
-          {toolCount !== null ? `${toolCount}+` : "153+"} curated open-source tools, UI kits, courses, templates, AI utilities, and components for developers.
+          {toolCount !== null ? `${toolCount}+` : "153+"} curated open-source tools, self-hosted software, AI utilities, and developer components for builders.
           No account needed to browse.
         </p>
 

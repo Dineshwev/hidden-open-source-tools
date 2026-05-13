@@ -41,15 +41,15 @@ function mapOpenSourceTool(row: any): ScrapedTool {
 function formatCategoryLabel(category: ToolCategory) {
   switch (category) {
     case "ui-kit":
-      return "UI Kit";
+      return "Developer Tool";
     case "course":
-      return "Course";
+      return "Developer Guide";
     case "template":
-      return "Template";
+      return "Developer Tool";
     case "ai-tool":
       return "AI Tool";
     case "ui-component":
-      return "UI Component";
+      return "Developer Component";
     default:
       return "Developer Resource";
   }
@@ -58,11 +58,11 @@ function formatCategoryLabel(category: ToolCategory) {
 function getUseCaseCopy(category: ToolCategory) {
   switch (category) {
     case "ui-kit":
-      return "Best for designers and frontend teams who want reusable interface patterns, faster layout iteration, and cleaner starting points for landing pages or dashboards.";
+      return "Best for developers who need reusable tooling, cleaner project setup, and faster delivery workflows.";
     case "course":
-      return "Best for developers who want to learn a topic quickly through guided material, practical lessons, and project-based examples.";
+      return "Best for developers who want practical guidance, implementation references, and hands-on workflow support.";
     case "template":
-      return "Best for shipping faster with a stronger project starting point, especially when you want working structure instead of a blank setup.";
+      return "Best for teams who want faster shipping with proven implementation patterns and less setup friction.";
     case "ai-tool":
       return "Best for developers who want to automate repetitive work, speed up drafting, or improve research and coding workflows.";
     case "ui-component":

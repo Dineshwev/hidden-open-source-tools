@@ -104,7 +104,7 @@ export default function LicensePage() {
             The Cloud Rain does not guarantee that third-party upload metadata is complete or error-free. Always verify the package license directly from the original repository or included license files before shipping to production.
           </p>
           <p className="text-sm leading-relaxed">
-            This is especially important for bundles, mixed-media assets, templates with multiple dependencies, or older repositories where metadata may be incomplete. If the legal status is unclear, pause before distribution and verify the source material directly.
+            This is especially important for bundles, mixed-media assets, complex dependency chains, or older repositories where metadata may be incomplete. If the legal status is unclear, pause before distribution and verify the source material directly.
           </p>
         </section>
 

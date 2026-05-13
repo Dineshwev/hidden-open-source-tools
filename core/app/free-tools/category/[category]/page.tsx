@@ -37,7 +37,7 @@ export default async function FreeToolsCategoryPage({ params }: PageProps) {
 
   const { initialTools, initialCount, initialTotalPages, currentPage } = await getFreeToolsPageData({
     page: 1,
-    category: categoryPage.category
+    categorySlug: categoryPage.slug
   });
 
   return (
@@ -46,7 +46,6 @@ export default async function FreeToolsCategoryPage({ params }: PageProps) {
       initialCount={initialCount}
       initialTotalPages={initialTotalPages}
       initialPage={currentPage}
-      initialCategory={categoryPage.category}
     />
   );
 }

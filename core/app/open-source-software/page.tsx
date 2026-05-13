@@ -99,7 +99,7 @@ export default function OpenSourceSoftwarePage() {
         </article>
         <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-lg text-white">Developer Categories</h2>
-          <p className="mt-2 text-sm text-white/65">Explore UI kits, templates, courses, and AI tools in one place.</p>
+          <p className="mt-2 text-sm text-white/65">Explore developer tools across self-hosting, analytics, security, and workflow categories.</p>
         </article>
         <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="text-lg text-white">Fresh Discoveries</h2>

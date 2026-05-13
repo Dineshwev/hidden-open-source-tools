@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s | The Cloud Rain"
   },
   description:
-    "Curated directory of 250+ free open-source tools, self-hosted software, UI kits and templates — practical SaaS alternatives for developers and DevOps teams.",
+    "Curated directory of 250+ open-source tools, self-hosted software, and practical SaaS alternatives for developers and DevOps teams.",
   keywords: [
     "free open source tools",
     "self-hosted alternatives",
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     "developer tools",
     "open source directory",
     "no-cost resources",
-    "UI kits",
-    "templates",
+    "self-hosted tools directory",
+    "developer workflow tools",
     "DevOps tools",
     "privacy focused tools",
     "The Cloud Rain"

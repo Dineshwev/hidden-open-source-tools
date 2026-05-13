@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `Free Developer Resources - Page ${page} | The Cloud Rain`;
-  const description = `Browse page ${page} of the The Cloud Rain free developer resources directory, including tools, templates, courses, and open source resources.`;
+  const description = `Browse page ${page} of The Cloud Rain developer tools directory, including open-source software, self-hosted utilities, and practical workflow tools.`;
 
   return {
     title,

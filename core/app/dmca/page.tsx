@@ -127,7 +127,7 @@ export default function DmcaPage() {
             <li>State whether emergency removal is requested and why.</li>
           </ul>
           <p className="text-sm leading-relaxed">
-            For software or template disputes, it also helps to explain whether the issue is full copying, unauthorized redistribution, missing attribution, or improper relicensing. That gives our team more concrete review criteria.
+            For software or resource disputes, it also helps to explain whether the issue is full copying, unauthorized redistribution, missing attribution, or improper relicensing. That gives our team more concrete review criteria.
           </p>
         </section>
 

@@ -109,6 +109,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.6
+    },
+    {
+      url: `${siteUrl}/ads-disclosure`,
+      lastModified: staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.5
+    },
+    {
+      url: `${siteUrl}/copyright`,
+      lastModified: staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.5
+    },
+    {
+      url: `${siteUrl}/dmca`,
+      lastModified: staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.5
+    },
+    {
+      url: `${siteUrl}/license`,
+      lastModified: staticLastModified,
+      changeFrequency: "monthly",
+      priority: 0.5
     }
   ];
 
@@ -138,7 +162,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch Approved Tools
     const { data: tools } = await supabase
       .from("open_source_tools")
-      .select("slug, created_at")
+      .select("slug, created_at, category")
       .eq("status", "approved")
       .not("slug", "is", null)
       .neq("slug", "")
@@ -168,12 +192,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       for (const categoryPage of FREE_TOOLS_CATEGORY_PAGES) {
         const categoryTools = approvedTools.filter((tool: any) => {
           const raw = String(tool?.category || "").trim().toLowerCase();
-          if (categoryPage.category === "ui-kit") return ["ui-kit", "ui kits", "ui kit"].includes(raw);
-          if (categoryPage.category === "course") return ["course", "courses"].includes(raw);
-          if (categoryPage.category === "template") return ["template", "templates"].includes(raw);
-          if (categoryPage.category === "ai-tool") return ["ai-tool", "ai tools", "ai tool"].includes(raw);
-          if (categoryPage.category === "ui-component") return ["ui-component", "ui components", "component", "components"].includes(raw);
-          return !["ui-kit", "ui kits", "ui kit", "course", "courses", "template", "templates", "ai-tool", "ai tools", "ai tool", "ui-component", "ui components", "component", "components"].includes(raw);
+          return categoryPage.matchValues.includes(raw);
         });
 
         freeToolsPaginationEntries.push({

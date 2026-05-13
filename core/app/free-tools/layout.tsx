@@ -8,7 +8,7 @@ const freeToolsStructuredData = {
   name: "No-Cost Developer Resources",
   url: `${siteUrl}/free-tools`,
   description:
-    "Curated no-cost developer resources, open-source tools, UI kits, templates, courses, and components for engineering teams.",
+    "Curated no-cost developer resources, open-source tools, self-hosted utilities, and practical components for engineering teams.",
   isPartOf: {
     "@type": "WebSite",
     name: "The Cloud Rain",
@@ -17,22 +17,22 @@ const freeToolsStructuredData = {
   about: [
     "No-cost developer tools",
     "Open source resources",
-    "UI kits",
-    "Templates",
-    "Developer courses"
+    "Self-hosted software",
+    "Developer utilities",
+    "Engineering workflows"
   ]
 };
 
 export const metadata: Metadata = {
   title: "No-Cost Developer Resources and Open Source Tools",
   description:
-    "Browse 250+ no-cost developer resources — open-source tools, UI kits, templates, courses, and components curated for practical engineering work.",
+    "Browse 250+ no-cost developer resources — open-source tools, self-hosted utilities, and developer components curated for practical engineering work.",
   keywords: [
     "no-cost developer tools",
     "open source tools",
-    "UI kits",
-    "templates",
-    "developer courses",
+    "self-hosted software",
+    "developer utilities",
+    "engineering workflows",
     "open source directory"
   ],
   alternates: {
@@ -43,12 +43,12 @@ export const metadata: Metadata = {
     url: `${siteUrl}/free-tools`,
     title: "No-Cost Developer Resources and Open Source Tools",
     description:
-      "Browse 250+ no-cost developer resources — open-source tools, UI kits, templates, courses, and components curated for practical engineering work."
+      "Browse 250+ no-cost developer resources — open-source tools, self-hosted utilities, and developer components curated for practical engineering work."
   },
   twitter: {
     card: "summary_large_image",
     title: "No-Cost Developer Resources and Open Source Tools",
-    description: "Curated no-cost tools, templates, courses, and components for developers."
+    description: "Curated no-cost tools, self-hosted utilities, and developer components for builders."
   }
 };
 

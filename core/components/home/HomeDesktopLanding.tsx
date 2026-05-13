@@ -42,7 +42,7 @@ export default function HomeDesktopLanding() {
 
               <p className="max-w-2xl text-lg leading-relaxed text-white/72">
                 Discover lightweight open-source tools, self-hosted software,
-                UI kits, and templates for reducing SaaS costs without adding noise to your stack.
+                and practical developer utilities for reducing SaaS costs without adding noise to your stack.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
@@ -80,7 +80,7 @@ export default function HomeDesktopLanding() {
                   {
                     icon: <Sparkles className="h-5 w-5 text-yellow-400" />,
                     title: "Developer Resource Reviewed",
-                    text: "A new Next.js dashboard template was added after moderation."
+                    text: "A new Next.js dashboard tooling resource was added after moderation."
                   },
                   {
                     icon: <Shield className="h-5 w-5 text-blue-400" />,

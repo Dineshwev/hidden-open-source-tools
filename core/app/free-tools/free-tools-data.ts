@@ -6,64 +6,80 @@ export const FREE_TOOLS_PAGE_SIZE = 12;
 export type FreeToolsCategoryPage = {
   slug: string;
   label: string;
-  category: ToolCategory;
   title: string;
   description: string;
+  matchValues: string[];
 };
 
 export const FREE_TOOLS_CATEGORY_PAGES: FreeToolsCategoryPage[] = [
   {
-    slug: "ui-kits",
-    label: "UI Kits",
-    category: "ui-kit",
-    title: "No-Cost UI Kits for Developers",
-    description: "Browse no-cost UI kits, interface packs, and design resources curated for frontend teams and product builders."
+    slug: "developer-tools",
+    label: "Developer Tools",
+    title: "No-Cost Developer Tools",
+    description: "Browse no-cost developer tools and open-source utilities curated for practical engineering workflows.",
+    matchValues: ["developer tools", "developer-tools", "dev tools", "ui-kit", "template", "ai-tool", "ui-component"]
   },
   {
-    slug: "courses",
-    label: "Courses",
-    category: "course",
-    title: "No-Cost Developer Courses",
-    description: "Browse no-cost developer courses and practical learning resources curated for developers who want to build faster."
+    slug: "self-hosting-infrastructure",
+    label: "Self-Hosting & Infrastructure",
+    title: "No-Cost Self-Hosting and Infrastructure Tools",
+    description: "Browse no-cost self-hosting and infrastructure tools for deployment, orchestration, and operations.",
+    matchValues: ["self-hosting & infrastructure", "self-hosting", "infrastructure", "self-hosting-infrastructure"]
   },
   {
-    slug: "templates",
-    label: "Templates",
-    category: "template",
-    title: "No-Cost Templates for Developers",
-    description: "Browse no-cost templates, starters, and reusable project foundations curated for developers."
+    slug: "analytics-search",
+    label: "Analytics & Search",
+    title: "No-Cost Analytics and Search Tools",
+    description: "Browse no-cost analytics, observability, and search tools for engineering teams.",
+    matchValues: ["analytics & search", "analytics", "search", "analytics-search"]
   },
   {
-    slug: "ai-tools",
-    label: "AI Tools",
-    category: "ai-tool",
-    title: "No-Cost AI Tools for Developers",
-    description: "Browse no-cost AI tools and automation resources curated for coding, research, and workflow acceleration."
+    slug: "media-utilities",
+    label: "Media & Utilities",
+    title: "No-Cost Media and Utility Tools",
+    description: "Browse no-cost media and utility tools that support production and developer workflows.",
+    matchValues: ["media & utilities", "media", "utilities", "media-utilities"]
   },
   {
-    slug: "components",
-    label: "Components",
-    category: "ui-component",
-    title: "No-Cost UI Components for Developers",
-    description: "Browse no-cost UI components and reusable interface building blocks for modern frontend teams."
+    slug: "productivity",
+    label: "Productivity",
+    title: "No-Cost Productivity Tools",
+    description: "Browse no-cost productivity tools for planning, workflows, and day-to-day developer efficiency.",
+    matchValues: ["productivity", "course", "courses"]
   },
   {
-    slug: "other",
-    label: "Other",
-    category: "other",
+    slug: "community-events",
+    label: "Community & Events",
+    title: "No-Cost Community and Event Resources",
+    description: "Browse no-cost community and event resources that help developers discover, learn, and collaborate.",
+    matchValues: ["community & events", "community", "events", "community-events"]
+  },
+  {
+    slug: "business-tools",
+    label: "Business Tools",
+    title: "No-Cost Business Tools for Builders",
+    description: "Browse no-cost business tools used by product teams, founders, and engineering organizations.",
+    matchValues: ["business tools", "business", "business-tools"]
+  },
+  {
+    slug: "security",
+    label: "Security",
+    title: "No-Cost Security Tools",
+    description: "Browse no-cost security tools for identity, hardening, scanning, and developer safety workflows.",
+    matchValues: ["security"]
+  },
+  {
+    slug: "miscellaneous",
+    label: "Miscellaneous",
     title: "More No-Cost Developer Resources",
-    description: "Browse additional no-cost developer resources that do not fit a primary category but still offer practical value."
+    description: "Browse additional no-cost developer resources that do not fit a primary category but still offer practical value.",
+    matchValues: ["miscellaneous", "other"]
   }
 ];
 
 export function getCategoryPageBySlug(slug?: string | null) {
   if (!slug) return null;
   return FREE_TOOLS_CATEGORY_PAGES.find((entry) => entry.slug === slug) || null;
-}
-
-export function getCategoryPageByCategory(category?: ToolCategory | null) {
-  if (!category) return null;
-  return FREE_TOOLS_CATEGORY_PAGES.find((entry) => entry.category === category) || null;
 }
 
 export function buildFreeToolsRoute(categorySlug?: string | null, page = 1) {
@@ -121,10 +137,10 @@ function mapOpenSourceTool(row: any): ScrapedTool {
 
 export async function getFreeToolsPageData({
   page = 1,
-  category
+  categorySlug
 }: {
   page?: number;
-  category?: ToolCategory;
+  categorySlug?: string;
 }) {
   const safePage = Math.max(1, Math.floor(page));
 
@@ -138,10 +154,16 @@ export async function getFreeToolsPageData({
 
     const toolRows = (Array.isArray(rows) ? rows : []) as Array<{ status?: unknown }>;
 
+    const categoryPage = getCategoryPageBySlug(categorySlug);
+
     const filteredRows = toolRows
       .filter((row) => isApprovedLike(row?.status))
+      .filter((row) => {
+        if (!categoryPage) return true;
+        const raw = String((row as any)?.category || "").trim().toLowerCase();
+        return categoryPage.matchValues.includes(raw);
+      })
       .map(mapOpenSourceTool)
-      .filter((tool) => (category ? tool.category === category : true))
       .sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime());
 
     const count = filteredRows.length;

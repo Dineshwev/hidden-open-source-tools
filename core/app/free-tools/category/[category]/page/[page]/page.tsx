@@ -47,7 +47,7 @@ export default async function FreeToolsCategoryPaginationPage({ params }: PagePr
 
   const { initialTools, initialCount, initialTotalPages, currentPage } = await getFreeToolsPageData({
     page,
-    category: categoryPage.category
+    categorySlug: categoryPage.slug
   });
 
   if (currentPage > initialTotalPages) {
@@ -60,7 +60,6 @@ export default async function FreeToolsCategoryPaginationPage({ params }: PagePr
       initialCount={initialCount}
       initialTotalPages={initialTotalPages}
       initialPage={currentPage}
-      initialCategory={categoryPage.category}
     />
   );
 }

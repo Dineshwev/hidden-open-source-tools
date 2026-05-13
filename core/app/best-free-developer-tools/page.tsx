@@ -6,7 +6,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 export const metadata: Metadata = {
   title: "Developer Tool Comparisons for Open Source Teams",
   description:
-    "Compare practical developer tools, open-source software, templates, UI kits, and lightweight SaaS alternatives for engineering teams.",
+    "Compare practical developer tools, open-source software, and lightweight SaaS alternatives for engineering teams.",
   keywords: [
     "developer tool comparisons",
     "open source developer tools",
@@ -18,16 +18,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Developer Tool Comparisons for Open Source Teams",
     description:
-      "Compare practical developer tools across UI, AI, templates, and productivity workflows.",
+      "Compare practical developer tools across self-hosting, AI, analytics, security, and productivity workflows.",
     url: `${siteUrl}/best-free-developer-tools`
   }
 };
 
 const toolGroups = [
   {
-    title: "UI and Frontend",
-    summary: "UI kits, component libraries, and visual design helpers for faster frontend shipping.",
-    bestFor: "Landing pages, dashboard UIs, and rapid prototyping"
+    title: "Self-Hosting and Infrastructure",
+    summary: "Open-source infrastructure tools for deployment, orchestration, and platform operations.",
+    bestFor: "Teams migrating away from hosted SaaS infrastructure"
   },
   {
     title: "AI and Automation",
@@ -35,9 +35,9 @@ const toolGroups = [
     bestFor: "Boilerplate generation, docs, and repetitive coding tasks"
   },
   {
-    title: "Templates and Starters",
-    summary: "Production-ready starters and templates that reduce setup overhead.",
-    bestFor: "Faster project kickoff with cleaner architecture"
+    title: "Analytics and Search",
+    summary: "Tools for logs, dashboards, metrics, observability, and search workflows.",
+    bestFor: "Teams improving product insight and operational visibility"
   },
   {
     title: "Lesser-Known Productivity Tools",
@@ -51,7 +51,7 @@ const articleSchema = {
   "@type": "Article",
   headline: "Developer Tool Comparisons for Open Source Teams",
   description:
-    "A practical comparison page for developer tools across open-source software, templates, AI tools, and lightweight SaaS alternatives.",
+    "A practical comparison page for developer tools across open-source software, AI tools, analytics, and lightweight SaaS alternatives.",
   datePublished: "2026-04-10",
   dateModified: "2026-04-10",
   author: {

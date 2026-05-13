@@ -6,7 +6,7 @@ import { Search, X, ArrowRight, User, Download, Star } from 'lucide-react';
 
 interface SearchResult {
   id: string;
-  type: 'creator' | 'template' | 'tool';
+    type: 'creator' | 'tool';
   name: string;
   avatar?: string;
   stats?: { downloads: number; likes: number };
@@ -15,10 +15,10 @@ interface SearchResult {
 
 const mockResults: SearchResult[] = [
   { id: '1', type: 'creator', name: 'Alex Rivera', avatar: '/avatar1.jpg', stats: { downloads: 247, likes: 892 }, href: '/creator/alex' },
-  { id: '2', type: 'template', name: 'Neon UI Kit', stats: { downloads: 1.2, likes: 456 }, href: '/template/neon-ui' },
+    { id: '2', type: 'tool', name: 'Neon Deployment Toolkit', stats: { downloads: 1.2, likes: 456 }, href: '/tools/neon-deployment-toolkit' },
   { id: '3', type: 'tool', name: 'Cyberpunk Shader', stats: { downloads: 890, likes: 234 }, href: '/tool/shader' },
   { id: '4', type: 'creator', name: 'Luna Voss', avatar: '/avatar2.jpg', stats: { downloads: 567, likes: 1234 }, href: '/creator/luna' },
-  { id: '5', type: 'template', name: 'Holographic HUD', stats: { downloads: 345, likes: 678 }, href: '/template/hud' },
+    { id: '5', type: 'tool', name: 'Holographic Dashboard Utility', stats: { downloads: 345, likes: 678 }, href: '/tools/holographic-dashboard-utility' },
 ];
 
 export default function FloatingSearch() {
@@ -102,7 +102,6 @@ export default function FloatingSearch() {
   const ResultIcon = ({ type }: { type: SearchResult['type'] }) => {
     const icons = {
       creator: User,
-      template: Download,
       tool: Star,
     };
     const Icon = icons[type];
@@ -136,6 +135,7 @@ export default function FloatingSearch() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search creators, templates, tools... (↑↓ to navigate, ⏎ to open)"
+                    placeholder="Search creators, tools, and resources... (↑↓ to navigate, ⏎ to open)"
                   className="w-full h-16 pl-14 pr-6 text-lg font-medium text-white/95 bg-transparent border-none outline-none placeholder-white/60 focus:placeholder-white/40"
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/50 text-sm">
@@ -198,6 +198,7 @@ export default function FloatingSearch() {
                 <Search className="h-16 w-16 mx-auto text-white/30 mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">No results found</h3>
                 <p className="text-white/60">Try different keywords for creators, templates, or tools</p>
+                              <p className="text-white/60">Try different keywords for creators, tools, or resources</p>
               </motion.div>
             )}
           </motion.div>

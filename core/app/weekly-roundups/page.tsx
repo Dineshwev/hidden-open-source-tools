@@ -60,12 +60,12 @@ const roundupItems = [
   {
     href: "/weekly-roundups/2026-04-10",
     title: "Weekly Roundup - April 10, 2026",
-    summary: "Open-source productivity stack, no-cost UI kits, and practical workflow tools for faster shipping."
+    summary: "Open-source productivity stack, self-hosted utilities, and practical workflow tools for faster shipping."
   },
   {
     href: "/weekly-roundups/2026-04-03",
     title: "Weekly Roundup - April 3, 2026",
-    summary: "Lesser-known developer utilities, AI helpers, and no-cost template picks for frontend and SaaS builders."
+    summary: "Lesser-known developer utilities, AI helpers, and lightweight infrastructure picks for builders."
   },
   {
     href: "/weekly-roundups/2026-03-27",

@@ -78,7 +78,7 @@ export default function TermsPage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">3. User Uploads and Content Ownership</h2>
           <p className="text-sm leading-relaxed">
-            When you upload or share open-source tools or templates to The Cloud Rain, you retain all ownership rights to your original content. However, by submitting content to our platform, you grant us a worldwide, non-exclusive, royalty-free license to distribute, display, review, and organize that content as part of our free tools directory. 
+            When you upload or share open-source tools or resources to The Cloud Rain, you retain all ownership rights to your original content. However, by submitting content to our platform, you grant us a worldwide, non-exclusive, royalty-free license to distribute, display, review, and organize that content as part of our free tools directory.
           </p>
           <p className="text-sm leading-relaxed">
             You represent and warrant that your uploads: (a) do not infringe upon any intellectual property rights; (b) do not contain viruses, trojans, or malware; and (c) are correctly categorized as free and open-source resources.

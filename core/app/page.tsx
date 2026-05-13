@@ -7,14 +7,14 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 export const metadata: Metadata = {
   title: "The Cloud Rain | Free Open Source Tools & Self-Hosted Alternatives",
   description:
-    "Discover 250+ curated open-source tools, self-hosted software, UI kits, templates, and lightweight developer utilities to replace SaaS and speed development.",
+    "Discover 250+ curated open-source tools, self-hosted software, and lightweight developer utilities to replace SaaS and speed development.",
   keywords: [
     "free open source tools",
     "self-hosted alternatives",
     "SaaS replacements",
     "developer tools",
-    "UI kits",
-    "templates",
+    "open source utilities",
+    "self-hosted software directory",
     "open source directory",
     "no-cost resources"
   ],
@@ -40,7 +40,7 @@ const faqItems = [
   {
     question: "What can I find on The Cloud Rain?",
     answer:
-      "The Cloud Rain helps developers discover open-source software, self-hosted tools, UI kits, templates, and workflow utilities through curated landing pages and a moderated directory."
+      "The Cloud Rain helps developers discover open-source software, self-hosted tools, and workflow utilities through curated landing pages and a moderated directory."
   },
   {
     question: "Can these tools help reduce SaaS costs?",

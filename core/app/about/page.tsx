@@ -67,7 +67,7 @@ export default function AboutPage() {
           The Cloud Rain is a moderated resource platform for creators, developers, and learners. Our goal is simple: make discovery fast, keep rules clear, and avoid wasting user attention.
         </p>
         <p className="max-w-3xl text-white/65 leading-relaxed text-sm">
-          This About page explains how The Cloud Rain reviews open-source developer tools, self-hosted software, UI kits, templates, and related resources. We publish clear moderation and policy standards so users, contributors, and search engines can understand how platform decisions are made.
+          This About page explains how The Cloud Rain reviews open-source developer tools, self-hosted software, and related workflow resources. We publish clear moderation and policy standards so users, contributors, and search engines can understand how platform decisions are made.
         </p>
       </div>
 

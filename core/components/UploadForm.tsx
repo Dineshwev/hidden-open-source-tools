@@ -4,13 +4,13 @@ import { FormEvent, useState } from "react";
 import api from "@/lib/api";
 
 export default function UploadForm() {
-  const [message, setMessage] = useState("Upload a file for manual review.");
+  const [message, setMessage] = useState("Upload a developer resource for manual review.");
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitting(true);
-    setMessage("Uploading file...");
+    setMessage("Uploading resource...");
 
     const formData = new FormData(event.currentTarget);
 
@@ -21,10 +21,10 @@ export default function UploadForm() {
         }
       });
 
-      setMessage("Upload submitted successfully. It is now pending admin review.");
+      setMessage("Resource submitted successfully. It is now pending admin review.");
       event.currentTarget.reset();
     } catch (_error) {
-      setMessage("Upload failed. Check your API settings and authentication token.");
+      setMessage("Submission failed. Check your API settings and authentication token.");
     } finally {
       setSubmitting(false);
     }
@@ -39,7 +39,7 @@ export default function UploadForm() {
             required
             name="title"
             className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
-            placeholder="Neon UI Asset Pack"
+            placeholder="Open Source CLI Tool"
           />
         </label>
         <label className="space-y-2">
@@ -48,7 +48,7 @@ export default function UploadForm() {
             required
             name="categoryId"
             className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
-            placeholder="Paste a category UUID from the API"
+            placeholder="Paste a category slug from the API"
           />
         </label>
       </div>
@@ -70,7 +70,7 @@ export default function UploadForm() {
           required
           name="tags"
           className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 outline-none transition focus:border-nebula-400"
-          placeholder="ui kit, template, dashboard"
+          placeholder="developer tool, infrastructure, security"
         />
       </label>
 

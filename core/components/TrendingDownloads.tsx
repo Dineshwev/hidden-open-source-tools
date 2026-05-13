@@ -4,16 +4,16 @@ import SectionHeading from "@/components/SectionHeading";
 const trendingDownloads = [
   {
     title: "Neon SaaS Wireframes",
-    description: "High-conversion web and mobile wireframes verified by moderators.",
-    category: "Templates",
+    description: "High-conversion web and mobile planning assets verified by moderators.",
+    category: "Developer Tools",
     status: "Epic",
     hint: "Contains: landing page sections + mobile flows",
     previewLabel: "UI Signal"
   },
   {
     title: "Prompt Engineer Vault",
-    description: "A curated set of AI prompts for creators, marketers, and indie builders.",
-    category: "AI prompts",
+    description: "A curated set of AI prompts for developers, operators, and indie builders.",
+    category: "AI utilities",
     status: "Rare",
     hint: "Contains: role prompts + conversion scripts",
     mystery: true,
@@ -21,8 +21,8 @@ const trendingDownloads = [
   },
   {
     title: "Low Poly Planet Pack",
-    description: "3D objects and materials designed for game prototypes and scene kits.",
-    category: "3D models",
+    description: "3D objects and materials designed for product mockups and scene kits.",
+    category: "Media & Utilities",
     status: "Legendary",
     hint: "Contains: 3D textures + planetary materials",
     mystery: true,

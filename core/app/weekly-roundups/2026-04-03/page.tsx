@@ -7,7 +7,7 @@ const pagePath = "/weekly-roundups/2026-04-03";
 export const metadata: Metadata = {
   title: "Weekly Developer Tools Roundup - April 3, 2026",
   description:
-    "Weekly picks featuring developer utilities, no-cost templates, and open-source software for practical engineering workflows.",
+    "Weekly picks featuring developer utilities, self-hosted tools, and open-source software for practical engineering workflows.",
   alternates: {
     canonical: pagePath
   },
