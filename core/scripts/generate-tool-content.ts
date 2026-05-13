@@ -146,9 +146,11 @@ async function saveContentToSupabase(
   toolId: string,
   content: string
 ): Promise<void> {
+  const updates = { ai_content: content } as Record<string, string>;
+
   const { error } = await supabase
     .from('open_source_tools')
-    .update({ ai_content: content })
+    .update(updates)
     .eq('id', toolId);
 
   if (error) {
