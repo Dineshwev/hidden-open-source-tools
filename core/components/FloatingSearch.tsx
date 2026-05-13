@@ -134,8 +134,7 @@ export default function FloatingSearch() {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search creators, templates, tools... (↑↓ to navigate, ⏎ to open)"
-                    placeholder="Search creators, tools, and resources... (↑↓ to navigate, ⏎ to open)"
+                  placeholder="Search creators, tools, and resources... (↑↓ to navigate, ⏎ to open)"
                   className="w-full h-16 pl-14 pr-6 text-lg font-medium text-white/95 bg-transparent border-none outline-none placeholder-white/60 focus:placeholder-white/40"
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-white/50 text-sm">
