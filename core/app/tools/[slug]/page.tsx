@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
+import { marked } from "marked";
 
 export const revalidate = 86400;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
@@ -13,6 +14,7 @@ type ToolRow = {
   description: string;
   category: string;
   url: string;
+  ai_content?: string | null;
 };
 
 type GitHubStats = {
@@ -35,7 +37,8 @@ function normalizeTool(row: any): ToolRow {
     name: String(row?.name || row?.title || "Untitled tool"),
     description: String(row?.description || "No description available yet."),
     category: String(row?.category || "Developer Resource"),
-    url: String(row?.url || row?.webpage_url || "")
+    url: String(row?.url || row?.webpage_url || ""),
+    ai_content: row?.ai_content || null
   };
 }
 
@@ -254,6 +257,20 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         <h2 className="mt-2 text-2xl text-white">About {tool.name}</h2>
         <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-white/70">{cleanedDescription}</p>
       </section>
+
+      {tool.ai_content ? (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <div 
+            className="prose prose-invert max-w-none"
+            dangerouslySetInnerHTML={{
+              __html: marked(tool.ai_content, {
+                async: false,
+                breaks: true,
+              }) as string,
+            }}
+          />
+        </section>
+      ) : null}
 
       <section className="flex flex-wrap gap-3">
         <a
