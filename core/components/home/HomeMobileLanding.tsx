@@ -31,11 +31,10 @@ export default function HomeMobileLanding() {
             OPEN SOURCE | SELF-HOSTED
           </div>
 
-          <div className="space-y-4">
-            <h1 className="font-display text-4xl leading-tight text-white">
-              Open-source tools built for
-              <span className="text-gradient-magic"> practical workflows</span>
-            </h1>
+            <div className="space-y-4">
+            <div className="font-display text-4xl leading-tight text-white">
+              <span className="text-gradient-magic">practical workflows</span>
+            </div>
 
             <div className="flex flex-wrap gap-2 items-center">
               <span className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-400">

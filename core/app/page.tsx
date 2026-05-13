@@ -7,19 +7,16 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 export const metadata: Metadata = {
   title: "The Cloud Rain | Free Open Source Tools & Self-Hosted Alternatives",
   description:
-    "Discover 250+ free open source tools, self-hosted software alternatives, hidden gems, and practical SaaS replacements. Browse UI kits, templates, courses, and dev utilities curated by The Cloud Rain.",
+    "Discover 250+ curated open-source tools, self-hosted software, UI kits, templates, and lightweight developer utilities to replace SaaS and speed development.",
   keywords: [
     "free open source tools",
-    "free software alternatives",
-    "self-hosted tools",
-    "SaaS alternatives",
-    "hidden gems open source",
-    "free developer tools",
-    "lightweight DevOps tools",
-    "open source software library",
-    "free UI kits",
-    "free templates",
-    "no cost developer resources"
+    "self-hosted alternatives",
+    "SaaS replacements",
+    "developer tools",
+    "UI kits",
+    "templates",
+    "open source directory",
+    "no-cost resources"
   ],
   alternates: {
     canonical: "/"
@@ -74,6 +71,10 @@ export default function HomePage() {
   return (
     <div className="space-y-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqSchema) }} />
+
+      <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
+        Open Source SaaS Alternatives for Developers
+      </h1>
 
       <ResponsiveHomePage />
 

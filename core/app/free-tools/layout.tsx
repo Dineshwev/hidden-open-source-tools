@@ -8,7 +8,7 @@ const freeToolsStructuredData = {
   name: "No-Cost Developer Resources",
   url: `${siteUrl}/free-tools`,
   description:
-    "Curated no-cost developer resources, open-source tools, templates, courses, AI utilities, and components for engineering teams.",
+    "Curated no-cost developer resources, open-source tools, UI kits, templates, courses, and components for engineering teams.",
   isPartOf: {
     "@type": "WebSite",
     name: "The Cloud Rain",
@@ -26,11 +26,14 @@ const freeToolsStructuredData = {
 export const metadata: Metadata = {
   title: "No-Cost Developer Resources and Open Source Tools",
   description:
-    "Browse no-cost developer resources, open-source tools, UI kits, courses, templates, and components curated for practical engineering work.",
+    "Browse 250+ no-cost developer resources — open-source tools, UI kits, templates, courses, and components curated for practical engineering work.",
   keywords: [
     "no-cost developer tools",
-    "open-source resources",
-    "developer templates"
+    "open source tools",
+    "UI kits",
+    "templates",
+    "developer courses",
+    "open source directory"
   ],
   alternates: {
     canonical: "/free-tools"
@@ -40,7 +43,7 @@ export const metadata: Metadata = {
     url: `${siteUrl}/free-tools`,
     title: "No-Cost Developer Resources and Open Source Tools",
     description:
-      "Browse no-cost developer resources, open-source tools, UI kits, courses, templates, and components curated for practical engineering work."
+      "Browse 250+ no-cost developer resources — open-source tools, UI kits, templates, courses, and components curated for practical engineering work."
   },
   twitter: {
     card: "summary_large_image",

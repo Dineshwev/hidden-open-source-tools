@@ -21,10 +21,9 @@ export default function HomeDesktopLanding() {
                 OPEN SOURCE | SELF-HOSTED | SAAS ALTERNATIVES
               </div>
 
-              <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
-                Open-source SaaS alternatives for
-                <span className="text-gradient-magic"> practical developer workflows</span>
-              </h1>
+              <div className="font-display text-4xl leading-tight text-white md:text-6xl">
+                <span className="text-gradient-magic">practical developer workflows</span>
+              </div>
 
               <div className="flex flex-wrap gap-3 items-center">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
