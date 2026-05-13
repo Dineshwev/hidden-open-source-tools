@@ -22,3 +22,23 @@ Allow: /
 
 User-agent: Bingbot
 Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: twitterbot
+Allow: /
+
+User-agent: oai-searchbot
+Allow: /
+
+User-agent: chatgpt-user
+Allow: /
+
+User-agent: googleother
+Allow: /
+
+Sitemap: https://www.thecloudrain.org/sitemap.xml
