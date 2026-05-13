@@ -142,7 +142,7 @@ Be specific, avoid generic marketing language.`;
 }
 
 async function saveContentToSupabase(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
   toolId: string,
   content: string
 ): Promise<void> {
