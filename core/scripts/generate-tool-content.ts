@@ -61,7 +61,7 @@ function getRetryDelayMs(response: Response, attempt: number) {
 
 async function generateContentWithGroq(tool: Tool): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY environment variable not set');
@@ -190,7 +190,7 @@ async function validateGroqModel(model: string): Promise<void> {
 async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const groqModel = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  const groqModel = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
