@@ -185,13 +185,18 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const descriptionSnippet = getSeoDescriptionSnippet(tool.description);
   const description = `${tool.name} is a free, self-hosted alternative for ${tool.category}. ${descriptionSnippet}. No vendor lock-in.`;
   const faviconUrl = getFaviconUrl(tool.url);
+  const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
       images: faviconUrl ? [{ url: faviconUrl, alt: `${tool.name} logo` }] : []
     }
   };
