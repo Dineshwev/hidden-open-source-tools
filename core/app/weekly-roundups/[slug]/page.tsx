@@ -118,7 +118,7 @@ export default async function WeeklyRoundupPage({
             Weekly Roundup Not Found
           </h1>
           <p className="text-white/70">
-            This roundup is not yet published or doesn't exist.
+            This roundup is not yet published or doesn&apos;t exist.
           </p>
         </header>
         <Link
@@ -171,7 +171,7 @@ export default async function WeeklyRoundupPage({
 
       {roundup.featured_tools && roundup.featured_tools.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-2xl text-white">This Week's Picks</h2>
+          <h2 className="text-2xl text-white">This Week&apos;s Picks</h2>
           {roundup.featured_tools.map((tool) => (
             <article
               key={tool.slug}
