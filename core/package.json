@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-content": "tsx scripts/generate-tool-content.ts"
+    "generate-content": "tsx scripts/generate-tool-content.ts",
+    "weekly-content": "tsx scripts/generate-weekly-content.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.121.4",

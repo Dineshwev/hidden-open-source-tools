@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { createClient } from "@supabase/supabase-js";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
@@ -56,25 +57,50 @@ const collectionSchema = {
   }
 };
 
-const roundupItems = [
-  {
-    href: "/weekly-roundups/2026-04-10",
-    title: "Weekly Roundup - April 10, 2026",
-    summary: "Open-source productivity stack, self-hosted utilities, and practical workflow tools for faster shipping."
-  },
-  {
-    href: "/weekly-roundups/2026-04-03",
-    title: "Weekly Roundup - April 3, 2026",
-    summary: "Lesser-known developer utilities, AI helpers, and lightweight infrastructure picks for builders."
-  },
-  {
-    href: "/weekly-roundups/2026-03-27",
-    title: "Weekly Roundup - March 27, 2026",
-    summary: "Developer tool picks this week with practical categories and quick-start recommendations."
-  }
-];
+interface WeeklyRoundup {
+  id: string;
+  title: string;
+  slug: string;
+  week_date: string;
+  featured_tools: Array<{
+    name: string;
+    summary: string;
+  }>;
+}
 
-export default function WeeklyRoundupsPage() {
+async function getPublishedRoundups(): Promise<WeeklyRoundup[]> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn("Supabase keys not configured");
+    return [];
+  }
+
+  try {
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data, error } = await supabase
+      .from("weekly_roundups")
+      .select("id, title, slug, week_date, featured_tools")
+      .eq("status", "published")
+      .order("week_date", { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error("Failed to fetch roundups:", error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error("Error fetching roundups:", err);
+    return [];
+  }
+}
+
+export default async function WeeklyRoundupsPage() {
+  const roundups = await getPublishedRoundups();
+
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
@@ -89,15 +115,31 @@ export default function WeeklyRoundupsPage() {
       </header>
 
       <section className="space-y-4">
-        {roundupItems.map((item) => (
-          <article key={item.href} className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-            <h2 className="text-xl text-white">{item.title}</h2>
-            <p className="mt-2 text-sm text-white/70">{item.summary}</p>
-            <Link href={item.href} className="mt-4 inline-flex rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900">
-              Read Roundup
-            </Link>
+        {roundups.length > 0 ? (
+          roundups.map((roundup) => (
+            <article key={roundup.slug} className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <h2 className="text-xl text-white">{roundup.title}</h2>
+              <p className="mt-2 text-sm text-white/70">
+                {roundup.featured_tools && roundup.featured_tools.length > 0
+                  ? `This week's curated picks featuring tools like ${roundup.featured_tools
+                      .slice(0, 2)
+                      .map((t) => t.name)
+                      .join(" and ")} and more.`
+                  : "Curated weekly picks of open-source tools and developer utilities."}
+              </p>
+              <Link
+                href={`/weekly-roundups/${roundup.slug}`}
+                className="mt-4 inline-flex rounded-full bg-cyan-300 px-4 py-2 text-sm font-semibold text-slate-900"
+              >
+                Read Roundup
+              </Link>
+            </article>
+          ))
+        ) : (
+          <article className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+            <p className="text-white/70">Weekly roundups coming soon. Check back later for curated picks.</p>
           </article>
-        ))}
+        )}
       </section>
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-8">
