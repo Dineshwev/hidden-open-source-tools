@@ -27,7 +27,6 @@ const legalLinks = [
 
 const seoLinks = [
   { href: "/best-free-developer-tools", label: "Developer Tool Comparisons" },
-  { href: "/weekly-roundups", label: "Weekly Tool Briefs" },
   { href: "/open-source-software", label: "Open Source Alternatives" },
   { href: "/hidden-tools", label: "Developer Utilities" },
   { href: "/free-tools", label: "No-Cost Resources" },

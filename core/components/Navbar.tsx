@@ -21,7 +21,6 @@ const mobileLinks = [
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
   { href: "/mystery-box", label: "Random Tool Finder" },
   { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
-  { href: "/weekly-roundups", label: "Weekly Tool Briefs" },
   { href: "/hidden-tools", label: "Developer Utilities" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },

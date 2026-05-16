@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
@@ -35,12 +36,13 @@ function ToolCardImage({ url, name }: { url: string; name: string }) {
   }
 
   return (
-    <img
+    <Image
       src={faviconUrl}
       alt={name}
       width={64}
       height={64}
       className="h-16 w-16 rounded-xl bg-white/10 object-contain p-2"
+      unoptimized
       onError={() => setImgError(true)}
     />
   );

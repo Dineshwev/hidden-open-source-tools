@@ -4,6 +4,7 @@ import AdminModerationPanel from "@/components/AdminModerationPanel";
 import ScrapedToolsAdminPanel from "@/components/ScrapedToolsAdminPanel";
 import ControlRoomMessagesClient from "@/components/admin/ControlRoomMessagesClient";
 import ArticleMuseumAdminClient from "@/components/admin/ArticleMuseumAdminClient";
+import WeeklyRoundupsAdminClient from "@/components/admin/WeeklyRoundupsAdminClient";
 
 type HiddenAdminPageProps = {
   params: {
@@ -20,8 +21,9 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
   const isScrapedToolsView = lastSegment === "scraped-tools";
   const isMessagesView = lastSegment === "messages";
   const isArticlesView = lastSegment === "articles" || lastSegment === "article-museum";
+  const isWeeklyRoundupsView = lastSegment === "weekly-roundups";
   
-  const isSubview = isScrapedToolsView || isMessagesView || isArticlesView;
+  const isSubview = isScrapedToolsView || isMessagesView || isArticlesView || isWeeklyRoundupsView;
   const secretSegments = isSubview ? incomingSegments.slice(0, -1) : incomingSegments;
 
   // Enforce multi-segment secrets so the URL is meaningfully harder to guess.
@@ -49,10 +51,15 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
     return <ArticleMuseumAdminClient />;
   }
 
+  if (isWeeklyRoundupsView) {
+    return <WeeklyRoundupsAdminClient />;
+  }
+
   const baseSecretPath = `/control-room/${secretSegments.join("/")}`;
   const scrapedToolsPath = `${baseSecretPath}/scraped-tools`;
   const messagesPath = `${baseSecretPath}/messages`;
   const articlesPath = `${baseSecretPath}/article-museum`;
+  const weeklyRoundupsPath = `${baseSecretPath}/weekly-roundups`;
 
   return (
     <div className="space-y-5">
@@ -80,12 +87,19 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
           >
             Open Articles Museum
           </Link>
+          <Link
+            href={weeklyRoundupsPath}
+            className="rounded-full border border-sky-300/35 bg-sky-300/10 px-4 py-2 text-sm font-semibold text-sky-100 transition hover:bg-sky-300/20"
+          >
+            Open Weekly Roundups
+          </Link>
         </div>
         <div className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
           <p className="text-xs uppercase tracking-[0.22em] text-white/45">Hidden Route</p>
           <p className="mt-1 break-all font-mono text-sm text-cyan-100/90">{scrapedToolsPath}</p>
           <p className="mt-1 break-all font-mono text-sm text-emerald-100/90">{messagesPath}</p>
           <p className="mt-1 break-all font-mono text-sm text-purple-100/90">{articlesPath}</p>
+          <p className="mt-1 break-all font-mono text-sm text-sky-100/90">{weeklyRoundupsPath}</p>
         </div>
       </div>
       <AdminModerationPanel />

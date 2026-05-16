@@ -63,20 +63,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8
     },
     {
-      url: `${siteUrl}/weekly-roundups/2026-04-10`,
-      lastModified: new Date("2026-04-10"),
-      changeFrequency: "monthly",
-      priority: 0.75
-    },
-    {
-      url: `${siteUrl}/weekly-roundups/2026-04-03`,
-      lastModified: new Date("2026-04-03"),
-      changeFrequency: "monthly",
-      priority: 0.75
-    },
-    {
-      url: `${siteUrl}/weekly-roundups/2026-03-27`,
-      lastModified: new Date("2026-03-27"),
+      url: `${siteUrl}/weekly-roundups/weekly-roundup-2026-05-21`,
+      lastModified: new Date("2026-05-21"),
       changeFrequency: "monthly",
       priority: 0.75
     },

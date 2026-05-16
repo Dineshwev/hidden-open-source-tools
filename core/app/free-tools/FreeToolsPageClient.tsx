@@ -8,6 +8,19 @@ import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types"
 
 type SortOption = "all" | "shuffle" | "newest" | "oldest";
 
+const CATEGORY_DEFS: { key: string; label: string; keywords?: string[] }[] = [
+  { key: "all", label: "All" },
+  { key: "developer-tools", label: "Developer Tools", keywords: ["tool", "dev", "developer", "cli", "sdk"] },
+  { key: "self-hosting-infrastructure", label: "Self-Hosting & Infrastructure", keywords: ["self-host", "self host", "docker", "kubernetes", "infra", "infrastructure", "server"] },
+  { key: "analytics-search", label: "Analytics & Search", keywords: ["analytics", "search", "monitor", "metrics", "log"] },
+  { key: "media-utilities", label: "Media & Utilities", keywords: ["image", "media", "video", "audio", "converter", "compress"] },
+  { key: "productivity", label: "Productivity", keywords: ["productivity", "todo", "notes", "workflow", "task"] },
+  { key: "community-events", label: "Community & Events", keywords: ["community", "events", "chat", "forum", "meetup"] },
+  { key: "business-tools", label: "Business Tools", keywords: ["business", "crm", "invoice", "billing", "saas"] },
+  { key: "security", label: "Security", keywords: ["security", "auth", "oauth", "jwt", "vault", "scan"] },
+  { key: "miscellaneous", label: "Miscellaneous", keywords: [] }
+];
+
 function createSeededRandom(seed: number) {
   let value = seed % 2147483647;
 
@@ -33,6 +46,19 @@ function shuffleTools<T>(items: T[], seed: number) {
   return shuffled;
 }
 
+function toolMatchesCategory(tool: ScrapedTool, catKey: string) {
+  if (catKey === "all") return true;
+
+  const def = CATEGORY_DEFS.find((category) => category.key === catKey);
+  if (!def) return false;
+
+  const haystack = `${tool.title} ${tool.description || ""} ${tool.category || ""} ${tool.source_site || ""}`.toLowerCase();
+
+  if (!def.keywords || def.keywords.length === 0) return true;
+
+  return def.keywords.some((keyword) => haystack.includes(keyword));
+}
+
 export default function FreeToolsPageClient({
   initialTools = [],
   initialCount = null,
@@ -54,33 +80,6 @@ export default function FreeToolsPageClient({
   const [error, setError] = useState("");
   const tools = initialTools;
   const toolCount = initialCount ?? initialTools.length;
-
-  // Category definitions and simple keyword heuristics for counting/matching
-  const CATEGORY_DEFS: { key: string; label: string; keywords?: string[] }[] = [
-    { key: "all", label: "All" },
-    { key: "developer-tools", label: "Developer Tools", keywords: ["tool", "dev", "developer", "cli", "sdk"] },
-    { key: "self-hosting-infrastructure", label: "Self-Hosting & Infrastructure", keywords: ["self-host", "self host", "docker", "kubernetes", "infra", "infrastructure", "server"] },
-    { key: "analytics-search", label: "Analytics & Search", keywords: ["analytics", "search", "monitor", "metrics", "log"] },
-    { key: "media-utilities", label: "Media & Utilities", keywords: ["image", "media", "video", "audio", "converter", "compress"] },
-    { key: "productivity", label: "Productivity", keywords: ["productivity", "todo", "notes", "workflow", "task"] },
-    { key: "community-events", label: "Community & Events", keywords: ["community", "events", "chat", "forum", "meetup"] },
-    { key: "business-tools", label: "Business Tools", keywords: ["business", "crm", "invoice", "billing", "saas"] },
-    { key: "security", label: "Security", keywords: ["security", "auth", "oauth", "jwt", "vault", "scan"] },
-    { key: "miscellaneous", label: "Miscellaneous", keywords: [] }
-  ];
-
-  function toolMatchesCategory(tool: ScrapedTool, catKey: string) {
-    if (catKey === "all") return true;
-
-    const def = CATEGORY_DEFS.find((c) => c.key === catKey);
-    if (!def) return false;
-
-    const hay = `${tool.title} ${tool.description || ""} ${tool.category || ""} ${tool.source_site || ""}`.toLowerCase();
-
-    if (!def.keywords || def.keywords.length === 0) return true;
-
-    return def.keywords.some((kw) => hay.includes(kw));
-  }
 
   // Precompute category counts from the initial tool set
   // Use server-provided counts where available. Keys are the user-facing labels.

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import { RefreshCw } from "lucide-react";
+import Image from "next/image";
 import SectionHeading from "@/components/SectionHeading";
 import api from "@/lib/api";
 import AdminVerification from "@/components/admin/AdminVerification";
@@ -613,10 +614,13 @@ export default function ScrapedToolsAdminPanel() {
                 <div className="grid gap-4 md:grid-cols-[168px_minmax(0,1fr)]">
                   <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
                     {hasImage ? (
-                      <img
+                      <Image
                         src={tool.image_url || ""}
                         alt={tool.title}
+                        width={336}
+                        height={128}
                         className="h-32 w-full object-cover"
+                        unoptimized
                         loading="lazy"
                         onError={() => setFailedImageIds((previous) => [...previous, tool.id])}
                       />

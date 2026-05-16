@@ -24,9 +24,9 @@ interface Tool {
   description: string;
   category: string;
   url: string;
-  github_stars: number;
-  language: string;
-  license: string;
+  github_stars: number | null;
+  language: string | null;
+  license: string | null;
   slug: string;
 }
 
@@ -42,9 +42,9 @@ interface FeaturedTool {
 interface ComparisonTool {
   name: string;
   slug: string;
-  github_stars: number;
-  language: string;
-  license: string;
+  github_stars: number | null;
+  language: string | null;
+  license: string | null;
   url: string;
 }
 
@@ -52,9 +52,9 @@ interface ComparisonData {
   category: string;
   tools: Array<{
     name: string;
-    stars: number;
-    language: string;
-    license: string;
+    stars: number | null;
+    language: string | null;
+    license: string | null;
     url: string;
   }>;
 }
@@ -64,6 +64,14 @@ interface NewsItem {
   summary: string;
   source: string;
 }
+
+type RoundupNarrativeContext = {
+  title: string;
+  featuredTools: FeaturedTool[];
+  comparisonCategory: string;
+  comparisonTools: ComparisonTool[];
+  newsItems: NewsItem[];
+};
 
 interface GroqResponse {
   choices: Array<{
@@ -81,9 +89,240 @@ interface NewsArticle {
   };
 }
 
+type GitHubRepoRef = {
+  owner: string;
+  repo: string;
+};
+
+type GitHubRepoResponse = {
+  name: string;
+  full_name: string;
+  html_url: string;
+  homepage: string | null;
+  stargazers_count: number;
+  language: string | null;
+  license: {
+    spdx_id?: string | null;
+    name?: string | null;
+  } | null;
+};
+
+type GitHubSearchResponse = {
+  items?: GitHubRepoResponse[];
+};
+
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 const DEFAULT_GROQ_DELAY_MS = 5500;
 const GROQ_MAX_RETRIES = 3;
+const GITHUB_API_VERSION = '2022-11-28';
+const GITHUB_REQUEST_DELAY_MS = 400;
+
+function getGitHubHeaders(githubToken: string) {
+  return {
+    Authorization: `Bearer ${githubToken}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': GITHUB_API_VERSION
+  };
+}
+
+function normalizeText(value: string | null | undefined) {
+  return (value || '').trim();
+}
+
+function normalizeToolForStorage(tool: Tool): Tool {
+  return {
+    ...tool,
+    github_stars: typeof tool.github_stars === 'number' ? tool.github_stars : null,
+    language: normalizeText(tool.language) || null,
+    license: normalizeText(tool.license) || null
+  };
+}
+
+function sanitizeComparisonStat(value: string | null | undefined) {
+  const normalized = normalizeText(value);
+  return normalized || null;
+}
+
+function normalizeRepoName(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function getHostname(rawUrl: string | null | undefined) {
+  if (!rawUrl) return '';
+
+  try {
+    return new URL(rawUrl).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+function extractGitHubRepo(rawUrl: string | null | undefined): GitHubRepoRef | null {
+  if (!rawUrl) return null;
+
+  try {
+    const parsedUrl = new URL(rawUrl);
+    const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, '');
+
+    if (hostname !== 'github.com') {
+      return null;
+    }
+
+    const [owner, repoWithSuffix] = parsedUrl.pathname.split('/').filter(Boolean);
+    if (!owner || !repoWithSuffix) {
+      return null;
+    }
+
+    return {
+      owner,
+      repo: repoWithSuffix.replace(/\.git$/i, '')
+    };
+  } catch {
+    return null;
+  }
+}
+
+function extractGitHubRepoFromText(text: string | null | undefined): GitHubRepoRef | null {
+  if (!text) return null;
+
+  const match = text.match(/https:\/\/github\.com\/[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+/);
+  return match ? extractGitHubRepo(match[0]) : null;
+}
+
+async function fetchGitHubRepo(repoRef: GitHubRepoRef, githubToken: string): Promise<GitHubRepoResponse> {
+  const response = await fetch(`https://api.github.com/repos/${repoRef.owner}/${repoRef.repo}`, {
+    headers: getGitHubHeaders(githubToken)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`GitHub repo lookup failed: ${response.status} - ${errorText.slice(0, 240)}`);
+  }
+
+  return (await response.json()) as GitHubRepoResponse;
+}
+
+async function searchGitHubRepositories(tool: Tool, githubToken: string): Promise<GitHubRepoResponse[]> {
+  const searchQuery = `"${tool.name}" in:name sort:stars-desc`;
+  const response = await fetch(
+    `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQuery)}&per_page=5`,
+    { headers: getGitHubHeaders(githubToken) }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`GitHub search failed: ${response.status} - ${errorText.slice(0, 240)}`);
+  }
+
+  const data = (await response.json()) as GitHubSearchResponse;
+  return data.items || [];
+}
+
+function pickBestGitHubRepoMatch(tool: Tool, candidates: GitHubRepoResponse[]): GitHubRepoResponse | null {
+  if (!candidates.length) {
+    return null;
+  }
+
+  const normalizedToolName = normalizeRepoName(tool.name);
+  const toolHostname = getHostname(tool.url);
+
+  const scored = candidates.map((candidate) => {
+    const candidateName = normalizeRepoName(candidate.name);
+    const candidateFullName = normalizeRepoName(candidate.full_name);
+    const homepageHostname = getHostname(candidate.homepage);
+
+    let score = 0;
+
+    if (candidateName === normalizedToolName) score += 6;
+    if (candidateFullName.endsWith(`/${normalizedToolName}`.replace('/', ''))) score += 2;
+    if (candidateName.includes(normalizedToolName) || normalizedToolName.includes(candidateName)) score += 2;
+    if (toolHostname && homepageHostname && toolHostname === homepageHostname) score += 5;
+    if (toolHostname && candidate.homepage && candidate.homepage.includes(toolHostname)) score += 2;
+
+    return { candidate, score };
+  });
+
+  scored.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+
+    return b.candidate.stargazers_count - a.candidate.stargazers_count;
+  });
+
+  return scored[0].score > 0 ? scored[0].candidate : null;
+}
+
+async function resolveGitHubRepoForTool(tool: Tool, githubToken: string): Promise<GitHubRepoResponse | null> {
+  const directRepo = extractGitHubRepo(tool.url) || extractGitHubRepoFromText(tool.description);
+
+  if (directRepo) {
+    return fetchGitHubRepo(directRepo, githubToken);
+  }
+
+  const candidates = await searchGitHubRepositories(tool, githubToken);
+  const bestCandidate = pickBestGitHubRepoMatch(tool, candidates);
+
+  return bestCandidate;
+}
+
+async function syncToolGitHubMetadata(supabase: any, toolId: string, repo: GitHubRepoResponse): Promise<void> {
+  const licenseValue = repo.license?.spdx_id || repo.license?.name || null;
+
+  const { error } = await supabase
+    .from('open_source_tools')
+    .update({
+      github_stars: repo.stargazers_count,
+      language: repo.language,
+      license: licenseValue
+    })
+    .eq('id', toolId);
+
+  if (error) {
+    console.warn(`⚠️ Failed to persist GitHub metadata for tool ${toolId}: ${error.message}`);
+  }
+}
+
+async function enrichToolWithGitHubMetadata(
+  supabase: any,
+  tool: Tool,
+  githubToken: string | null
+): Promise<Tool> {
+  const normalizedTool = normalizeToolForStorage(tool);
+  const needsGitHubData =
+    normalizedTool.github_stars === null ||
+    normalizedTool.github_stars <= 0 ||
+    !normalizedTool.language ||
+    !normalizedTool.license;
+
+  if (!githubToken || !needsGitHubData) {
+    return normalizedTool;
+  }
+
+  try {
+    const repo = await resolveGitHubRepoForTool(normalizedTool, githubToken);
+
+    if (!repo) {
+      return normalizedTool;
+    }
+
+    const enrichedTool: Tool = {
+      ...normalizedTool,
+      github_stars: repo.stargazers_count,
+      language: repo.language,
+      license: repo.license?.spdx_id || repo.license?.name || null
+    };
+
+    await syncToolGitHubMetadata(supabase, normalizedTool.id, repo);
+    await delay(GITHUB_REQUEST_DELAY_MS);
+
+    return enrichedTool;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.warn(`⚠️ GitHub enrichment failed for ${normalizedTool.name}: ${message}`);
+    return normalizedTool;
+  }
+}
 
 function getGroqDelayMs() {
   const value = Number(process.env.GROQ_DELAY_MS || DEFAULT_GROQ_DELAY_MS);
@@ -224,6 +463,86 @@ Write only the comparison paragraph, no titles.`;
   throw new Error(`Groq API error: exhausted retries for comparison`);
 }
 
+async function generateEditorNoteWithGroq(context: RoundupNarrativeContext): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+
+  if (!apiKey) {
+    throw new Error('GROQ_API_KEY environment variable not set');
+  }
+
+  const featuredText = context.featuredTools
+    .map((tool) => `- ${tool.name} (${tool.category || "Unknown category"}): ${tool.summary}`)
+    .join('\n');
+
+  const comparisonText = context.comparisonTools
+    .map((tool) => `- ${tool.name}: ${tool.github_stars ?? 0} stars, ${tool.language || "Unknown language"}, ${tool.license || "Unknown license"}`)
+    .join('\n');
+
+  const newsText = context.newsItems.length > 0
+    ? context.newsItems.map((item) => `- ${item.title}: ${item.summary}`).join('\n')
+    : '- No news items were included this week.';
+
+  const prompt = `Write an editor's note for a weekly open-source tools roundup.
+It should feel like a concise editorial introduction for developers, 2 short paragraphs, around 120-180 words total.
+Focus on patterns, why the selection matters, and how a reader should think about this issue.
+
+Roundup title: ${context.title}
+Comparison category: ${context.comparisonCategory}
+
+Featured tools:
+${featuredText}
+
+Comparison tools:
+${comparisonText}
+
+News items:
+${newsText}
+
+Write only the editor's note. No heading, no bullet points.`;
+
+  for (let attempt = 0; attempt <= GROQ_MAX_RETRIES; attempt++) {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 260,
+      }),
+    });
+
+    if (response.ok) {
+      const data = (await response.json()) as GroqResponse;
+      return data.choices[0].message.content.trim();
+    }
+
+    const errorText = await response.text();
+
+    if (response.status === 429 && attempt < GROQ_MAX_RETRIES) {
+      const retryDelayMs = getRetryDelayMs(response, attempt);
+      console.warn(
+        `⚠️ Groq rate limit for editor note. Retry ${attempt + 1}/${GROQ_MAX_RETRIES} after ${retryDelayMs}ms.`
+      );
+      await delay(retryDelayMs);
+      continue;
+    }
+
+    throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+  }
+
+  throw new Error('Groq API error: exhausted retries for editor note');
+}
+
 async function generateNewsSummaryWithGroq(title: string, description: string): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
   const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
@@ -282,35 +601,26 @@ Write only the summary, no extra formatting.`;
 }
 
 async function fetchTechNews(): Promise<NewsItem[]> {
-  const newsApiKey = process.env.NEWS_API_KEY;
+  const gNewsApiKey = process.env.GNEWS_API_KEY;
 
-  if (!newsApiKey) {
+  if (!gNewsApiKey) {
     console.warn(
-      '⚠️ NEWS_API_KEY not set. Skipping tech news. Set NEWS_API_KEY to enable news summaries.'
+      '⚠️ GNEWS_API_KEY not set. Skipping tech news. Set GNEWS_API_KEY to enable news summaries.'
     );
     return [];
   }
 
-  const keywords = [
-    'open source tools',
-    'developer tools',
-    'self-hosted',
-    'developer productivity',
-    'AI tools'
-  ];
-  const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
-
   try {
     const response = await fetch(
-      `https://newsapi.org/v2/everything?q=${encodeURIComponent(randomKeyword)}&sortBy=publishedAt&language=en&pageSize=5&apiKey=${newsApiKey}`
+      `https://gnews.io/api/v4/search?q=open%20source%20developer%20tools&lang=en&max=5&apikey=${gNewsApiKey}`
     );
 
     if (!response.ok) {
-      console.warn(`⚠️ News API error: ${response.status}`);
+      console.warn(`⚠️ GNews API error: ${response.status}`);
       return [];
     }
 
-    const data = (await response.json()) as { articles?: NewsArticle[] };
+    const data = (await response.json()) as { articles?: any[] };
     const articles = data.articles || [];
 
     const newsItems: NewsItem[] = [];
@@ -321,7 +631,7 @@ async function fetchTechNews(): Promise<NewsItem[]> {
           newsItems.push({
             title: article.title,
             summary,
-            source: article.source?.name || 'Tech News'
+            source: article.source?.name || 'GNews'
           });
           await delay(getGroqDelayMs());
         } catch (err) {
@@ -357,13 +667,58 @@ async function getFeaturedTools(
     throw new Error('No approved tools found for featured selection');
   }
 
-  return data as Tool[];
+  return (data as Tool[]).map(normalizeToolForStorage);
+}
+
+async function getCategoryWithSufficientTools(
+  supabase: any,
+  minToolCount: number = 3,
+  preferredCategories: string[] = ['Developer Tools', 'Self-Hosting & Infrastructure']
+): Promise<string> {
+  const { data: allTools, error } = await supabase
+    .from('open_source_tools')
+    .select('category')
+    .eq('status', 'approved');
+
+  if (error || !allTools) {
+    throw new Error(`Failed to fetch categories: ${error?.message}`);
+  }
+
+  const categoryCounts: { [key: string]: number } = {};
+  allTools.forEach((tool: any) => {
+    if (tool.category) {
+      categoryCounts[tool.category] = (categoryCounts[tool.category] || 0) + 1;
+    }
+  });
+
+  const validCategories = Object.entries(categoryCounts)
+    .filter(([_, count]) => count >= minToolCount)
+    .map(([category, _]) => category);
+
+  if (validCategories.length === 0) {
+    throw new Error(`No categories found with at least ${minToolCount} tools`);
+  }
+
+  for (const preferred of preferredCategories) {
+    if (validCategories.includes(preferred)) {
+      console.log(`✅ Selected preferred category: ${preferred} (${categoryCounts[preferred]} tools)`);
+      return preferred;
+    }
+  }
+
+  const highestCountCategory = Object.entries(categoryCounts)
+    .filter(([category]) => validCategories.includes(category))
+    .sort(([_, countA], [__, countB]) => countB - countA)[0];
+
+  console.log(`✅ Selected category: ${highestCountCategory[0]} (${highestCountCategory[1]} tools)`);
+  return highestCountCategory[0];
 }
 
 async function getComparisonTools(
   supabase: any,
   category: string,
-  count: number = 3
+  count: number = 3,
+  githubToken: string | null = null
 ): Promise<Tool[]> {
   const { data, error } = await supabase
     .from('open_source_tools')
@@ -371,13 +726,29 @@ async function getComparisonTools(
     .eq('status', 'approved')
     .eq('category', category)
     .order('github_stars', { ascending: false })
-    .limit(count);
+    .limit(Math.max(count * 3, 8));
 
   if (error) {
     throw new Error(`Failed to fetch tools for comparison: ${error.message}`);
   }
 
-  return data as Tool[];
+  const normalizedTools = ((data || []) as Tool[]).map(normalizeToolForStorage);
+  const enrichedTools: Tool[] = [];
+
+  for (const tool of normalizedTools) {
+    enrichedTools.push(await enrichToolWithGitHubMetadata(supabase, tool, githubToken));
+  }
+
+  return enrichedTools
+    .sort((a, b) => {
+      const starDelta = (b.github_stars || 0) - (a.github_stars || 0);
+      if (starDelta !== 0) {
+        return starDelta;
+      }
+
+      return a.name.localeCompare(b.name);
+    })
+    .slice(0, count);
 }
 
 async function saveWeeklyRoundup(
@@ -387,7 +758,9 @@ async function saveWeeklyRoundup(
     slug: string;
     week_date: string;
     featured_tools: FeaturedTool[];
+    editor_note: string | null;
     comparison_table: ComparisonData;
+    comparison_summary: string | null;
     news_summaries: NewsItem[];
   }
 ): Promise<void> {
@@ -398,7 +771,9 @@ async function saveWeeklyRoundup(
       slug: roundupData.slug,
       week_date: roundupData.week_date,
       featured_tools: roundupData.featured_tools,
+      editor_note: roundupData.editor_note,
       comparison_table: roundupData.comparison_table,
+      comparison_summary: roundupData.comparison_summary,
       news_summaries: roundupData.news_summaries,
       status: 'draft',
       created_at: new Date().toISOString()
@@ -467,6 +842,7 @@ async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const groqModel = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const githubToken = process.env.GITHUB_TOKEN?.trim() || null;
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
@@ -479,6 +855,7 @@ async function main() {
   console.log('🚀 Generating weekly roundup content...');
   console.log(`🤖 Using Groq model: ${groqModel}`);
   console.log(`⏱️ Groq delay between requests: ${getGroqDelayMs()}ms`);
+  console.log(githubToken ? '🐙 GitHub enrichment enabled for comparison tools.' : '⚠️ GitHub enrichment disabled: GITHUB_TOKEN not set.');
   console.log('🔎 Checking Groq model availability...');
   await validateGroqModel(groqModel);
   console.log('✅ Groq model is available.\n');
@@ -514,7 +891,7 @@ async function main() {
           name: tool.name,
           slug: tool.slug,
           category: tool.category,
-          github_stars: tool.github_stars,
+          github_stars: tool.github_stars || 0,
           summary,
           url: tool.url
         });
@@ -534,8 +911,8 @@ async function main() {
 
     // 3. Fetch tools for comparison (2-3 from one category)
     console.log('\n🔍 Selecting category for comparison...');
-    const selectedCategory = featuredTools[0].category;
-    const comparisonTools = await getComparisonTools(supabase, selectedCategory, 3);
+    const selectedCategory = await getCategoryWithSufficientTools(supabase, 3);
+    const comparisonTools = await getComparisonTools(supabase, selectedCategory, 3, githubToken);
 
     let comparisonText = '';
     if (comparisonTools.length >= 2) {
@@ -563,10 +940,35 @@ async function main() {
     console.log('\n📰 Fetching tech news...');
     const newsItems = await fetchTechNews();
 
+    let editorNote: string | null = null;
+
     if (newsItems.length > 0) {
       console.log(`✅ Generated summaries for ${newsItems.length} news items`);
     } else {
-      console.log('⚠️ No news items generated (NEWS_API_KEY may not be set)');
+      console.log('⚠️ No news items generated (GNEWS_API_KEY may not be set)');
+    }
+
+    try {
+      console.log('\n📝 Generating editor note...');
+      editorNote = await generateEditorNoteWithGroq({
+        title,
+        featuredTools: featuredToolsWithSummaries,
+        comparisonCategory: selectedCategory,
+        comparisonTools: comparisonTools.map((tool) => ({
+          name: tool.name,
+          slug: tool.slug,
+          github_stars: tool.github_stars,
+          language: tool.language,
+          license: tool.license,
+          url: tool.url
+        })),
+        newsItems
+      });
+      console.log('✅ Generated editor note');
+      await delay(getGroqDelayMs());
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.warn(`⚠️ Failed to generate editor note: ${errorMessage}`);
     }
 
     // 5. Save roundup to Supabase
@@ -576,8 +978,8 @@ async function main() {
       tools: comparisonTools.map(t => ({
         name: t.name,
         stars: t.github_stars,
-        language: t.language,
-        license: t.license,
+        language: sanitizeComparisonStat(t.language),
+        license: sanitizeComparisonStat(t.license),
         url: t.url
       }))
     };
@@ -587,7 +989,9 @@ async function main() {
       slug,
       week_date: dateString,
       featured_tools: featuredToolsWithSummaries,
+      editor_note: editorNote,
       comparison_table: comparisonData,
+      comparison_summary: comparisonText || null,
       news_summaries: newsItems
     });
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
@@ -232,7 +233,14 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         <div className="flex flex-col gap-5 md:flex-row md:items-start">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 p-3">
             {faviconUrl ? (
-              <img src={faviconUrl} alt={`${tool.name} logo`} width={64} height={64} className="h-16 w-16 rounded-xl object-contain" />
+              <Image
+                src={faviconUrl}
+                alt={`${tool.name} logo`}
+                width={64}
+                height={64}
+                className="h-16 w-16 rounded-xl object-contain"
+                unoptimized
+              />
             ) : (
               <span className="font-display text-3xl text-white">{tool.name[0]?.toUpperCase() || "?"}</span>
             )}

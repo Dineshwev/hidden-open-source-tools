@@ -473,24 +473,11 @@ export default function AdminModerationPanel() {
     );
   };
 
-  const clearSelection = () => {
+  const clearSelection = useCallback(() => {
     setSelectedIds([]);
-  };
+  }, []);
 
-  const moderateSelected = async (status: "APPROVED" | "REJECTED") => {
-    if (!selectedIds.length) {
-      setError("Select at least one upload first.");
-      return;
-    }
-
-    for (const fileId of selectedIds) {
-      await moderateUpload(fileId, status);
-    }
-
-    clearSelection();
-  };
-
-  const moderateUpload = async (fileId: string, status: "APPROVED" | "REJECTED") => {
+  const moderateUpload = useCallback(async (fileId: string, status: "APPROVED" | "REJECTED") => {
     if (!isVerified) {
       setError("Admin session is missing.");
       return;
@@ -519,7 +506,20 @@ export default function AdminModerationPanel() {
     } finally {
       setActiveFileId(null);
     }
-  };
+  }, [isVerified, verificationSecret, fetchHistory]);
+
+  const moderateSelected = useCallback(async (status: "APPROVED" | "REJECTED") => {
+    if (!selectedIds.length) {
+      setError("Select at least one upload first.");
+      return;
+    }
+
+    for (const fileId of selectedIds) {
+      await moderateUpload(fileId, status);
+    }
+
+    clearSelection();
+  }, [selectedIds, moderateUpload, clearSelection]);
 
   const metricCards = useMemo(
     () => [
@@ -586,7 +586,7 @@ export default function AdminModerationPanel() {
 
     window.addEventListener("keydown", handleKeyboardShortcuts);
     return () => window.removeEventListener("keydown", handleKeyboardShortcuts);
-  }, [filteredPendingUploads, moderateSelected, selectedIds.length]);
+  }, [filteredPendingUploads, moderateSelected, selectedIds.length, clearSelection]);
 
   const sidebarItems = [
     { label: "Upload", href: "#admin-upload" },

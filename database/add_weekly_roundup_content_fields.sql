@@ -1,0 +1,3 @@
+ALTER TABLE IF EXISTS weekly_roundups
+ADD COLUMN IF NOT EXISTS editor_note TEXT,
+ADD COLUMN IF NOT EXISTS comparison_summary TEXT;
