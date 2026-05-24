@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, User, Menu, X } from "lucide-react";
 import Logo from "./Logo";
@@ -13,7 +13,8 @@ const primaryDesktopLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
   { href: "/mystery-box", label: "Random Tool Finder" },
-  { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" }
+  { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
+  { href: "/weekly-roundups", label: "Weekly Roundups" }
 ];
 
 const mobileLinks = [
@@ -21,6 +22,7 @@ const mobileLinks = [
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
   { href: "/mystery-box", label: "Random Tool Finder" },
   { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
+  { href: "/weekly-roundups", label: "Weekly Roundups" },
   { href: "/hidden-tools", label: "Developer Utilities" },
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
@@ -29,8 +31,10 @@ const mobileLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -47,6 +51,17 @@ export default function Navbar() {
     setMobileOpen(false);
   };
 
+  const runSearch = (targetPath: string) => {
+    const query = searchQuery.trim();
+
+    if (!query) {
+      return;
+    }
+
+    closePanels();
+    router.push(`${targetPath}?search=${encodeURIComponent(query)}`);
+  };
+
   return (
     <motion.header
       className="sticky top-0 z-50 border-b border-[color:var(--nav-border)] bg-[var(--nav-bg)] text-[color:var(--nav-text)] backdrop-blur-xl"
@@ -61,7 +76,7 @@ export default function Navbar() {
           whileTap={{ scale: 0.98 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 pl-4">
             <Logo size={32} className="rounded-lg shadow-glow-sm" />
             <div className="flex items-center">
               <div>
@@ -203,15 +218,41 @@ export default function Navbar() {
           initial={{ opacity: 0, scale: 0.9, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
         >
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[color:var(--nav-muted)]" />
-            <input
-              type="text"
-              placeholder="Search files, creators, categories..."
-              className="w-full rounded-xl border border-[color:var(--nav-input-border)] bg-[color:var(--nav-input-bg)] py-3 pl-12 pr-4 text-[color:var(--nav-text)] placeholder-[color:var(--nav-input-placeholder)] focus:border-[color:var(--nav-pill-border)] focus:outline-none"
-              autoFocus
-            />
-          </div>
+          <form
+            className="space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              runSearch("/free-tools");
+            }}
+          >
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[color:var(--nav-muted)]" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search tools or article deep dives..."
+                className="w-full rounded-xl border border-[color:var(--nav-input-border)] bg-[color:var(--nav-input-bg)] py-3 pl-12 pr-4 text-[color:var(--nav-text)] placeholder-[color:var(--nav-input-placeholder)] focus:border-[color:var(--nav-pill-border)] focus:outline-none"
+                autoFocus
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="flex-1 rounded-xl border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] px-3 py-2 text-sm text-[color:var(--nav-text)] transition hover:bg-[color:var(--nav-pill-hover)]"
+              >
+                Search tools
+              </button>
+              <button
+                type="button"
+                onClick={() => runSearch("/article-museum")}
+                className="flex-1 rounded-xl border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] px-3 py-2 text-sm text-[color:var(--nav-text)] transition hover:bg-[color:var(--nav-pill-hover)]"
+              >
+                Search articles
+              </button>
+            </div>
+          </form>
         </motion.div>
       )}
 

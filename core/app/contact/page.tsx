@@ -31,7 +31,7 @@ const structuredData = {
         contactType: "customer support",
         url: `${siteUrl}/contact`
       },
-      sameAs: ["https://github.com/dineshwev", "https://x.com/TheCloudRain_"]
+      sameAs: ["https://github.com/dineshwev", "https://x.com/Dineshwev"]
     },
     {
       "@type": "BreadcrumbList",
@@ -78,7 +78,7 @@ export default function ContactPage() {
             GitHub: @dineshwev
           </a>
           <a
-            href="https://x.com/TheCloudRain_"
+            href="https://x.com/Dineshwev"
             target="_blank"
             rel="noreferrer"
             className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 transition hover:border-white/35 hover:bg-white/[0.05]"

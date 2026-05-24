@@ -26,6 +26,10 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function normalizeSearchTerm(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 type ArticleRow = {
   id: string;
   slug: string;
@@ -37,7 +41,11 @@ type ArticleRow = {
   tags?: string[] | null;
 };
 
-export default async function ArticleMuseumPage() {
+export default async function ArticleMuseumPage({
+  searchParams
+}: {
+  searchParams?: { search?: string | string[] };
+}) {
   const supabase = getAdmin();
   
   // Fetch directly from database to bypass all API caching
@@ -48,6 +56,13 @@ export default async function ArticleMuseumPage() {
     .order("published_at", { ascending: false });
 
   const articleRows = (articles || []) as ArticleRow[];
+  const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim().toLowerCase() || "";
+  const filteredArticles = searchTerm
+    ? articleRows.filter((article) => {
+        const haystack = `${article.title || ""} ${article.tool_name || ""} ${(article.tags || []).join(" ")} ${article.mystery_intro || ""}`.toLowerCase();
+        return haystack.includes(searchTerm);
+      })
+    : articleRows;
 
   return (
     <>
@@ -56,7 +71,7 @@ export default async function ArticleMuseumPage() {
           Error loading articles: {error.message}
         </div>
       ) : null}
-      <ArticleMuseumClient articles={articleRows} />
+      <ArticleMuseumClient articles={filteredArticles} />
     </>
   );
 }

@@ -43,6 +43,10 @@ export const metadata: Metadata = {
   }
 };
 
+function normalizeSearchTerm(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 function normalizeDbCategory(value: unknown): ToolCategory {
   const raw = String(value || "").trim().toLowerCase();
 
@@ -72,7 +76,11 @@ function mapOpenSourceTool(row: any): ScrapedTool {
   };
 }
 
-export default async function FreeToolsPage() {
+export default async function FreeToolsPage({
+  searchParams
+}: {
+  searchParams?: { search?: string | string[] };
+}) {
   const supabase = getAdmin();
   const { data, error } = await supabase
     .from("open_source_tools")
@@ -80,7 +88,15 @@ export default async function FreeToolsPage() {
     .eq("status", "approved")
     .order("created_at", { ascending: false });
 
+  const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim().toLowerCase() || "";
+
   const initialTools = error ? [] : (Array.isArray(data) ? data.map(mapOpenSourceTool) : []);
+  const filteredTools = searchTerm
+    ? initialTools.filter((tool) => {
+        const haystack = `${tool.title} ${tool.description || ""} ${tool.category || ""} ${tool.source_site || ""}`.toLowerCase();
+        return haystack.includes(searchTerm);
+      })
+    : initialTools;
 
   // Fetch exact category values and compute counts server-side
   const { data: categoryRows } = await supabase.from("open_source_tools").select("category").eq("status", "approved");
@@ -95,7 +111,7 @@ export default async function FreeToolsPage() {
     : {};
 
   const counts: Record<string, number> = {
-    All: initialTools.length,
+    All: filteredTools.length,
     "Developer Tools": rawCounts["Developer Tools"] || 0,
     "Self-Hosting & Infrastructure": rawCounts["Self-Hosting & Infrastructure"] || 0,
     "Analytics & Search": rawCounts["Analytics & Search"] || 0,
@@ -109,8 +125,8 @@ export default async function FreeToolsPage() {
 
   return (
     <FreeToolsPageClient
-      initialTools={initialTools}
-      initialCount={initialTools.length}
+      initialTools={filteredTools}
+      initialCount={filteredTools.length}
       categoryCounts={counts}
     />
   );
