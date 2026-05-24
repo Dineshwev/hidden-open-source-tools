@@ -69,14 +69,14 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
         <motion.div
           className="cursor-pointer select-none"
           whileHover={{ scale: 1.05, rotate: [0, -2, 0] }}
           whileTap={{ scale: 0.98 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Link href="/" className="flex items-center gap-3 pl-4">
+          <Link href="/" className="mr-8 flex items-center gap-3 pl-4 lg:mr-10">
             <Logo size={32} className="rounded-lg shadow-glow-sm" />
             <div className="flex items-center">
               <div>
@@ -87,7 +87,7 @@ export default function Navbar() {
           </Link>
         </motion.div>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-6 lg:flex xl:gap-8">
           {primaryDesktopLinks.map(({ href, label, isNew, badge }, index) => {
             const active = isActive(href);
 
@@ -100,7 +100,7 @@ export default function Navbar() {
               >
                 <Link
                   href={href}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all duration-200 ${
+                  className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-sm transition-all duration-200 ${
                     active
                       ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                       : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"

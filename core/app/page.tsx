@@ -69,20 +69,60 @@ const homeFaqSchema = {
 
 export default function HomePage() {
   return (
-    <div className="space-y-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqSchema) }} />
+    <div className="home-page-shell">
+      <style>{`
+        .home-page-shell > section + section {
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-      <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
-        Open Source SaaS Alternatives for Developers
-      </h1>
+        .home-page-shell > section {
+          padding-top: 4rem;
+          padding-bottom: 4rem;
+        }
 
-      <ResponsiveHomePage />
+        @media (min-width: 768px) {
+          .home-page-shell > section {
+            padding-top: 5rem;
+            padding-bottom: 5rem;
+          }
+        }
+
+        .home-page-shell aside article {
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .home-page-shell [class*="h-1.5"][class*="w-1.5"][class*="rounded-full"],
+        .home-page-shell [class*="h-2"][class*="w-2"][class*="rounded-full"],
+        .home-page-shell [class*="h-2.5"][class*="w-2.5"][class*="rounded-full"] {
+          opacity: 1 !important;
+        }
+
+        .home-page-shell a[data-primary-cta] {
+          transition: opacity 150ms ease;
+        }
+
+        .home-page-shell a[data-primary-cta]:hover {
+          opacity: 0.9;
+        }
+      `}</style>
+
+      <section>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqSchema) }} />
+
+        <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
+          Open Source SaaS Alternatives for Developers
+        </h1>
+      </section>
+
+      <section>
+        <ResponsiveHomePage />
+      </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
         <p className="text-xs uppercase tracking-[0.25em] text-white">Explore by intent</p>
         <h2 className="mt-2 text-2xl text-white">Popular developer search topics</h2>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/best-free-developer-tools" className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
+          <Link href="/best-free-developer-tools" data-primary-cta className="rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
             Developer Tool Comparisons
           </Link>
           <Link href="/open-source-software" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white">
@@ -133,7 +173,7 @@ export default function HomePage() {
             <p className="mt-2 text-sm leading-6 text-white/90">
               For visitors who want shortlist-style recommendations and comparison content before choosing a tool.
             </p>
-            <Link href="/best-free-developer-tools" className="mt-4 inline-flex rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
+            <Link href="/best-free-developer-tools" data-primary-cta className="mt-4 inline-flex rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-900">
               Open comparison page
             </Link>
           </article>
@@ -160,7 +200,7 @@ export default function HomePage() {
             <p className="mt-2 text-sm leading-6 text-white/90">
               For recurring discovery and editorial context around open-source picks, self-hosted software, and workflow ideas.
             </p>
-            <Link href="/weekly-roundups" className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            <Link href="/weekly-roundups" data-primary-cta className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
               Read weekly briefs
             </Link>
           </article>
