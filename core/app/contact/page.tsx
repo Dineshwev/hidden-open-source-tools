@@ -83,7 +83,7 @@ export default function ContactPage() {
             rel="noreferrer"
             className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90 transition hover:border-white/35 hover:bg-white/[0.05]"
           >
-            X: @TheCloudRain_
+            X: @Dineshwev
           </a>
           <a
             href="mailto:dineshwev.tcr@gmail.com"

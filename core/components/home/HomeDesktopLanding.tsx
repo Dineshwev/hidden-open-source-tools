@@ -4,38 +4,33 @@ import StatGrid from "@/components/StatGrid";
 import StatsTicker from "@/components/StatsTicker";
 import TrendingDownloads from "@/components/TrendingDownloads";
 import TopContributors from "@/components/TopContributors";
-import SpaceBackground from "@/components/SpaceBackground";
 
 export default function HomeDesktopLanding() {
   return (
     <>
-      <SpaceBackground className="opacity-55" />
-      <div className="relative z-10 space-y-24 pb-20">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-grid-cyber px-5 py-14 md:px-10 md:py-16 lg:px-12">
-          <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-white/10 blur-[100px]" />
-          <div className="absolute -right-16 top-10 h-72 w-72 rounded-full bg-white/5 blur-[100px]" />
-
+      <div className="relative z-10 space-y-20 pb-20">
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.02] px-6 py-16 md:px-10 md:py-20 lg:px-12">
           <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="space-y-7">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/70">
                 OPEN SOURCE | SELF-HOSTED | SAAS ALTERNATIVES
               </div>
 
-              <div className="font-display text-4xl leading-tight text-white md:text-6xl">
-                <span className="text-gradient-magic">practical developer workflows</span>
+              <div className="font-display text-4xl leading-tight text-white md:text-5xl lg:text-6xl">
+                practical developer workflows
               </div>
 
               <div className="flex flex-wrap gap-3 items-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400 opacity-100">
                   No-Cost Options
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400 opacity-100">
                   Open Source
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400 opacity-100">
                   Self-Hosted
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400 opacity-100">
                   No Login Required
                 </span>
               </div>
@@ -46,34 +41,35 @@ export default function HomeDesktopLanding() {
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-sm md:text-base px-8 py-4">
+                <Link href="/mystery-box" data-primary-cta className="btn-premium inline-flex items-center gap-2 text-sm md:text-base px-6 py-3">
                   Try Random Tool Finder <Sparkles className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/free-tools"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white transition hover:bg-white/10"
+                  data-primary-cta
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white"
                 >
                   Browse No-Cost Resources <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
 
-              <div className="grid gap-3 pt-4 sm:grid-cols-3">
-                <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
+              <div className="grid gap-4 pt-6 sm:grid-cols-3">
+                <div className="glass-panel rounded-2xl p-6 text-sm text-white/70 shadow-sm">
                   <p className="font-display text-2xl text-white">5,000+</p>
                   Curated Resources
                 </div>
-                <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
+                <div className="glass-panel rounded-2xl p-6 text-sm text-white/70 shadow-sm">
                   <p className="font-display text-2xl text-white">Daily</p>
                   New Tool Picks
                 </div>
-                <div className="glass-panel rounded-2xl p-4 text-sm text-white/70">
+                <div className="glass-panel rounded-2xl p-6 text-sm text-white/70 shadow-sm">
                   <p className="font-display text-2xl text-white">Verified</p>
                   Moderated Contents
                 </div>
               </div>
             </div>
 
-            <aside className="glass-panel depth-stage rounded-[1.6rem] p-6 md:p-8">
+            <aside className="glass-panel depth-stage rounded-[1.6rem] p-6 md:p-8 bg-white/[0.02]">
               <p className="text-xs uppercase tracking-[0.3em] text-white/60">Community Activity</p>
               <div className="mt-6 space-y-4">
                 {[
@@ -94,9 +90,11 @@ export default function HomeDesktopLanding() {
                   }
                 ].map((step) => (
                   <article key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                    <div className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-white">
-                      {step.icon}
-                      {step.title}
+                    <div className="mb-2 flex items-start gap-3">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5">
+                        {step.icon}
+                      </span>
+                      <div className="text-sm font-semibold text-white">{step.title}</div>
                     </div>
                     <p className="text-sm text-white/65">{step.text}</p>
                   </article>
@@ -123,7 +121,7 @@ export default function HomeDesktopLanding() {
               <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Why Developers Choose The Cloud Rain</h2>
             </div>
           </div>
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             {[
               {
                 title: "Reduce SaaS Spend",
@@ -138,8 +136,11 @@ export default function HomeDesktopLanding() {
                 desc: "Every resource is manually reviewed by our moderation team to ensure code safety and quality."
               }
             ].map((feature) => (
-              <article key={feature.title} className="glass-card depth-panel rounded-3xl p-7 hover:border-nebula-500/30 transition-colors">
-                <h3 className="font-display text-2xl text-white group-hover:text-nebula-400 transition-colors">{feature.title}</h3>
+              <article
+                key={feature.title}
+                className="glass-card depth-panel rounded-3xl p-8 border border-white/10 bg-white/[0.02] shadow-sm transition-transform transform hover:-translate-y-1 hover:shadow-lg"
+              >
+                <h3 className="font-display text-2xl text-white transition-colors">{feature.title}</h3>
                 <p className="mt-3 text-white/65">{feature.desc}</p>
               </article>
             ))}

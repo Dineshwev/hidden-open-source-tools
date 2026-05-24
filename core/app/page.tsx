@@ -97,11 +97,13 @@ export default function HomePage() {
           opacity: 1 !important;
         }
 
-        .home-page-shell a[data-primary-cta] {
+        .home-page-shell a[data-primary-cta],
+        .home-page-shell .btn-premium {
           transition: opacity 150ms ease;
         }
 
-        .home-page-shell a[data-primary-cta]:hover {
+        .home-page-shell a[data-primary-cta]:hover,
+        .home-page-shell .btn-premium:hover {
           opacity: 0.9;
         }
       `}</style>
