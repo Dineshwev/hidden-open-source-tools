@@ -1,4 +1,6 @@
+import ws from 'ws';
 import { createClient } from '@supabase/supabase-js';
+import type { WebSocketLikeConstructor } from '@supabase/realtime-js';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -850,7 +852,11 @@ async function main() {
     );
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    realtime: {
+      transport: ws as unknown as WebSocketLikeConstructor
+    }
+  });
 
   console.log('🚀 Generating weekly roundup content...');
   console.log(`🤖 Using Groq model: ${groqModel}`);
