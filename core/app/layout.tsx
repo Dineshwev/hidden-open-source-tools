@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
+import GitHubSponsorFloat from "@/components/GitHubSponsorFloat";
 import { AuthProvider } from "@/lib/AuthProvider";
 import { getSiteUrl } from "@/lib/site-url";
 import Script from "next/script";
@@ -146,6 +147,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <Footer />
           <SpeedInsights />
         </AuthProvider>
+        <GitHubSponsorFloat />
       </body>
     </html>
   );
