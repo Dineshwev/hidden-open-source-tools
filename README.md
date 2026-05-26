@@ -16,8 +16,8 @@ What makes it different is the editorial layer. Unlike AlternativeTo, it is not 
 
 ## Features
 
-- 250+ curated open-source tools with dedicated pages
-- 21 deep-dive articles in the Article Museum
+- 300+ curated open-source tools with dedicated pages
+- 25+ deep-dive articles in the Article Museum
 - GitHub stars, forks, and primary language pulled live from the GitHub API
 - Category filters for exploring tools by focus area, including Developer Tools and Self-Hosting
 - Mystery Box for random tool discovery
@@ -107,6 +107,22 @@ If you want to contribute, fork the repo, create a focused branch, make your cha
 - 477 pages indexed by Google
 - 2,000+ monthly impressions and growing
 - Built by one person: Dinesh Regar, B.Tech ECE student
+
+## Support This Project
+
+The Cloud Rain is built and maintained by a single B.Tech ECE student with no external funding.
+
+If this project has helped you discover useful tools, saved you time, or introduced you to open-source software you now use, consider supporting it.
+
+Your support helps cover:
+
+- Domain and infrastructure costs
+- Time spent curating, writing, and maintaining 300+ tool pages and 25+ deep-dive articles
+- Continued development of new features
+
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/Dineshwev?style=social)](https://github.com/sponsors/Dineshwev)
+
+Even a one-time contribution makes a difference.
 
 ## License
 
