@@ -1,3 +1,4 @@
+import ws from 'ws';
 import { createClient } from '@supabase/supabase-js';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -198,7 +199,11 @@ async function main() {
     );
   }
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    realtime: {
+      transport: ws
+    }
+  });
 
   console.log('🚀 Fetching approved tools from Supabase...');
   console.log(`🤖 Using Groq model: ${groqModel}`);
