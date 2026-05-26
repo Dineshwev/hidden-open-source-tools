@@ -1,103 +1,113 @@
-# The Cloud Rain - Hidden Open Source Tools
+# The Cloud Rain
 
-The Cloud Rain is an open-source Next.js platform where users unlock curated developer resources through a mystery-box flow, browse free tools, and use moderated community features.
+**The Cloud Rain** is a curated museum of hidden open-source tools: lightweight, practical alternatives to expensive SaaS platforms. It helps developers, indie hackers, students, self-hosters, and curious builders discover useful tools that are often buried under hype, noisy rankings, or enterprise marketing.
 
-## Stack
+## What is The Cloud Rain?
 
-- Frontend: Next.js 14 App Router, TypeScript, Tailwind CSS, Framer Motion, Three.js, Zustand
-- Firebase Auth with protected dashboard-ready flows
-- Moderated upload and messaging flows using Supabase
-- Admin analytics and approval queue
-- Contributor points, streaks, and leaderboard foundations
-- Open-source contributor docs and issue templates
+The Cloud Rain is a discovery-first platform built to surface high-quality open-source software that deserves more attention. Instead of acting like a generic software catalog, it focuses on handpicked tools, context-rich writeups, and a browsing experience that helps people uncover genuinely useful products across categories like developer tools, self-hosting, productivity, AI, and infrastructure.
 
-## Project Structure
+It is designed for builders who want more control, lower costs, and better transparency than closed SaaS products usually offer. Whether someone is replacing a paid workflow, exploring self-hosted options, or simply looking for underrated tools, The Cloud Rain gives them a more curated path than a search engine or a crowded marketplace.
 
-```text
-root/
-  core/
-    app/
-    components/
-    lib/
-    store/
-    styles/
-  database/
-  assets/
-  .github/
-```
+What makes it different is the editorial layer. Unlike AlternativeTo, it is not just a broad alternatives database. Unlike GitHub, it is not a raw code-hosting platform that assumes users already know what to search for. Unlike Product Hunt, it is not driven by launch-day momentum. The Cloud Rain is built as a long-term museum of hidden open-source gems, with curation, storytelling, and discovery at the center.
 
-## Setup
+## Live Site
 
-### 1. Install dependencies
+[https://thecloudrain.org](https://thecloudrain.org)
 
-```bash
-cd core && npm install
-```
+## Features
 
-### 2. Configure environment files
+- 250+ curated open-source tools with dedicated pages
+- 21 deep-dive articles in the Article Museum
+- GitHub stars, forks, and primary language pulled live from the GitHub API
+- Category filters for exploring tools by focus area, including Developer Tools and Self-Hosting
+- Mystery Box for random tool discovery
+- Weekly Roundups to spotlight new tools and trends
+- AI-generated tool descriptions powered by Groq
+- Admin panel with a moderation workflow for reviewing and managing content
 
-```bash
-cp core/.env.example core/.env.local
-```
+## Tech Stack
 
-Set a private admin panel key in `core/.env.local`:
+- Next.js 14 App Router + TypeScript
+- Tailwind CSS + Framer Motion
+- Supabase (PostgreSQL)
+- Firebase Auth
+- Vercel deployment
 
-```bash
-ADMIN_PANEL_ACCESS_KEY=replace-with-a-long-random-secret
-ADMIN_PANEL_ROUTE_SECRET=segment-one/segment-two/segment-three/segment-four
-```
+## Local Development
 
-Admin moderation panel URL format:
+1. Clone the repository:
 
-```text
-/control-room/<segment-one>/<segment-two>/<segment-three>/<segment-four>
-```
+   ```bash
+   git clone https://github.com/Dineshwev/hidden-open-source-tools.git
+   ```
 
-Example:
+2. Move into the app directory:
 
-```text
-/control-room/r4in-gate/v9x-lock/k2m-vault/p7q-node
-```
+   ```bash
+   cd hidden-open-source-tools
+   cd core
+   ```
 
-The `/admin` route is intentionally disabled.
+3. Install dependencies:
 
-### 2a. Set up Supabase for global uploads
+   ```bash
+   npm install
+   ```
 
-Your uploads and approvals are stored in Supabase, so every approved file appears globally on the site.
+4. Copy the environment template and add your local values:
 
-Use these values from your Supabase project:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-- `DATABASE_URL`: the Supabase Postgres connection string from Project Settings > Database
-- `NEXT_PUBLIC_SUPABASE_URL`: the Supabase project URL from Project Settings > API
-- `SUPABASE_SERVICE_ROLE_KEY`: the Service Role key from Project Settings > API
+5. Start the development server:
 
-Create a storage bucket named `mystery-bucket` and make it public, because the upload flow saves a public file URL for each approved asset.
+   ```bash
+   npm run dev
+   ```
 
-If any of those values are missing, the upload API will return a configuration error instead of saving the file.
+The app will start locally with the Next.js development server from the `core/` directory.
 
-### 3. Start local database (Optional)
+## Environment Variables
 
-```bash
-docker compose up -d postgres
-```
+The following variables are used for local development and production deployment. Do not commit real secrets to the repository.
 
-If you are using Supabase Cloud, you can skip this step and go straight to starting the app.
+| Variable | Description |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Public Supabase project URL used by the app and server helpers. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public Supabase anon key used for client-side access where needed. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase service role key used for admin workflows, moderation, and data sync scripts. |
+| `SUPABASE_STORAGE_BUCKET` | Name of the Supabase storage bucket used for uploaded assets. |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase web API key for client-side authentication setup. |
+| `FIREBASE_PROJECT_ID` | Firebase project identifier. In this repo, set this as `NEXT_PUBLIC_FIREBASE_PROJECT_ID` in `.env.local`. |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase auth domain for sign-in flows. |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket identifier for client configuration. |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID for client configuration. |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase app ID for the web application. |
+| `FIREBASE_CLIENT_EMAIL` | Firebase Admin service account client email for server-side verification. |
+| `FIREBASE_PRIVATE_KEY` | Firebase Admin private key for server-side authentication and secure API operations. |
+| `GITHUB_TOKEN` | GitHub token used to fetch repository metadata such as stars, forks, and language. |
+| `GROQ_API_KEY` | Groq API key used for AI-generated tool descriptions and content workflows. |
+| `ADMIN_SECRET` | Secret used to protect admin authentication and moderation routes. |
+| `ADMIN_PANEL_ROUTE_SECRET` | Hidden multi-segment admin route used to obscure the control room path. |
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL used for metadata, SEO, and absolute links. |
 
-### 4. Run the app
+## Contributing
 
-```bash
-cd core && npm run dev
-```
+Contributions are welcome from developers, writers, researchers, and open-source enthusiasts.
 
-## Important Notes
+- **Tools**: Submit hidden or underrated open-source tools that deserve visibility, especially practical alternatives to paid SaaS products.
+- **Articles**: Contribute deep-dive content, comparisons, roundups, or explainers that help readers understand when and why to use a tool.
+- **Code**: Improve the platform experience, fix bugs, refine discovery flows, or strengthen the moderation and content systems.
 
-- Uploaded files are stored in `assets/uploads/`
-- Preview assets can live in `assets/previews/`
-- `database/schema.sql` is included for SQL-first inspection, but Prisma is the source of truth
-- API endpoints are implemented in `core/app/api/*`
+If you want to contribute, fork the repo, create a focused branch, make your changes, and open a pull request with a clear description. For additional workflow guidance, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Open Source Workflow
+## Stats
 
-- Read [CONTRIBUTING.md](CONTRIBUTING.md)
-- Use the issue templates in `.github/ISSUE_TEMPLATE/`
-- Keep business logic in `core/lib/services` and UI logic in reusable `core/components`
+- 477 pages indexed by Google
+- 2,000+ monthly impressions and growing
+- Built by one person: Dinesh Regar, B.Tech ECE student
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
