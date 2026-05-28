@@ -1,0 +1,1 @@
+export { getAdmin as createClient } from "@/lib/backend_lib/supabase-server";

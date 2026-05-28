@@ -1,65 +1,9 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import FreeToolsPageClient from "@/app/free-tools/FreeToolsPageClient";
-import { buildFreeToolsRoute, getCategoryPageBySlug, getFreeToolsPageData } from "@/app/free-tools/free-tools-data";
+import { redirect } from "next/navigation";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
-
-type PageProps = {
-  params: {
-    category: string;
-    page: string;
-  };
+export const metadata = {
+  robots: { index: false, follow: false }
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const categoryPage = getCategoryPageBySlug(params.category);
-  const page = Number(params.page);
-
-  if (!categoryPage || !Number.isFinite(page) || page < 2) {
-    return {};
-  }
-
-  const title = `${categoryPage.title} - Page ${page} | The Cloud Rain`;
-  const description = `${categoryPage.description} Browse page ${page} of this category directory.`;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: buildFreeToolsRoute(categoryPage.slug, page)
-    },
-    openGraph: {
-      title,
-      description,
-      url: `${siteUrl}${buildFreeToolsRoute(categoryPage.slug, page)}`
-    }
-  };
-}
-
-export default async function FreeToolsCategoryPaginationPage({ params }: PageProps) {
-  const categoryPage = getCategoryPageBySlug(params.category);
-  const page = Number(params.page);
-
-  if (!categoryPage || !Number.isFinite(page) || page < 2) {
-    notFound();
-  }
-
-  const { initialTools, initialCount, initialTotalPages, currentPage } = await getFreeToolsPageData({
-    page,
-    categorySlug: categoryPage.slug
-  });
-
-  if (currentPage > initialTotalPages) {
-    notFound();
-  }
-
-  return (
-    <FreeToolsPageClient
-      initialTools={initialTools}
-      initialCount={initialCount}
-      initialTotalPages={initialTotalPages}
-      initialPage={currentPage}
-    />
-  );
+export default function Page() {
+  redirect("/free-tools");
 }

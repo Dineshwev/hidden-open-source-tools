@@ -77,23 +77,6 @@ export const FREE_TOOLS_CATEGORY_PAGES: FreeToolsCategoryPage[] = [
   }
 ];
 
-export function getCategoryPageBySlug(slug?: string | null) {
-  if (!slug) return null;
-  return FREE_TOOLS_CATEGORY_PAGES.find((entry) => entry.slug === slug) || null;
-}
-
-export function buildFreeToolsRoute(categorySlug?: string | null, page = 1) {
-  const safePage = Math.max(1, Math.floor(page));
-
-  if (categorySlug) {
-    return safePage <= 1
-      ? `/free-tools/category/${categorySlug}`
-      : `/free-tools/category/${categorySlug}/page/${safePage}`;
-  }
-
-  return safePage <= 1 ? "/free-tools" : `/free-tools/page/${safePage}`;
-}
-
 function normalizeDbCategory(value: unknown): ToolCategory {
   const raw = String(value || "").trim().toLowerCase();
 
@@ -154,15 +137,8 @@ export async function getFreeToolsPageData({
 
     const toolRows = (Array.isArray(rows) ? rows : []) as Array<{ status?: unknown }>;
 
-    const categoryPage = getCategoryPageBySlug(categorySlug);
-
     const filteredRows = toolRows
       .filter((row) => isApprovedLike(row?.status))
-      .filter((row) => {
-        if (!categoryPage) return true;
-        const raw = String((row as any)?.category || "").trim().toLowerCase();
-        return categoryPage.matchValues.includes(raw);
-      })
       .map(mapOpenSourceTool)
       .sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime());
 
