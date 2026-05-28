@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import slugify from "slugify";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import { marked } from "marked";
@@ -41,6 +42,14 @@ function normalizeTool(row: any): ToolRow {
     url: String(row?.url || row?.webpage_url || ""),
     ai_content: row?.ai_content || null
   };
+}
+
+function buildFallbackSlug(row: any) {
+  return slugify(String(row?.name || row?.title || ""), {
+    lower: true,
+    strict: true,
+    trim: true
+  });
 }
 
 function getDomain(url: string) {
@@ -149,9 +158,21 @@ async function getToolBySlug(slug: string) {
       .or("status.eq.approved,status.eq.APPROVED")
       .single();
 
-    if (error || !data) return null;
+    if (!error && data) {
+      return normalizeTool(data);
+    }
 
-    return normalizeTool(data);
+    const { data: fallbackRows, error: fallbackError } = await supabase
+      .from("open_source_tools")
+      .select("*")
+      .or("status.eq.approved,status.eq.APPROVED");
+
+    if (fallbackError || !Array.isArray(fallbackRows)) return null;
+
+    const match = fallbackRows.find((row) => buildFallbackSlug(row) === slug);
+    if (!match) return null;
+
+    return normalizeTool(match);
   } catch {
     return null;
   }

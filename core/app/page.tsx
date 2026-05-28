@@ -76,14 +76,14 @@ export default function HomePage() {
         }
 
         .home-page-shell > section {
-          padding-top: 4rem;
-          padding-bottom: 4rem;
+          padding-top: 2rem;
+          padding-bottom: 2rem;
         }
 
         @media (min-width: 768px) {
           .home-page-shell > section {
-            padding-top: 5rem;
-            padding-bottom: 5rem;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
           }
         }
 
@@ -108,7 +108,7 @@ export default function HomePage() {
         }
       `}</style>
 
-      <section>
+      <section className="pt-16 pb-8 md:pt-20 md:pb-8">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeFaqSchema) }} />
 
         <h1 className="font-display text-4xl leading-tight text-white md:text-6xl">
@@ -116,7 +116,7 @@ export default function HomePage() {
         </h1>
       </section>
 
-      <section>
+      <section className="pt-8">
         <ResponsiveHomePage />
       </section>
 

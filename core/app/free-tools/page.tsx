@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import slugify from "slugify";
 import FreeToolsPageClient from "./FreeToolsPageClient";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
@@ -47,6 +48,17 @@ function normalizeSearchTerm(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function buildToolSlug(row: any) {
+  const explicitSlug = String(row?.slug || "").trim();
+  if (explicitSlug) return explicitSlug;
+
+  return slugify(String(row?.name || row?.title || ""), {
+    lower: true,
+    strict: true,
+    trim: true
+  });
+}
+
 function normalizeDbCategory(value: unknown): ToolCategory {
   const raw = String(value || "").trim().toLowerCase();
 
@@ -61,7 +73,7 @@ function normalizeDbCategory(value: unknown): ToolCategory {
 function mapOpenSourceTool(row: any): ScrapedTool {
   return {
     id: String(row?.id || ""),
-    slug: row?.slug ? String(row.slug) : null,
+    slug: buildToolSlug(row) || null,
     title: String(row?.name || row?.title || "Untitled"),
     description: row?.description ?? null,
     image_url: row?.image_url ?? row?.image ?? null,

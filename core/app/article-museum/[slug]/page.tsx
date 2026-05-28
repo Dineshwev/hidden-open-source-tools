@@ -24,6 +24,7 @@ type Article = {
 const siteUrl = "https://thecloudrain.org";
 const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
+export const dynamic = 'force-static';
 export const revalidate = 86400;
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
