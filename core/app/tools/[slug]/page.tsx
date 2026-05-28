@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import slugify from "slugify";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
@@ -250,6 +251,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <Link
+        href="/free-tools"
+        className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm mb-8 transition-colors"
+      >
+        ← Back to Directory
+      </Link>
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-start">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 p-3">

@@ -1,11 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { getSiteUrl } from "@/lib/site-url";
-import {
-  FREE_TOOLS_CATEGORY_PAGES,
-  FREE_TOOLS_PAGE_SIZE,
-  buildFreeToolsRoute
-} from "@/app/free-tools/free-tools-data";
 
 const siteUrl = getSiteUrl();
 
@@ -126,8 +121,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articleEntries: MetadataRoute.Sitemap = [];
   let toolEntries: MetadataRoute.Sitemap = [];
-  let freeToolsPaginationEntries: MetadataRoute.Sitemap = [];
-
   try {
     const supabase = getAdmin();
     
@@ -163,43 +156,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "monthly",
         priority: 0.7
       }));
-
-      const approvedTools = tools;
-
-      const totalDirectoryPages = Math.ceil(approvedTools.length / FREE_TOOLS_PAGE_SIZE);
-
-      for (let page = 2; page <= totalDirectoryPages; page += 1) {
-        freeToolsPaginationEntries.push({
-          url: `${siteUrl}${buildFreeToolsRoute(null, page)}`,
-          lastModified: staticLastModified,
-          changeFrequency: "weekly",
-          priority: 0.7
-        });
-      }
-
-      for (const categoryPage of FREE_TOOLS_CATEGORY_PAGES) {
-        const categoryTools = approvedTools.filter((tool: any) => {
-          const raw = String(tool?.category || "").trim().toLowerCase();
-          return categoryPage.matchValues.includes(raw);
-        });
-
-        freeToolsPaginationEntries.push({
-          url: `${siteUrl}${buildFreeToolsRoute(categoryPage.slug, 1)}`,
-          lastModified: staticLastModified,
-          changeFrequency: "weekly",
-          priority: 0.72
-        });
-
-        const categoryPages = Math.ceil(categoryTools.length / FREE_TOOLS_PAGE_SIZE);
-        for (let page = 2; page <= categoryPages; page += 1) {
-          freeToolsPaginationEntries.push({
-            url: `${siteUrl}${buildFreeToolsRoute(categoryPage.slug, page)}`,
-            lastModified: staticLastModified,
-            changeFrequency: "weekly",
-            priority: 0.68
-          });
-        }
-      }
     }
 
   } catch (error) {
@@ -207,5 +163,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Continue with static entries if dynamic fetch fails
   }
 
-  return [...staticEntries, ...articleEntries, ...toolEntries, ...freeToolsPaginationEntries];
+  return [...staticEntries, ...articleEntries, ...toolEntries];
 }
