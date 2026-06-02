@@ -138,31 +138,46 @@ export default function HomePage() {
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-        <p className="text-xs uppercase tracking-[0.25em] text-white">Start here</p>
-        <h2 className="mt-2 text-2xl text-white">How to use The Cloud Rain for faster discovery</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/90">
-          The homepage introduces the main discovery routes for developers who want self-hosted software, open-source tools,
-          and practical workflow resources without digging through noisy directories. If you want comparison-driven browsing,
-          start with the editorial landing pages. If you want a broader directory, move into the no-cost resource library.
+        <p className="text-xs uppercase tracking-[0.25em] text-white/60">What lives here</p>
+        <h2 className="mt-2 text-2xl text-white">A museum for tools the internet forgot</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-white/70">
+          The Cloud Rain surfaces open-source tools that never made it to Product Hunt&apos;s front page —
+          self-hostable, production-ready, and genuinely useful. Each tool gets a deep-dive article
+          covering origin story, real use cases, and hands-on code. No fluff, no affiliate padding.
         </p>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <h3 className="text-lg text-white">Compare</h3>
-            <p className="mt-2 text-sm leading-6 text-white/90">
-              Use comparison pages to evaluate developer tools by category, deployment model, and intent.
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">Deep dives</p>
+            <h3 className="mt-2 text-base text-white">Tool articles</h3>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              Every tool gets its own long-form breakdown — how it works, why it exists,
+              and whether it fits your stack.
             </p>
+            <Link href="/tools" className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
+              Browse deep dives
+            </Link>
           </article>
           <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <h3 className="text-lg text-white">Browse</h3>
-            <p className="mt-2 text-sm leading-6 text-white/90">
-              Explore curated open-source software and developer utilities when you want a wider set of options.
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">Mystery box</p>
+            <h3 className="mt-2 text-base text-white">Random discovery</h3>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              Hit the mystery box and get dropped into a random hidden tool.
+              No algorithm. No trending bias. Pure discovery.
             </p>
+            <Link href="/mystery-box" className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
+              Open mystery box
+            </Link>
           </article>
           <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <h3 className="text-lg text-white">Deep dive</h3>
-            <p className="mt-2 text-sm leading-6 text-white/90">
-              Read weekly roundups and editorial pages to find practical recommendations with more context.
+            <p className="text-xs uppercase tracking-[0.2em] text-emerald-400/80">No-cost resources</p>
+            <h3 className="mt-2 text-base text-white">Free tools directory</h3>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              Curated free-tier tools, open-source utilities, and self-hosted
+              alternatives organised by use case.
             </p>
+            <Link href="/free-tools" className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
+              Explore free tools
+            </Link>
           </article>
         </div>
       </section>
