@@ -5,7 +5,7 @@ import ResponsiveHomePage from "@/components/home/ResponsiveHomePage";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
-  title: "The Cloud Rain | Free Open Source Tools & Self-Hosted Alternatives",
+  title: "The Cloud Rain | Hidden Open Source Tools",
   description:
     "Discover 250+ curated open-source tools, self-hosted software, and lightweight developer utilities to replace SaaS and speed development.",
   keywords: [
@@ -22,17 +22,18 @@ export const metadata: Metadata = {
     canonical: "/"
   },
   openGraph: {
-    title: "The Cloud Rain | Open Source SaaS Alternatives",
+    title: "The Cloud Rain | Hidden Open Source Tools",
     description:
-      "Discover lightweight open-source tools, self-hosted software, and practical SaaS alternatives curated for developers.",
-    url: siteUrl,
+      "Discover powerful, lesser-known open source tools — free alternatives to expensive software.",
+    url: "https://www.thecloudrain.org",
+    siteName: "The Cloud Rain",
     type: "website"
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Cloud Rain | Open Source SaaS Alternatives",
+    title: "The Cloud Rain | Hidden Open Source Tools",
     description:
-      "A curated hub for self-hosted software, open-source utilities, and lightweight developer tools."
+      "Discover powerful, lesser-known open source tools — free alternatives to expensive software."
   }
 };
 

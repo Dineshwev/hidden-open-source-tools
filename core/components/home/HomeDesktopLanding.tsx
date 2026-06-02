@@ -163,11 +163,7 @@ export default function HomeDesktopLanding() {
           <StatGrid />
         </section>
 
-        <StatsTicker />
-
-        <div className="space-y-24">
-          <TopContributors />
-        </div>
+        
 
         <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-8 md:p-12 overflow-hidden relative">
           <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-nebula-500/20 blur-[100px]" />
