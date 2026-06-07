@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-react";
-import StatGrid from "@/components/StatGrid";
-import TrendingDownloads from "@/components/TrendingDownloads";
 
 const mobileSteps = [
   {
@@ -84,16 +82,6 @@ export default function HomeMobileLanding() {
           </div>
         </div>
       </section>
-
-      <section className="glass-panel rounded-[1.8rem] p-5">
-        <p className="text-xs uppercase tracking-[0.3em] text-white/50">Global Activity</p>
-        <h2 className="mt-3 font-display text-2xl text-white">Live System Snapshot</h2>
-        <div className="mt-5">
-          <StatGrid />
-        </div>
-      </section>
-
-      <TrendingDownloads />
 
       <section className="rounded-[1.8rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-6 relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-nebula-500/10 blur-3xl" />
