@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ResponsiveHomePage from "@/components/home/ResponsiveHomePage";
+import HomeMobileLanding from "@/components/home/HomeMobileLanding";
+import HomeDesktopLanding from "@/components/home/HomeDesktopLanding";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
@@ -118,7 +119,12 @@ export default function HomePage() {
       </section>
 
       <section className="pt-8">
-        <ResponsiveHomePage />
+        <div className="block lg:hidden">
+          <HomeMobileLanding />
+        </div>
+        <div className="hidden lg:block">
+          <HomeDesktopLanding />
+        </div>
       </section>
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">

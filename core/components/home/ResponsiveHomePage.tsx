@@ -1,4 +1,5 @@
 "use client";
+// DEPRECATED: No longer used in page.tsx. Replaced with CSS-based responsive rendering for SSR crawlability. Safe to delete later.
 
 import { useEffect, useState } from "react";
 import HomeMobileLanding from "@/components/home/HomeMobileLanding";
