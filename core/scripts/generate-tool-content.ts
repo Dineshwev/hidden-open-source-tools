@@ -41,7 +41,7 @@ interface GroqResponse {
 }
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-const DEFAULT_GROQ_DELAY_MS = 5500;
+const DEFAULT_GROQ_DELAY_MS = 8000;
 const GROQ_MAX_RETRIES = 3;
 
 function getGroqDelayMs() {
@@ -69,37 +69,45 @@ async function generateContentWithGroq(tool: Tool): Promise<string> {
     throw new Error('GROQ_API_KEY environment variable not set');
   }
 
-  const prompt = `You are a technical writer for developers.
-Write a detailed description for this open-source tool for developers. Be specific and technical.
+  const prompt = `You are a senior technical writer for a developer-focused open source discovery platform called The Cloud Rain.
+
+Your job is to write a detailed, honest, and developer-friendly page about an open source tool. The tone is direct, technical, and opinionated — like a senior engineer explaining a tool to a teammate, not a marketing copy.
 
 Tool: ${tool.name}
 Category: ${tool.category}
-Current description: ${tool.description}
+Description: ${tool.description}
 GitHub Stars: ${tool.github_stars}
 Language: ${tool.language}
 License: ${tool.license}
+URL: ${tool.url}
 
-Write exactly this structure (300-400 words total):
+Write the following sections in this exact order using markdown. Each section must be detailed and specific to this tool — do NOT write generic content that could apply to any tool.
 
 ## What is ${tool.name}?
-2-3 paragraphs explaining what it does, what problem it solves, who uses it.
+Write 2-3 paragraphs. Explain what problem it solves, what kind of developer or team would use it, and what makes it different from mainstream alternatives. Be specific about its architecture or approach if relevant.
 
 ## Key Features
-- Feature 1 (specific, technical)
-- Feature 2
-- Feature 3
-- Feature 4
-- Feature 5
+List exactly 6 features. Each must be a real, specific feature of this tool — not generic claims like "easy to use" or "open source". Format as bullet points.
 
-## Why Self-Host ${tool.name}?
-1-2 paragraphs about benefits of self-hosting vs paid alternatives.
+## Who Should Use ${tool.name}?
+Write 1-2 paragraphs. Be specific about the ideal user — solo developer, startup, agency, enterprise, DevOps team, etc. Mention what stack or use case it fits best.
+
+## Pros
+List 4 honest pros. Be specific.
+
+## Cons
+List 3 honest cons or limitations. Be specific. Do not skip this section — developers trust honest reviews.
+
+## Self-Hosting vs Managed Alternatives
+Write 1-2 paragraphs comparing self-hosting this tool vs using a paid managed alternative. Include rough cost comparison if possible.
 
 ## Quick Start
-Basic installation command or setup steps.
+Provide the most common installation command or setup steps. Use a code block with the appropriate language tag. Keep it minimal — just enough to get started.
 
-Do not include markdown headers with #.
-Write in plain paragraphs except for features list.
-Be specific, avoid generic marketing language.`;
+## Alternatives to ${tool.name}
+List 3-4 alternatives (can be open source or paid). One line each explaining when you would choose that alternative instead.
+
+Write in markdown. Be technical, honest, and opinionated. Avoid generic marketing language.`;
 
   for (let attempt = 0; attempt <= GROQ_MAX_RETRIES; attempt++) {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -117,7 +125,7 @@ Be specific, avoid generic marketing language.`;
           },
         ],
         temperature: 0.7,
-        max_tokens: 768,
+        max_tokens: 2048,
       }),
     });
 
