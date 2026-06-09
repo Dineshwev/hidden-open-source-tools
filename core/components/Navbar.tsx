@@ -7,11 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, User, Menu, X } from "lucide-react";
 import Logo from "./Logo";
 import { useAuth } from "@/lib/AuthProvider";
-import GitHubStarButton from "./GitHubStarButton";
 
 const primaryDesktopLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
+  { href: "/vs", label: "Comparisons" },
   { href: "/mystery-box", label: "Random Tool Finder" },
   { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
   { href: "/weekly-roundups", label: "Weekly Roundups" }
@@ -20,6 +20,7 @@ const primaryDesktopLinks = [
 const mobileLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
+  { href: "/vs", label: "Comparisons" },
   { href: "/mystery-box", label: "Random Tool Finder" },
   { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
   { href: "/weekly-roundups", label: "Weekly Roundups" },
@@ -76,7 +77,7 @@ export default function Navbar() {
           whileTap={{ scale: 0.98 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <Link href="/" className="mr-8 flex items-center gap-3 pl-4 lg:mr-10">
+          <Link href="/" className="ml-0 mr-8 flex items-center gap-3 lg:mr-10">
             <Logo size={32} className="rounded-lg shadow-glow-sm" />
             <div className="flex items-center">
               <div>
@@ -100,7 +101,7 @@ export default function Navbar() {
               >
                 <Link
                   href={href}
-                  className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-sm transition-all duration-200 ${
+                  className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition-all duration-200 ${
                     active
                       ? "border border-[color:var(--nav-pill-border)] bg-[color:var(--nav-pill-active)] text-[color:var(--nav-text)]"
                       : "border border-transparent bg-[color:var(--nav-pill-bg)] text-[color:var(--nav-muted)] hover:border-[color:var(--nav-border)] hover:bg-[color:var(--nav-pill-hover)] hover:text-[color:var(--nav-text)]"
@@ -125,8 +126,6 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
-          <GitHubStarButton />
-
           <motion.button
             onClick={() => setSearchOpen(!searchOpen)}
             className="rounded-full border border-[color:var(--nav-border)] bg-[color:var(--nav-pill-bg)] p-2 text-[color:var(--nav-text)] transition-all hover:bg-[color:var(--nav-pill-hover)]"

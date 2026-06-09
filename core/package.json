@@ -9,7 +9,8 @@
     "lint": "next lint",
     "generate-content": "tsx scripts/generate-tool-content.ts",
     "weekly-content": "tsx scripts/generate-weekly-content.ts",
-    "sync-github-stats": "tsx scripts/sync-github-stats.ts"
+    "sync-github-stats": "tsx scripts/sync-github-stats.ts",
+    "generate-comparisons": "tsx scripts/generate-comparisons.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.121.4",
