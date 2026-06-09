@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "jest --passWithNoTests",
     "generate-content": "tsx scripts/generate-tool-content.ts",
     "weekly-content": "tsx scripts/generate-weekly-content.ts",
     "sync-github-stats": "tsx scripts/sync-github-stats.ts",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.13.17",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
@@ -48,8 +50,10 @@
     "autoprefixer": "^10.4.20",
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.25",
+    "jest": "^30.4.2",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
+    "ts-jest": "^29.4.11",
     "typescript": "5.9.3"
   }
 }
