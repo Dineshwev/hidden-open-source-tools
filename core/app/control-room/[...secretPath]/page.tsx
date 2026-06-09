@@ -6,6 +6,7 @@ import ControlRoomMessagesClient from "@/components/admin/ControlRoomMessagesCli
 import ArticleMuseumAdminClient from "@/components/admin/ArticleMuseumAdminClient";
 import WeeklyRoundupsAdminClient from "@/components/admin/WeeklyRoundupsAdminClient";
 import ComparisonsAdminClient from "@/components/admin/ComparisonsAdminClient";
+import AlternativesAdminClient from "@/components/admin/AlternativesAdminClient";
 
 type HiddenAdminPageProps = {
   params: {
@@ -24,8 +25,9 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
   const isArticlesView = lastSegment === "articles" || lastSegment === "article-museum";
   const isWeeklyRoundupsView = lastSegment === "weekly-roundups";
   const isComparisonsView = lastSegment === "comparisons";
+  const isAlternativesView = lastSegment === "alternatives";
 
-  const isSubview = isScrapedToolsView || isMessagesView || isArticlesView || isWeeklyRoundupsView || isComparisonsView;
+  const isSubview = isScrapedToolsView || isMessagesView || isArticlesView || isWeeklyRoundupsView || isComparisonsView || isAlternativesView;
   const secretSegments = isSubview ? incomingSegments.slice(0, -1) : incomingSegments;
 
   // Enforce multi-segment secrets so the URL is meaningfully harder to guess.
@@ -61,12 +63,17 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
     return <ComparisonsAdminClient />;
   }
 
+  if (isAlternativesView) {
+    return <AlternativesAdminClient />;
+  }
+
   const baseSecretPath = `/control-room/${secretSegments.join("/")}`;
   const scrapedToolsPath = `${baseSecretPath}/scraped-tools`;
   const messagesPath = `${baseSecretPath}/messages`;
   const articlesPath = `${baseSecretPath}/article-museum`;
   const weeklyRoundupsPath = `${baseSecretPath}/weekly-roundups`;
   const comparisonsPath = `${baseSecretPath}/comparisons`;
+  const alternativesPath = `${baseSecretPath}/alternatives`;
 
   return (
     <div className="space-y-5">
@@ -106,6 +113,12 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
           >
             Open Comparisons
           </Link>
+          <Link
+            href={alternativesPath}
+            className="rounded-full border border-green-300/35 bg-green-300/10 px-4 py-2 text-sm font-semibold text-green-100 transition hover:bg-green-300/20"
+          >
+            Open Alternatives
+          </Link>
         </div>
         <div className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
           <p className="text-xs uppercase tracking-[0.22em] text-white/45">Hidden Route</p>
@@ -114,6 +127,7 @@ export default function HiddenAdminPage({ params }: HiddenAdminPageProps) {
           <p className="mt-1 break-all font-mono text-sm text-purple-100/90">{articlesPath}</p>
           <p className="mt-1 break-all font-mono text-sm text-sky-100/90">{weeklyRoundupsPath}</p>
           <p className="mt-1 break-all font-mono text-sm text-orange-100/90">{comparisonsPath}</p>
+          <p className="mt-1 break-all font-mono text-sm text-green-100/90">{alternativesPath}</p>
         </div>
       </div>
       <AdminModerationPanel />

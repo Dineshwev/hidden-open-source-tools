@@ -2,7 +2,8 @@
   "scripts": {
     "sync-stars": "tsx core/scripts/sync-github-stars.ts",
     "sync-github-stats": "tsx scripts/sync-github-stats.ts",
-    "validate-jsonld": "tsx core/scripts/validate-jsonld.ts"
+    "validate-jsonld": "tsx core/scripts/validate-jsonld.ts",
+    "generate-alternatives": "tsx scripts/generate-alternatives.ts"
   },
   "dependencies": {
     "zod": "^4.3.6"
