@@ -2,13 +2,16 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { getServerUser, errorResponse } from '@/lib/utils/authHelper';
 
-function getChallengeSecret() {
-  return (
-    process.env.ADMIN_PANEL_ACCESS_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
-    'local-mystery-challenge-secret'
-  );
+function getChallengeSecret(): string {
+  const secret =
+    process.env.ADMIN_PANEL_ACCESS_KEY?.trim() ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+  if (!secret) {
+    throw new Error('Challenge signing secret is not configured.');
+  }
+
+  return secret;
 }
 
 function signPayload(payload: string) {
