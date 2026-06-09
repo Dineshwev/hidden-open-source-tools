@@ -25,8 +25,9 @@ export default function LoginPage() {
       setToken(token);
       setMessage("Login successful. Redirecting...");
       setTimeout(() => router.push("/dashboard"), 1500);
-    } catch (error: any) {
-      setMessage(`Login failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "An unexpected error occurred";
+      setMessage(`Login failed: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -40,8 +41,9 @@ export default function LoginPage() {
       setToken(token);
       setMessage("Login successful. Redirecting...");
       setTimeout(() => router.push("/dashboard"), 1500);
-    } catch (error: any) {
-      setMessage(`Login failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "An unexpected error occurred";
+      setMessage(`Login failed: ${message}`);
     } finally {
       setLoading(false);
     }

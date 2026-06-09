@@ -78,8 +78,9 @@ export default function ComparisonsAdminClient() {
       } else {
         setError("Invalid admin secret.");
       }
-    } catch (verifyError: any) {
-      setError(verifyError?.response?.data?.error || "Verification failed");
+    } catch (verifyError: unknown) {
+      const axiosErr = verifyError as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || "Verification failed");
     } finally {
       setVerifying(false);
     }

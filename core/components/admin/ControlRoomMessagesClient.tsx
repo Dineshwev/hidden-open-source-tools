@@ -93,8 +93,9 @@ export default function ControlRoomMessagesClient() {
       } else {
         showToast("error", "Invalid admin secret.");
       }
-    } catch (err: any) {
-      showToast("error", err.response?.data?.error || "Verification failed");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      showToast("error", axiosErr?.response?.data?.error || "Verification failed");
     } finally {
       setVerifying(false);
     }
@@ -130,8 +131,9 @@ export default function ControlRoomMessagesClient() {
         });
 
         return response.data;
-      } catch (requestError: any) {
-        throw new Error(requestError?.response?.data?.error || "Failed to load admin messages.");
+      } catch (requestError: unknown) {
+        const axiosErr = requestError as { response?: { data?: { error?: string } } };
+        throw new Error(axiosErr?.response?.data?.error || "Failed to load admin messages.");
       }
     },
     [verificationSecret]
@@ -157,8 +159,8 @@ export default function ControlRoomMessagesClient() {
         setTotalCount(payload?.count || 0);
         setUnreadCount(payload?.unreadCount || 0);
         setAwaitingReplyCount(payload?.awaitingReplyCount || 0);
-      } catch (loadError: any) {
-        setError(loadError?.message || "Failed to load admin messages.");
+      } catch (loadError: unknown) {
+        setError(loadError instanceof Error ? loadError.message : "Failed to load admin messages.");
         if (replace) {
           setMessages([]);
           setPage(1);
@@ -242,9 +244,10 @@ export default function ControlRoomMessagesClient() {
         });
         void refreshVisiblePages();
         showToast("success", "Message marked as read.");
-      } catch (markError: any) {
+      } catch (markError: unknown) {
         updateMessage(messageId, (message) => ({ ...message, is_read: false }));
-        showToast("error", markError?.response?.data?.error || "Unable to mark message as read.");
+        const axiosErr = markError as { response?: { data?: { error?: string } } };
+        showToast("error", axiosErr?.response?.data?.error || "Unable to mark message as read.");
       }
     },
     [refreshVisiblePages, showToast, updateMessage, verificationSecret]
@@ -306,9 +309,10 @@ export default function ControlRoomMessagesClient() {
         setReplyDrafts((previous) => ({ ...previous, [messageId]: "" }));
         void refreshVisiblePages();
         showToast("success", "Reply posted.");
-      } catch (replyError: any) {
+      } catch (replyError: unknown) {
         setMessages(previousSnapshot);
-        showToast("error", replyError?.response?.data?.error || "Unable to post reply.");
+        const axiosErr = replyError as { response?: { data?: { error?: string } } };
+        showToast("error", axiosErr?.response?.data?.error || "Unable to post reply.");
       } finally {
         setActionLoadingId(null);
       }

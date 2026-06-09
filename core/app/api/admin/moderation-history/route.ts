@@ -47,8 +47,9 @@ export async function GET(req: Request) {
 
     const data = await adminService.getModerationHistory(status);
     return NextResponse.json({ data }, { status: 200 });
-  } catch (error: any) {
-    if (String(error?.message || "").includes("Can't reach database server")) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "";
+    if (errorMessage.includes("Can't reach database server")) {
       return NextResponse.json(
         {
           error: "Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY."

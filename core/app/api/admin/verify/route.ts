@@ -17,7 +17,11 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: false, verified: false, error: "Invalid secret" }, { status: 401 });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Invalid request body" }, { status: 400 });
+  } catch (error: unknown) {
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ success: false, error: "Invalid request body" }, { status: 400 });
+    }
+    console.error("[admin/verify] Unexpected error:", error instanceof Error ? error.message : error);
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

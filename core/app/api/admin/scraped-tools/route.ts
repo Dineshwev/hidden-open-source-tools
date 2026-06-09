@@ -55,9 +55,10 @@ export async function GET(req: Request) {
     };
 
     return NextResponse.json(payload, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
+      { success: false, error: message },
       { status: 500 }
     );
   }

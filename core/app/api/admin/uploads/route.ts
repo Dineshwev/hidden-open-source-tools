@@ -57,7 +57,8 @@ export async function POST(req: Request) {
     let supabase;
     try {
       supabase = getSupabaseClient();
-    } catch {
+    } catch (clientError: unknown) {
+      console.error("[admin/uploads] Supabase client init failed:", clientError instanceof Error ? clientError.message : clientError);
       const diagnostics = getSupabaseConfigDiagnostics();
       return NextResponse.json(
         {
@@ -145,15 +146,16 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ data: uploadedRecord }, { status: 201 });
-  } catch (error: any) {
-    if (String(error?.message || "").includes("Can't reach database server")) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "";
+    if (errorMessage.includes("Can't reach database server")) {
       return NextResponse.json(
         { error: "Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY." },
         { status: 503 }
       );
     }
 
-    if (String(error?.message || "").toLowerCase().includes("invalid compact jws")) {
+    if (errorMessage.toLowerCase().includes("invalid compact jws")) {
       return NextResponse.json(
         {
           error: "Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).",

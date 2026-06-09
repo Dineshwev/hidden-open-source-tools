@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     const data = await mysteryService.getDailyMysteryReward(user.userId);
     return NextResponse.json({ data }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error);
   }
 }

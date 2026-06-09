@@ -23,8 +23,10 @@ export default function UploadForm() {
 
       setMessage("Resource submitted successfully. It is now pending admin review.");
       event.currentTarget.reset();
-    } catch (_error) {
-      setMessage("Submission failed. Check your API settings and authentication token.");
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      const detail = axiosError?.response?.data?.error;
+      setMessage(detail || "Submission failed. Check your API settings and authentication token.");
     } finally {
       setSubmitting(false);
     }

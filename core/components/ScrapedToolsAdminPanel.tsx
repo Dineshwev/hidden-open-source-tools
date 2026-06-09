@@ -117,8 +117,9 @@ export default function ScrapedToolsAdminPanel() {
       } else {
         showToast("error", "Invalid admin secret.");
       }
-    } catch (err: any) {
-      showToast("error", err.response?.data?.error || "Verification failed");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      showToast("error", axiosErr?.response?.data?.error || "Verification failed");
     } finally {
       setVerifying(false);
     }

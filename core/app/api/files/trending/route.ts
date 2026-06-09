@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const data = await fileService.getTrendingFiles();
     return NextResponse.json({ data }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error);
   }
 }

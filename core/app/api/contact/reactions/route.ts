@@ -21,9 +21,10 @@ export async function POST(req: Request) {
     await addReaction(reply_id, reaction);
 
     return NextResponse.json({ success: true }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
+      { success: false, error: message },
       { status: 500 }
     );
   }

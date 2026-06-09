@@ -31,8 +31,9 @@ export default function RegisterPage() {
       setToken(token);
       setMessage("Registration successful! Redirecting...");
       setTimeout(() => router.push("/dashboard"), 1500);
-    } catch (error: any) {
-      setMessage(`Registration failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "An unexpected error occurred";
+      setMessage(`Registration failed: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -46,8 +47,9 @@ export default function RegisterPage() {
       setToken(token);
       setMessage("Sign-up successful! Redirecting...");
       setTimeout(() => router.push("/dashboard"), 1500);
-    } catch (error: any) {
-      setMessage(`Sign-up failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "An unexpected error occurred";
+      setMessage(`Sign-up failed: ${message}`);
     } finally {
       setLoading(false);
     }
