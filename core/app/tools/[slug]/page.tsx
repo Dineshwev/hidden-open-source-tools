@@ -163,17 +163,7 @@ async function getToolBySlug(slug: string) {
       return normalizeTool(data);
     }
 
-    const { data: fallbackRows, error: fallbackError } = await supabase
-      .from("open_source_tools")
-      .select("*")
-      .or("status.eq.approved,status.eq.APPROVED");
-
-    if (fallbackError || !Array.isArray(fallbackRows)) return null;
-
-    const match = fallbackRows.find((row) => buildFallbackSlug(row) === slug);
-    if (!match) return null;
-
-    return normalizeTool(match);
+    return null;
   } catch {
     return null;
   }

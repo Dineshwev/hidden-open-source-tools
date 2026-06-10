@@ -10,6 +10,8 @@ const pageTitle = "250+ Free Open Source Developer Tools | The Cloud Rain";
 const pageDescription =
   "Browse 250+ free open-source developer tools, self-hosted software, AI utilities, and practical components. No paywalls, no vendor lock-in. Curated for builders.";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: pageTitle,
   description: pageDescription,

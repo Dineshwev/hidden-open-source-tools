@@ -8,7 +8,7 @@ const cerebras = new Cerebras({ apiKey: process.env.CEREBRAS_API_KEY! });
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false }, realtime: { transport: ws } }
+  { auth: { persistSession: false }, realtime: { transport: ws as any } }
 );
 
 const SAAS_LIST = [
@@ -70,7 +70,7 @@ Rules:
     max_tokens: 3000,
   });
 
-  const raw = response.choices[0].message.content ?? "";
+  const raw = (response as any).choices[0].message.content ?? "";
   const clean = raw.replace(/```json|```/g, "").trim();
   return JSON.parse(clean);
 }

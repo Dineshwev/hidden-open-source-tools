@@ -12,7 +12,7 @@ const primaryDesktopLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
   { href: "/vs", label: "Comparisons" },
-  { href: "/mystery-box", label: "Random Tool Finder" },
+  { href: "/alternatives", label: "Alternatives" },
   { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
   { href: "/weekly-roundups", label: "Weekly Roundups" }
 ];
@@ -21,7 +21,7 @@ const mobileLinks = [
   { href: "/", label: "Home" },
   { href: "/free-tools", label: "No-Cost Resources", isNew: true },
   { href: "/vs", label: "Comparisons" },
-  { href: "/mystery-box", label: "Random Tool Finder" },
+  { href: "/alternatives", label: "Alternatives" },
   { href: "/article-museum", label: "Tool Deep Dives", badge: "Featured" },
   { href: "/weekly-roundups", label: "Weekly Roundups" },
   { href: "/hidden-tools", label: "Developer Utilities" },
