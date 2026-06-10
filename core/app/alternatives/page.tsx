@@ -91,7 +91,7 @@ export default async function AlternativesListingPage() {
           <Link href="/free-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition">
             Browse all tools
           </Link>
-          <Link href="/mystery-box" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition">
+          <Link href="/free-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition">
             Random discovery
           </Link>
         </div>

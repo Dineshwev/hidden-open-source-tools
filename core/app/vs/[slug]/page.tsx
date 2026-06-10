@@ -141,7 +141,7 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             More comparisons
           </Link>
           <Link
-            href="/mystery-box"
+            href="/free-tools"
             className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
           >
             Random tool discovery

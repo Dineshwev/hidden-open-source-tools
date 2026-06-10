@@ -11,6 +11,7 @@ const pageDescription =
   "Browse 250+ free open-source developer tools, self-hosted software, AI utilities, and practical components. No paywalls, no vendor lock-in. Curated for builders.";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 export const metadata: Metadata = {
   title: pageTitle,
@@ -101,6 +102,9 @@ export default async function FreeToolsPage({
     .select("*")
     .eq("status", "approved")
     .order("created_at", { ascending: false });
+
+  if (error) console.error('Supabase error:', JSON.stringify(error));
+  else console.log('Tools fetched:', data?.length, 'first row keys:', data?.[0] ? Object.keys(data[0]) : []);
 
   const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim().toLowerCase() || "";
 

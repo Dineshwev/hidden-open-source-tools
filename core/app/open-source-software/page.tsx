@@ -113,7 +113,7 @@ export default function OpenSourceSoftwarePage() {
           <Link href="/free-tools" className="rounded-full bg-cyan-300 px-5 py-2 text-sm font-semibold text-slate-900">
             Browse No-Cost Resources
           </Link>
-          <Link href="/mystery-box" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">
+          <Link href="/free-tools" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">
             Try Random Tool Finder
           </Link>
           <Link href="/best-free-developer-tools" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">

@@ -110,7 +110,7 @@ export default function HiddenToolsPage() {
       <section className="rounded-[2rem] border border-fuchsia-300/20 bg-gradient-to-r from-[#2a1642] to-[#14304d] p-8">
         <h2 className="text-2xl text-white">Continue with curated discovery</h2>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link href="/mystery-box" className="rounded-full bg-fuchsia-300 px-5 py-2 text-sm font-semibold text-slate-900">
+          <Link href="/free-tools" className="rounded-full bg-fuchsia-300 px-5 py-2 text-sm font-semibold text-slate-900">
             Try Random Tool Finder
           </Link>
           <Link href="/open-source-software" className="rounded-full border border-white/20 px-5 py-2 text-sm text-white/90">

@@ -36,6 +36,7 @@ export default function AlternativesAdminClient() {
 
   useEffect(() => {
     fetchAlternatives();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleApprove(id: string) {

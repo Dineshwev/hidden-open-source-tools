@@ -121,6 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articleEntries: MetadataRoute.Sitemap = [];
   let toolEntries: MetadataRoute.Sitemap = [];
+  let industryEntries: MetadataRoute.Sitemap = [];
   try {
     const supabase = getAdmin();
     
@@ -158,10 +159,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
+    // Fetch Industry Pages
+    const { data: industryPages } = await supabase
+      .from("industry_pages")
+      .select("slug, created_at")
+      .eq("status", "published");
+
+    if (industryPages) {
+      industryEntries = industryPages.map((row: any) => ({
+        url: `${siteUrl}/best-${row.slug}`,
+        lastModified: row.created_at ? new Date(row.created_at) : currentLastModified,
+        changeFrequency: "monthly",
+        priority: 0.8
+      }));
+    }
+
   } catch (error) {
     console.error("Sitemap fetch failed:", error);
     // Continue with static entries if dynamic fetch fails
   }
 
-  return [...staticEntries, ...articleEntries, ...toolEntries];
+  return [...staticEntries, ...articleEntries, ...toolEntries, ...industryEntries];
 }

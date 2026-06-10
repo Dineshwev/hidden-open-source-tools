@@ -170,7 +170,7 @@ export default function HomePage() {
               Hit the mystery box and get dropped into a random hidden tool.
               No algorithm. No trending bias. Pure discovery.
             </p>
-            <Link href="/mystery-box" className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
+            <Link href="/free-tools" className="mt-4 inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
               Open mystery box
             </Link>
           </article>
