@@ -19,7 +19,8 @@ export async function POST(req: Request) {
     let supabase;
     try {
       supabase = getSupabaseClient();
-    } catch {
+    } catch (clientError: unknown) {
+      console.error("[files/upload] Supabase client init failed:", clientError instanceof Error ? clientError.message : clientError);
       return NextResponse.json(
         { error: 'Upload storage is not configured for this deployment' },
         { status: 503 }
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ data: uploadedRecord }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error);
   }
 }

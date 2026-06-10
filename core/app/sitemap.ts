@@ -158,9 +158,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
-  } catch (error) {
-    console.error("Sitemap fetch failed:", error);
-    // Continue with static entries if dynamic fetch fails
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Sitemap dynamic fetch failed, continuing with static entries:", message);
   }
 
   return [...staticEntries, ...articleEntries, ...toolEntries];

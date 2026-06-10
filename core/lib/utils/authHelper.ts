@@ -42,8 +42,8 @@ export async function getServerUser(req: Request) {
       email: decoded.email || null,
       role: decoded.role || 'USER'
     };
-  } catch (err: any) {
-    const message = String(err?.message || '');
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     if (!message.includes('Firebase Admin credentials are not configured')) {
       console.error('[AUTH] Firebase token verification failed:', message);
     }
@@ -72,10 +72,18 @@ export function unauthorizedResponse() {
   );
 }
 
-export function errorResponse(error: any) {
-  const statusCode = error.statusCode || 500;
+export function errorResponse(error: unknown) {
+  if (error instanceof Error) {
+    const statusCode = (error as Error & { statusCode?: number }).statusCode || 500;
+    return NextResponse.json(
+      { error: error.message },
+      { status: statusCode }
+    );
+  }
+
+  const message = typeof error === 'string' ? error : 'Internal Server Error';
   return NextResponse.json(
-    { error: error.message || 'Internal Server Error' },
-    { status: statusCode }
+    { error: message },
+    { status: 500 }
   );
 }

@@ -147,8 +147,9 @@ export default function AdminModerationPanel() {
       } else {
         setError("Invalid admin secret.");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Verification failed");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || "Verification failed");
     } finally {
       setVerifying(false);
     }

@@ -319,8 +319,9 @@ export async function getPendingTools(page: number, limit: number): Promise<Pagi
     const pageRows = merged.slice(start, end + 1);
 
     return toPaginatedResult(pageRows, count, safeLimit, safePage);
-  } catch (error: any) {
-    throw new Error(error?.message || "Failed to fetch pending tools");
+  } catch (error: unknown) {
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to fetch pending tools");
   }
 }
 
@@ -364,8 +365,9 @@ export async function getApprovedTools(category?: ToolCategory, page?: number, l
     const pageRows = merged.slice(start, end + 1);
 
     return toPaginatedResult(pageRows, count, safeLimit, safePage);
-  } catch (error: any) {
-    throw new Error(error?.message || "Failed to fetch approved tools");
+  } catch (error: unknown) {
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to fetch approved tools");
   }
 }
 
@@ -390,8 +392,9 @@ export async function updateToolStatus(id: string, status: AdminUpdatePayload["s
     }
 
     return mapDbTool(data);
-  } catch (error: any) {
-    throw new Error(error?.message || "Failed to update tool status");
+  } catch (error: unknown) {
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to update tool status");
   }
 }
 
@@ -438,7 +441,8 @@ export async function bulkUpdateStatus(ids: string[], status: AdminUpdatePayload
     }
 
     return affected;
-  } catch (error: any) {
-    throw new Error(error?.message || "Failed to bulk update tool status");
+  } catch (error: unknown) {
+    if (error instanceof Error) throw error;
+    throw new Error("Failed to bulk update tool status");
   }
 }

@@ -146,8 +146,9 @@ export default function GeneralQueriesClient() {
               : thread
           )
         );
-      } catch (reactionError: any) {
-        setError(reactionError?.response?.data?.error || "Unable to save your reaction right now.");
+      } catch (reactionError: unknown) {
+        const axiosErr = reactionError as { response?: { data?: { error?: string } } };
+        setError(axiosErr?.response?.data?.error || "Unable to save your reaction right now.");
       }
     },
     [helpfulIds, persistHelpfulIds]
@@ -192,8 +193,9 @@ export default function GeneralQueriesClient() {
           title: "Follow-up received",
           message: "✅ Message received! Check back by Sunday for reply ✅"
         });
-      } catch (submitError: any) {
-        setError(submitError?.response?.data?.error || submitError?.message || "Unable to send follow-up.");
+      } catch (submitError: unknown) {
+        const axiosErr = submitError as { response?: { data?: { error?: string } } };
+        setError(axiosErr?.response?.data?.error || (submitError instanceof Error ? submitError.message : "Unable to send follow-up."));
       } finally {
         setSubmittingThreadId(null);
       }

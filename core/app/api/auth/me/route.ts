@@ -14,11 +14,17 @@ export async function GET(req: Request) {
 
     const currentUser = await authService.getCurrentUser(user.userId);
     return NextResponse.json({ user: currentUser }, { status: 200 });
-  } catch (error: any) {
-    const statusCode = error.statusCode || 500;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      const statusCode = (error as Error & { statusCode?: number }).statusCode || 500;
+      return NextResponse.json(
+        { error: error.message },
+        { status: statusCode }
+      );
+    }
     return NextResponse.json(
-      { error: error.message || 'Internal Server Error' },
-      { status: statusCode }
+      { error: 'Internal Server Error' },
+      { status: 500 }
     );
   }
 }

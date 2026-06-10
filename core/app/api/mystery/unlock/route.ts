@@ -83,8 +83,8 @@ export async function POST(req: Request) {
             }
           }
         }
-      } catch (firebaseError: any) {
-        console.warn('[UNLOCK] Firebase token invalid, using anonymous:', firebaseError.message);
+      } catch (firebaseError: unknown) {
+        console.warn('[UNLOCK] Firebase token invalid, using anonymous:', firebaseError instanceof Error ? firebaseError.message : firebaseError);
         // Allow anonymous unlock - do not block
       }
     }
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     const data = await mysteryService.unlockMysteryFile(userId);
     return NextResponse.json({ data }, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[UNLOCK] Unexpected Failure:', error);
     
     if (error instanceof AppError) {

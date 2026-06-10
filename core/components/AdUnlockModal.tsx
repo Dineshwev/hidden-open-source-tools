@@ -163,12 +163,13 @@ export default function AdUnlockModal({ open, onClose, onUnlock }: AdUnlockModal
         if (isMobile || nextOffers.length === 0) {
           startPassExchange(nextChallengeToken, nextWaitSeconds, isMobile ? "mobile-verification" : "no-offers");
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!isActive) {
           return;
         }
 
-        const apiError = error?.response?.data?.error;
+        const axiosErr = error as { response?: { data?: { error?: string } } };
+        const apiError = axiosErr?.response?.data?.error;
         setErrorMsg(apiError || "Unable to prepare unlock verification. Please try again.");
       } finally {
         if (!isActive) {

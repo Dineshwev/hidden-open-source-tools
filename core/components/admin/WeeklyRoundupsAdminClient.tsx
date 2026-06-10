@@ -46,8 +46,9 @@ export default function WeeklyRoundupsAdminClient() {
       } else {
         setError(res.data.error || "Failed to load weekly roundups.");
       }
-    } catch (fetchError: any) {
-      setError(fetchError?.response?.data?.error || "Network error or unauthorized access.");
+    } catch (fetchError: unknown) {
+      const axiosErr = fetchError as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || "Network error or unauthorized access.");
     } finally {
       setLoading(false);
     }
@@ -66,8 +67,9 @@ export default function WeeklyRoundupsAdminClient() {
       } else {
         setError("Invalid admin secret.");
       }
-    } catch (verifyError: any) {
-      setError(verifyError?.response?.data?.error || "Verification failed");
+    } catch (verifyError: unknown) {
+      const axiosErr = verifyError as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || "Verification failed");
     } finally {
       setVerifying(false);
     }
@@ -122,8 +124,9 @@ export default function WeeklyRoundupsAdminClient() {
       } else {
         setError(res.data.error || "Failed to update roundup status.");
       }
-    } catch (updateError: any) {
-      setError(updateError?.response?.data?.error || "Unable to update roundup status.");
+    } catch (updateError: unknown) {
+      const axiosErr = updateError as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || "Unable to update roundup status.");
     } finally {
       setActionLoadingId(null);
     }

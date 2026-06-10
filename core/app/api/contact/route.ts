@@ -34,9 +34,10 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, id: inserted.id }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
+      { success: false, error: message },
       { status: 500 }
     );
   }

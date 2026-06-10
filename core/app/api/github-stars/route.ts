@@ -48,7 +48,9 @@ export async function GET(req: Request) {
       language: data?.language || null,
       license: data?.license?.spdx_id || null
     });
-  } catch {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal server error";
+    console.error("[github-stars] Fetch failed:", message);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

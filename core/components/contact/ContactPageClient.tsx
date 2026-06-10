@@ -96,8 +96,8 @@ export default function ContactPageClient() {
           message: "✅ Message received! Check General Queries page by Sunday for your answer."
         });
       }
-    } catch (submitError: any) {
-      setError(submitError?.message || "Unable to send your message right now.");
+    } catch (submitError: unknown) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to send your message right now.");
     } finally {
       setLoading(false);
     }

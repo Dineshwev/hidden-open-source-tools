@@ -67,8 +67,9 @@ export default function GeneralQueryThreadClient({ threadId }: { threadId: strin
       const response = await axios.get<ThreadResponse>(`/api/contact/queries/${threadId}`);
       const payload = response.data;
       setThreadItems(Array.isArray(payload.data) ? payload.data : []);
-    } catch (threadError: any) {
-      setError(threadError?.response?.data?.error || "Unable to load this query thread right now.");
+    } catch (threadError: unknown) {
+      const axiosErr = threadError as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || "Unable to load this query thread right now.");
     } finally {
       setLoading(false);
     }
@@ -103,8 +104,9 @@ export default function GeneralQueryThreadClient({ threadId }: { threadId: strin
               : item
           )
         );
-      } catch (reactionError: any) {
-        setError(reactionError?.response?.data?.error || "Unable to save your reaction right now.");
+      } catch (reactionError: unknown) {
+        const axiosErr = reactionError as { response?: { data?: { error?: string } } };
+        setError(axiosErr?.response?.data?.error || "Unable to save your reaction right now.");
       }
     },
     [helpfulIds, persistHelpfulIds]
@@ -136,8 +138,9 @@ export default function GeneralQueryThreadClient({ threadId }: { threadId: strin
         title: "Follow-up received",
         message: "✅ Message received! Check back by Sunday for reply ✅"
       });
-    } catch (submitError: any) {
-      setError(submitError?.response?.data?.error || submitError?.message || "Unable to send follow-up.");
+    } catch (submitError: unknown) {
+      const axiosErr = submitError as { response?: { data?: { error?: string } } };
+      setError(axiosErr?.response?.data?.error || (submitError instanceof Error ? submitError.message : "Unable to send follow-up."));
     } finally {
       setSubmitting(false);
     }

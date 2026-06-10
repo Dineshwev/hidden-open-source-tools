@@ -11,7 +11,7 @@ export async function GET(req: Request) {
 
     const data = await fileService.getUserSubmissions(user.userId);
     return NextResponse.json({ data }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return errorResponse(error);
   }
 }

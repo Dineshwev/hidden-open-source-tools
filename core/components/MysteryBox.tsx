@@ -134,9 +134,10 @@ export default function MysteryBox({ className = '' }: { className?: string }) {
         creator: dbFile.uploader || 'Anonymous',
         downloadUrl: dbFile.downloadUrl
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsOpening(false);
-      const apiErrorMessage = err.response?.data?.error || err.message;
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const apiErrorMessage = axiosErr?.response?.data?.error || (err instanceof Error ? err.message : undefined);
       setUnlockError(apiErrorMessage || "Unlock failed. Please try again.");
     }
   };

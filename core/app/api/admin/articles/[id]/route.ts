@@ -45,8 +45,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     }
 
     return NextResponse.json({ success: true, data });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal Server Error";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -69,7 +70,8 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal Server Error";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

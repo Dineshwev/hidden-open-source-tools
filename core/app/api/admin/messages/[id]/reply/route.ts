@@ -45,9 +45,10 @@ export async function POST(req: Request, { params }: RouteContext) {
     const reply = await replyToMessage(params.id, reply_text, is_public);
 
     return NextResponse.json({ success: true, reply }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
     return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
+      { success: false, error: message },
       { status: 500 }
     );
   }
