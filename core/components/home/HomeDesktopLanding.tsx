@@ -1,192 +1,203 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, PlayCircle, Shield, Sparkles } from "lucide-react";
-import StatGrid from "@/components/StatGrid";
-import StatsTicker from "@/components/StatsTicker";
-import TrendingDownloads from "@/components/TrendingDownloads";
-import TopContributors from "@/components/TopContributors";
+import { ArrowRight, Star, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const CATEGORIES = [
+  { label: "Developer Tools", slug: "developer-tools", count: 116 },
+  { label: "Self-Hosting", slug: "self-hosting-infrastructure", count: 58 },
+  { label: "Analytics & Search", slug: "analytics-search", count: 41 },
+  { label: "Media & Utilities", slug: "media-utilities", count: 44 },
+  { label: "Productivity", slug: "productivity", count: 39 },
+  { label: "Security", slug: "security", count: 17 },
+  { label: "Business Tools", slug: "business-tools", count: 12 },
+  { label: "Community", slug: "community-events", count: 16 },
+];
+
+type Tool = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  category: string;
+  url: string;
+  logo_url: string | null;
+  github_stars: number | null;
+};
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\(\[.*?\]\(.*?\)\)/g, "")
+    .replace(/[*_`#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function ToolCard({ tool }: { tool: Tool }) {
+  const faviconUrl = tool.logo_url ?? (() => {
+    try {
+      const domain = new URL(tool.url).hostname.replace(/^www\./, "");
+      return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    } catch { return null; }
+  })();
+
+  return (
+    <Link
+      href={`/tools/${tool.slug}`}
+      className="group flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-all hover:border-white/20 hover:bg-white/[0.05]"
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 p-1.5">
+          {faviconUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={faviconUrl} alt={tool.name} className="h-full w-full rounded-lg object-contain" />
+          ) : (
+            <span className="text-lg font-bold text-white">{tool.name[0]?.toUpperCase()}</span>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-white group-hover:text-cyan-300 transition-colors">{tool.name}</p>
+          <p className="mt-0.5 text-[11px] uppercase tracking-wider text-white/40">{tool.category}</p>
+        </div>
+        {(tool.github_stars ?? 0) > 0 && (
+          <div className="flex items-center gap-1 text-xs text-white/40">
+            <Star className="h-3 w-3" />
+            {(tool.github_stars ?? 0) >= 1000 ? `${((tool.github_stars ?? 0) / 1000).toFixed(1)}k` : tool.github_stars}
+          </div>
+        )}
+      </div>
+      <p className="line-clamp-2 text-sm leading-relaxed text-white/55">{stripMarkdown(tool.description ?? "")}</p>
+    </Link>
+  );
+}
 
 export default function HomeDesktopLanding() {
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [totalCount, setTotalCount] = useState(357);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqs = [
+    { q: "What is The Cloud Rain?", a: "A curated directory of 357+ open-source tools, self-hosted software, and free alternatives to expensive SaaS products. Every tool is manually reviewed before being added." },
+    { q: "Are all tools completely free?", a: "Most tools are open-source and free to self-host. Some have cloud-hosted versions with free tiers. Always check the individual tool's license before using in production." },
+    { q: "How is this different from GitHub Awesome lists?", a: "Awesome lists are link dumps. The Cloud Rain adds structured descriptions, category filtering, tool comparison pages, and deep-dive articles — making discovery and decision-making faster." },
+    { q: "How often are new tools added?", a: "New tools are added weekly through a moderated pipeline. You can submit a tool via the upload page if you find something missing." },
+    { q: "Can I replace Jira or HubSpot with open-source tools?", a: "Yes. Check the 'Replace Jira' and 'Replace HubSpot' pages under Popular Use Cases for curated lists of open-source alternatives with feature comparisons." },
+  ];
+
+  useEffect(() => {
+    fetch("/api/home-tools")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.tools) setTools(data.tools);
+        if (data.total) setTotalCount(data.total);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
-    <>
-      <div className="relative z-10 space-y-20 pb-20">
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.02] px-6 py-16 md:px-10 md:py-20 lg:px-12">
-          <div className="relative grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="space-y-7">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.22em] text-white/70">
-                OPEN SOURCE | SELF-HOSTED | SAAS ALTERNATIVES
-              </div>
-
-              <div className="font-display text-4xl leading-tight text-white md:text-5xl lg:text-6xl">
-                practical developer workflows
-              </div>
-
-              <div className="flex flex-wrap gap-3 items-center">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400 opacity-100">
-                  No-Cost Options
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400 opacity-100">
-                  Open Source
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400 opacity-100">
-                  Self-Hosted
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400 opacity-100">
-                  No Login Required
-                </span>
-              </div>
-
-              <p className="max-w-2xl text-lg leading-relaxed text-white/72">
-                Discover lightweight open-source tools, self-hosted software,
-                and practical developer utilities for reducing SaaS costs without adding noise to your stack.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <Link href="/mystery-box" data-primary-cta className="btn-premium inline-flex items-center gap-2 text-sm md:text-base px-6 py-3">
-                  Try Random Tool Finder <Sparkles className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/free-tools"
-                  data-primary-cta
-                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white"
-                >
-                  Browse No-Cost Resources <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-
-              <div className="grid gap-4 pt-6 sm:grid-cols-3">
-                <div className="glass-panel rounded-2xl p-6 text-sm text-white/70 shadow-sm">
-                  <p className="font-display text-2xl text-white">5,000+</p>
-                  Curated Resources
-                </div>
-                <div className="glass-panel rounded-2xl p-6 text-sm text-white/70 shadow-sm">
-                  <p className="font-display text-2xl text-white">Daily</p>
-                  New Tool Picks
-                </div>
-                <div className="glass-panel rounded-2xl p-6 text-sm text-white/70 shadow-sm">
-                  <p className="font-display text-2xl text-white">Verified</p>
-                  Moderated Contents
-                </div>
-              </div>
-            </div>
-
-            <aside className="glass-panel depth-stage rounded-[1.6rem] p-6 md:p-8 bg-white/[0.02]">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/60">Community Activity</p>
-              <div className="mt-6 space-y-4">
-                {[
-                  {
-                    icon: <Sparkles className="h-5 w-5 text-yellow-400" />,
-                    title: "Developer Resource Reviewed",
-                    text: "A new Next.js dashboard tooling resource was added after moderation."
-                  },
-                  {
-                    icon: <Shield className="h-5 w-5 text-blue-400" />,
-                    title: "New Tools Verified",
-                    text: "15 new AI-powered developer utilities have been added to the library."
-                  },
-                  {
-                    icon: <BadgeCheck className="h-5 w-5 text-green-400" />,
-                    title: "Contributor Milestone",
-                    text: "Dineshwev reached 500+ successful resource contributions."
-                  }
-                ].map((step) => (
-                  <article key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                    <div className="mb-2 flex items-start gap-3">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5">
-                        {step.icon}
-                      </span>
-                      <div className="text-sm font-semibold text-white">{step.title}</div>
-                    </div>
-                    <p className="text-sm text-white/65">{step.text}</p>
-                  </article>
-                ))}
-              </div>
-            </aside>
+    <div className="space-y-16 pb-20">
+      <section className="pt-10 pb-4">
+        <div className="max-w-3xl space-y-5">
+          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-xs text-cyan-300/80 tracking-wide">
+            <Zap className="h-3 w-3" />
+            {totalCount}+ curated open-source tools
           </div>
-        </section>
-
-        <section className="space-y-12">
-          <div className="text-center max-w-2xl mx-auto">
-            <p className="text-xs uppercase tracking-[0.3em] text-nebula-400 font-bold">Trending Assets</p>
-            <h2 className="mt-4 font-display text-4xl text-white">Most Downloaded This Week</h2>
-            <p className="mt-4 text-white/50">Discover what other developers are using to build the next generation of web applications.</p>
-          </div>
-
-          <TrendingDownloads />
-        </section>
-
-        <section className="space-y-6">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/55">Quality Guaranteed</p>
-              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Why Developers Choose The Cloud Rain</h2>
-            </div>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                title: "Reduce SaaS Spend",
-                desc: "Evaluate open-source and self-hosted alternatives before adding another monthly subscription."
-              },
-              {
-                title: "Fast Discovery",
-                desc: "Our intelligent search and categorization find the tools you need in seconds, not minutes."
-              },
-              {
-                title: "Safe and Secure",
-                desc: "Every resource is manually reviewed by our moderation team to ensure code safety and quality."
-              }
-            ].map((feature) => (
-              <article
-                key={feature.title}
-                className="glass-card depth-panel rounded-3xl p-8 border border-white/10 bg-white/[0.02] shadow-sm transition-transform transform hover:-translate-y-1 hover:shadow-lg"
-              >
-                <h3 className="font-display text-2xl text-white transition-colors">{feature.title}</h3>
-                <p className="mt-3 text-white/65">{feature.desc}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="glass-panel depth-stage rounded-[2rem] p-6 md:p-8 lg:p-10">
-          <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-white/55">Global Network</p>
-              <h2 className="mt-2 font-display text-3xl text-white md:text-4xl">Real-time Platform Activity</h2>
-            </div>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2 text-sm text-white/85 transition hover:border-white/30"
-            >
-              View System Status <ArrowRight className="h-4 w-4" />
+          <h1 className="font-display text-5xl leading-[1.08] tracking-tight text-white lg:text-6xl">
+            Open source alternatives<br />
+            <span className="text-white/40">to every SaaS you pay for</span>
+          </h1>
+          <p className="text-lg text-white/55 leading-relaxed max-w-xl">
+            A curated directory of free, self-hostable tools for developers. No accounts, no paywalls — just tools.
+          </p>
+          <div className="flex items-center gap-3 pt-1">
+            <Link href="/free-tools" className="inline-flex items-center gap-2 rounded-full bg-cyan-300 px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-cyan-200">
+              Browse all tools <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/alternatives" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm text-white/70 transition hover:border-white/30 hover:text-white">
+              Alternatives directory
             </Link>
           </div>
-          <StatGrid />
-        </section>
+        </div>
+      </section>
 
-        
+      <section>
+        <p className="mb-4 text-xs uppercase tracking-[0.25em] text-white/35">Browse by category</p>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((cat) => (
+            <Link key={cat.slug} href="/free-tools" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70 transition hover:border-white/25 hover:text-white">
+              {cat.label}
+              <span className="text-xs text-white/30">{cat.count}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-8 md:p-12 overflow-hidden relative">
-          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-nebula-500/20 blur-[100px]" />
-          <div className="mx-auto max-w-3xl text-center relative z-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-white/60">Join The Community</p>
-            <h2 className="mt-3 font-display text-4xl text-white md:text-6xl">Ready to upgrade your workflow?</h2>
-            <p className="mt-6 text-xl text-white/70">
-              Start with randomized discovery or browse the directory to evaluate practical tools for your next project.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/mystery-box" className="btn-premium inline-flex items-center gap-2 text-lg px-10 py-5">
-                Try Random Tool Finder <Sparkles className="h-5 w-5" />
-              </Link>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-8 py-5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Create Account <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+      <section>
+        <div className="mb-5 flex items-center justify-between">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/35">Featured tools</p>
+          <Link href="/free-tools" className="text-xs text-white/40 transition hover:text-white/70 flex items-center gap-1">
+            View all {totalCount} tools <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        {tools.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {tools.slice(0, 6).map((tool) => <ToolCard key={tool.id} tool={tool} />)}
           </div>
-        </section>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-28 animate-pulse rounded-2xl border border-white/5 bg-white/[0.02]" />
+            ))}
+          </div>
+        )}
+        <div className="mt-6 text-center">
+          <Link href="/free-tools" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-2.5 text-sm text-white/60 transition hover:border-white/30 hover:text-white">
+            Browse all {totalCount}+ tools <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+        <p className="mb-4 text-xs uppercase tracking-[0.25em] text-white/35">Popular use cases</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            { label: "Replace Jira", href: "/best-project-management-for-startups" },
+            { label: "Replace HubSpot", href: "/best-crm-for-agencies" },
+            { label: "Compare tools", href: "/vs" },
+            { label: "Find alternatives", href: "/alternatives" },
+          ].map((item) => (
+            <Link key={item.href} href={item.href} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-white/60 transition hover:border-white/20 hover:text-white">
+              {item.label}
+              <ArrowRight className="h-3.5 w-3.5 opacity-40" />
+            </Link>
+          ))}
+        </div>
+      </section>
+
+{/* FAQ Section */}
+<section>
+  <p className="mb-4 text-xs uppercase tracking-[0.25em] text-white/35">FAQ</p>
+  <div className="divide-y divide-white/8">
+    {faqs.map((faq, i) => (
+      <div key={i} className="py-4">
+        <button
+          type="button"
+          onClick={() => setOpenFaq(openFaq === i ? null : i)}
+          className="flex w-full items-center justify-between gap-4 text-left"
+        >
+          <span className="text-sm font-medium text-white/80">{faq.q}</span>
+          <span className="text-lg text-white/40 transition-transform duration-200" style={{ transform: openFaq === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
+        </button>
+        {openFaq === i && (
+          <p className="mt-3 text-sm leading-relaxed text-white/50">{faq.a}</p>
+        )}
       </div>
-    </>
+    ))}
+  </div>
+</section>
+
+    </div>
   );
 }

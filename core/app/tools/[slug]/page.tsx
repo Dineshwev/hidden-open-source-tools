@@ -352,6 +352,23 @@ const { data: relatedVs } = await supabaseAdmin
     </div>
   </section>
 )}
+{relatedAlts && relatedAlts.length > 0 && (
+  <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Alternatives</p>
+    <h2 className="mt-2 text-2xl text-white">Alternatives to {tool.name}</h2>
+    <div className="mt-4 flex flex-wrap gap-3">
+      {relatedAlts.map((alt: any) => (
+        <Link
+          key={alt.saas_slug}
+          href={`/alternatives/${alt.saas_slug}`}
+          className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+        >
+          {alt.saas_name}
+        </Link>
+      ))}
+    </div>
+  </section>
+)}
     </div>
   );
 }

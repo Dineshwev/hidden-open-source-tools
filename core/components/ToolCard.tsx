@@ -5,6 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/\(\[.*?\]\(.*?\)\)/g, '')
+    .replace(/[*_`#]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 interface ToolCardProps {
   readonly tool: ScrapedTool;
   readonly index: number;
@@ -77,7 +86,7 @@ const ToolCard = React.memo(({ tool, onOpen }: ToolCardProps) => {
           </h3>
         </Link>
         <p className="line-clamp-3 text-sm leading-6 text-white/65" title={tool.description || ""}>
-          {tool.description?.trim() || "No description available yet."}
+          {stripMarkdown(tool.description ?? "") || "No description available yet."}
         </p>
         <p className="text-xs uppercase tracking-[0.18em] text-white/45">
           {tool.source_site || getDomain(tool.webpage_url) || "external"}
