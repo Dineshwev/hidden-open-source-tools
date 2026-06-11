@@ -217,7 +217,19 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
 
 export default async function ToolSlugPage({ params }: ToolPageProps) {
   const tool = await getToolBySlug(params.slug);
-
+const supabaseAdmin = getAdmin();
+const { data: relatedVs } = await supabaseAdmin
+  .from("comparisons")
+  .select("slug, tool_a, tool_b")
+  .or(`slug.ilike.${params.slug}-vs-%,slug.ilike.%-vs-${params.slug}`)
+  .eq("status", "published")
+  .limit(3);
+  const { data: relatedAlts } = await supabaseAdmin
+    .from("alternatives")
+    .select("saas_slug, saas_name")
+    .ilike("saas_slug", `${params.slug}%`)
+    .eq("status", "published")
+    .limit(2);
   if (!tool) {
     notFound();
   }
@@ -323,6 +335,23 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
           </a>
         ) : null}
       </section>
+{relatedVs && relatedVs.length > 0 && (
+  <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Comparisons</p>
+    <h2 className="mt-2 text-2xl text-white">How {tool.name} compares</h2>
+    <div className="mt-4 flex flex-wrap gap-3">
+      {relatedVs.map((vs: any) => (
+        <Link
+          key={vs.slug}
+          href={`/vs/${vs.slug}`}
+          className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+        >
+          {vs.tool_a} vs {vs.tool_b}
+        </Link>
+      ))}
+    </div>
+  </section>
+)}
     </div>
   );
 }

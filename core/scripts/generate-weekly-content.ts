@@ -613,8 +613,13 @@ async function fetchTechNews(): Promise<NewsItem[]> {
   }
 
   try {
+    const now = new Date();
+    const month = now.toLocaleString('en-US', { month: 'long' });
+    const year = now.getFullYear();
+    const query = `open source developer tools ${month} ${year}`;
+    const { dateString } = getWeekStartDate();
     const response = await fetch(
-      `https://gnews.io/api/v4/search?q=open%20source%20developer%20tools&lang=en&max=5&apikey=${gNewsApiKey}`
+      `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=5&from=${dateString}&apikey=${gNewsApiKey}`
     );
 
     if (!response.ok) {
@@ -654,12 +659,21 @@ async function getFeaturedTools(
   supabase: any,
   count: number = 5
 ): Promise<Tool[]> {
+  // First, get total number of approved tools
+  const totalRes = await supabase
+    .from('open_source_tools')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'approved');
+
+  const totalCount = totalRes.count as number || 0;
+  const randomOffset = Math.floor(Math.random() * Math.max(0, totalCount - count));
+
+  // Then fetch a random slice of tools based on the offset
   const { data, error } = await supabase
     .from('open_source_tools')
     .select('id, name, description, category, url, github_stars, language, license, slug')
     .eq('status', 'approved')
-    .order('created_at', { ascending: false })
-    .limit(count);
+    .range(randomOffset, randomOffset + count - 1);
 
   if (error) {
     throw new Error(`Failed to fetch tools: ${error.message}`);
@@ -674,9 +688,9 @@ async function getFeaturedTools(
 
 async function getCategoryWithSufficientTools(
   supabase: any,
-  minToolCount: number = 3,
-  preferredCategories: string[] = ['Developer Tools', 'Self-Hosting & Infrastructure']
+  minToolCount: number = 3
 ): Promise<string> {
+  // Fetch all tool categories
   const { data: allTools, error } = await supabase
     .from('open_source_tools')
     .select('category')
@@ -686,6 +700,7 @@ async function getCategoryWithSufficientTools(
     throw new Error(`Failed to fetch categories: ${error?.message}`);
   }
 
+  // Build category counts
   const categoryCounts: { [key: string]: number } = {};
   allTools.forEach((tool: any) => {
     if (tool.category) {
@@ -693,6 +708,19 @@ async function getCategoryWithSufficientTools(
     }
   });
 
+  // Unique list of categories
+  const allCategories = Object.keys(categoryCounts);
+
+  // Compute rotating category based on week number
+  const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const rotated = allCategories[weekNum % allCategories.length];
+
+  if (rotated && categoryCounts[rotated] >= minToolCount) {
+    console.log(`✅ Selected rotating category: ${rotated} (${categoryCounts[rotated]} tools)`);
+    return rotated;
+  }
+
+  // Fallback: choose the category with the highest count that meets the minimum
   const validCategories = Object.entries(categoryCounts)
     .filter(([_, count]) => count >= minToolCount)
     .map(([category, _]) => category);
@@ -701,18 +729,11 @@ async function getCategoryWithSufficientTools(
     throw new Error(`No categories found with at least ${minToolCount} tools`);
   }
 
-  for (const preferred of preferredCategories) {
-    if (validCategories.includes(preferred)) {
-      console.log(`✅ Selected preferred category: ${preferred} (${categoryCounts[preferred]} tools)`);
-      return preferred;
-    }
-  }
-
   const highestCountCategory = Object.entries(categoryCounts)
     .filter(([category]) => validCategories.includes(category))
-    .sort(([_, countA], [__, countB]) => countB - countA)[0];
+    .sort(([_, a], [__, b]) => b - a)[0];
 
-  console.log(`✅ Selected category: ${highestCountCategory[0]} (${highestCountCategory[1]} tools)`);
+  console.log(`✅ Selected fallback category: ${highestCountCategory[0]} (${highestCountCategory[1]} tools)`);
   return highestCountCategory[0];
 }
 

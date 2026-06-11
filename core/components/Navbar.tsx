@@ -40,12 +40,13 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const isActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
+  if (!pathname) return false;
+  if (href === "/") {
+    return pathname === "/";
+  }
 
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
+  return pathname === href || pathname.startsWith(`${href}/`);
+};
 
   const closePanels = () => {
     setSearchOpen(false);

@@ -232,6 +232,12 @@ export default function FreeToolsPageClient({
           <Link href="/hidden-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
             Developer Utilities
           </Link>
+          <Link href="/best-crm-for-agencies" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Best CRM Tools
+          </Link>
+          <Link href="/best-project-management-for-startups" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
+            Best PM Tools
+          </Link>
         </div>
       </section>
     </div>

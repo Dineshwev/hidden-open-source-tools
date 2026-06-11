@@ -6,6 +6,15 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 
 export const revalidate = 86400;
 
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\(\[.*?\]\(.*?\)\)/g, "")
+    .replace(/[*_`#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export async function generateStaticParams() {
   try {
     const supabase = getAdmin();
@@ -29,7 +38,7 @@ export async function generateMetadata({ params }: { params: { industrySlug: str
   if (!params.industrySlug.startsWith('best-')) {
     return {};
   }
-  
+
   const slug = params.industrySlug;
 
   try {
@@ -60,7 +69,7 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
   if (!params.industrySlug.startsWith('best-')) {
     notFound();
   }
-  
+
   const slug = params.industrySlug;
 
   const supabase = getAdmin();
@@ -83,7 +92,7 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
       .from("open_source_tools")
       .select("id, name, slug, description, category, url, logo_url")
       .in("id", page.tool_ids);
-      
+
     if (!toolsError && Array.isArray(toolsData)) {
       tools = toolsData;
     }
@@ -106,7 +115,7 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
             {tools.map((tool: any) => {
               const toolUrl = tool.slug ? `/tools/${tool.slug}` : (tool.url || "#");
-              
+
               return (
                 <div key={tool.id} className="group relative rounded-3xl border border-white/10 bg-black/20 p-6 md:p-8 transition-colors hover:bg-white/[0.05]">
                   <Link href={toolUrl} className="absolute inset-0 z-10" />
@@ -135,7 +144,7 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
                     </div>
                   </div>
                   <p className="mt-5 text-sm leading-7 text-white/70 line-clamp-3 relative z-20">
-                    {tool.description}
+                    {stripMarkdown(tool.description ?? "")}
                   </p>
                 </div>
               );
@@ -146,8 +155,8 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
 
       {(page.cta_text || page.cta_href) && (
         <section className="text-center">
-          <Link 
-            href={page.cta_href || "#"} 
+          <Link
+            href={page.cta_href || "#"}
             className="inline-flex items-center justify-center rounded-full bg-cyan-300 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-200"
           >
             {page.cta_text || "Learn More"}
