@@ -6,8 +6,9 @@ export const revalidate = 86400;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
-  title: "Best Open Source Alternatives to Popular SaaS | The Cloud Rain",
-  description: "Find the best free, open source alternatives to Notion, Zapier, Airtable, Figma and more. Self-hostable, privacy-first, no vendor lock-in.",
+  title: "Open Source Alternatives to Popular SaaS | The Cloud Rain",
+  description: "Find free, self-hostable alternatives to Figma, Linear, Datadog, Loom, and 50+ popular SaaS tools. Curated for developers.",
+  keywords: ["open source alternatives", "saas alternatives", "self-hosted alternatives", "free software alternatives"],
   alternates: { canonical: `${siteUrl}/alternatives` },
   openGraph: {
     title: "Best Open Source Alternatives to Popular SaaS | The Cloud Rain",

@@ -5,7 +5,7 @@ import { getSiteUrl } from "@/lib/site-url";
 const siteUrl = getSiteUrl();
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticLastModified = new Date("2026-04-17");
+  const staticLastModified = new Date("2026-06-11");
   const currentLastModified = new Date();
   
   const staticEntries: MetadataRoute.Sitemap = [
@@ -22,7 +22,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95
     },
     {
-      url: `${siteUrl}/mystery-box`,
+      url: `${siteUrl}/vs`,
+      lastModified: staticLastModified,
+      changeFrequency: "weekly",
+      priority: 0.9
+    },
+    {
+      url: `${siteUrl}/alternatives`,
       lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9
@@ -122,6 +128,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let articleEntries: MetadataRoute.Sitemap = [];
   let toolEntries: MetadataRoute.Sitemap = [];
   let industryEntries: MetadataRoute.Sitemap = [];
+  let comparisonEntries: MetadataRoute.Sitemap = [];
+  let altEntries: MetadataRoute.Sitemap = [];
   try {
     const supabase = getAdmin();
     
@@ -174,10 +182,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
+    const { data: comparisons } = await supabase
+      .from("comparisons")
+      .select("slug, created_at")
+      .eq("status", "published");
+
+    if (comparisons) {
+      comparisonEntries = comparisons.map((row: any) => ({
+        url: `${siteUrl}/vs/${row.slug}`,
+        lastModified: row.created_at ? new Date(row.created_at) : currentLastModified,
+        changeFrequency: "monthly",
+        priority: 0.75
+      }));
+    }
+
+    const { data: altsData } = await supabase
+      .from("alternatives")
+      .select("saas_slug, created_at")
+      .eq("status", "published");
+
+    if (altsData) {
+      altEntries = altsData.map((row: any) => ({
+        url: `${siteUrl}/alternatives/${row.saas_slug}`,
+        lastModified: row.created_at ? new Date(row.created_at) : currentLastModified,
+        changeFrequency: "monthly",
+        priority: 0.75
+      }));
+    }
+
   } catch (error) {
     console.error("Sitemap fetch failed:", error);
     // Continue with static entries if dynamic fetch fails
   }
 
-  return [...staticEntries, ...articleEntries, ...toolEntries, ...industryEntries];
+  return [...staticEntries, ...articleEntries, ...toolEntries, ...industryEntries, ...comparisonEntries, ...altEntries];
 }

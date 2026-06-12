@@ -140,6 +140,26 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Script defer data-domain="thecloudrain.site" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </head>
       <body className="flex min-h-screen flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "The Cloud Rain",
+              "url": "https://thecloudrain.org",
+              "description": "Curated directory of 357+ open-source tools, self-hosted software, and free alternatives to expensive SaaS products.",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://thecloudrain.org/free-tools?search={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
         <AuthProvider>
           <Navbar />
           <ScrollProgress />

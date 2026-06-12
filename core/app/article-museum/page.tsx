@@ -3,13 +3,9 @@ import type { Metadata } from "next";
 import ArticleMuseumClient from "./ArticleMuseumClient";
 
 export const metadata: Metadata = {
-  title: "Open Source Tool Deep Dives for Developers and DevOps",
-  description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",
-  keywords: [
-    "open source tool reviews",
-    "developer tool deep dives",
-    "self-hosted software analysis"
-  ],
+  title: "Tool Deep Dives | Open Source Software Reviews | The Cloud Rain",
+  description: "In-depth articles on hidden open-source tools. Origin stories, real use cases, and hands-on code for self-hosted software.",
+  keywords: ["open source tool reviews", "self-hosted software guide", "developer tool articles", "open source deep dive"],
   openGraph: {
     title: "Open Source Tool Deep Dives for Developers and DevOps",
     description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",

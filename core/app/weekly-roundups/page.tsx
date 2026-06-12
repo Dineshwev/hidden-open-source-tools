@@ -12,15 +12,9 @@ type WeeklyRoundupRow = {
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
-  title: "Weekly Roundups | The Cloud Rain",
-  description:
-    "Browse weekly open-source tool roundups, developer picks, and self-hosted software summaries from The Cloud Rain.",
-  keywords: [
-    "weekly roundups",
-    "open source tool roundups",
-    "developer tools",
-    "self-hosted software"
-  ],
+  title: "Weekly Open Source Tool Roundups | The Cloud Rain",
+  description: "Weekly curated picks of the best open-source tools, self-hosted software, and developer utilities. New issue every Thursday.",
+  keywords: ["weekly open source tools", "developer tools newsletter", "open source roundup", "self-hosted tools weekly"],
   alternates: {
     canonical: "/weekly-roundups"
   },

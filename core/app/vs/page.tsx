@@ -6,9 +6,9 @@ export const revalidate = 86400;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
 
 export const metadata: Metadata = {
-  title: "Open Source Tool Comparisons | The Cloud Rain",
-  description:
-    "Detailed comparisons of open source tools vs popular SaaS alternatives. Pricing, features, self-hosting, pros and cons — everything to help you choose.",
+  title: "Tool Comparisons | Open Source vs SaaS | The Cloud Rain",
+  description: "Compare open-source tools side by side. Gitea vs GitHub, Meilisearch vs Algolia, and 20+ more comparisons for developers choosing their stack.",
+  keywords: ["tool comparison", "open source vs saas", "gitea vs github", "self-hosted alternatives comparison"],
   alternates: { canonical: `${siteUrl}/vs` },
   openGraph: {
     title: "Open Source Tool Comparisons | The Cloud Rain",
