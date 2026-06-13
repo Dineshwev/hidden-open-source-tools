@@ -118,3 +118,10 @@ We welcome contributions! Please follow the patterns in `lib/services`. Test you
 ## 📄 License
 
 This project is licensed under the **MIT License**.
+Get-Content "C:\none\core\.env.local" | ForEach-Object {
+  if ($_ -match '^([^#][^=]*)=(.*)$') {
+    [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim())
+  }
+}
+npm run generate-structured-content
+
