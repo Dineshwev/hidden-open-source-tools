@@ -309,8 +309,9 @@ async function generateStructuredContent(
   stats: GitHubStats | null,
   readme: string | null
 ): Promise<StructuredContent | null> {
-  const prompt = `You are a technical writer for a developer tools directory. Output ONLY valid JSON — no markdown, no explanation, no code fences.
+  const prompt = `IMPORTANT: Your entire response must be a single valid JSON object. Start your response with { and end with }. No text before or after. No markdown. No code fences. No explanation.
 
+You are a technical writer for a developer tools directory.
 Base your response ONLY on the information provided below. Do NOT invent features, integrations, or capabilities not mentioned. If information is not available, use null for objects or empty array for lists.
 
 Tool: ${tool.name}
@@ -351,11 +352,14 @@ Output this exact JSON structure:
 
   // Parse JSON — strip any accidental markdown fences
   try {
-    const cleaned = raw
-      .replace(/```json\n?/g, "")
-      .replace(/```\n?/g, "")
-      .trim();
-    return JSON.parse(cleaned) as StructuredContent;
+    // Extract JSON object from anywhere in the response
+const jsonMatch = raw.match(/\{[\s\S]*\}/);
+if (!jsonMatch) {
+  console.error(`  ❌ No JSON object found in response`);
+  return null;
+}
+const cleaned = jsonMatch[0].trim();
+return JSON.parse(cleaned) as StructuredContent;
   } catch {
     console.error(`  ❌ JSON parse failed for ${tool.name}`);
     return null;
@@ -457,7 +461,8 @@ async function main() {
     .from("open_source_tools")
     .select("id, name, slug, description, category, url, github_stars, language, license")
     .eq("status", "approved")
-    .order("created_at", { ascending: true })
+    .is("best_for", null)
+    .order("created_at", { ascending: true });
     
   if (error || !tools) throw new Error(`Failed to fetch tools: ${error?.message}`);
   console.log(`✅ Found ${tools.length} tools\n`);
