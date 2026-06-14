@@ -15,7 +15,7 @@ import * as ws from "ws";
 
 const CEREBRAS_MODEL = "gpt-oss-120b";
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const DELAY_MS = 3000;
+const DELAY_MS = 8000;
 const MAX_RETRIES = 2;
 const README_MAX_CHARS = 800;
 
