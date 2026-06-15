@@ -477,10 +477,31 @@ async function main() {
 
     const githubUrl = findGithubUrl(tool);
     if (!githubUrl) {
-      console.log(`  ⚠️  No GitHub URL found — skipping`);
-      skipped++;
-      continue;
-    }
+  if (!tool.description || tool.description.length < 50) {
+    console.log(`  ⚠️  No GitHub URL and no description — skipping`);
+    skipped++;
+    continue;
+  }
+  console.log(`  📝 No GitHub — using description only...`);
+  const content = await generateStructuredContent(tool, null, tool.description.slice(0, 800));
+  if (!content) {
+    failed++;
+    await delay(DELAY_MS);
+    continue;
+  }
+  const aiContent = buildAiContent(tool, null, content, content.deployment);
+  await supabase.from("open_source_tools").update({
+    ai_content: aiContent,
+    best_for: content.best_for ?? [],
+    not_for: content.not_for ?? [],
+    pros: content.pros ?? [],
+    cons: content.cons ?? [],
+    deployment_info: content.deployment,
+  }).eq("id", tool.id);
+  success++;
+  await delay(DELAY_MS);
+  continue;
+}
 
     const ref = extractGithubOwnerRepo(githubUrl);
     if (!ref) {
