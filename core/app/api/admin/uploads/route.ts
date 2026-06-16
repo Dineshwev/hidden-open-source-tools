@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import crypto from "crypto";
 import {
   ensureSupabaseBucket,
@@ -10,35 +9,12 @@ import {
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import * as fileService from "@/lib/services/file.service.js";
 import { errorResponse } from "@/lib/utils/authHelper";
-import {
-  ADMIN_SESSION_COOKIE,
-  getConfiguredAdminSecret,
-  getLegacyAdminToken,
-  isValidAdminSessionCookieValue,
-  isValidLegacyAdminToken
-} from "@/lib/admin-session";
-
-async function isAuthorized(req: Request) {
-  const sessionCookie = cookies().get(ADMIN_SESSION_COOKIE)?.value;
-
-  if (await isValidAdminSessionCookieValue(sessionCookie)) {
-    return { ok: true as const };
-  }
-
-  if (!getConfiguredAdminSecret()) {
-    return { ok: false, status: 503, error: "Admin panel is not configured. Set ADMIN_SECRET." };
-  }
-
-  if (!isValidLegacyAdminToken(getLegacyAdminToken(req))) {
-    return { ok: false, status: 401, error: "Invalid admin secret." };
-  }
-
-  return { ok: true as const };
-}
+import { isAuthorizedBySession } from "@/lib/utils/admin-auth";
+import { handleSupabaseConnectionError } from "@/lib/utils/api-response";
 
 export async function POST(req: Request) {
   try {
-    const auth = await isAuthorized(req);
+    const auth = await isAuthorizedBySession(req);
     if (!auth.ok) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
@@ -145,15 +121,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ data: uploadedRecord }, { status: 201 });
-  } catch (error: any) {
-    if (String(error?.message || "").includes("Can't reach database server")) {
-      return NextResponse.json(
-        { error: "Supabase configuration error. Check SUPABASE_SERVICE_ROLE_KEY." },
-        { status: 503 }
-      );
-    }
+  } catch (error: unknown) {
+    const supabaseError = handleSupabaseConnectionError(error);
+    if (supabaseError) return supabaseError;
 
-    if (String(error?.message || "").toLowerCase().includes("invalid compact jws")) {
+    if (String((error as Error)?.message || "").toLowerCase().includes("invalid compact jws")) {
       return NextResponse.json(
         {
           error: "Invalid SUPABASE_SERVICE_ROLE_KEY. Use your Supabase service role key (not anon/public key).",
