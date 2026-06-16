@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPendingTools } from "@/lib/services/scraped-tools.service";
 import type { PaginatedResponse, ScrapedTool, ToolStatus } from "@/lib/types/scraped-tools.types";
+import { safeCompare } from "@/lib/admin-session";
 
 function isAuthorized(req: Request) {
   const adminSecret = process.env.ADMIN_SECRET?.trim();
@@ -19,7 +20,7 @@ function isAuthorized(req: Request) {
     };
   }
 
-  if (!token || token !== adminSecret) {
+  if (!token || !safeCompare(token, adminSecret)) {
     return { ok: false, status: 401, error: "Unauthorized" };
   }
 

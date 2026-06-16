@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuth } from 'firebase-admin/auth';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { safeCompare } from '@/lib/admin-session';
 
 // Firebase Admin singleton
 function getFirebaseAdmin() {
@@ -56,9 +57,9 @@ export async function getServerAdmin(req: Request) {
   const user = await getServerUser(req);
   if (!user) return null;
   
-  // Check ADMIN_SECRET header as fallback for admin routes
   const adminSecret = req.headers.get('x-admin-secret');
-  if (adminSecret === process.env.ADMIN_SECRET) {
+  const configuredSecret = process.env.ADMIN_SECRET?.trim();
+  if (adminSecret && configuredSecret && safeCompare(adminSecret, configuredSecret)) {
     return { ...user, role: 'ADMIN' };
   }
   
@@ -74,8 +75,12 @@ export function unauthorizedResponse() {
 
 export function errorResponse(error: any) {
   const statusCode = error.statusCode || 500;
+  const safeMessage =
+    statusCode >= 500
+      ? 'Internal Server Error'
+      : (error.message || 'Internal Server Error');
   return NextResponse.json(
-    { error: error.message || 'Internal Server Error' },
+    { error: safeMessage },
     { status: statusCode }
   );
 }

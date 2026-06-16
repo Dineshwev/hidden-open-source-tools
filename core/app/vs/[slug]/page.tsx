@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { marked } from "marked";
+import sanitizeHtml from "sanitize-html";
 
 export const revalidate = 86400;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
@@ -119,7 +120,16 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             prose-strong:text-white
             prose-code:text-cyan-300 prose-code:bg-white/5 prose-code:px-1 prose-code:rounded"
           dangerouslySetInnerHTML={{
-            __html: marked(comparison.content, { async: false, breaks: true }) as string,
+            __html: sanitizeHtml(
+              marked(comparison.content, { async: false, breaks: true }) as string,
+              {
+                allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'h1', 'h2', 'h3']),
+                allowedAttributes: {
+                  ...sanitizeHtml.defaults.allowedAttributes,
+                  img: ['src', 'alt', 'title', 'width', 'height'],
+                },
+              }
+            ),
           }}
         />
       </section>
