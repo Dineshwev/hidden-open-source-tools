@@ -9,7 +9,10 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import * as dotenv from "dotenv";
 import * as ws from "ws";
+
+dotenv.config({ path: ".env.local" });
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -31,7 +34,10 @@ type Tool = {
   github_stars: number | null;
   language: string | null;
   license: string | null;
+  structured_content_status: StructuredContentStatus | null;
 };
+
+type StructuredContentStatus = "success" | "failed" | "skipped";
 
 type GitHubStats = {
   stars: number;
@@ -72,6 +78,47 @@ function delay(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+function formatErrorDetails(error: unknown): string {
+  if (!error || typeof error !== "object") {
+    return `message=${String(error)}`;
+  }
+
+  const value = error as {
+    message?: unknown;
+    status?: unknown;
+    statusCode?: unknown;
+    response?: { data?: unknown };
+  };
+  const details: string[] = [];
+
+  if (value.message !== undefined) details.push(`message=${String(value.message)}`);
+  if (value.status !== undefined) details.push(`status=${String(value.status)}`);
+  if (value.statusCode !== undefined) details.push(`statusCode=${String(value.statusCode)}`);
+  if (value.response?.data !== undefined) {
+    const data = typeof value.response.data === "string"
+      ? value.response.data
+      : JSON.stringify(value.response.data);
+    details.push(`response.data=${data}`);
+  }
+
+  return details.join("; ") || `details=${JSON.stringify(error)}`;
+}
+
+function logHttpFailure(provider: string, toolName: string, response: Response, body: string): void {
+  console.error(
+    `  ❌ ${provider} failed for ${toolName}: ` +
+      formatErrorDetails({
+        message: `HTTP ${response.status} ${response.statusText}`,
+        status: response.status,
+        response: { data: body },
+      })
+  );
+}
+
+function isRetryRun(): boolean {
+  return process.argv.includes("--retry-failed") || process.argv.includes("--retry-skipped");
+}
+
 function extractGithubOwnerRepo(url: string): { owner: string; repo: string } | null {
   try {
     const u = new URL(url);
@@ -95,8 +142,8 @@ function findGithubUrl(tool: Tool): string | null {
 
 // ─── GitHub API ───────────────────────────────────────────────────────────────
 
-async function fetchGitHubStats(owner: string, repo: string): Promise<GitHubStats | null> {
-  const token = process.env.GITHUB_TOKEN;
+async function fetchGitHubStats(owner: string, repo: string, toolName: string): Promise<GitHubStats | null> {
+  const token = process.env.GITHUB_TOKEN?.trim();
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
@@ -104,19 +151,26 @@ async function fetchGitHubStats(owner: string, repo: string): Promise<GitHubStat
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   try {
+    const request = async (url: string): Promise<Response> => {
+      const response = await fetch(url, { headers });
+      if (!response.ok) {
+        logHttpFailure("GitHub API", toolName, response, await response.text());
+      }
+      return response;
+    };
+
     const [repoRes, contribRes, releaseRes] = await Promise.all([
-      fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers }),
-      fetch(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=1&anon=true`, { headers }),
-      fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, { headers }),
+      request(`https://api.github.com/repos/${owner}/${repo}`),
+      request(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=1&anon=true`),
+      request(`https://api.github.com/repos/${owner}/${repo}/releases/latest`),
     ]);
 
     if (!repoRes.ok) return null;
     const repoData = await repoRes.json();
 
     // Last commit
-    const commitsRes = await fetch(
+    const commitsRes = await request(
       `https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`,
-      { headers }
     );
     let lastCommit: string | null = null;
     if (commitsRes.ok) {
@@ -153,7 +207,8 @@ async function fetchGitHubStats(owner: string, repo: string): Promise<GitHubStat
       owner,
       repo,
     };
-  } catch {
+  } catch (error) {
+    console.error(`  ❌ GitHub API request failed for ${toolName}: ${formatErrorDetails(error)}`);
     return null;
   }
 }
@@ -214,7 +269,7 @@ function parseDeploymentInfo(readme: string | null): DeploymentInfo {
 
 // ─── Cerebras API ─────────────────────────────────────────────────────────────
 
-async function generateWithCerebras(prompt: string): Promise<string | null> {
+async function generateWithCerebras(prompt: string, toolName: string): Promise<string | null> {
   const apiKey = process.env.CEREBRAS_API_KEY;
   if (!apiKey) return null;
 
@@ -239,13 +294,17 @@ async function generateWithCerebras(prompt: string): Promise<string | null> {
         return data.choices?.[0]?.message?.content?.trim() || null;
       }
 
+      const errorBody = await res.text();
+      logHttpFailure("Cerebras", toolName, res, errorBody);
+
       if (res.status === 429 && attempt < MAX_RETRIES) {
         await delay(5000 * (attempt + 1));
         continue;
       }
 
       return null;
-    } catch {
+    } catch (error) {
+      console.error(`  ❌ Cerebras request failed for ${toolName}: ${formatErrorDetails(error)}`);
       if (attempt < MAX_RETRIES) {
         await delay(3000);
         continue;
@@ -258,7 +317,7 @@ async function generateWithCerebras(prompt: string): Promise<string | null> {
 
 // ─── Groq API (fallback) ──────────────────────────────────────────────────────
 
-async function generateWithGroq(prompt: string): Promise<string | null> {
+async function generateWithGroq(prompt: string, toolName: string): Promise<string | null> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return null;
 
@@ -283,6 +342,9 @@ async function generateWithGroq(prompt: string): Promise<string | null> {
         return data.choices?.[0]?.message?.content?.trim() || null;
       }
 
+      const errorBody = await res.text();
+      logHttpFailure("Groq", toolName, res, errorBody);
+
       if (res.status === 429 && attempt < MAX_RETRIES) {
         const retryAfter = res.headers.get("retry-after");
         const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : 8000 * (attempt + 1);
@@ -291,7 +353,8 @@ async function generateWithGroq(prompt: string): Promise<string | null> {
       }
 
       return null;
-    } catch {
+    } catch (error) {
+      console.error(`  ❌ Groq request failed for ${toolName}: ${formatErrorDetails(error)}`);
       if (attempt < MAX_RETRIES) {
         await delay(3000);
         continue;
@@ -340,28 +403,31 @@ Output this exact JSON structure:
 }`;
 
   // Try Cerebras first
-  let raw = await generateWithCerebras(prompt);
+  let raw = await generateWithCerebras(prompt, tool.name);
 
   // Fallback to Groq
   if (!raw) {
-    console.warn(`  ⚠️  Cerebras failed for ${tool.name}, trying Groq...`);
-    raw = await generateWithGroq(prompt);
+    console.warn(`  ⚠️  Cerebras unavailable for ${tool.name}; trying Groq fallback.`);
+    raw = await generateWithGroq(prompt, tool.name);
   }
 
-  if (!raw) return null;
+  if (!raw) {
+    console.error(`  ❌ Both AI providers failed for ${tool.name}. See provider error details above.`);
+    return null;
+  }
 
   // Parse JSON — strip any accidental markdown fences
   try {
     // Extract JSON object from anywhere in the response
 const jsonMatch = raw.match(/\{[\s\S]*\}/);
 if (!jsonMatch) {
-  console.error(`  ❌ No JSON object found in response`);
+  console.error(`  ❌ No JSON object found in response for ${tool.name}: message=provider returned non-JSON content`);
   return null;
 }
 const cleaned = jsonMatch[0].trim();
 return JSON.parse(cleaned) as StructuredContent;
-  } catch {
-    console.error(`  ❌ JSON parse failed for ${tool.name}`);
+  } catch (error) {
+    console.error(`  ❌ JSON parse failed for ${tool.name}: ${formatErrorDetails(error)}`);
     return null;
   }
 }
@@ -445,6 +511,17 @@ function buildAiContent(
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
+  const missingKeys = ["CEREBRAS_API_KEY", "GROQ_API_KEY"].filter(
+    (name) => !process.env[name]?.trim()
+  );
+  if (missingKeys.length > 0) {
+    throw new Error(`Missing required environment variable(s): ${missingKeys.join(", ")}`);
+  }
+
+  if (!process.env.GITHUB_TOKEN?.trim()) {
+    console.warn("⚠️  GITHUB_TOKEN is not set; GitHub API requests will use the unauthenticated rate limit.");
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -456,13 +533,19 @@ async function main() {
     realtime: { transport: ws as any },
   });
 
-  console.log("🚀 Fetching approved tools...");
-  const { data: tools, error } = await supabase
+  const retryRun = isRetryRun();
+  console.log(retryRun ? "🔁 Fetching failed/skipped tools for retry..." : "🚀 Fetching approved tools...");
+  let toolsQuery = supabase
     .from("open_source_tools")
-    .select("id, name, slug, description, category, url, github_stars, language, license")
+    .select("id, name, slug, description, category, url, github_stars, language, license, structured_content_status")
     .eq("status", "approved")
-    .is("best_for", null)
     .order("created_at", { ascending: true });
+
+  toolsQuery = retryRun
+    ? toolsQuery.in("structured_content_status", ["failed", "skipped"])
+    : toolsQuery.is("best_for", null);
+
+  const { data: tools, error } = await toolsQuery;
     
   if (error || !tools) throw new Error(`Failed to fetch tools: ${error?.message}`);
   console.log(`✅ Found ${tools.length} tools\n`);
@@ -479,26 +562,42 @@ async function main() {
     if (!githubUrl) {
   if (!tool.description || tool.description.length < 50) {
     console.log(`  ⚠️  No GitHub URL and no description — skipping`);
+    const { error: statusError } = await supabase
+      .from("open_source_tools")
+      .update({ structured_content_status: "skipped" })
+      .eq("id", tool.id);
+    if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
     skipped++;
     continue;
   }
   console.log(`  📝 No GitHub — using description only...`);
   const content = await generateStructuredContent(tool, null, tool.description.slice(0, 800));
   if (!content) {
+    const { error: statusError } = await supabase
+      .from("open_source_tools")
+      .update({ structured_content_status: "failed" })
+      .eq("id", tool.id);
+    if (statusError) console.error(`  ❌ Failed to save failed status: ${statusError.message}`);
     failed++;
     await delay(DELAY_MS);
     continue;
   }
   const aiContent = buildAiContent(tool, null, content, content.deployment);
-  await supabase.from("open_source_tools").update({
+  const { error: updateError } = await supabase.from("open_source_tools").update({
     ai_content: aiContent,
     best_for: content.best_for ?? [],
     not_for: content.not_for ?? [],
     pros: content.pros ?? [],
     cons: content.cons ?? [],
     deployment_info: content.deployment,
+    structured_content_status: "success",
   }).eq("id", tool.id);
+  if (updateError) {
+    console.error(`  ❌ DB update failed: ${updateError.message}`);
+    failed++;
+  } else {
   success++;
+  }
   await delay(DELAY_MS);
   continue;
 }
@@ -506,13 +605,18 @@ async function main() {
     const ref = extractGithubOwnerRepo(githubUrl);
     if (!ref) {
       console.log(`  ⚠️  Could not parse GitHub URL — skipping`);
+      const { error: statusError } = await supabase
+        .from("open_source_tools")
+        .update({ structured_content_status: "skipped" })
+        .eq("id", tool.id);
+      if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
       skipped++;
       continue;
     }
 
     // Step 1: GitHub API
     console.log(`  📊 Fetching GitHub stats...`);
-    const stats = await fetchGitHubStats(ref.owner, ref.repo);
+    const stats = await fetchGitHubStats(ref.owner, ref.repo, tool.name);
     if (stats) {
       console.log(`  ✅ Stars: ${stats.stars}, Last commit: ${stats.last_commit?.slice(0, 10) ?? "unknown"}`);
     } else {
@@ -534,7 +638,12 @@ async function main() {
     console.log(`  🤖 Generating structured content...`);
     const content = await generateStructuredContent(tool, stats, readme);
     if (!content) {
-      console.error(`  ❌ AI generation failed for ${tool.name}`);
+      console.error(`  ❌ AI generation failed for ${tool.name}; status=failed`);
+      const { error: statusError } = await supabase
+        .from("open_source_tools")
+        .update({ structured_content_status: "failed" })
+        .eq("id", tool.id);
+      if (statusError) console.error(`  ❌ Failed to save failed status: ${statusError.message}`);
       failed++;
       await delay(DELAY_MS);
       continue;
@@ -553,6 +662,7 @@ async function main() {
       pros: content.pros ?? [],
       cons: content.cons ?? [],
       readme_excerpt: readme ?? null,
+      structured_content_status: "success",
     };
 
     if (stats) {
