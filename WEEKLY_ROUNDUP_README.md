@@ -7,7 +7,7 @@ You now have a complete end-to-end system for auto-generating weekly roundup con
 ### 1. Generation Script
 **File**: `scripts/generate-weekly-content.ts`
 - Fetches 5 approved tools from Supabase
-- Generates AI summaries using Groq (llama-3.1-8b-instant)
+- Generates AI summaries using Groq (openai/gpt-oss-120b)
 - Selects 2-3 tools from same category for comparison
 - Fetches trending tech news from NewsAPI (optional)
 - Saves everything to new `weekly_roundups` table
@@ -146,7 +146,7 @@ for (const article of articles.slice(0, 3)) // <- change this
 
 **Groq Model**: Override via env variable
 ```bash
-GROQ_MODEL=llama-3.1-70b-versatile npm run weekly-content
+GROQ_MODEL=openai/gpt-oss-120b npm run weekly-content
 ```
 
 **Rate Limit Delay**:

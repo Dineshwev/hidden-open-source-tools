@@ -59,7 +59,7 @@ The script will:
 **Output Example:**
 ```
 🚀 Generating weekly roundup content...
-🤖 Using Groq model: llama-3.1-8b-instant
+🤖 Using Groq model: openai/gpt-oss-120b
 ✅ Groq model is available.
 
 📅 Generating roundup for week of: May 15, 2026
@@ -161,7 +161,7 @@ weekly_roundups {
 ## API Integration Details
 
 ### Groq API
-- **Model**: `llama-3.1-8b-instant` (configurable)
+- **Model**: `openai/gpt-oss-120b` (configurable)
 - **Used for**: Tool summaries, comparisons, news summaries
 - **Rate limiting**: Configurable delay (default 5.5s)
 - **Retry logic**: 3 attempts with exponential backoff
@@ -183,7 +183,7 @@ weekly_roundups {
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `GROQ_API_KEY`
-- `GROQ_MODEL` (optional, defaults to `llama-3.1-8b-instant`)
+- `GROQ_MODEL` (optional, defaults to `openai/gpt-oss-120b`)
 
 **Optional** (for news):
 - `NEWS_API_KEY` — From newsapi.org

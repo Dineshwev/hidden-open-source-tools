@@ -178,7 +178,7 @@ weekly_roundups {
 ## API Integrations 🔌
 
 ### Groq (Supabase → Groq API)
-- **Model**: llama-3.1-8b-instant
+- **Model**: openai/gpt-oss-120b
 - **Used for**: Tool summaries, comparisons, news summaries
 - **Requests**: ~9 per roundup
 - **Rate limiting**: 5.5 second delay between requests
@@ -210,7 +210,7 @@ GROQ_API_KEY=your_groq_key
 ### Optional
 ```env
 NEWS_API_KEY=your_newsapi_key          # Enable tech news
-GROQ_MODEL=llama-3.1-8b-instant       # Default if omitted
+GROQ_MODEL=openai/gpt-oss-120b       # Default if omitted
 GROQ_DELAY_MS=5500                     # Rate limit delay
 ```
 
@@ -263,7 +263,7 @@ const comparisonTools = await getComparisonTools(supabase, selectedCategory, 3);
 
 ### Use different Groq model
 ```bash
-GROQ_MODEL=llama-3.1-70b-versatile npm run weekly-content
+GROQ_MODEL=openai/gpt-oss-120b npm run weekly-content
 ```
 
 ### Skip news (faster generation)

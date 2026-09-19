@@ -2,6 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
 import ws from 'ws';
 import type { WebSocketLikeConstructor } from '@supabase/realtime-js';
+import { getGroqModel } from './ai-config';
+import { SAAS_REFERENCE, type SaaSReference } from '../lib/saas-reference';
+import { fetchAllSupabaseRows } from './fetch-all-supabase-rows';
+import { formatLicense } from '../lib/utils/license';
 
 dotenv.config({ path: '.env.local' });
 
@@ -12,6 +16,7 @@ type Comparison = {
   tool_b: string;
   status: string;
   content?: string | null;
+  verified_regenerated_at?: string | null;
 };
 
 type ToolRow = {
@@ -36,7 +41,13 @@ type ToolRow = {
   structured_content_status: string | null;
 };
 
-interface CerebrasResponse {
+type ComparisonSide = ToolRow | SaaSReference;
+
+const OPEN_SOURCE_ALIASES: Record<string, string> = {
+  plausible: 'plausible-analytics',
+};
+
+interface GroqResponse {
   choices: Array<{
     message: {
       content: string;
@@ -45,23 +56,39 @@ interface CerebrasResponse {
 }
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-const CEREBRAS_DELAY_MS = 5000;
-const API_MAX_RETRIES = 3;
-
-function getRetryDelayMs(response: Response, attempt: number) {
-  const retryAfter = response.headers.get('retry-after');
-  if (retryAfter) {
-    const retryAfterSeconds = Number(retryAfter);
-    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
-      return Math.ceil(retryAfterSeconds * 1000);
-    }
-  }
-
-  return Math.min(15000, 1000 * 2 ** attempt);
-}
+const GROQ_DELAY_MS = 8000;
+const MAX_RETRIES = 2;
+const NETWORK_RETRY_DELAYS_MS = [5000, 15000, 30000];
 
 function normalizeLookupValue(value: string): string {
-  return value.trim().toLowerCase();
+  return value.trim().toLowerCase().replace(/\s+/g, '-');
+}
+
+function getErrorCause(error: unknown): unknown {
+  return error && typeof error === 'object' && 'cause' in error
+    ? (error as { cause?: unknown }).cause
+    : undefined;
+}
+
+function isNetworkError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+  const cause = getErrorCause(error);
+  const causeCode = cause && typeof cause === 'object' && 'code' in cause
+    ? String((cause as { code?: unknown }).code).toLowerCase()
+    : '';
+
+  return message.includes('fetch failed') ||
+    message.includes('timeout') ||
+    message.includes('timed out') ||
+    /econnreset|econnrefused|etimedout|enotfound|eai_again/.test(causeCode) ||
+    /econnreset|econnrefused|etimedout|enotfound|eai_again/.test(message);
+}
+
+function formatErrorValue(error: unknown): string {
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  return String(error);
 }
 
 function isGitHubUrl(value: string | null): boolean {
@@ -83,6 +110,10 @@ function getGitHubUrl(tool: ToolRow): string | null {
   return match?.[0] || null;
 }
 
+function isToolRow(side: ComparisonSide): side is ToolRow {
+  return 'structured_content_status' in side;
+}
+
 function getOfficialUrl(tool: ToolRow): string | null {
   return tool.url && !isGitHubUrl(tool.url) ? tool.url : null;
 }
@@ -91,21 +122,28 @@ function formatMetric(value: number | string | null | undefined): string {
   return value === null || value === undefined || value === '' ? 'Not available' : String(value);
 }
 
-function buildFixedVerifiedSignals(toolA: ToolRow, toolB: ToolRow): string {
-  return `## Verified Project Signals
+function buildFixedVerifiedSignals(toolA: ComparisonSide, toolB: ComparisonSide): string {
+  return [toolA, toolB]
+    .filter(isToolRow)
+    .map((tool) => `### ${tool.name || 'Tool'}
 
-| Signal | ${toolA.name || 'Tool A'} | ${toolB.name || 'Tool B'} |
-|---|---:|---:|
-| GitHub stars | ${formatMetric(toolA.github_stars)} | ${formatMetric(toolB.github_stars)} |
-| GitHub forks | ${formatMetric(toolA.github_forks)} | ${formatMetric(toolB.github_forks)} |
-| Contributors | ${formatMetric(toolA.github_contributors)} | ${formatMetric(toolB.github_contributors)} |
-| Open issues | ${formatMetric(toolA.github_open_issues)} | ${formatMetric(toolB.github_open_issues)} |
-| Last commit | ${formatMetric(toolA.github_last_commit)} | ${formatMetric(toolB.github_last_commit)} |
-| Language | ${formatMetric(toolA.language)} | ${formatMetric(toolB.language)} |
-| License | ${formatMetric(toolA.license)} | ${formatMetric(toolB.license)} |`;
+| Signal | Verified value |
+|---|---:|
+| GitHub stars | ${formatMetric(tool.github_stars)} |
+| GitHub forks | ${formatMetric(tool.github_forks)} |
+| Contributors | ${formatMetric(tool.github_contributors)} |
+| Open issues | ${formatMetric(tool.github_open_issues)} |
+| Last commit | ${formatMetric(tool.github_last_commit)} |
+| Language | ${formatMetric(tool.language)} |
+| License | ${formatLicense(tool.license)} |`)
+    .map((block, index) => `${index === 0 ? '## Verified Project Signals\n\n' : ''}${block}`)
+    .join('\n\n');
 }
 
-function buildResources(tool: ToolRow): string {
+function buildResources(tool: ComparisonSide): string {
+  if (!isToolRow(tool)) {
+    return `### ${tool.name}\n\n- Official Website: [Official website](${tool.official_url})\n- GitHub Repository: Not available for SaaS`;
+  }
   const officialUrl = getOfficialUrl(tool);
   const githubUrl = getGitHubUrl(tool);
   const official = officialUrl ? `[Official website](${officialUrl})` : 'Not available in verified data';
@@ -117,7 +155,7 @@ function buildResources(tool: ToolRow): string {
 - GitHub Repository: ${github}`;
 }
 
-function buildFixedResources(toolA: ToolRow, toolB: ToolRow): string {
+function buildFixedResources(toolA: ComparisonSide, toolB: ComparisonSide): string {
   return `## Resources
 
 ${buildResources(toolA)}
@@ -125,7 +163,16 @@ ${buildResources(toolA)}
 ${buildResources(toolB)}`;
 }
 
-function buildVerifiedToolData(tool: ToolRow) {
+function buildVerifiedToolData(tool: ToolRow | SaaSReference) {
+  if (!isToolRow(tool)) {
+    return {
+      name: tool.name,
+      slug: tool.slug,
+      description: tool.description,
+      official_url: tool.official_url,
+      github_data_available: false,
+    };
+  }
   return {
     name: tool.name,
     slug: tool.slug,
@@ -145,11 +192,16 @@ function buildVerifiedToolData(tool: ToolRow) {
   };
 }
 
-function buildComparisonPrompt(toolA: ToolRow, toolB: ToolRow): string {
+function buildComparisonPrompt(toolA: ComparisonSide, toolB: ComparisonSide): string {
   const verifiedData = JSON.stringify({
     tool_a: buildVerifiedToolData(toolA),
     tool_b: buildVerifiedToolData(toolB),
   }, null, 2);
+
+  const saasInstructions = [toolA, toolB]
+    .filter((tool): tool is SaaSReference => !isToolRow(tool))
+    .map((tool) => `${tool.name} is a SaaS reference entry with no GitHub data available. Do not invent GitHub stars, forks, contributors, commits, license, language, or any other GitHub data for this side.`)
+    .join('\n');
 
   return `You are a senior technical writer for The Cloud Rain, a developer-focused open source discovery platform.
 
@@ -158,6 +210,7 @@ Write a detailed, honest comparison page between ${toolA.name} and ${toolB.name}
 Use only the data provided below. Do not invent, estimate, or guess any number, founder name, founding date, pricing figure, or fact not present in this data. If a comparison point cannot be supported by the data given, omit it rather than inventing it.
 
 The verified project signals and Resources section are added by a fixed template after your response. Do not write a GitHub statistics section, Resources section, resource links, pricing figures, dates, founder stories, founding stories, or other numeric metrics in your response.
+${saasInstructions}
 
 Write in markdown with these sections:
 
@@ -203,57 +256,85 @@ Verified data, and the only source of truth:
 ${verifiedData}`;
 }
 
-async function generateContentWithCerebras(toolA: ToolRow, toolB: ToolRow): Promise<string> {
-  const apiKey = process.env.CEREBRAS_API_KEY;
-  const model = process.env.CEREBRAS_MODEL || 'gpt-oss-120b';
+async function generateContentWithGroq(toolA: ComparisonSide, toolB: ComparisonSide): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    throw new Error('CEREBRAS_API_KEY environment variable not set');
+    throw new Error('GROQ_API_KEY environment variable not set');
   }
 
   const prompt = buildComparisonPrompt(toolA, toolB);
 
-  for (let attempt = 0; attempt <= API_MAX_RETRIES; attempt++) {
-    const response = await fetch('https://api.cerebras.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.2,
-        max_tokens: 3000,
-      }),
-    });
+  for (let attempt = 0; ; attempt++) {
+    let response: Response;
+    try {
+      response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: getGroqModel(),
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 600,
+        }),
+      });
+    } catch (error) {
+      const cause = getErrorCause(error);
+      console.error(
+        `❌ Groq network error for ${toolA.name} vs ${toolB.name}: ` +
+          `message=${formatErrorValue(error)} cause=${formatErrorValue(cause)}`
+      );
+
+      if (isNetworkError(error) && attempt < NETWORK_RETRY_DELAYS_MS.length) {
+        const retryDelayMs = NETWORK_RETRY_DELAYS_MS[attempt];
+        console.warn(
+          `⚠️ Retrying network failure ${attempt + 1}/${NETWORK_RETRY_DELAYS_MS.length} ` +
+            `after ${retryDelayMs}ms.`
+        );
+        await delay(retryDelayMs);
+        continue;
+      }
+
+      throw error;
+    }
 
     if (response.ok) {
-      const data = (await response.json()) as CerebrasResponse;
-      return data.choices[0].message.content;
+      const data = (await response.json()) as GroqResponse;
+      return data.choices[0].message.content.trim();
     }
 
     const errorText = await response.text();
 
-    if (response.status === 429 && attempt < API_MAX_RETRIES) {
-      const retryDelayMs = getRetryDelayMs(response, attempt);
+    if (response.status === 429 && attempt < MAX_RETRIES) {
+      const retryAfter = response.headers.get('retry-after');
+      const retryAfterMs = retryAfter ? Number.parseInt(retryAfter, 10) * 1000 : NaN;
+      const retryDelayMs = Number.isFinite(retryAfterMs)
+        ? retryAfterMs
+        : GROQ_DELAY_MS * (attempt + 1);
       console.warn(
-        `⚠️ Cerebras rate limit for ${toolA.name} vs ${toolB.name}. Retry ${attempt + 1}/${API_MAX_RETRIES} after ${retryDelayMs}ms.`
+        `⚠️ Groq rate limit for ${toolA.name} vs ${toolB.name}. Retry ${attempt + 1}/${MAX_RETRIES} after ${retryDelayMs}ms.`
       );
       await delay(retryDelayMs);
       continue;
     }
 
-    throw new Error(`Cerebras API error: ${response.status} - ${errorText}`);
+    throw new Error(`Groq API error: ${response.status} - ${errorText}`);
   }
 
-  throw new Error(`Cerebras API error: exhausted retries for ${toolA.name} vs ${toolB.name}`);
+  throw new Error(`Groq API error: exhausted retries for ${toolA.name} vs ${toolB.name}`);
 }
 
 async function saveContentToSupabase(supabase: any, id: string, content: string): Promise<void> {
   const { error } = await supabase
     .from('comparisons')
-    .update({ content, status: 'published' })
+    .update({
+      content,
+      status: 'published',
+      verified_regenerated_at: new Date().toISOString(),
+    })
     .eq('id', id);
 
   if (error) {
@@ -275,14 +356,14 @@ async function markNeedsReview(supabase: any, comparison: Comparison, reason: st
   console.warn(`⚠️ Skipped ${comparison.slug}: ${reason}. Marked needs_review.`);
 }
 
-async function validateCerebrasModel(model: string): Promise<void> {
-  const apiKey = process.env.CEREBRAS_API_KEY;
+async function validateGroqModel(model: string): Promise<void> {
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    throw new Error('CEREBRAS_API_KEY environment variable not set');
+    throw new Error('GROQ_API_KEY environment variable not set');
   }
 
-  const response = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -298,14 +379,24 @@ async function validateCerebrasModel(model: string): Promise<void> {
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Cerebras model preflight failed for ${model}: ${response.status} - ${error}`);
+    throw new Error(`Groq model preflight failed for ${model}: ${response.status} - ${error}`);
   }
 }
 
 async function main() {
+  const args = process.argv.slice(2);
+  const limitArg = args.find((arg) => arg.startsWith('--limit='));
+  const slugArg = args.find((arg) => arg.startsWith('--slug='));
+  const force = args.includes('--force');
+  const limit = limitArg ? Number(limitArg.slice('--limit='.length)) : null;
+  const requestedSlug = slugArg?.slice('--slug='.length).trim() || null;
+
+  if (limitArg && (!Number.isInteger(limit) || (limit as number) < 1)) {
+    throw new Error('--limit must be a positive integer, for example --limit=3');
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const cerebrasModel = process.env.CEREBRAS_MODEL || 'gpt-oss-120b';
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
@@ -318,32 +409,73 @@ async function main() {
   });
 
   console.log('🚀 Fetching all comparisons for verified regeneration...');
-  console.log(`🤖 Using Cerebras model: ${cerebrasModel}`);
-  console.log(`⏱️ Delay between calls: ${CEREBRAS_DELAY_MS}ms`);
-  console.log('🔎 Checking Cerebras model availability...');
-  await validateCerebrasModel(cerebrasModel);
-  console.log('✅ Cerebras model is available.');
+  const groqModel = getGroqModel();
+  console.log(`🤖 Using Groq model: ${groqModel}`);
+  console.log(`⏱️ Delay between calls: ${GROQ_DELAY_MS}ms`);
+  console.log('🔎 Checking Groq model availability...');
+  await validateGroqModel(groqModel);
+  console.log('✅ Groq model is available.');
 
-  const [{ data: comparisons, error: comparisonError }, { data: tools, error: toolsError }] = await Promise.all([
-    supabase.from('comparisons').select('id, slug, tool_a, tool_b, status, content'),
-    supabase
+  let comparisonsQuery = supabase
+    .from('comparisons')
+    .select('id, slug, tool_a, tool_b, status, content, verified_regenerated_at')
+    .order('id', { ascending: true });
+
+  if (!force) {
+    comparisonsQuery = comparisonsQuery.is('verified_regenerated_at', null);
+  }
+
+  const [{ data: comparisons, error: comparisonError }, tools] = await Promise.all([
+    comparisonsQuery,
+    fetchAllSupabaseRows<ToolRow>(() => supabase
       .from('open_source_tools')
-      .select('id, name, slug, description, category, url, github_stars, github_forks, github_contributors, github_open_issues, github_last_commit, language, license, readme_excerpt, best_for, not_for, pros, cons, structured_content_status'),
+      .select('id, name, slug, description, category, url, github_stars, github_forks, github_contributors, github_open_issues, github_last_commit, language, license, readme_excerpt, best_for, not_for, pros, cons, structured_content_status')
+      .order('id', { ascending: true })),
   ]);
 
   if (comparisonError) {
     throw new Error(`Failed to fetch comparisons: ${comparisonError.message}`);
   }
-  if (toolsError) {
-    throw new Error(`Failed to fetch open_source_tools: ${toolsError.message}`);
-  }
-
   if (!comparisons || comparisons.length === 0) {
     console.log('✅ No comparisons found.');
     return;
   }
 
-  const toolRows = (tools || []) as ToolRow[];
+  const [{ count: verifiedCount, error: verifiedCountError }, { count: remainingCount, error: remainingCountError }] = await Promise.all([
+    supabase.from('comparisons').select('id', { count: 'exact', head: true }).not('verified_regenerated_at', 'is', null),
+    supabase.from('comparisons').select('id', { count: 'exact', head: true }).is('verified_regenerated_at', null),
+  ]);
+
+  if (verifiedCountError || remainingCountError) {
+    throw new Error(`Failed to fetch verification progress: ${verifiedCountError?.message || remainingCountError?.message}`);
+  }
+
+  console.log(
+    `📊 Verified progress: ${verifiedCount || 0}/${(verifiedCount || 0) + (remainingCount || 0)} verified, ` +
+      `${remainingCount || 0} remaining${force ? ' (--force)' : ''}`
+  );
+
+  let selectedComparisons = comparisons as Comparison[];
+  if (requestedSlug) {
+    const lookup = normalizeLookupValue(requestedSlug);
+    selectedComparisons = selectedComparisons.filter(
+      (comparison) =>
+        normalizeLookupValue(comparison.slug) === lookup ||
+        normalizeLookupValue(comparison.id) === lookup
+    );
+  }
+  if (limit !== null) {
+    selectedComparisons = selectedComparisons.slice(0, limit as number);
+  }
+
+  if (selectedComparisons.length === 0) {
+    console.log(requestedSlug
+      ? `✅ No comparison found for --slug=${requestedSlug}.`
+      : '✅ No comparisons selected.');
+    return;
+  }
+
+  const toolRows = tools as ToolRow[];
   const bySlug = new Map(
     toolRows
       .filter((tool) => tool.slug)
@@ -355,19 +487,98 @@ async function main() {
       .map((tool) => [normalizeLookupValue(tool.name as string), tool])
   );
 
-  const findTool = (value: string): ToolRow | null =>
-    bySlug.get(normalizeLookupValue(value)) || byName.get(normalizeLookupValue(value)) || null;
+  const saasByKey = new Map(
+    SAAS_REFERENCE.flatMap((entry) => [
+      [normalizeLookupValue(entry.name), entry] as const,
+      [normalizeLookupValue(entry.slug), entry] as const,
+    ])
+  );
 
-  console.log(`📝 Found ${comparisons.length} comparisons and ${toolRows.length} tool rows.\n`);
+  const findTool = async (value: string): Promise<ComparisonSide | null> => {
+    const saasMatch = saasByKey.get(normalizeLookupValue(value));
+    if (saasMatch) {
+      console.log(`[matching-debug] SaaS reference match: name=${JSON.stringify(saasMatch.name)} slug=${JSON.stringify(saasMatch.slug)}`);
+      return saasMatch;
+    }
+
+    const normalizedValue = normalizeLookupValue(value);
+    const slugAttempt = OPEN_SOURCE_ALIASES[normalizedValue] || normalizedValue;
+    const nameAttempt = normalizedValue;
+
+    const rawLookupDebugValues = new Set(['supabase', 'meilisearch', 'typesense']);
+    if (rawLookupDebugValues.has(normalizedValue)) {
+      console.log(
+        `[matching-debug] raw exact lookup value=${JSON.stringify(value)} ` +
+          `slugAttempt=${JSON.stringify(slugAttempt)} ` +
+          `nameAttempt=${JSON.stringify(nameAttempt)} ` +
+          `loadedToolRows=${JSON.stringify(toolRows.length)}`
+      );
+
+      const [slugQuery, nameQuery] = await Promise.all([
+        supabase.from('open_source_tools').select('slug, name').eq('slug', slugAttempt).limit(20),
+        supabase.from('open_source_tools').select('slug, name').eq('name', nameAttempt).limit(20),
+      ]);
+      console.log(
+        `[matching-debug] raw exact query result value=${JSON.stringify(value)} ` +
+          `slugQuery=${JSON.stringify({ data: slugQuery.data, error: slugQuery.error })} ` +
+          `nameQuery=${JSON.stringify({ data: nameQuery.data, error: nameQuery.error })}`
+      );
+    }
+
+    const slugMatch = bySlug.get(slugAttempt);
+    const nameMatch = byName.get(nameAttempt);
+    const match = slugMatch || nameMatch || null;
+
+    console.log(
+      `[matching-debug] search value=${JSON.stringify(value)} ` +
+        `slug-attempt=${JSON.stringify(slugAttempt)} ` +
+        `name-attempt=${JSON.stringify(nameAttempt)}`
+    );
+
+    if (match) {
+      console.log(
+        `[matching-debug] exact match: slug=${JSON.stringify(match.slug)} ` +
+          `name=${JSON.stringify(match.name)}`
+      );
+      return match;
+    }
+
+    const broadTerm = value.trim().replace(/[%_]/g, '');
+    const [{ data: slugCandidates, error: slugError }, { data: nameCandidates, error: nameError }] =
+      await Promise.all([
+        supabase.from('open_source_tools').select('slug, name').ilike('slug', `%${broadTerm}%`).limit(20),
+        supabase.from('open_source_tools').select('slug, name').ilike('name', `%${broadTerm}%`).limit(20),
+      ]);
+
+    if (slugError || nameError) {
+      console.error(
+        `[matching-debug] broad ilike search failed for ${JSON.stringify(value)}: ` +
+          `${slugError?.message || nameError?.message}`
+      );
+    } else {
+      const candidates = new Map<string, { slug: string | null; name: string | null }>();
+      for (const candidate of [...(slugCandidates || []), ...(nameCandidates || [])]) {
+        candidates.set(`${candidate.slug || ''}\u0000${candidate.name || ''}`, candidate);
+      }
+      console.log(
+        `[matching-debug] broad ilike candidates for ${JSON.stringify(value)}: ` +
+          JSON.stringify([...candidates.values()])
+      );
+    }
+
+    return null;
+  };
+
+  console.log(`📝 Processing ${selectedComparisons.length} of ${comparisons.length} comparisons and ${toolRows.length} tool rows fetched across all pages.\n`);
 
   let successCount = 0;
   let skippedCount = 0;
   let failureCount = 0;
 
-  for (let i = 0; i < comparisons.length; i++) {
-    const comparison = comparisons[i] as Comparison;
-    const toolA = findTool(comparison.tool_a);
-    const toolB = findTool(comparison.tool_b);
+  for (let i = 0; i < selectedComparisons.length; i++) {
+    const comparison = selectedComparisons[i];
+    const toolA = await findTool(comparison.tool_a);
+    const toolB = await findTool(comparison.tool_b);
 
     if (!toolA || !toolB) {
       const missing = [
@@ -380,10 +591,10 @@ async function main() {
     }
 
     const invalidStatus = [
-      toolA.structured_content_status !== 'success'
+      isToolRow(toolA) && toolA.structured_content_status !== 'success'
         ? `${toolA.name || comparison.tool_a} status=${toolA.structured_content_status || 'null'}`
         : null,
-      toolB.structured_content_status !== 'success'
+      isToolRow(toolB) && toolB.structured_content_status !== 'success'
         ? `${toolB.name || comparison.tool_b} status=${toolB.structured_content_status || 'null'}`
         : null,
     ].filter(Boolean).join('; ');
@@ -395,9 +606,9 @@ async function main() {
     }
 
     try {
-      console.log(`⏳ Regenerating: ${comparison.tool_a} vs ${comparison.tool_b} (${i + 1}/${comparisons.length})`);
+      console.log(`⏳ Regenerating: ${comparison.tool_a} vs ${comparison.tool_b} (${i + 1}/${selectedComparisons.length})`);
 
-      const narrative = await generateContentWithCerebras(toolA, toolB);
+      const narrative = await generateContentWithGroq(toolA, toolB);
       const content = [
         narrative.trim(),
         buildFixedVerifiedSignals(toolA, toolB),
@@ -406,11 +617,11 @@ async function main() {
 
       await saveContentToSupabase(supabase, comparison.id, content);
 
-      console.log(`✅ Regenerated: ${comparison.slug} (${i + 1}/${comparisons.length})\n`);
+      console.log(`✅ Regenerated: ${comparison.slug} (${i + 1}/${selectedComparisons.length})\n`);
       successCount++;
 
-      if (i < comparisons.length - 1) {
-        await delay(CEREBRAS_DELAY_MS);
+      if (i < selectedComparisons.length - 1) {
+        await delay(GROQ_DELAY_MS);
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -423,10 +634,10 @@ async function main() {
   console.log(`✅ Successfully regenerated: ${successCount}`);
   console.log(`⚠️ Skipped for manual review: ${skippedCount}`);
   console.log(`❌ Failed: ${failureCount}`);
-  console.log(`📊 Total: ${comparisons.length}`);
+  console.log(`📊 Total: ${selectedComparisons.length}`);
 }
 
 main().catch(err => {
   console.error('❌ Fatal error:', err);
-  process.exit(1);
+  process.exitCode = 1;
 });

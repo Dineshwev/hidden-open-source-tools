@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { fetchAllSupabaseRows } from "./fetch-all-supabase-rows";
+import { normalizeLicense } from "../lib/utils/license";
 
 type ToolRow = {
   id: string;
@@ -90,17 +92,12 @@ async function main() {
     }
   });
 
-  const { data: tools, error } = await supabase
+  const approvedTools = await fetchAllSupabaseRows<ToolRow>(() => supabase
     .from("open_source_tools")
     .select("id, name, title, url")
     .ilike("url", "%github.com%")
-    .or("status.eq.approved,status.eq.APPROVED");
-
-  if (error) {
-    throw new Error(`Failed to fetch GitHub tools from Supabase: ${error.message}`);
-  }
-
-  const approvedTools = (tools || []) as ToolRow[];
+    .or("status.eq.approved,status.eq.APPROVED")
+    .order("id", { ascending: true }));
   console.log(`Found ${approvedTools.length} approved GitHub tools to sync.`);
 
   for (const [index, tool] of approvedTools.entries()) {
@@ -121,7 +118,7 @@ async function main() {
           github_stars: repoData.stargazers_count,
           github_forks: repoData.forks_count,
           language: repoData.language,
-          license: repoData.license?.spdx_id || null,
+          license: normalizeLicense(repoData.license?.spdx_id),
           last_updated: repoData.updated_at
         })
         .eq("id", tool.id);

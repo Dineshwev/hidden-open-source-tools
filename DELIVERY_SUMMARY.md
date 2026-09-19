@@ -13,7 +13,7 @@ Main content generation script
 
 **Features:**
 - Fetches 5 approved tools from Supabase
-- Generates AI summaries using Groq (llama-3.1-8b-instant)
+- Generates AI summaries using Groq (openai/gpt-oss-120b)
 - Creates 2-3 tool comparison by category
 - Fetches trending tech news from NewsAPI (optional)
 - Writes everything to `weekly_roundups` table
@@ -151,7 +151,7 @@ UPDATE weekly_roundups SET status = 'published' WHERE ...;
 | Component | Technology | Details |
 |-----------|-----------|---------|
 | Script Language | TypeScript | Type-safe, similar to existing scripts |
-| Summaries | Groq AI | llama-3.1-8b-instant model |
+| Summaries | Groq AI | openai/gpt-oss-120b model |
 | News | NewsAPI | Optional, 100 free requests/day |
 | Database | Supabase | PostgreSQL with JSONB columns |
 | Frontend | Next.js 14 | Server components, dynamic routes |
@@ -235,7 +235,7 @@ NEWS_API_KEY=...              # Enable tech news summaries
 **Tuning (if needed):**
 ```env
 GROQ_DELAY_MS=5500           # Rate limit delay
-GROQ_MODEL=llama-3.1-8b-instant  # AI model
+GROQ_MODEL=openai/gpt-oss-120b  # AI model
 ```
 
 ---

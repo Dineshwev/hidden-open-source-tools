@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
+import { fetchAllSupabaseRows } from "./fetch-all-supabase-rows";
+import { normalizeLicense } from "../lib/utils/license";
 
 type ToolRow = {
   id: string;
@@ -87,16 +89,11 @@ async function main(): Promise<void> {
 
   console.log("Fetching tools with GitHub URLs...\n");
 
-  const { data: tools, error } = await supabase
+  const toolsToSync = await fetchAllSupabaseRows<ToolRow>(() => supabase
     .from("open_source_tools")
     .select("id, name, title, url")
-    .ilike("url", "%github.com%");
-
-  if (error) {
-    throw new Error(`Failed to fetch tools: ${error.message}`);
-  }
-
-  const toolsToSync = (tools || []) as ToolRow[];
+    .ilike("url", "%github.com%")
+    .order("id", { ascending: true }));
   console.log(`Found ${toolsToSync.length} tools with GitHub URLs\n`);
 
   let successCount = 0;
@@ -116,7 +113,7 @@ async function main(): Promise<void> {
     try {
       const repoData = await fetchGitHubRepo(repoRef.owner, repoRef.repo, githubToken);
 
-      const licenseValue = repoData.license?.spdx_id || repoData.license?.name || null;
+      const licenseValue = normalizeLicense(repoData.license?.spdx_id || repoData.license?.name);
 
       const { error: updateError } = await supabase
         .from("open_source_tools")

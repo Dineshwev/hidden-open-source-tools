@@ -6,6 +6,7 @@ import slugify from "slugify";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import { marked } from "marked";
+import { formatLicense } from "@/lib/utils/license";
 
 export const revalidate = 86400;
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
@@ -291,7 +292,7 @@ const { data: relatedVs } = await supabaseAdmin
           <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">⭐ {githubStats.stars} Stars</div>
           <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">🍴 {githubStats.forks} Forks</div>
           <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">💻 {githubStats.language || "Unknown"}</div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">📝 {githubStats.license || "Unlisted"}</div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">📝 {formatLicense(githubStats.license)}</div>
         </section>
       ) : null}
 

@@ -65,7 +65,7 @@ npm run weekly-content
 GROQ_DELAY_MS=8000 npm run weekly-content
 
 # With custom Groq model
-GROQ_MODEL=llama-3.1-70b-versatile npm run weekly-content
+GROQ_MODEL=openai/gpt-oss-120b npm run weekly-content
 ```
 
 ---

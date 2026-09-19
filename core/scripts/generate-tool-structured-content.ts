@@ -11,13 +11,15 @@
 import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
 import * as ws from "ws";
+import { getGroqModel } from "./ai-config";
+import { fetchAllSupabaseRows } from "./fetch-all-supabase-rows";
+import { normalizeLicense } from "../lib/utils/license";
 
 dotenv.config({ path: ".env.local" });
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
 const CEREBRAS_MODEL = "gpt-oss-120b";
-const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const DELAY_MS = 8000;
 const MAX_RETRIES = 2;
 const README_MAX_CHARS = 800;
@@ -202,7 +204,7 @@ async function fetchGitHubStats(owner: string, repo: string, toolName: string): 
       last_commit: lastCommit,
       latest_release: latestRelease,
       language: repoData.language || null,
-      license: repoData.license?.spdx_id || null,
+      license: normalizeLicense(repoData.license?.spdx_id),
       default_branch: repoData.default_branch || "main",
       owner,
       repo,
@@ -330,7 +332,7 @@ async function generateWithGroq(prompt: string, toolName: string): Promise<strin
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: GROQ_MODEL,
+          model: getGroqModel(),
           messages: [{ role: "user", content: prompt }],
           temperature: 0.3,
           max_tokens: 600,
@@ -535,19 +537,18 @@ async function main() {
 
   const retryRun = isRetryRun();
   console.log(retryRun ? "🔁 Fetching failed/skipped tools for retry..." : "🚀 Fetching approved tools...");
-  let toolsQuery = supabase
-    .from("open_source_tools")
-    .select("id, name, slug, description, category, url, github_stars, language, license, structured_content_status")
-    .eq("status", "approved")
-    .order("created_at", { ascending: true });
+  const tools = await fetchAllSupabaseRows<Tool>(() => {
+    const query = supabase
+      .from("open_source_tools")
+      .select("id, name, slug, description, category, url, github_stars, language, license, structured_content_status")
+      .eq("status", "approved")
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true });
 
-  toolsQuery = retryRun
-    ? toolsQuery.in("structured_content_status", ["failed", "skipped"])
-    : toolsQuery.is("best_for", null);
-
-  const { data: tools, error } = await toolsQuery;
-    
-  if (error || !tools) throw new Error(`Failed to fetch tools: ${error?.message}`);
+    return retryRun
+      ? query.in("structured_content_status", ["failed", "skipped"])
+      : query.is("best_for", null);
+  });
   console.log(`✅ Found ${tools.length} tools\n`);
 
   let success = 0;

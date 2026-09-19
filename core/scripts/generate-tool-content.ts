@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { WebSocketLikeConstructor } from '@supabase/realtime-js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getGroqModel } from './ai-config';
+import { fetchAllSupabaseRows } from './fetch-all-supabase-rows';
 
 // Load .env.local manually
 const envPath = path.resolve(process.cwd(), '.env.local');
@@ -63,7 +65,7 @@ function getRetryDelayMs(response: Response, attempt: number) {
 
 async function generateContentWithGroq(tool: Tool): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const model = getGroqModel();
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY environment variable not set');
@@ -200,7 +202,7 @@ async function validateGroqModel(model: string): Promise<void> {
 async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const groqModel = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const groqModel = getGroqModel();
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
@@ -222,15 +224,12 @@ async function main() {
   console.log('✅ Groq model is available.');
 
   // Fetch all approved tools where ai_content is empty
-  const { data: tools, error } = await supabase
+  const tools = await fetchAllSupabaseRows<Tool>(() => supabase
     .from('open_source_tools')
     .select('id, name, description, category, url, github_stars, language, license, ai_content')
     .eq('status', 'approved')
-    .or('ai_content.is.null,ai_content.eq.');
-
-  if (error) {
-    throw new Error(`Failed to fetch tools: ${error.message}`);
-  }
+    .or('ai_content.is.null,ai_content.eq.')
+    .order('id', { ascending: true }));
 
   if (!tools || tools.length === 0) {
     console.log('✅ No tools need content generation.');

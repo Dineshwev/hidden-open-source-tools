@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import type { WebSocketLikeConstructor } from '@supabase/realtime-js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getGroqModel } from './ai-config';
+import { fetchAllSupabaseRows } from './fetch-all-supabase-rows';
+import { normalizeLicense } from '../lib/utils/license';
 
 // Load .env.local manually
 const envPath = path.resolve(process.cwd(), '.env.local');
@@ -136,7 +139,7 @@ function normalizeToolForStorage(tool: Tool): Tool {
     ...tool,
     github_stars: typeof tool.github_stars === 'number' ? tool.github_stars : null,
     language: normalizeText(tool.language) || null,
-    license: normalizeText(tool.license) || null
+    license: normalizeLicense(tool.license)
   };
 }
 
@@ -269,7 +272,7 @@ async function resolveGitHubRepoForTool(tool: Tool, githubToken: string): Promis
 }
 
 async function syncToolGitHubMetadata(supabase: any, toolId: string, repo: GitHubRepoResponse): Promise<void> {
-  const licenseValue = repo.license?.spdx_id || repo.license?.name || null;
+  const licenseValue = normalizeLicense(repo.license?.spdx_id || repo.license?.name);
 
   const { error } = await supabase
     .from('open_source_tools')
@@ -312,7 +315,7 @@ async function enrichToolWithGitHubMetadata(
       ...normalizedTool,
       github_stars: repo.stargazers_count,
       language: repo.language,
-      license: repo.license?.spdx_id || repo.license?.name || null
+      license: normalizeLicense(repo.license?.spdx_id || repo.license?.name)
     };
 
     await syncToolGitHubMetadata(supabase, normalizedTool.id, repo);
@@ -345,7 +348,7 @@ function getRetryDelayMs(response: Response, attempt: number) {
 
 async function generateSummaryWithGroq(tool: Tool): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const model = getGroqModel();
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY environment variable not set');
@@ -404,7 +407,7 @@ Write only the summary paragraph, no titles or extra formatting.`;
 
 async function generateComparisonWithGroq(tools: ComparisonTool[], category: string): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const model = getGroqModel();
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY environment variable not set');
@@ -467,7 +470,7 @@ Write only the comparison paragraph, no titles.`;
 
 async function generateEditorNoteWithGroq(context: RoundupNarrativeContext): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const model = getGroqModel();
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY environment variable not set');
@@ -547,7 +550,7 @@ Write only the editor's note. No heading, no bullet points.`;
 
 async function generateNewsSummaryWithGroq(title: string, description: string): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const model = getGroqModel();
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY environment variable not set');
@@ -691,14 +694,11 @@ async function getCategoryWithSufficientTools(
   minToolCount: number = 3
 ): Promise<string> {
   // Fetch all tool categories
-  const { data: allTools, error } = await supabase
+  const allTools = await fetchAllSupabaseRows<{ category: string | null }>(() => supabase
     .from('open_source_tools')
     .select('category')
-    .eq('status', 'approved');
-
-  if (error || !allTools) {
-    throw new Error(`Failed to fetch categories: ${error?.message}`);
-  }
+    .eq('status', 'approved')
+    .order('id', { ascending: true }));
 
   // Build category counts
   const categoryCounts: { [key: string]: number } = {};
@@ -864,7 +864,7 @@ async function validateGroqModel(model: string): Promise<void> {
 async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const groqModel = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+  const groqModel = getGroqModel();
   const githubToken = process.env.GITHUB_TOKEN?.trim() || null;
 
   if (!supabaseUrl || !serviceRoleKey) {
