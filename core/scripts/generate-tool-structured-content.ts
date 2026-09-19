@@ -5,7 +5,7 @@
  * Pipeline per tool:
  *   1. GitHub API  → stats
  *   2. raw.githubusercontent.com → README excerpt
- *   3. Cerebras (primary) / Groq (fallback) → structured JSON
+ *   3. Groq → structured JSON
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -19,9 +19,13 @@ dotenv.config({ path: ".env.local" });
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const CEREBRAS_MODEL = "gpt-oss-120b";
-const DELAY_MS = 8000;
+const configuredDelayMs = Number.parseInt(process.env.GROQ_DELAY_MS ?? "8000", 10);
+const DELAY_MS = Number.isFinite(configuredDelayMs) && configuredDelayMs >= 0
+  ? configuredDelayMs
+  : 8000;
+const RATE_LIMIT_BUFFER_MS = 1000;
 const MAX_RETRIES = 2;
+const JSON_PARSE_RETRIES = 1;
 const README_MAX_CHARS = 800;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -74,6 +78,13 @@ type StructuredContent = {
   deployment: DeploymentInfo;
 };
 
+class GroqDailyQuotaError extends Error {
+  constructor(public readonly toolName: string) {
+    super(`Groq rate limit persisted while generating content for ${toolName}`);
+    this.name = "GroqDailyQuotaError";
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function delay(ms: number) {
@@ -115,6 +126,35 @@ function logHttpFailure(provider: string, toolName: string, response: Response, 
         response: { data: body },
       })
   );
+
+  if (body.includes("json_validate_failed")) {
+    try {
+      const parsed = JSON.parse(body) as { error?: { failed_generation?: unknown } };
+      const failedGeneration = parsed.error?.failed_generation;
+      if (failedGeneration !== undefined) {
+        const preview = String(failedGeneration).slice(0, 500);
+        console.error(`  ↳ failed_generation=${JSON.stringify(`${preview}${String(failedGeneration).length > 500 ? "..." : ""}`)}`);
+      }
+    } catch {
+      console.error(`  ↳ failed_generation unavailable: invalid error response JSON`);
+    }
+  }
+}
+
+function getRateLimitWaitMs(response: Response, body: string, attempt: number): number {
+  const retryAfter = response.headers.get("retry-after");
+  const retryAfterSeconds = retryAfter ? Number.parseFloat(retryAfter) : NaN;
+  if (Number.isFinite(retryAfterSeconds)) {
+    return Math.max(0, retryAfterSeconds * 1000) + RATE_LIMIT_BUFFER_MS;
+  }
+
+  const messageSeconds = body.match(/try again in\s+([\d.]+)s/i)?.[1];
+  const parsedMessageSeconds = messageSeconds ? Number.parseFloat(messageSeconds) : NaN;
+  if (Number.isFinite(parsedMessageSeconds)) {
+    return Math.max(0, parsedMessageSeconds * 1000) + RATE_LIMIT_BUFFER_MS;
+  }
+
+  return DELAY_MS * (attempt + 1) + RATE_LIMIT_BUFFER_MS;
 }
 
 function isRetryRun(): boolean {
@@ -269,55 +309,7 @@ function parseDeploymentInfo(readme: string | null): DeploymentInfo {
   };
 }
 
-// ─── Cerebras API ─────────────────────────────────────────────────────────────
-
-async function generateWithCerebras(prompt: string, toolName: string): Promise<string | null> {
-  const apiKey = process.env.CEREBRAS_API_KEY;
-  if (!apiKey) return null;
-
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: CEREBRAS_MODEL,
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
-          max_tokens: 600,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        return data.choices?.[0]?.message?.content?.trim() || null;
-      }
-
-      const errorBody = await res.text();
-      logHttpFailure("Cerebras", toolName, res, errorBody);
-
-      if (res.status === 429 && attempt < MAX_RETRIES) {
-        await delay(5000 * (attempt + 1));
-        continue;
-      }
-
-      return null;
-    } catch (error) {
-      console.error(`  ❌ Cerebras request failed for ${toolName}: ${formatErrorDetails(error)}`);
-      if (attempt < MAX_RETRIES) {
-        await delay(3000);
-        continue;
-      }
-      return null;
-    }
-  }
-  return null;
-}
-
-// ─── Groq API (fallback) ──────────────────────────────────────────────────────
+// ─── Groq API ─────────────────────────────────────────────────────────────────
 
 async function generateWithGroq(prompt: string, toolName: string): Promise<string | null> {
   const apiKey = process.env.GROQ_API_KEY;
@@ -331,12 +323,13 @@ async function generateWithGroq(prompt: string, toolName: string): Promise<strin
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          model: getGroqModel(),
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
-          max_tokens: 600,
-        }),
+      body: JSON.stringify({
+        model: getGroqModel(),
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 2048,
+        response_format: { type: "json_object" },
+      }),
       });
 
       if (res.ok) {
@@ -347,11 +340,17 @@ async function generateWithGroq(prompt: string, toolName: string): Promise<strin
       const errorBody = await res.text();
       logHttpFailure("Groq", toolName, res, errorBody);
 
-      if (res.status === 429 && attempt < MAX_RETRIES) {
-        const retryAfter = res.headers.get("retry-after");
-        const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : 8000 * (attempt + 1);
-        await delay(waitMs);
-        continue;
+      if (res.status === 429) {
+        if (attempt < MAX_RETRIES) {
+          const waitMs = getRateLimitWaitMs(res, errorBody, attempt);
+          console.warn(
+            `  ⚠️ Groq rate limit for ${toolName}; retry ${attempt + 1}/${MAX_RETRIES} after ${waitMs}ms.`
+          );
+          await delay(waitMs);
+          continue;
+        }
+
+        throw new GroqDailyQuotaError(toolName);
       }
 
       return null;
@@ -374,10 +373,20 @@ async function generateStructuredContent(
   stats: GitHubStats | null,
   readme: string | null
 ): Promise<StructuredContent | null> {
+  const sourceGuidance = stats === null
+    ? `
+This tool has no GitHub or README data. Use only the short description provided below.
+Keep every generated field brief: summary must be 1-2 short sentences, and every item in
+best_for, not_for, pros, and cons must be one short sentence. Do not add details that are
+not supported by the description; use empty arrays or null when the description does not
+support a field.`
+    : "";
+
   const prompt = `IMPORTANT: Your entire response must be a single valid JSON object. Start your response with { and end with }. No text before or after. No markdown. No code fences. No explanation.
 
 You are a technical writer for a developer tools directory.
 Base your response ONLY on the information provided below. Do NOT invent features, integrations, or capabilities not mentioned. If information is not available, use null for objects or empty array for lists.
+${sourceGuidance}
 
 Tool: ${tool.name}
 Category: ${tool.category}
@@ -404,34 +413,39 @@ Output this exact JSON structure:
   }
 }`;
 
-  // Try Cerebras first
-  let raw = await generateWithCerebras(prompt, tool.name);
+  for (let parseAttempt = 0; parseAttempt <= JSON_PARSE_RETRIES; parseAttempt++) {
+    const raw = await generateWithGroq(prompt, tool.name);
 
-  // Fallback to Groq
-  if (!raw) {
-    console.warn(`  ⚠️  Cerebras unavailable for ${tool.name}; trying Groq fallback.`);
-    raw = await generateWithGroq(prompt, tool.name);
+    if (!raw) {
+      console.error(`  ❌ Groq generation failed for ${tool.name}. See provider error details above.`);
+      return null;
+    }
+
+    // JSON mode should return an object, but keep a defensive extraction for provider output.
+    try {
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("Provider returned no JSON object");
+      }
+
+      return JSON.parse(jsonMatch[0].trim()) as StructuredContent;
+    } catch (error) {
+      const rawPreview = raw.slice(0, 500);
+      const truncatedSuffix = raw.length > 500 ? "..." : "";
+      console.error(
+        `  ❌ JSON parse failed for ${tool.name} (attempt ${parseAttempt + 1}/${JSON_PARSE_RETRIES + 1}): ${formatErrorDetails(error)} raw=${JSON.stringify(`${rawPreview}${truncatedSuffix}`)}`
+      );
+
+      if (parseAttempt < JSON_PARSE_RETRIES) {
+        console.warn(`  🔁 Retrying JSON generation for ${tool.name} after parse failure...`);
+        continue;
+      }
+
+      return null;
+    }
   }
 
-  if (!raw) {
-    console.error(`  ❌ Both AI providers failed for ${tool.name}. See provider error details above.`);
-    return null;
-  }
-
-  // Parse JSON — strip any accidental markdown fences
-  try {
-    // Extract JSON object from anywhere in the response
-const jsonMatch = raw.match(/\{[\s\S]*\}/);
-if (!jsonMatch) {
-  console.error(`  ❌ No JSON object found in response for ${tool.name}: message=provider returned non-JSON content`);
   return null;
-}
-const cleaned = jsonMatch[0].trim();
-return JSON.parse(cleaned) as StructuredContent;
-  } catch (error) {
-    console.error(`  ❌ JSON parse failed for ${tool.name}: ${formatErrorDetails(error)}`);
-    return null;
-  }
 }
 
 // ─── Format ai_content markdown ──────────────────────────────────────────────
@@ -510,10 +524,37 @@ function buildAiContent(
   return lines.join("\n");
 }
 
+async function validateGroqModel(model: string): Promise<void> {
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY environment variable not set");
+  }
+
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: "Reply with OK." }],
+      temperature: 0,
+      max_tokens: 4,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Groq model preflight failed for ${model}: ${response.status} - ${error}`);
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const missingKeys = ["CEREBRAS_API_KEY", "GROQ_API_KEY"].filter(
+  const missingKeys = ["GROQ_API_KEY"].filter(
     (name) => !process.env[name]?.trim()
   );
   if (missingKeys.length > 0) {
@@ -535,6 +576,13 @@ async function main() {
     realtime: { transport: ws as any },
   });
 
+  const groqModel = getGroqModel();
+  console.log(`🤖 Using Groq model: ${groqModel}`);
+  console.log(`⏱️ Delay between Groq calls: ${DELAY_MS}ms (override with GROQ_DELAY_MS)`);
+  console.log("🔎 Checking Groq model availability...");
+  await validateGroqModel(groqModel);
+  console.log("✅ Groq model is available.");
+
   const retryRun = isRetryRun();
   console.log(retryRun ? "🔁 Fetching failed/skipped tools for retry..." : "🚀 Fetching approved tools...");
   const tools = await fetchAllSupabaseRows<Tool>(() => {
@@ -547,13 +595,14 @@ async function main() {
 
     return retryRun
       ? query.in("structured_content_status", ["failed", "skipped"])
-      : query.is("best_for", null);
+      : query.or("structured_content_status.is.null,structured_content_status.neq.success");
   });
   console.log(`✅ Found ${tools.length} tools\n`);
 
   let success = 0;
   let skipped = 0;
   let failed = 0;
+  let dailyQuotaReached = false;
 
   for (let i = 0; i < tools.length; i++) {
     const tool = tools[i] as Tool;
@@ -572,7 +621,16 @@ async function main() {
     continue;
   }
   console.log(`  📝 No GitHub — using description only...`);
-  const content = await generateStructuredContent(tool, null, tool.description.slice(0, 800));
+  let content: StructuredContent | null;
+  try {
+    content = await generateStructuredContent(tool, null, tool.description.slice(0, 800));
+  } catch (error) {
+    if (error instanceof GroqDailyQuotaError) {
+      dailyQuotaReached = true;
+      break;
+    }
+    throw error;
+  }
   if (!content) {
     const { error: statusError } = await supabase
       .from("open_source_tools")
@@ -637,7 +695,16 @@ async function main() {
 
     // Step 3: AI generation
     console.log(`  🤖 Generating structured content...`);
-    const content = await generateStructuredContent(tool, stats, readme);
+    let content: StructuredContent | null;
+    try {
+      content = await generateStructuredContent(tool, stats, readme);
+    } catch (error) {
+      if (error instanceof GroqDailyQuotaError) {
+        dailyQuotaReached = true;
+        break;
+      }
+      throw error;
+    }
     if (!content) {
       console.error(`  ❌ AI generation failed for ${tool.name}; status=failed`);
       const { error: statusError } = await supabase
@@ -699,6 +766,12 @@ async function main() {
   console.log(`⚠️  Skipped:  ${skipped}`);
   console.log(`❌ Failed:   ${failed}`);
   console.log(`📦 Total:    ${tools.length}`);
+  if (dailyQuotaReached) {
+    console.error(
+      `⛔ Daily token limit reached — ${success + skipped + failed}/${tools.length} tools processed. `+
+        "Resume with --retry-failed after quota resets."
+    );
+  }
 }
 
 main().catch((err) => {
