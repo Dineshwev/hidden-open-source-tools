@@ -184,3 +184,4 @@ See **`WEEKLY_ROUNDUP_SETUP.md`** for:
 5. Visit `/weekly-roundups` to verify
 
 That's it! Your weekly roundup system is ready to go.
+npx tsx scripts/generate-tool-structured-content.ts --force --limit=20

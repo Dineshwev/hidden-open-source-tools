@@ -49,6 +49,7 @@ type Tool = {
   pricing_info: string | null;
   key_features: string[] | null;
   integrations: string[] | null;
+  enrichment_completed_at: string | null;
   structured_content_status: StructuredContentStatus | null;
 };
 
@@ -310,6 +311,10 @@ function getSlugFilter(): string[] {
 
 function isForceRun(): boolean {
   return process.argv.includes("--force");
+}
+
+function isForceRecheckRun(): boolean {
+  return process.argv.includes("--force-recheck");
 }
 
 function logFirecrawlConfiguration(): void {
@@ -783,19 +788,22 @@ async function main() {
   const limit = getLimit();
   const slugFilter = getSlugFilter();
   const forceRun = isForceRun();
+  const forceRecheckRun = isForceRecheckRun();
   console.log(
     slugFilter.length > 0
       ? `🎯 Fetching requested slugs: ${slugFilter.join(", ")}`
       : retryRun
         ? "🔁 Fetching failed/skipped tools for retry..."
-        : forceRun
-          ? "♻️ Fetching all approved tools, including successful rows..."
+        : forceRecheckRun
+          ? "🔄 Fetching already-enriched successful tools for recheck..."
+          : forceRun
+            ? "♻️ Fetching successful tools not yet enriched..."
           : "🚀 Fetching approved tools..."
   );
   const fetchedTools = await fetchAllSupabaseRows<Tool>(() => {
     let query = supabase
       .from("open_source_tools")
-      .select("id, name, slug, description, category, url, github_stars, language, license, pricing_info, key_features, integrations, structured_content_status")
+      .select("id, name, slug, description, category, url, github_stars, language, license, pricing_info, key_features, integrations, enrichment_completed_at, structured_content_status")
       .order("created_at", { ascending: true })
       .order("id", { ascending: true });
 
@@ -804,7 +812,16 @@ async function main() {
     }
 
     query = query.eq("status", "approved");
-    if (forceRun) return query;
+    if (forceRecheckRun) {
+      return query
+        .eq("structured_content_status", "success")
+        .not("enrichment_completed_at", "is", null);
+    }
+    if (forceRun) {
+      return query
+        .eq("structured_content_status", "success")
+        .is("enrichment_completed_at", null);
+    }
     return retryRun
       ? query.in("structured_content_status", ["failed", "skipped"])
       : query.or("structured_content_status.is.null,structured_content_status.neq.success");
@@ -868,6 +885,7 @@ async function main() {
     key_features: content.key_features ?? [],
     integrations: content.integrations ?? [],
     deployment_info: content.deployment,
+    enrichment_completed_at: new Date().toISOString(),
     structured_content_status: "success",
   }).eq("id", tool.id);
   if (updateError) {
@@ -955,6 +973,7 @@ async function main() {
       key_features: content.key_features ?? [],
       integrations: content.integrations ?? [],
       readme_excerpt: readme ?? null,
+      enrichment_completed_at: new Date().toISOString(),
       structured_content_status: "success",
     };
 
