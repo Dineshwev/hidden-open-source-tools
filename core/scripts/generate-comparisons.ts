@@ -3,9 +3,9 @@ import * as dotenv from 'dotenv';
 import ws from 'ws';
 import type { WebSocketLikeConstructor } from '@supabase/realtime-js';
 import { getGroqModel } from './ai-config';
-import { SAAS_REFERENCE, type SaaSReference } from '../lib/saas-reference';
 import { fetchAllSupabaseRows } from './fetch-all-supabase-rows';
 import { formatLicense } from '../lib/utils/license';
+import { filterDisplayEntries } from '../lib/content-sanity';
 
 dotenv.config({ path: '.env.local' });
 
@@ -38,7 +38,21 @@ type ToolRow = {
   not_for: string[] | null;
   pros: string[] | null;
   cons: string[] | null;
+  pricing_info: string | null;
+  key_features: string[] | null;
+  integrations: string[] | null;
   structured_content_status: string | null;
+};
+
+type SaaSReference = {
+  name: string;
+  slug: string;
+  official_url: string;
+  description: string;
+  pricing_info: string | null;
+  key_features: string[] | null;
+  integrations: string[] | null;
+  enrichment_completed_at: string | null;
 };
 
 type ComparisonSide = ToolRow | SaaSReference;
@@ -124,18 +138,28 @@ function formatMetric(value: number | string | null | undefined): string {
 
 function buildFixedVerifiedSignals(toolA: ComparisonSide, toolB: ComparisonSide): string {
   return [toolA, toolB]
-    .filter(isToolRow)
-    .map((tool) => `### ${tool.name || 'Tool'}
-
-| Signal | Verified value |
-|---|---:|
-| GitHub stars | ${formatMetric(tool.github_stars)} |
+    .map((tool) => {
+      const keyFeatures = filterDisplayEntries(tool.key_features, `${tool.name} key_features`);
+      const integrations = filterDisplayEntries(tool.integrations, `${tool.name} integrations`);
+      const githubSignals = isToolRow(tool)
+        ? `| GitHub stars | ${formatMetric(tool.github_stars)} |
 | GitHub forks | ${formatMetric(tool.github_forks)} |
 | Contributors | ${formatMetric(tool.github_contributors)} |
 | Open issues | ${formatMetric(tool.github_open_issues)} |
 | Last commit | ${formatMetric(tool.github_last_commit)} |
 | Language | ${formatMetric(tool.language)} |
-| License | ${formatLicense(tool.license)} |`)
+| License | ${formatLicense(tool.license)} |`
+        : '| GitHub signals | Not available for SaaS |';
+
+      return `### ${tool.name || 'Tool'}
+
+| Signal | Verified value |
+|---|---:|
+${githubSignals}
+| Pricing | ${tool.pricing_info || 'Not available'} |
+| Key features | ${keyFeatures.length > 0 ? keyFeatures.join('; ') : 'Not available'} |
+| Integrations | ${integrations.length > 0 ? integrations.join('; ') : 'Not available'} |`;
+    })
     .map((block, index) => `${index === 0 ? '## Verified Project Signals\n\n' : ''}${block}`)
     .join('\n\n');
 }
@@ -170,6 +194,9 @@ function buildVerifiedToolData(tool: ToolRow | SaaSReference) {
       slug: tool.slug,
       description: tool.description,
       official_url: tool.official_url,
+      pricing_info: tool.pricing_info,
+      key_features: tool.key_features,
+      integrations: tool.integrations,
       github_data_available: false,
     };
   }
@@ -189,6 +216,9 @@ function buildVerifiedToolData(tool: ToolRow | SaaSReference) {
     cons: tool.cons,
     best_for: tool.best_for,
     not_for: tool.not_for,
+    pricing_info: tool.pricing_info,
+    key_features: tool.key_features,
+    integrations: tool.integrations,
   };
 }
 
@@ -425,12 +455,16 @@ async function main() {
     comparisonsQuery = comparisonsQuery.is('verified_regenerated_at', null);
   }
 
-  const [{ data: comparisons, error: comparisonError }, tools] = await Promise.all([
+  const [{ data: comparisons, error: comparisonError }, tools, saasRows] = await Promise.all([
     comparisonsQuery,
     fetchAllSupabaseRows<ToolRow>(() => supabase
       .from('open_source_tools')
-      .select('id, name, slug, description, category, url, github_stars, github_forks, github_contributors, github_open_issues, github_last_commit, language, license, readme_excerpt, best_for, not_for, pros, cons, structured_content_status')
+      .select('id, name, slug, description, category, url, github_stars, github_forks, github_contributors, github_open_issues, github_last_commit, language, license, readme_excerpt, best_for, not_for, pros, cons, pricing_info, key_features, integrations, structured_content_status')
       .order('id', { ascending: true })),
+    fetchAllSupabaseRows<SaaSReference>(() => supabase
+      .from('saas_reference')
+      .select('name, slug, official_url, description, pricing_info, key_features, integrations, enrichment_completed_at')
+      .order('slug', { ascending: true })),
   ]);
 
   if (comparisonError) {
@@ -488,7 +522,7 @@ async function main() {
   );
 
   const saasByKey = new Map(
-    SAAS_REFERENCE.flatMap((entry) => [
+    (saasRows as SaaSReference[]).flatMap((entry) => [
       [normalizeLookupValue(entry.name), entry] as const,
       [normalizeLookupValue(entry.slug), entry] as const,
     ])

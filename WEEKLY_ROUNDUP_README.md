@@ -185,3 +185,6 @@ See **`WEEKLY_ROUNDUP_SETUP.md`** for:
 
 That's it! Your weekly roundup system is ready to go.
 npx tsx scripts/generate-tool-structured-content.ts --force --limit=20
+npm run generate-saas-enrichment -- --limit=5
+npm run generate-saas-enrichment -- --force --limit=5
+npm run generate-alternatives -- --limit=3
