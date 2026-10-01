@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { updateToolStatus } from "@/lib/services/scraped-tools.service";
 import type { AdminUpdatePayload } from "@/lib/types/scraped-tools.types";
+import { safeCompare } from "@/lib/admin-session";
 
 type RouteContext = {
   params: {
@@ -25,7 +26,7 @@ function isAuthorized(req: Request) {
     };
   }
 
-  if (!token || token !== adminSecret) {
+  if (!token || !safeCompare(token, adminSecret)) {
     return { ok: false, status: 401, error: "Unauthorized" };
   }
 

@@ -35,7 +35,7 @@ function getFirstHttpUrl(rawValue?: string) {
 }
 
 export function getAdsterraVerificationCode() {
-  return process.env.NEXT_PUBLIC_ADSTERRA_VERIFICATION_CODE?.trim() || "0BWqbyw168nW";
+  return process.env.NEXT_PUBLIC_ADSTERRA_VERIFICATION_CODE?.trim() || "";
 }
 
 export function getAdsterraBannerKeyForSize(width?: number, height?: number) {

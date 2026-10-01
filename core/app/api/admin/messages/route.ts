@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAllMessagesAdmin } from "@/lib/services/contact.service";
+import { safeCompare } from "@/lib/admin-session";
 
 function isAuthorized(req: Request) {
   const adminSecret = process.env.ADMIN_SECRET?.trim() || "";
@@ -14,7 +15,7 @@ function isAuthorized(req: Request) {
     };
   }
 
-  if (!token || token !== adminSecret) {
+  if (!token || !safeCompare(token, adminSecret)) {
     return { ok: false, status: 401, error: "Unauthorized" };
   }
 
