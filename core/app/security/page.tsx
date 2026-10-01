@@ -6,7 +6,7 @@ import { ShieldCheck, Lock, Eye, CheckCircle, Search, AlertCircle } from "lucide
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Security & Trust | The Cloud Rain",
+  title: "Security & Trust",
   description: "Learn about The Cloud Rain's manual review process, security standards, and commitment to safe developer tool discovery.",
   alternates: {
     canonical: "/security"

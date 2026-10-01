@@ -7,7 +7,7 @@ export const revalidate = 86400;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Open Source Alternatives to Popular SaaS | The Cloud Rain",
+  title: "Open Source Alternatives to Popular SaaS",
   description: "Find free, self-hostable alternatives to Figma, Linear, Datadog, Loom, and 50+ popular SaaS tools. Curated for developers.",
   keywords: ["open source alternatives", "saas alternatives", "self-hosted alternatives", "free software alternatives"],
   alternates: { canonical: `${siteUrl}/alternatives` },

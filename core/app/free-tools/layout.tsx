@@ -24,34 +24,40 @@ const freeToolsStructuredData = {
   ]
 };
 
-export const metadata: Metadata = {
-  title: "No-Cost Developer Resources and Open Source Tools",
-  description:
-    "Browse 250+ no-cost developer resources — open-source tools, self-hosted utilities, and developer components curated for practical engineering work.",
-  keywords: [
-    "no-cost developer tools",
-    "open source tools",
-    "self-hosted software",
-    "developer utilities",
-    "engineering workflows",
-    "open source directory"
-  ],
-  alternates: {
-    canonical: "/free-tools"
-  },
-  openGraph: {
-    type: "website",
-    url: `${siteUrl}/free-tools`,
+import { getApprovedSuccessToolCount } from "@/lib/tool-count";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const siteUrl = getSiteUrl();
+  const toolCount = await getApprovedSuccessToolCount();
+  const description = `Browse ${toolCount}+ no-cost developer resources — open-source tools, self-hosted utilities, and developer components curated for practical engineering work.`;
+
+  return {
     title: "No-Cost Developer Resources and Open Source Tools",
-    description:
-      "Browse 250+ no-cost developer resources — open-source tools, self-hosted utilities, and developer components curated for practical engineering work."
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "No-Cost Developer Resources and Open Source Tools",
-    description: "Curated no-cost tools, self-hosted utilities, and developer components for builders."
-  }
-};
+    description,
+    keywords: [
+      "no-cost developer tools",
+      "open source tools",
+      "self-hosted software",
+      "developer utilities",
+      "engineering workflows",
+      "open source directory"
+    ],
+    alternates: {
+      canonical: "/free-tools"
+    },
+    openGraph: {
+      type: "website",
+      url: `${siteUrl}/free-tools`,
+      title: "No-Cost Developer Resources and Open Source Tools",
+      description
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "No-Cost Developer Resources and Open Source Tools",
+      description
+    }
+  };
+}
 
 export default function FreeToolsLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import ArticleMuseumClient from "./ArticleMuseumClient";
 
 export const metadata: Metadata = {
-  title: "Tool Deep Dives | Open Source Software Reviews | The Cloud Rain",
+  title: "Tool Deep Dives | Open Source Software Reviews",
   description: "In-depth articles on hidden open-source tools. Origin stories, real use cases, and hands-on code for self-hosted software.",
   keywords: ["open source tool reviews", "self-hosted software guide", "developer tool articles", "open source deep dive"],
   openGraph: {

@@ -22,7 +22,7 @@
 ## ✨ Features
 
 - **📦 Mystery Box Engine**: A rarity-weighted reward system for discovering tools without duplicates.
-- **🛠️ Free Tools Directory**: 153+ curated resources for developers, designers, and creators.
+- **🛠️ Free Tools Directory**: 375+ curated resources for developers, designers, and creators.
 - **🛡️ Admin Moderation**: A hidden, multi-segment route for approving/rejecting scraped tools and manual uploads.
 - **💬 Community Queries**: An anonymous messaging system with public "General Queries" answers.
 

@@ -127,7 +127,7 @@ export default function FreeToolsPageClient({
           </span>
         </div>
         <p className="mt-3 max-w-2xl text-white/60">
-          {toolCount !== null ? `${toolCount}+` : "153+"} curated open-source tools, self-hosted software, AI utilities, and developer components for builders.
+          {toolCount !== null ? `${toolCount}+` : "375+"} curated open-source tools, self-hosted software, AI utilities, and developer components for builders.
           No account needed to browse.
         </p>
 

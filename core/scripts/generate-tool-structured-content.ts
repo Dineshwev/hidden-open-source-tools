@@ -1,11 +1,15 @@
 /**
  * generate-tool-structured-content.ts
  *
- * Overwrites ai_content and structured columns for all approved tools.
- * Pipeline per tool:
- *   1. GitHub API  → stats
- *   2. raw.githubusercontent.com → README excerpt
- *   3. Groq → structured JSON
+ * Generates AI content and structured metadata for approved tools using Groq API.
+ * Features:
+ *   - Exponential backoff retries for Groq API & GitHub API (max 4 attempts, starting at 2s).
+ *   - Detailed error cause logging for fetch failures and non-200 responses.
+ *   - Auto-retry with JSON reminder if Groq returns invalid JSON.
+ *   - Strict validation: marks status as 'success' ONLY when readme_excerpt, pros, cons, best_for, and not_for are non-empty.
+ *   - Inter-tool delay (default 3s, configurable via --delay=ms or GROQ_DELAY_MS).
+ *   - Support for --limit=N, --retry-failed, and --slug="a,b".
+ *   - Grouped failure summary report.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -22,16 +26,11 @@ import {
 
 dotenv.config({ path: ".env.local" });
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Config & Constants ───────────────────────────────────────────────────────
 
-const configuredDelayMs = Number.parseInt(process.env.GROQ_DELAY_MS ?? "8000", 10);
-const DELAY_MS = Number.isFinite(configuredDelayMs) && configuredDelayMs >= 0
-  ? configuredDelayMs
-  : 8000;
-const RATE_LIMIT_BUFFER_MS = 1000;
-const MAX_RETRIES = 2;
-const JSON_PARSE_RETRIES = 1;
 const README_MAX_CHARS = 800;
+const MAX_HTTP_ATTEMPTS = 4;
+const INITIAL_BACKOFF_MS = 2000;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,96 +89,57 @@ type StructuredContent = {
   integrations: string[];
 };
 
-class GroqDailyQuotaError extends Error {
-  constructor(public readonly toolName: string) {
-    super(`Groq rate limit persisted while generating content for ${toolName}`);
-    this.name = "GroqDailyQuotaError";
-  }
-}
+type FailureRecord = {
+  tool: string;
+  reason: string;
+};
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+type FetchResult = {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  body: string;
+  headers: Headers;
+  errorCause?: string;
+};
 
-function delay(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-function formatErrorDetails(error: unknown): string {
-  if (!error || typeof error !== "object") {
-    return `message=${String(error)}`;
-  }
-
-  const value = error as {
-    message?: unknown;
-    status?: unknown;
-    statusCode?: unknown;
-    response?: { data?: unknown };
-  };
-  const details: string[] = [];
-
-  if (value.message !== undefined) details.push(`message=${String(value.message)}`);
-  if (value.status !== undefined) details.push(`status=${String(value.status)}`);
-  if (value.statusCode !== undefined) details.push(`statusCode=${String(value.statusCode)}`);
-  if (value.response?.data !== undefined) {
-    const data = typeof value.response.data === "string"
-      ? value.response.data
-      : JSON.stringify(value.response.data);
-    details.push(`response.data=${data}`);
-  }
-
-  return details.join("; ") || `details=${JSON.stringify(error)}`;
-}
-
-function logHttpFailure(provider: string, toolName: string, response: Response, body: string): void {
-  console.error(
-    `  ❌ ${provider} failed for ${toolName}: ` +
-      formatErrorDetails({
-        message: `HTTP ${response.status} ${response.statusText}`,
-        status: response.status,
-        response: { data: body },
-      })
-  );
-
-  if (body.includes("json_validate_failed")) {
-    try {
-      const parsed = JSON.parse(body) as { error?: { failed_generation?: unknown } };
-      const failedGeneration = parsed.error?.failed_generation;
-      if (failedGeneration !== undefined) {
-        const preview = String(failedGeneration).slice(0, 500);
-        console.error(`  ↳ failed_generation=${JSON.stringify(`${preview}${String(failedGeneration).length > 500 ? "..." : ""}`)}`);
-      }
-    } catch {
-      console.error(`  ↳ failed_generation unavailable: invalid error response JSON`);
-    }
-  }
-}
-
-function getRateLimitWaitMs(response: Response, body: string, attempt: number): number {
-  const retryAfter = response.headers.get("retry-after");
-  const retryAfterSeconds = retryAfter ? Number.parseFloat(retryAfter) : NaN;
-  if (Number.isFinite(retryAfterSeconds)) {
-    return Math.max(0, retryAfterSeconds * 1000) + RATE_LIMIT_BUFFER_MS;
-  }
-
-  const messageSeconds = body.match(/try again in\s+([\d.]+)s/i)?.[1];
-  const parsedMessageSeconds = messageSeconds ? Number.parseFloat(messageSeconds) : NaN;
-  if (Number.isFinite(parsedMessageSeconds)) {
-    return Math.max(0, parsedMessageSeconds * 1000) + RATE_LIMIT_BUFFER_MS;
-  }
-
-  return DELAY_MS * (attempt + 1) + RATE_LIMIT_BUFFER_MS;
-}
-
-function isRetryRun(): boolean {
-  return process.argv.includes("--retry-failed") || process.argv.includes("--retry-skipped");
-}
+// ─── CLI Options Parsing ──────────────────────────────────────────────────────
 
 function getOptionValue(name: string): string | null {
-  const inline = process.argv.find((arg) => arg.startsWith(`${name}=`));
-  if (inline) return inline.slice(name.length + 1);
+  const inlinePrefix = `${name}=`;
+  const inline = process.argv.find((arg) => arg.startsWith(inlinePrefix));
+  if (inline) {
+    let val = inline.slice(inlinePrefix.length);
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    return val;
+  }
 
   const index = process.argv.indexOf(name);
   const next = index >= 0 ? process.argv[index + 1] : undefined;
-  return next && !next.startsWith("--") ? next : null;
+  if (next && !next.startsWith("--")) {
+    let val = next;
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    return val;
+  }
+
+  return null;
+}
+
+function getDelayMs(): number {
+  const cliVal = getOptionValue("--delay");
+  if (cliVal !== null) {
+    const parsed = Number.parseInt(cliVal, 10);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+
+  const envVal = Number.parseInt(process.env.GROQ_DELAY_MS ?? "3000", 10);
+  if (Number.isFinite(envVal) && envVal >= 0) return envVal;
+
+  return 3000;
 }
 
 function getLimit(): number | null {
@@ -188,7 +148,7 @@ function getLimit(): number | null {
 
   const limit = Number.parseInt(value, 10);
   if (!Number.isInteger(limit) || limit < 1) {
-    throw new Error("--limit must be a positive integer, for example --limit=3");
+    throw new Error("--limit must be a positive integer, e.g. --limit=20");
   }
 
   return limit;
@@ -200,14 +160,21 @@ function getSlugFilter(): string[] {
 
   const slugs = value
     .split(",")
-    .map((slug) => slug.trim().toLowerCase())
+    .map((slug) => slug.trim().replace(/^["']|["']$/g, "").toLowerCase())
     .filter(Boolean);
 
   if (slugs.length === 0) {
-    throw new Error("--slug must contain at least one slug, for example --slug=n8n,supabase");
+    throw new Error("--slug must contain at least one slug, e.g. --slug=\"n8n,supabase\"");
   }
 
   return [...new Set(slugs)];
+}
+
+function isRetryFailedRun(): boolean {
+  return (
+    process.argv.includes("--retry-failed") ||
+    process.argv.includes("--retry-skipped")
+  );
 }
 
 function isForceRun(): boolean {
@@ -217,6 +184,168 @@ function isForceRun(): boolean {
 function isForceRecheckRun(): boolean {
   return process.argv.includes("--force-recheck");
 }
+
+// ─── Helpers & Utilities ──────────────────────────────────────────────────────
+
+function delay(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+function formatErrorDetails(error: unknown): string {
+  if (!error || typeof error !== "object") {
+    return `message=${String(error)}`;
+  }
+
+  const err = error as {
+    message?: unknown;
+    cause?: unknown;
+    status?: unknown;
+    statusCode?: unknown;
+    response?: { data?: unknown };
+  };
+  const details: string[] = [];
+
+  if (err.message !== undefined) details.push(`message=${String(err.message)}`);
+  if (err.cause !== undefined) {
+    const causeStr = typeof err.cause === "object" ? JSON.stringify(err.cause) : String(err.cause);
+    details.push(`cause=${causeStr}`);
+  }
+  if (err.status !== undefined) details.push(`status=${String(err.status)}`);
+  if (err.statusCode !== undefined) details.push(`statusCode=${String(err.statusCode)}`);
+  if (err.response?.data !== undefined) {
+    const data = typeof err.response.data === "string" ? err.response.data : JSON.stringify(err.response.data);
+    details.push(`response.data=${data.slice(0, 300)}`);
+  }
+
+  return details.join("; ") || `details=${JSON.stringify(error)}`;
+}
+
+function parseRateLimitWaitMs(headers: Headers, body: string, attempt: number): number {
+  const retryAfter = headers.get("retry-after");
+  const retryAfterSeconds = retryAfter ? Number.parseFloat(retryAfter) : NaN;
+  if (Number.isFinite(retryAfterSeconds)) {
+    return Math.max(0, retryAfterSeconds * 1000) + 1000;
+  }
+
+  const messageSeconds = body.match(/try again in\s+([\d.]+)s/i)?.[1];
+  const parsedMessageSeconds = messageSeconds ? Number.parseFloat(messageSeconds) : NaN;
+  if (Number.isFinite(parsedMessageSeconds)) {
+    return Math.max(0, parsedMessageSeconds * 1000) + 1000;
+  }
+
+  // Exponential backoff default: 2s, 4s, 8s, 16s
+  return INITIAL_BACKOFF_MS * Math.pow(2, attempt - 1);
+}
+
+// ─── Universal HTTP Fetcher with Retry & Detailed Cause Logging ─────────────
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  contextName: string
+): Promise<FetchResult> {
+  let lastErrorMsg = "";
+
+  for (let attempt = 1; attempt <= MAX_HTTP_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      const bodyText = await res.text();
+
+      // Successful HTTP response (200-299)
+      if (res.ok) {
+        return {
+          ok: true,
+          status: res.status,
+          statusText: res.statusText,
+          body: bodyText,
+          headers: res.headers,
+        };
+      }
+
+      // Do NOT retry on 401 Unauthorized or 404 Not Found
+      if (res.status === 401 || res.status === 404) {
+        const snippet = bodyText.slice(0, 300).trim();
+        lastErrorMsg = `HTTP ${res.status} ${res.statusText}${snippet ? `: ${snippet}` : ""}`;
+        console.error(`  ❌ [${contextName}] ${lastErrorMsg} (no retry on ${res.status})`);
+        return {
+          ok: false,
+          status: res.status,
+          statusText: res.statusText,
+          body: bodyText,
+          headers: res.headers,
+          errorCause: lastErrorMsg,
+        };
+      }
+
+      // Retryable HTTP status codes: 429 Rate Limit, 5xx Server Error
+      const snippet = bodyText.slice(0, 300).trim();
+      lastErrorMsg = `HTTP ${res.status} ${res.statusText}${snippet ? `: ${snippet}` : ""}`;
+
+      if (res.status === 429 || res.status >= 500) {
+        const waitMs = parseRateLimitWaitMs(res.headers, bodyText, attempt);
+        if (attempt < MAX_HTTP_ATTEMPTS) {
+          console.warn(
+            `  ⚠️ [${contextName}] ${lastErrorMsg} (attempt ${attempt}/${MAX_HTTP_ATTEMPTS}). Retrying in ${waitMs}ms...`
+          );
+          await delay(waitMs);
+          continue;
+        }
+      }
+
+      // Other non-200 errors (e.g. 400, 403, 422)
+      console.error(`  ❌ [${contextName}] ${lastErrorMsg} (attempt ${attempt}/${MAX_HTTP_ATTEMPTS})`);
+      if (attempt < MAX_HTTP_ATTEMPTS) {
+        const waitMs = INITIAL_BACKOFF_MS * Math.pow(2, attempt - 1);
+        await delay(waitMs);
+        continue;
+      }
+
+      return {
+        ok: false,
+        status: res.status,
+        statusText: res.statusText,
+        body: bodyText,
+        headers: res.headers,
+        errorCause: lastErrorMsg,
+      };
+    } catch (err: unknown) {
+      // Handles network failures (e.g. "TypeError: fetch failed")
+      const cause = (err as any)?.cause;
+      const causeStr = cause ? (typeof cause === "object" ? JSON.stringify(cause) : String(cause)) : "";
+      lastErrorMsg = `Fetch error: ${(err as Error).message}${causeStr ? ` (cause: ${causeStr})` : ""}`;
+
+      console.error(
+        `  ❌ [${contextName}] ${lastErrorMsg} (attempt ${attempt}/${MAX_HTTP_ATTEMPTS})`
+      );
+
+      if (attempt < MAX_HTTP_ATTEMPTS) {
+        const waitMs = INITIAL_BACKOFF_MS * Math.pow(2, attempt - 1);
+        await delay(waitMs);
+        continue;
+      }
+
+      return {
+        ok: false,
+        status: 0,
+        statusText: "Fetch Exception",
+        body: "",
+        headers: new Headers(),
+        errorCause: lastErrorMsg,
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    status: 0,
+    statusText: "Max Attempts Exceeded",
+    body: "",
+    headers: new Headers(),
+    errorCause: lastErrorMsg || "Max attempts exceeded",
+  };
+}
+
+// ─── Firecrawl Logging ────────────────────────────────────────────────────────
 
 function logFirecrawlConfiguration(): void {
   const key = process.env.FIRECRAWL_API_KEY?.trim();
@@ -255,7 +384,7 @@ function findGithubUrl(tool: Tool): string | null {
   return match?.[0] || null;
 }
 
-// ─── GitHub API ───────────────────────────────────────────────────────────────
+// ─── GitHub API Integration ───────────────────────────────────────────────────
 
 async function fetchGitHubStats(owner: string, repo: string, toolName: string): Promise<GitHubStats | null> {
   const token = process.env.GITHUB_TOKEN?.trim();
@@ -265,67 +394,72 @@ async function fetchGitHubStats(owner: string, repo: string, toolName: string): 
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  try {
-    const request = async (url: string): Promise<Response> => {
-      const response = await fetch(url, { headers });
-      if (!response.ok) {
-        logHttpFailure("GitHub API", toolName, response, await response.text());
-      }
-      return response;
-    };
+  const request = (url: string, label: string) =>
+    fetchWithRetry(url, { headers }, `GitHub API (${label})`);
 
-    const [repoRes, contribRes, releaseRes] = await Promise.all([
-      request(`https://api.github.com/repos/${owner}/${repo}`),
-      request(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=1&anon=true`),
-      request(`https://api.github.com/repos/${owner}/${repo}/releases/latest`),
-    ]);
+  const [repoRes, contribRes, releaseRes] = await Promise.all([
+    request(`https://api.github.com/repos/${owner}/${repo}`, "repo"),
+    request(`https://api.github.com/repos/${owner}/${repo}/contributors?per_page=1&anon=true`, "contributors"),
+    request(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, "release"),
+  ]);
 
-    if (!repoRes.ok) return null;
-    const repoData = await repoRes.json();
-
-    // Last commit
-    const commitsRes = await request(
-      `https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`,
-    );
-    let lastCommit: string | null = null;
-    if (commitsRes.ok) {
-      const commits = await commitsRes.json();
-      lastCommit = commits?.[0]?.commit?.committer?.date || null;
-    }
-
-    // Contributors count from Link header
-    let contributors = 0;
-    if (contribRes.ok) {
-      const linkHeader = contribRes.headers.get("Link") || "";
-      const match = linkHeader.match(/page=(\d+)>; rel="last"/);
-      contributors = match ? parseInt(match[1]) : 1;
-    }
-
-    // Latest release
-    let latestRelease: string | null = null;
-    if (releaseRes.ok) {
-      const rel = await releaseRes.json();
-      latestRelease = rel?.tag_name || null;
-    }
-
-    return {
-      stars: repoData.stargazers_count || 0,
-      forks: repoData.forks_count || 0,
-      watchers: repoData.watchers_count || 0,
-      open_issues: repoData.open_issues_count || 0,
-      contributors,
-      last_commit: lastCommit,
-      latest_release: latestRelease,
-      language: repoData.language || null,
-      license: normalizeLicense(repoData.license?.spdx_id),
-      default_branch: repoData.default_branch || "main",
-      owner,
-      repo,
-    };
-  } catch (error) {
-    console.error(`  ❌ GitHub API request failed for ${toolName}: ${formatErrorDetails(error)}`);
+  if (!repoRes.ok) {
+    console.error(`  ❌ GitHub repo fetch failed for ${toolName}: ${repoRes.errorCause}`);
     return null;
   }
+
+  let repoData: any;
+  try {
+    repoData = JSON.parse(repoRes.body);
+  } catch (err) {
+    console.error(`  ❌ Invalid JSON from GitHub repo API for ${toolName}: ${formatErrorDetails(err)}`);
+    return null;
+  }
+
+  // Last commit
+  const commitsRes = await request(
+    `https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`,
+    "commits"
+  );
+  let lastCommit: string | null = null;
+  if (commitsRes.ok) {
+    try {
+      const commits = JSON.parse(commitsRes.body);
+      lastCommit = commits?.[0]?.commit?.committer?.date || null;
+    } catch {}
+  }
+
+  // Contributors count from Link header
+  let contributors = 0;
+  if (contribRes.ok) {
+    const linkHeader = contribRes.headers.get("Link") || "";
+    const match = linkHeader.match(/page=(\d+)>; rel="last"/);
+    contributors = match ? parseInt(match[1]) : 1;
+  }
+
+  // Latest release
+  let latestRelease: string | null = null;
+  if (releaseRes.ok) {
+    try {
+      const rel = JSON.parse(releaseRes.body);
+      latestRelease = rel?.tag_name || null;
+    } catch {}
+  }
+
+  return {
+    stars: repoData.stargazers_count || 0,
+    forks: repoData.forks_count || 0,
+    watchers: repoData.watchers_count || 0,
+    open_issues: repoData.open_issues_count || 0,
+    contributors,
+    last_commit: lastCommit,
+    latest_release: latestRelease,
+    language: repoData.language || null,
+    license: normalizeLicense(repoData.license?.spdx_id),
+    default_branch: repoData.default_branch || "main",
+    owner,
+    repo,
+  };
 }
 
 // ─── README fetch ─────────────────────────────────────────────────────────────
@@ -333,25 +467,23 @@ async function fetchGitHubStats(owner: string, repo: string, toolName: string): 
 async function fetchReadme(owner: string, repo: string, branch: string): Promise<string | null> {
   const candidates = ["README.md", "readme.md", "README.rst", "README"];
   for (const file of candidates) {
-    try {
-      const res = await fetch(
-        `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`
-      );
-      if (res.ok) {
-        const text = await res.text();
-        // Strip badges, HTML tags, links — keep plain text
-        return text
-          .replace(/!\[.*?\]\(.*?\)/g, "")
-          .replace(/\[.*?\]\(.*?\)/g, "")
-          .replace(/<[^>]+>/g, "")
-          .replace(/#{1,6}\s/g, "")
-          .replace(/\r\n/g, "\n")
-          .replace(/\n{3,}/g, "\n\n")
-          .trim()
-          .slice(0, README_MAX_CHARS);
-      }
-    } catch {
-      continue;
+    const res = await fetchWithRetry(
+      `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file}`,
+      {},
+      `README (${file})`
+    );
+
+    if (res.ok && res.body) {
+      // Strip badges, HTML tags, links — keep plain text
+      return res.body
+        .replace(/!\[.*?\]\(.*?\)/g, "")
+        .replace(/\[.*?\]\(.*?\)/g, "")
+        .replace(/<[^>]+>/g, "")
+        .replace(/#{1,6}\s/g, "")
+        .replace(/\r\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()
+        .slice(0, README_MAX_CHARS);
     }
   }
   return null;
@@ -382,61 +514,75 @@ function parseDeploymentInfo(readme: string | null): DeploymentInfo {
   };
 }
 
-// ─── Groq API ─────────────────────────────────────────────────────────────────
+// ─── Groq API Integration ─────────────────────────────────────────────────────
 
-async function generateWithGroq(prompt: string, toolName: string): Promise<string | null> {
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) return null;
+async function generateWithGroq(prompt: string, toolName: string): Promise<{ text: string | null; errorReason?: string }> {
+  const apiKey = process.env.GROQ_API_KEY?.trim();
+  if (!apiKey) {
+    return { text: null, errorReason: "GROQ_API_KEY missing" };
+  }
 
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
+  const model = getGroqModel();
+  const res = await fetchWithRetry(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        model: getGroqModel(),
+        model,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.3,
         max_tokens: 2048,
         response_format: { type: "json_object" },
       }),
-      });
+    },
+    `Groq API (${toolName})`
+  );
 
-      if (res.ok) {
-        const data = await res.json();
-        return data.choices?.[0]?.message?.content?.trim() || null;
-      }
-
-      const errorBody = await res.text();
-      logHttpFailure("Groq", toolName, res, errorBody);
-
-      if (res.status === 429) {
-        if (attempt < MAX_RETRIES) {
-          const waitMs = getRateLimitWaitMs(res, errorBody, attempt);
-          console.warn(
-            `  ⚠️ Groq rate limit for ${toolName}; retry ${attempt + 1}/${MAX_RETRIES} after ${waitMs}ms.`
-          );
-          await delay(waitMs);
-          continue;
-        }
-
-        throw new GroqDailyQuotaError(toolName);
-      }
-
-      return null;
-    } catch (error) {
-      console.error(`  ❌ Groq request failed for ${toolName}: ${formatErrorDetails(error)}`);
-      if (attempt < MAX_RETRIES) {
-        await delay(3000);
-        continue;
-      }
-      return null;
-    }
+  if (!res.ok) {
+    return { text: null, errorReason: res.errorCause || `Groq HTTP ${res.status}` };
   }
-  return null;
+
+  try {
+    const data = JSON.parse(res.body);
+    const content = data.choices?.[0]?.message?.content?.trim() || null;
+    if (!content) {
+      return { text: null, errorReason: "Groq returned empty response choices" };
+    }
+    return { text: content };
+  } catch (err) {
+    return { text: null, errorReason: `Groq response JSON parse error: ${formatErrorDetails(err)}` };
+  }
+}
+
+// ─── Code Fence Stripper & JSON Parser ────────────────────────────────────────
+
+function stripCodeFences(text: string): string {
+  let cleaned = text.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, "").replace(/\n?```$/, "").trim();
+  }
+  return cleaned;
+}
+
+function tryParseJSON<T>(rawText: string): T | null {
+  const cleaned = stripCodeFences(rawText);
+  try {
+    return JSON.parse(cleaned) as T;
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        return JSON.parse(match[0].trim()) as T;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
 }
 
 // ─── Structured content generator ────────────────────────────────────────────
@@ -446,7 +592,7 @@ async function generateStructuredContent(
   stats: GitHubStats | null,
   readme: string | null,
   websiteContent: string | null
-): Promise<StructuredContent | null> {
+): Promise<{ content: StructuredContent | null; errorReason?: string }> {
   const sourceGuidance = stats === null
     ? `
 This tool has no GitHub or README data. Use only the short description provided below.
@@ -456,7 +602,7 @@ not supported by the description; use empty arrays or null when the description 
 support a field.`
     : "";
 
-  const prompt = `IMPORTANT: Your entire response must be a single valid JSON object. Start your response with { and end with }. No text before or after. No markdown. No code fences. No explanation.
+  const basePrompt = `IMPORTANT: Your entire response must be a single valid JSON object. Start your response with { and end with }. No text before or after. No markdown. No code fences. No explanation.
 
 You are a technical writer for a developer tools directory.
 Base your response ONLY on the information provided below. Do NOT invent features, integrations, pricing, or capabilities not mentioned. If information is not available, use null for objects or empty array for lists.
@@ -494,39 +640,36 @@ Output this exact JSON structure:
   }
 }`;
 
-  for (let parseAttempt = 0; parseAttempt <= JSON_PARSE_RETRIES; parseAttempt++) {
-    const raw = await generateWithGroq(prompt, tool.name);
-
-    if (!raw) {
-      console.error(`  ❌ Groq generation failed for ${tool.name}. See provider error details above.`);
-      return null;
-    }
-
-    // JSON mode should return an object, but keep a defensive extraction for provider output.
-    try {
-      const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error("Provider returned no JSON object");
-      }
-
-      return JSON.parse(jsonMatch[0].trim()) as StructuredContent;
-    } catch (error) {
-      const rawPreview = raw.slice(0, 500);
-      const truncatedSuffix = raw.length > 500 ? "..." : "";
-      console.error(
-        `  ❌ JSON parse failed for ${tool.name} (attempt ${parseAttempt + 1}/${JSON_PARSE_RETRIES + 1}): ${formatErrorDetails(error)} raw=${JSON.stringify(`${rawPreview}${truncatedSuffix}`)}`
-      );
-
-      if (parseAttempt < JSON_PARSE_RETRIES) {
-        console.warn(`  🔁 Retrying JSON generation for ${tool.name} after parse failure...`);
-        continue;
-      }
-
-      return null;
-    }
+  // First Attempt
+  const groqRes1 = await generateWithGroq(basePrompt, tool.name);
+  if (!groqRes1.text) {
+    return { content: null, errorReason: groqRes1.errorReason || "Groq generation failed" };
   }
 
-  return null;
+  const parsed1 = tryParseJSON<StructuredContent>(groqRes1.text);
+  if (parsed1) {
+    return { content: parsed1 };
+  }
+
+  // Attempt 2 with explicit JSON reminder if Groq returned invalid JSON
+  console.warn(`  ⚠️ Groq returned invalid JSON for ${tool.name}. Retrying once with JSON reminder...`);
+  const reminderPrompt = `${basePrompt}\n\nCRITICAL: Your previous response contained invalid JSON. Return ONLY a valid JSON object matching the requested schema. No code fences, no extra text.`;
+  const groqRes2 = await generateWithGroq(reminderPrompt, tool.name);
+
+  if (!groqRes2.text) {
+    return { content: null, errorReason: groqRes2.errorReason || "Groq retry generation failed" };
+  }
+
+  const parsed2 = tryParseJSON<StructuredContent>(groqRes2.text);
+  if (parsed2) {
+    return { content: parsed2 };
+  }
+
+  const snippet = groqRes2.text.slice(0, 200);
+  return {
+    content: null,
+    errorReason: `Groq returned invalid JSON after retry (snippet: ${JSON.stringify(snippet)})`,
+  };
 }
 
 // ─── Format ai_content markdown ──────────────────────────────────────────────
@@ -561,7 +704,7 @@ function buildAiContent(
   }
 
   // Deployment
-  const depEntries = Object.entries(deployment).filter(([, v]) => v !== null);
+  const depEntries = Object.entries(deployment || {}).filter(([, v]) => v !== null);
   if (depEntries.length > 0) {
     lines.push("## Deployment");
     const labels: Record<string, string> = {
@@ -624,33 +767,63 @@ function buildAiContent(
 }
 
 async function validateGroqModel(model: string): Promise<void> {
-  const apiKey = process.env.GROQ_API_KEY;
-
+  const apiKey = process.env.GROQ_API_KEY?.trim();
   if (!apiKey) {
     throw new Error("GROQ_API_KEY environment variable not set");
   }
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+  const res = await fetchWithRetry(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "user", content: "Reply with OK." }],
+        temperature: 0,
+        max_tokens: 4,
+      }),
     },
-    body: JSON.stringify({
-      model,
-      messages: [{ role: "user", content: "Reply with OK." }],
-      temperature: 0,
-      max_tokens: 4,
-    }),
-  });
+    "Groq Preflight"
+  );
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Groq model preflight failed for ${model}: ${response.status} - ${error}`);
+  if (!res.ok) {
+    throw new Error(`Groq model preflight failed for ${model}: ${res.errorCause || `HTTP ${res.status}`}`);
   }
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Strict Field Validator ───────────────────────────────────────────────────
+
+function validateStructuredData(
+  readme: string | null,
+  content: StructuredContent | null
+): { valid: boolean; missingFields: string[] } {
+  const missing: string[] = [];
+
+  if (!readme || readme.trim().length === 0) {
+    missing.push("readme_excerpt");
+  }
+
+  if (!content) {
+    missing.push("structured_content");
+    return { valid: false, missingFields: missing };
+  }
+
+  const countValid = (arr: unknown) =>
+    Array.isArray(arr) ? arr.filter((s) => typeof s === "string" && s.trim().length > 0).length : 0;
+
+  if (countValid(content.best_for) === 0) missing.push("best_for");
+  if (countValid(content.not_for) === 0) missing.push("not_for");
+  if (countValid(content.pros) === 0) missing.push("pros");
+  if (countValid(content.cons) === 0) missing.push("cons");
+
+  return { valid: missing.length === 0, missingFields: missing };
+}
+
+// ─── Main Execution Pipeline ──────────────────────────────────────────────────
 
 async function main() {
   console.log("RAW ARGV:", JSON.stringify(process.argv));
@@ -679,28 +852,31 @@ async function main() {
   });
 
   const groqModel = getGroqModel();
+  const delayMs = getDelayMs();
   console.log(`🤖 Using Groq model: ${groqModel}`);
-  console.log(`⏱️ Delay between Groq calls: ${DELAY_MS}ms (override with GROQ_DELAY_MS)`);
+  console.log(`⏱️ Inter-tool delay: ${delayMs}ms (override with --delay=ms or GROQ_DELAY_MS)`);
   console.log("🔎 Checking Groq model availability...");
   await validateGroqModel(groqModel);
   console.log("✅ Groq model is available.");
 
-  const retryRun = isRetryRun();
+  const retryRun = isRetryFailedRun();
   const limit = getLimit();
   const slugFilter = getSlugFilter();
   const forceRun = isForceRun();
   const forceRecheckRun = isForceRecheckRun();
+
   console.log(
     slugFilter.length > 0
       ? `🎯 Fetching requested slugs: ${slugFilter.join(", ")}`
       : retryRun
-        ? "🔁 Fetching failed/skipped tools for retry..."
+        ? "🔁 Fetching tools with NULL or 'failed' status for retry..."
         : forceRecheckRun
           ? "🔄 Fetching already-enriched successful tools for recheck..."
           : forceRun
             ? "♻️ Fetching successful tools not yet enriched..."
-          : "🚀 Fetching approved tools..."
+            : "🚀 Fetching tools with NULL or 'failed' status..."
   );
+
   const fetchedTools = await fetchAllSupabaseRows<Tool>(() => {
     let query = supabase
       .from("open_source_tools")
@@ -713,6 +889,7 @@ async function main() {
     }
 
     query = query.eq("status", "approved");
+
     if (forceRecheckRun) {
       return query
         .eq("structured_content_status", "success")
@@ -723,157 +900,131 @@ async function main() {
         .eq("structured_content_status", "success")
         .is("enrichment_completed_at", null);
     }
-    return retryRun
-      ? query.in("structured_content_status", ["failed", "skipped"])
-      : query.or("structured_content_status.is.null,structured_content_status.neq.success");
+
+    // Default & --retry-failed: fetch tools where structured_content_status is NULL or 'failed'
+    return query.or("structured_content_status.is.null,structured_content_status.eq.failed");
   });
+
   const tools = limit === null ? fetchedTools : fetchedTools.slice(0, limit);
   console.log(`✅ Found ${fetchedTools.length} matching tools; processing ${tools.length}${limit === null ? "" : ` due to --limit=${limit}`}\n`);
   console.log(`🔥 Firecrawl delay: ${getFirecrawlDelayMs()}ms between website requests (override with FIRECRAWL_DELAY_MS)`);
 
-  let success = 0;
-  let skipped = 0;
-  let failed = 0;
-  let dailyQuotaReached = false;
+  let successCount = 0;
+  let skippedCount = 0;
+  let failedCount = 0;
+  const failureReasons: FailureRecord[] = [];
 
   for (let i = 0; i < tools.length; i++) {
     const tool = tools[i] as Tool;
-    console.log(`[${i + 1}/${tools.length}] Processing: ${tool.name}`);
+    console.log(`[${i + 1}/${tools.length}] Processing: ${tool.name} (${tool.slug})`);
 
     const githubUrl = findGithubUrl(tool);
     if (!githubUrl) {
-  if (!tool.description || tool.description.length < 50) {
-    console.log(`  ⚠️  No GitHub URL and no description — skipping`);
-    const { error: statusError } = await supabase
-      .from("open_source_tools")
-      .update({ structured_content_status: "skipped" })
-      .eq("id", tool.id);
-    if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
-    skipped++;
-    continue;
-    }
-    console.log(`  📝 No GitHub — using description only...`);
-    const websiteContent = await scrapeWebsiteContent(tool.url, tool.name);
-    if (websiteContent) console.log(`  ✅ Website content fetched (${websiteContent.length} chars)`);
-    let content: StructuredContent | null;
-    try {
-      content = await generateStructuredContent(tool, null, tool.description.slice(0, 800), websiteContent);
-    } catch (error) {
-      if (error instanceof GroqDailyQuotaError) {
-        dailyQuotaReached = true;
-        break;
+      if (!tool.description || tool.description.length < 50) {
+        console.log(`  ⚠️  No GitHub URL and description too short — skipping`);
+        const { error: statusError } = await supabase
+          .from("open_source_tools")
+          .update({ structured_content_status: "skipped" })
+          .eq("id", tool.id);
+        if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
+        skippedCount++;
+        await delay(delayMs);
+        continue;
       }
-      throw error;
     }
-  if (!content) {
-    const { error: statusError } = await supabase
-      .from("open_source_tools")
-      .update({ structured_content_status: "failed" })
-      .eq("id", tool.id);
-    if (statusError) console.error(`  ❌ Failed to save failed status: ${statusError.message}`);
-    failed++;
-    await delay(DELAY_MS);
-    continue;
-  }
-  const aiContent = buildAiContent(tool, null, content, content.deployment);
-  const { error: updateError } = await supabase.from("open_source_tools").update({
-    ai_content: aiContent,
-    best_for: content.best_for ?? [],
-    not_for: content.not_for ?? [],
-    pros: content.pros ?? [],
-    cons: content.cons ?? [],
-    pricing_info: content.pricing_info ?? null,
-    key_features: content.key_features ?? [],
-    integrations: content.integrations ?? [],
-    deployment_info: content.deployment,
-    enrichment_completed_at: new Date().toISOString(),
-    structured_content_status: "success",
-  }).eq("id", tool.id);
-  if (updateError) {
-    console.error(`  ❌ DB update failed: ${updateError.message}`);
-    failed++;
-  } else {
-  success++;
-  }
-  await delay(DELAY_MS);
-  continue;
-}
 
-    const ref = extractGithubOwnerRepo(githubUrl);
-    if (!ref) {
-      console.log(`  ⚠️  Could not parse GitHub URL — skipping`);
+    const ref = githubUrl ? extractGithubOwnerRepo(githubUrl) : null;
+    if (githubUrl && !ref) {
+      console.log(`  ⚠️  Could not parse GitHub URL (${githubUrl}) — skipping`);
       const { error: statusError } = await supabase
         .from("open_source_tools")
         .update({ structured_content_status: "skipped" })
         .eq("id", tool.id);
       if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
-      skipped++;
+      skippedCount++;
+      await delay(delayMs);
       continue;
     }
 
     // Step 1: GitHub API
-    console.log(`  📊 Fetching GitHub stats...`);
-    const stats = await fetchGitHubStats(ref.owner, ref.repo, tool.name);
-    if (stats) {
-      console.log(`  ✅ Stars: ${stats.stars}, Last commit: ${stats.last_commit?.slice(0, 10) ?? "unknown"}`);
-    } else {
-      console.log(`  ⚠️  GitHub API failed — continuing without stats`);
+    let stats: GitHubStats | null = null;
+    if (ref) {
+      console.log(`  📊 Fetching GitHub stats for ${ref.owner}/${ref.repo}...`);
+      stats = await fetchGitHubStats(ref.owner, ref.repo, tool.name);
+      if (stats) {
+        console.log(`  ✅ Stars: ${stats.stars}, Last commit: ${stats.last_commit?.slice(0, 10) ?? "unknown"}`);
+      } else {
+        console.log(`  ⚠️  GitHub API failed or repo not found — continuing without stats`);
+      }
     }
 
     // Step 2: README
-    console.log(`  📄 Fetching README...`);
-    const branch = stats?.default_branch ?? "main";
-    const readme = await fetchReadme(ref.owner, ref.repo, branch);
-    const deployment = parseDeploymentInfo(readme);
-    if (readme) {
-      console.log(`  ✅ README fetched (${readme.length} chars)`);
+    let readme: string | null = null;
+    if (ref) {
+      console.log(`  📄 Fetching README...`);
+      const branch = stats?.default_branch ?? "main";
+      readme = await fetchReadme(ref.owner, ref.repo, branch);
+      if (readme) {
+        console.log(`  ✅ README fetched (${readme.length} chars)`);
+      } else {
+        console.log(`  ⚠️  README not found`);
+      }
     } else {
-      console.log(`  ⚠️  README not found`);
+      // Fallback README excerpt from description if no GitHub repo
+      readme = tool.description.slice(0, README_MAX_CHARS);
     }
 
+    const deployment = parseDeploymentInfo(readme);
     const websiteContent = await scrapeWebsiteContent(tool.url, tool.name);
     if (websiteContent) console.log(`  ✅ Website content fetched (${websiteContent.length} chars)`);
 
     // Step 3: AI generation
-    console.log(`  🤖 Generating structured content...`);
-    let content: StructuredContent | null;
-    try {
-      content = await generateStructuredContent(tool, stats, readme, websiteContent);
-    } catch (error) {
-      if (error instanceof GroqDailyQuotaError) {
-        dailyQuotaReached = true;
-        break;
-      }
-      throw error;
-    }
-    if (!content) {
-      console.error(`  ❌ AI generation failed for ${tool.name}; status=failed`);
+    console.log(`  🤖 Generating structured content with Groq...`);
+    const { content, errorReason: aiErrorReason } = await generateStructuredContent(
+      tool,
+      stats,
+      readme,
+      websiteContent
+    );
+
+    // Step 4: Strict Field Validation (readme_excerpt, pros, cons, best_for, not_for)
+    const validation = validateStructuredData(readme, content);
+
+    if (!content || !validation.valid) {
+      const reason = aiErrorReason || `Missing required field(s): ${validation.missingFields.join(", ")}`;
+      console.error(`  ❌ Validation failed for ${tool.name}: ${reason}`);
+
+      // Save ONLY failed status, NEVER partial content
       const { error: statusError } = await supabase
         .from("open_source_tools")
         .update({ structured_content_status: "failed" })
         .eq("id", tool.id);
-      if (statusError) console.error(`  ❌ Failed to save failed status: ${statusError.message}`);
-      failed++;
-      await delay(DELAY_MS);
+
+      if (statusError) {
+        console.error(`  ❌ Failed to save failed status to DB: ${statusError.message}`);
+      }
+
+      failedCount++;
+      failureReasons.push({ tool: tool.name, reason });
+      await delay(delayMs);
       continue;
     }
-    console.log(`  ✅ Content generated`);
 
-    // Build markdown
+    // Validation passed: build markdown and update database with 'success'
+    console.log(`  ✅ Content generated and verified non-empty`);
     const aiContent = buildAiContent(tool, stats, content, deployment);
 
-    // Update Supabase
     const updatePayload: Record<string, any> = {
       ai_content: aiContent,
       deployment_info: deployment,
-      best_for: content.best_for ?? [],
-      not_for: content.not_for ?? [],
-      pros: content.pros ?? [],
-      cons: content.cons ?? [],
+      best_for: content.best_for,
+      not_for: content.not_for,
+      pros: content.pros,
+      cons: content.cons,
       pricing_info: content.pricing_info ?? null,
       key_features: content.key_features ?? [],
       integrations: content.integrations ?? [],
-      readme_excerpt: readme ?? null,
+      readme_excerpt: readme,
       enrichment_completed_at: new Date().toISOString(),
       structured_content_status: "success",
     };
@@ -896,27 +1047,47 @@ async function main() {
       .eq("id", tool.id);
 
     if (updateError) {
-      console.error(`  ❌ DB update failed: ${updateError.message}`);
-      failed++;
+      const dbReason = `DB update failed: ${updateError.message}`;
+      console.error(`  ❌ ${dbReason}`);
+      await supabase
+        .from("open_source_tools")
+        .update({ structured_content_status: "failed" })
+        .eq("id", tool.id);
+      failedCount++;
+      failureReasons.push({ tool: tool.name, reason: dbReason });
     } else {
-      console.log(`  ✅ Saved to database`);
-      success++;
+      console.log(`  ✅ Saved status='success' to database`);
+      successCount++;
     }
 
-    await delay(DELAY_MS);
+    await delay(delayMs);
   }
 
-  console.log("\n─────────────────────────────────");
-  console.log(`✅ Success:  ${success}`);
-  console.log(`⚠️  Skipped:  ${skipped}`);
-  console.log(`❌ Failed:   ${failed}`);
-  console.log(`📦 Total:    ${tools.length}`);
-  if (dailyQuotaReached) {
-    console.error(
-      `⛔ Daily token limit reached — ${success + skipped + failed}/${tools.length} tools processed. `+
-        "Resume with --retry-failed after quota resets."
-    );
+  // ─── Requirement 7: Final Summary ──────────────────────────────────────────
+
+  console.log("\n──────────────────────────────────────────────────");
+  console.log("📊 BATCH PROCESS SUMMARY");
+  console.log("──────────────────────────────────────────────────");
+  console.log(`📦 Processed: ${tools.length}`);
+  console.log(`✅ Success:   ${successCount}`);
+  console.log(`❌ Failed:    ${failedCount}`);
+  console.log(`⚠️  Skipped:   ${skippedCount}`);
+
+  if (failedCount > 0 && failureReasons.length > 0) {
+    console.log("\n❌ Failed Reasons (Grouped):");
+    const grouped = new Map<string, string[]>();
+    for (const item of failureReasons) {
+      const list = grouped.get(item.reason) || [];
+      list.push(item.tool);
+      grouped.set(item.reason, list);
+    }
+
+    for (const [reason, toolList] of grouped.entries()) {
+      console.log(`\n  • ${reason} (${toolList.length} tool${toolList.length === 1 ? "" : "s"}):`);
+      console.log(`    - ${toolList.join(", ")}`);
+    }
   }
+  console.log("──────────────────────────────────────────────────\n");
 }
 
 main().catch((err) => {

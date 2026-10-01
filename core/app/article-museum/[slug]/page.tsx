@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   if (!article) {
     return {
-      title: "Article Not Found | The Cloud Rain",
+      title: "Article Not Found",
       alternates: {
         canonical: canonicalUrl
       }

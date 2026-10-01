@@ -5,7 +5,7 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | The Cloud Rain",
+  title: "Privacy Policy",
   description:
     "Read how The Cloud Rain collects, uses, protects, and retains data across account access, moderation workflows, and resource discovery features.",
   keywords: ["privacy policy", "data handling", "GDPR", "CCPA", "The Cloud Rain privacy"],

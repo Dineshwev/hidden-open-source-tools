@@ -75,11 +75,11 @@ function ToolCard({ tool }: { tool: Tool }) {
 
 export default function HomeDesktopLanding() {
   const [tools, setTools] = useState<Tool[]>([]);
-  const [totalCount, setTotalCount] = useState(357);
+  const [totalCount, setTotalCount] = useState(375);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const faqs = [
-    { q: "What is The Cloud Rain?", a: "A curated directory of 357+ open-source tools, self-hosted software, and free alternatives to expensive SaaS products. Every tool is manually reviewed before being added." },
+    { q: "What is The Cloud Rain?", a: "A curated directory of 375+ open-source tools, self-hosted software, and free alternatives to expensive SaaS products. Every tool is manually reviewed before being added." },
     { q: "Are all tools completely free?", a: "Most tools are open-source and free to self-host. Some have cloud-hosted versions with free tiers. Always check the individual tool's license before using in production." },
     { q: "How is this different from GitHub Awesome lists?", a: "Awesome lists are link dumps. The Cloud Rain adds structured descriptions, category filtering, tool comparison pages, and deep-dive articles — making discovery and decision-making faster." },
     { q: "How often are new tools added?", a: "New tools are added weekly through a moderated pipeline. You can submit a tool via the upload page if you find something missing." },

@@ -5,7 +5,7 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Terms of Service | The Cloud Rain",
+  title: "Terms of Service",
   description:
     "Review The Cloud Rain Terms of Service for platform use, uploads, moderation standards, liability limits, and account responsibilities.",
   keywords: ["terms of service", "platform terms", "acceptable use", "The Cloud Rain terms"],

@@ -5,7 +5,7 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "License Information | The Cloud Rain",
+  title: "License Information",
   description:
     "Read licensing guidance for platform code, open-source resources, attribution requirements, and commercial reuse restrictions.",
   keywords: ["license information", "open source license", "attribution", "The Cloud Rain license"],

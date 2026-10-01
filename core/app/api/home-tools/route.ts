@@ -15,11 +15,12 @@ export async function GET() {
     supabase
       .from("open_source_tools")
       .select("*", { count: "exact", head: true })
-      .eq("status", "approved"),
+      .eq("status", "approved")
+      .eq("structured_content_status", "success"),
   ]);
 
   return NextResponse.json({
     tools: toolsResult.data ?? [],
-    total: countResult.count ?? 357,
+    total: countResult.count ?? 375,
   });
 }

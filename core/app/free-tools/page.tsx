@@ -5,48 +5,53 @@ import FreeToolsPageClient from "./FreeToolsPageClient";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
-const siteUrl = getSiteUrl();
+import { getApprovedSuccessToolCount } from "@/lib/tool-count";
+
 const pagePath = "/free-tools";
-const pageTitle = "250+ Free Open Source Developer Tools | The Cloud Rain";
-const pageDescription =
-  "Browse 250+ free open-source developer tools, self-hosted software, AI utilities, and practical components. No paywalls, no vendor lock-in. Curated for builders.";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export const metadata: Metadata = {
-  title: pageTitle,
-  description: pageDescription,
-  keywords: [
-    "free open source tools",
-    "free developer tools",
-    "open source software",
-    "self-hosted software",
-    "developer utilities",
-    "open source discovery",
-    "open source alternatives",
-    "self-hosted tools",
-    "no cost resources",
-    "developer utilities",
-    "free software directory"
-  ],
-  alternates: {
-    canonical: pagePath
-  },
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const siteUrl = getSiteUrl();
+  const toolCount = await getApprovedSuccessToolCount();
+  const pageTitle = `${toolCount}+ Free Open Source Developer Tools`;
+  const pageDescription = `Browse ${toolCount}+ free open-source developer tools, self-hosted software, AI utilities, and practical components. No paywalls, no vendor lock-in. Curated for builders.`;
+
+  return {
     title: pageTitle,
     description: pageDescription,
-    url: `${siteUrl}${pagePath}`,
-    images: [
-      {
-        url: `${siteUrl}/og/free-tools.png`,
-        width: 1200,
-        height: 630,
-        alt: "No-Cost Developer Resources Directory"
-      }
-    ]
-  }
-};
+    keywords: [
+      "free open source tools",
+      "free developer tools",
+      "open source software",
+      "self-hosted software",
+      "developer utilities",
+      "open source discovery",
+      "open source alternatives",
+      "self-hosted tools",
+      "no cost resources",
+      "developer utilities",
+      "free software directory"
+    ],
+    alternates: {
+      canonical: pagePath
+    },
+    openGraph: {
+      title: `${pageTitle} | The Cloud Rain`,
+      description: pageDescription,
+      url: `${siteUrl}${pagePath}`,
+      images: [
+        {
+          url: `${siteUrl}/og/free-tools.png`,
+          width: 1200,
+          height: 630,
+          alt: "No-Cost Developer Resources Directory"
+        }
+      ]
+    }
+  };
+}
 
 function normalizeSearchTerm(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;

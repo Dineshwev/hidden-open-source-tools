@@ -13,7 +13,7 @@ type WeeklyRoundupRow = {
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Weekly Open Source Tool Roundups | The Cloud Rain",
+  title: "Weekly Open Source Tool Roundups",
   description: "Weekly curated picks of the best open-source tools, self-hosted software, and developer utilities. New issue every Thursday.",
   keywords: ["weekly open source tools", "developer tools newsletter", "open source roundup", "self-hosted tools weekly"],
   alternates: { canonical: "/weekly-roundups" },

@@ -5,7 +5,7 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Copyright Policy | The Cloud Rain",
+  title: "Copyright Policy",
   description:
     "Understand ownership rules, uploader rights, takedown handling, and copyright enforcement standards on The Cloud Rain.",
   keywords: ["copyright policy", "content ownership", "uploader rights", "The Cloud Rain copyright"],

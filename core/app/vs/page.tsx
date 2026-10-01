@@ -8,7 +8,7 @@ export const revalidate = 86400;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Tool Comparisons | Open Source vs SaaS | The Cloud Rain",
+  title: "Tool Comparisons | Open Source vs SaaS",
   description: "Compare open-source tools side by side. Gitea vs GitHub, Meilisearch vs Algolia, and 20+ more comparisons for developers choosing their stack.",
   keywords: ["tool comparison", "open source vs saas", "gitea vs github", "self-hosted alternatives comparison"],
   alternates: { canonical: `${siteUrl}/vs` },

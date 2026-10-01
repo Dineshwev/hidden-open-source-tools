@@ -5,7 +5,7 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Ads Disclosure | The Cloud Rain",
+  title: "Ads Disclosure",
   description:
     "Learn how sponsored content is labeled on The Cloud Rain, how ad placements work, and how we prioritize user experience.",
   keywords: ["ads disclosure", "sponsored content", "ad policy", "The Cloud Rain ads"],
