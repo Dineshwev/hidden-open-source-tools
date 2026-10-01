@@ -1,6 +1,7 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 const freeToolsStructuredData = {
   "@context": "https://schema.org",

@@ -1,8 +1,9 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import HomeMobileLanding from "@/components/home/HomeMobileLanding";
 import HomeDesktopLanding from "@/components/home/HomeDesktopLanding";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "The Cloud Rain | Open Source Alternatives to SaaS",

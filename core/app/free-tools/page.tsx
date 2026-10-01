@@ -1,10 +1,11 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import slugify from "slugify";
 import FreeToolsPageClient from "./FreeToolsPageClient";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 const pagePath = "/free-tools";
 const pageTitle = "250+ Free Open Source Developer Tools | The Cloud Rain";
 const pageDescription =

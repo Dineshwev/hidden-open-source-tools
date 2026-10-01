@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/site-url";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -44,10 +45,26 @@ type WeeklyRoundupRow = {
   status: string;
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 86400;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const supabase = getAdmin();
+    const { data } = await supabase
+      .from("weekly_roundups")
+      .select("slug")
+      .eq("status", "published");
+
+    if (!data) return [];
+    return data.map((row) => ({ slug: row.slug }));
+  } catch {
+    return [];
+  }
+}
+
 
 async function getWeeklyRoundup(slug: string): Promise<WeeklyRoundupRow | null> {
   const supabase = getAdmin();

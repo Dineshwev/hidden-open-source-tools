@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -5,7 +6,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { marked } from "marked";
 
 export const revalidate = 86400;
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 type ComparisonPageProps = {
   params: { slug: string };

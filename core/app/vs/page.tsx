@@ -1,10 +1,11 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import VSListingClient from "./VSListingClient";
 
 export const revalidate = 86400;
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Tool Comparisons | Open Source vs SaaS | The Cloud Rain",

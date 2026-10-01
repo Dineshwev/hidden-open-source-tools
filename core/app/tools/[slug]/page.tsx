@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +10,7 @@ import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
 
 export const revalidate = 86400;
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 type ToolRow = {
   id: string;
@@ -19,6 +20,7 @@ type ToolRow = {
   category: string;
   url: string;
   ai_content?: string | null;
+  structured_content_status?: string | null;
 };
 
 type GitHubStats = {
@@ -42,7 +44,8 @@ function normalizeTool(row: any): ToolRow {
     description: String(row?.description || "No description available yet."),
     category: String(row?.category || "Developer Resource"),
     url: String(row?.url || row?.webpage_url || ""),
-    ai_content: row?.ai_content || null
+    ai_content: row?.ai_content || null,
+    structured_content_status: row?.structured_content_status || null
   };
 }
 
@@ -201,9 +204,12 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
 
+  const isSuccess = tool.structured_content_status === "success";
+
   return {
     title,
     description,
+    ...(!isSuccess ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical: canonicalUrl
     },

@@ -1,8 +1,9 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ContactPageClient from "@/components/contact/ContactPageClient";
 
-const siteUrl = "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Contact",

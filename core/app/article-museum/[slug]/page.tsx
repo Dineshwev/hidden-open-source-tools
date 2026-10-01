@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Script from "next/script";
@@ -21,7 +22,7 @@ type Article = {
   image_url?: string;
 };
 
-const siteUrl = "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
 export const dynamic = 'force-static';

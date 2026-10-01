@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/site-url";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -9,7 +10,7 @@ type WeeklyRoundupRow = {
   week_date: string;
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thecloudrain.org";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Weekly Open Source Tool Roundups | The Cloud Rain",

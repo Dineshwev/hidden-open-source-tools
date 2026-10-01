@@ -149,17 +149,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
 
-    // Fetch Approved Tools
-    const { data: tools } = await supabase
-      .from("open_source_tools")
-      .select("slug, created_at, category")
-      .eq("status", "approved")
-      .not("slug", "is", null)
-      .neq("slug", "")
-      .order("created_at", { ascending: false });
+    // Fetch Approved Tools (with structured_content_status = 'success')
+    let allTools: any[] = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
 
-    if (tools) {
-      toolEntries = tools.map((tool: any) => ({
+    while (hasMore) {
+      const { data: pageTools, error: toolsError } = await supabase
+        .from("open_source_tools")
+        .select("slug, created_at, category")
+        .eq("status", "approved")
+        .eq("structured_content_status", "success")
+        .not("slug", "is", null)
+        .neq("slug", "")
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+
+      if (toolsError || !pageTools || pageTools.length === 0) {
+        hasMore = false;
+      } else {
+        allTools = allTools.concat(pageTools);
+        if (pageTools.length < pageSize) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      }
+    }
+
+    if (allTools.length > 0) {
+      toolEntries = allTools.map((tool: any) => ({
         url: `${siteUrl}/tools/${tool.slug}`,
         lastModified: tool?.created_at ? new Date(tool.created_at) : currentLastModified,
         changeFrequency: "monthly",
