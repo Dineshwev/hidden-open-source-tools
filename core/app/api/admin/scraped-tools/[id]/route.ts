@@ -1,40 +1,13 @@
 import { NextResponse } from "next/server";
 import { updateToolStatus } from "@/lib/services/scraped-tools.service";
+import { isAuthorizedByHeader } from "@/lib/utils/admin-auth";
+import { catchError } from "@/lib/utils/api-response";
 import type { AdminUpdatePayload } from "@/lib/types/scraped-tools.types";
-
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
-function isAuthorized(req: Request) {
-  const adminSecret = process.env.ADMIN_SECRET?.trim();
-  const authHeader = req.headers.get("authorization") || "";
-  const accessKeyHeader = req.headers.get("x-admin-access-key") || "";
-  const tokenFromAccessHeader = accessKeyHeader.trim();
-  const tokenFromBearer = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
-  const tokenFromRawAuth = !authHeader.toLowerCase().startsWith("bearer ") ? authHeader.trim() : "";
-  const token = tokenFromAccessHeader || tokenFromBearer || tokenFromRawAuth;
-
-  if (!adminSecret) {
-    return {
-      ok: false,
-      status: 503,
-      error: "Admin auth is not configured. Set ADMIN_SECRET."
-    };
-  }
-
-  if (!token || token !== adminSecret) {
-    return { ok: false, status: 401, error: "Unauthorized" };
-  }
-
-  return { ok: true as const };
-}
+import type { RouteContext } from "@/lib/types/api.types";
 
 export async function PATCH(req: Request, { params }: RouteContext) {
   try {
-    const auth = isAuthorized(req);
+    const auth = isAuthorizedByHeader(req);
     if (!auth.ok) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
@@ -60,10 +33,7 @@ export async function PATCH(req: Request, { params }: RouteContext) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return catchError(error);
   }
 }
