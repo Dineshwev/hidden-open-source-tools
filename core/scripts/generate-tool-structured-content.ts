@@ -5,8 +5,11 @@
  * Features:
  *   - Exponential backoff retries for Groq API & GitHub API (max 4 attempts, starting at 2s).
  *   - Detailed error cause logging for fetch failures and non-200 responses.
+ *   - Debug logging of raw response & returned keys when validation fails.
  *   - Auto-retry with JSON reminder if Groq returns invalid JSON.
- *   - Strict validation: marks status as 'success' ONLY when readme_excerpt, pros, cons, best_for, and not_for are non-empty.
+ *   - Auto-retry with strict cons/not_for reminder if cons/not_for are missing.
+ *   - Key normalization for common JSON field variants (notFor, not_ideal_for, limitations, etc.).
+ *   - Strict validation: requires pros >= 2, cons >= 1, best_for >= 1, not_for >= 1, readme_excerpt non-empty.
  *   - Inter-tool delay (default 3s, configurable via --delay=ms or GROQ_DELAY_MS).
  *   - Support for --limit=N, --retry-failed, and --slug="a,b".
  *   - Grouped failure summary report.
@@ -28,7 +31,7 @@ dotenv.config({ path: ".env.local" });
 
 // ─── Config & Constants ───────────────────────────────────────────────────────
 
-const README_MAX_CHARS = 800;
+const README_MAX_CHARS = 6000;
 const MAX_HTTP_ATTEMPTS = 4;
 const INITIAL_BACKOFF_MS = 2000;
 
@@ -66,6 +69,8 @@ type GitHubStats = {
   default_branch: string;
   owner: string;
   repo: string;
+  topics: string[];
+  archived: boolean;
 };
 
 type DeploymentInfo = {
@@ -101,6 +106,13 @@ type FetchResult = {
   body: string;
   headers: Headers;
   errorCause?: string;
+};
+
+type GroqResult = {
+  content: StructuredContent | null;
+  rawText: string | null;
+  keys: string[];
+  errorReason?: string;
 };
 
 // ─── CLI Options Parsing ──────────────────────────────────────────────────────
@@ -164,7 +176,7 @@ function getSlugFilter(): string[] {
     .filter(Boolean);
 
   if (slugs.length === 0) {
-    throw new Error("--slug must contain at least one slug, e.g. --slug=\"n8n,supabase\"");
+    throw new Error("--slug must contain at least one slug, e.g. --slug=\"automatisch\"");
   }
 
   return [...new Set(slugs)];
@@ -459,6 +471,8 @@ async function fetchGitHubStats(owner: string, repo: string, toolName: string): 
     default_branch: repoData.default_branch || "main",
     owner,
     repo,
+    topics: Array.isArray(repoData.topics) ? repoData.topics : [],
+    archived: Boolean(repoData.archived),
   };
 }
 
@@ -558,7 +572,7 @@ async function generateWithGroq(prompt: string, toolName: string): Promise<{ tex
   }
 }
 
-// ─── Code Fence Stripper & JSON Parser ────────────────────────────────────────
+// ─── Code Fence Stripper & Key Normalizer ─────────────────────────────────────
 
 function stripCodeFences(text: string): string {
   let cleaned = text.trim();
@@ -585,6 +599,91 @@ function tryParseJSON<T>(rawText: string): T | null {
   }
 }
 
+function normalizeStructuredContentKeys(rawObj: any): StructuredContent {
+  if (!rawObj || typeof rawObj !== "object") return rawObj;
+
+  const res: Record<string, any> = { ...rawObj };
+
+  const getStringArray = (keys: string[]): string[] => {
+    for (const key of keys) {
+      if (key in res) {
+        const val = res[key];
+        if (Array.isArray(val)) {
+          const filtered = val.map((s) => (typeof s === "string" ? s.trim() : String(s))).filter(Boolean);
+          if (filtered.length > 0) return filtered;
+        } else if (typeof val === "string" && val.trim().length > 0) {
+          return [val.trim()];
+        }
+      }
+    }
+    return [];
+  };
+
+  // Normalize pros (pros, advantages, strengths, benefits, positives)
+  if (!Array.isArray(res.pros) || res.pros.length === 0) {
+    const foundPros = getStringArray(["pros", "advantages", "strengths", "benefits", "positives"]);
+    if (foundPros.length > 0) res.pros = foundPros;
+  }
+
+  // Normalize cons (cons, disadvantages, drawbacks, limitations, weak_points, weaknesses)
+  if (!Array.isArray(res.cons) || res.cons.length === 0) {
+    const foundCons = getStringArray(["cons", "disadvantages", "drawbacks", "limitations", "weaknesses", "weak_points"]);
+    if (foundCons.length > 0) res.cons = foundCons;
+  }
+
+  // Normalize best_for (best_for, bestFor, best_used_for, use_cases, target_audience, ideal_for)
+  if (!Array.isArray(res.best_for) || res.best_for.length === 0) {
+    const foundBestFor = getStringArray(["best_for", "bestFor", "best_used_for", "use_cases", "target_audience", "ideal_for"]);
+    if (foundBestFor.length > 0) res.best_for = foundBestFor;
+  }
+
+  // Normalize not_for (not_for, notFor, not_ideal_for, not_recommended_for, limitations, unsuitable_for, drawbacks)
+  if (!Array.isArray(res.not_for) || res.not_for.length === 0) {
+    const foundNotFor = getStringArray(["not_for", "notFor", "not_ideal_for", "not_recommended_for", "unsuitable_for", "limitations", "drawbacks"]);
+    if (foundNotFor.length > 0) res.not_for = foundNotFor;
+  }
+
+  return res as StructuredContent;
+}
+
+// ─── Strict Field Validator ───────────────────────────────────────────────────
+
+function validateStructuredData(
+  readme: string | null,
+  content: StructuredContent | null
+): { valid: boolean; missingFields: string[]; isOnlyConsOrNotForMissing: boolean } {
+  const missing: string[] = [];
+
+  if (!readme || readme.trim().length === 0) {
+    missing.push("readme_excerpt");
+  }
+
+  if (!content) {
+    missing.push("structured_content");
+    return { valid: false, missingFields: missing, isOnlyConsOrNotForMissing: false };
+  }
+
+  const countValid = (arr: unknown) =>
+    Array.isArray(arr) ? arr.filter((s) => typeof s === "string" && s.trim().length > 0).length : 0;
+
+  const prosCount = countValid(content.pros);
+  const consCount = countValid(content.cons);
+  const bestForCount = countValid(content.best_for);
+  const notForCount = countValid(content.not_for);
+
+  if (prosCount < 2) missing.push(`pros (has ${prosCount}, required >= 2)`);
+  if (consCount < 1) missing.push(`cons (has ${consCount}, required >= 1)`);
+  if (bestForCount < 1) missing.push("best_for (required >= 1)");
+  if (notForCount < 1) missing.push("not_for (required >= 1)");
+
+  const nonConsNotForMissing = missing.filter(
+    (m) => !m.startsWith("cons") && !m.startsWith("not_for")
+  );
+  const isOnlyConsOrNotForMissing = missing.length > 0 && nonConsNotForMissing.length === 0;
+
+  return { valid: missing.length === 0, missingFields: missing, isOnlyConsOrNotForMissing };
+}
+
 // ─── Structured content generator ────────────────────────────────────────────
 
 async function generateStructuredContent(
@@ -592,39 +691,90 @@ async function generateStructuredContent(
   stats: GitHubStats | null,
   readme: string | null,
   websiteContent: string | null
-): Promise<{ content: StructuredContent | null; errorReason?: string }> {
+): Promise<GroqResult> {
   const sourceGuidance = stats === null
     ? `
 This tool has no GitHub or README data. Use only the short description provided below.
 Keep every generated field brief: summary must be 1-2 short sentences, and every item in
-best_for, not_for, pros, and cons must be one short sentence. Do not add details that are
-not supported by the description; use empty arrays or null when the description does not
-support a field.`
+best_for, not_for, pros, and cons must be one short sentence.`
     : "";
+
+  // Compute days since last commit for activity signal
+  let daysSinceLastCommit: number | null = null;
+  if (stats?.last_commit) {
+    const lastCommitMs = new Date(stats.last_commit).getTime();
+    if (!isNaN(lastCommitMs)) {
+      daysSinceLastCommit = Math.floor((Date.now() - lastCommitMs) / (1000 * 60 * 60 * 24));
+    }
+  }
+
+  // Build activity context string for the prompt
+  const activityContext = daysSinceLastCommit !== null
+    ? `- Days Since Last Commit: ${daysSinceLastCommit} days (last commit: ${stats!.last_commit!.slice(0, 10)})`
+    : `- Days Since Last Commit: unknown`;
+
+  // Build required activity con instruction if repo is stale
+  let activityConRequirement = "";
+  if (stats?.archived) {
+    activityConRequirement = `
+REQUIRED ACTIVITY CON: This repository is ARCHIVED. You MUST include a con that states clearly:
+"Project is archived (last commit: ${stats.last_commit?.slice(0, 10) ?? "unknown"}) — no longer actively maintained." Do NOT speculate beyond what is stated.`;
+  } else if (daysSinceLastCommit !== null && daysSinceLastCommit > 180) {
+    activityConRequirement = `
+REQUIRED ACTIVITY CON: The last commit was ${daysSinceLastCommit} days ago (${stats!.last_commit!.slice(0, 10)}). You MUST include a con that states the reduced recent activity using the actual date. Example: "Last commit was on ${stats!.last_commit!.slice(0, 10)} (${daysSinceLastCommit} days ago), indicating reduced recent maintenance activity." Do NOT speculate beyond what is stated.`;
+  }
 
   const basePrompt = `IMPORTANT: Your entire response must be a single valid JSON object. Start your response with { and end with }. No text before or after. No markdown. No code fences. No explanation.
 
 You are a technical writer for a developer tools directory.
-Base your response ONLY on the information provided below. Do NOT invent features, integrations, pricing, or capabilities not mentioned. If information is not available, use null for objects or empty array for lists.
+Base your response ONLY on the information provided below. Do NOT invent fake features, benchmarks, or numbers.
 ${sourceGuidance}
+
+FORBIDDEN PHRASES — never use any of these in your output:
+- "provided material", "the provided material", "provided text"
+- "the README states", "the README mentions", "according to the README"
+- "according to the provided text", "based on the provided information", "not mentioned in the provided"
+- "not detailed in", "not specified in the provided", "not provided in"
+- "the documentation states", "from the provided documentation"
+Any con or not_for that references what the source text does or doesn't say is invalid. Write real trade-offs about the tool itself.
 
 Tool: ${tool.name}
 Category: ${tool.category}
-GitHub Stars: ${stats?.stars ?? "unknown"}
-Language: ${stats?.language ?? tool.language ?? "unknown"}
-License: ${stats?.license ?? tool.license ?? "unknown"}
+Description: ${tool.description || "N/A"}
+
+Repository Metadata:
+- Repo: ${stats ? `${stats.owner}/${stats.repo}` : "N/A"}
+- GitHub Stars: ${stats?.stars ?? tool.github_stars ?? "unknown"}
+- Language: ${stats?.language ?? tool.language ?? "unknown"}
+- License: ${stats?.license ?? tool.license ?? "unknown"}
+- Open Issues Count: ${stats?.open_issues ?? "unknown"}
+- Last Commit Date: ${stats?.last_commit ?? "unknown"}
+${activityContext}
+- Topics: ${stats?.topics && stats.topics.length > 0 ? stats.topics.join(", ") : "none"}
+- Archived Flag: ${stats ? (stats.archived ? "true (ARCHIVED PROJECT)" : "false (active)") : "unknown"}
+
 README excerpt:
 ${readme ?? "Not available"}
+
 Official website content:
 ${websiteContent || "Not available"}
 
-${WEBSITE_ENRICHMENT_GROUNDING_RULES}
+${WEBSITE_ENROUNDMENT_GROUNDING_RULES_TEXT()}
+
+INSTRUCTIONS FOR "cons" AND "not_for":
+- Every tool has real trade-offs. You MUST generate non-empty arrays for "cons" (at least 2 items) and "not_for" (at least 1 item).
+- Derive "cons" and "not_for" from:
+  (a) Explicit limitations, system requirements, or missing features stated in the README/website.
+  (b) Real technical trade-offs implied by the metadata (e.g., self-hosting & infrastructure maintenance overhead, steep setup curve, complex stack dependencies, copyleft license restrictions, low commit activity, high open issue counts, lack of managed SaaS version).
+  (c) If the source text states no explicit cons, write 2 realistic, honest trade-offs typical for this category of ${tool.category} tool (e.g. "Requires setting up and managing your own server infrastructure", "Lacks out-of-the-box SaaS enterprise support").
+- Never invent fake benchmarks, fake metrics, or non-existent features.
+${activityConRequirement}
 
 Output this exact JSON structure:
 {
-  "summary": "100-150 word description of what this tool does and who it is for. Base it only on README. No fluff.",
+  "summary": "100-150 word description of what this tool does and who it is for. Base it only on README/docs. No fluff.",
   "best_for": ["use case 1", "use case 2", "use case 3"],
-  "not_for": ["limitation 1", "limitation 2"],
+  "not_for": ["limitation or unsuited use case 1", "limitation or unsuited use case 2"],
   "pros": ["pro 1", "pro 2", "pro 3", "pro 4"],
   "cons": ["con 1", "con 2", "con 3"],
   "pricing_info": null,
@@ -640,36 +790,75 @@ Output this exact JSON structure:
   }
 }`;
 
-  // First Attempt
+  // Attempt 1
   const groqRes1 = await generateWithGroq(basePrompt, tool.name);
   if (!groqRes1.text) {
-    return { content: null, errorReason: groqRes1.errorReason || "Groq generation failed" };
+    return { content: null, rawText: null, keys: [], errorReason: groqRes1.errorReason || "Groq generation failed" };
   }
 
-  const parsed1 = tryParseJSON<StructuredContent>(groqRes1.text);
+  let parsed1 = tryParseJSON<any>(groqRes1.text);
+  let keys1 = parsed1 && typeof parsed1 === "object" ? Object.keys(parsed1) : [];
+
   if (parsed1) {
-    return { content: parsed1 };
+    parsed1 = normalizeStructuredContentKeys(parsed1);
+    const val1 = validateStructuredData(readme, parsed1);
+    if (val1.valid) {
+      return { content: parsed1, rawText: groqRes1.text, keys: keys1 };
+    }
+
+    // Attempt 2: If ONLY cons/not_for are missing, retry once with a stricter reminder prompt
+    if (val1.isOnlyConsOrNotForMissing) {
+      console.warn(`  ⚠️ Groq output for ${tool.name} missing required cons/not_for. Retrying once with strict reminder...`);
+      const reminderPrompt = `${basePrompt}
+
+CRITICAL REQUIREMENT MISSING IN PREVIOUS RESPONSE:
+Your previous output was missing valid non-empty arrays for "cons" and/or "not_for".
+You MUST include:
+- "cons": a JSON array containing at least 2 trade-offs, limitations, or maintenance overhead items.
+- "not_for": a JSON array containing at least 1 target audience/use case where this tool is NOT recommended.
+Do NOT leave "cons" or "not_for" empty. Return ONLY a valid JSON object starting with { and ending with }.`;
+
+      const groqResRetry = await generateWithGroq(reminderPrompt, tool.name);
+      if (groqResRetry.text) {
+        let parsedRetry = tryParseJSON<any>(groqResRetry.text);
+        if (parsedRetry && typeof parsedRetry === "object") {
+          const keysRetry = Object.keys(parsedRetry);
+          parsedRetry = normalizeStructuredContentKeys(parsedRetry);
+          const valRetry = validateStructuredData(readme, parsedRetry);
+          if (valRetry.valid) {
+            return { content: parsedRetry, rawText: groqResRetry.text, keys: keysRetry };
+          }
+          return { content: parsedRetry, rawText: groqResRetry.text, keys: keysRetry };
+        }
+      }
+    }
   }
 
-  // Attempt 2 with explicit JSON reminder if Groq returned invalid JSON
-  console.warn(`  ⚠️ Groq returned invalid JSON for ${tool.name}. Retrying once with JSON reminder...`);
-  const reminderPrompt = `${basePrompt}\n\nCRITICAL: Your previous response contained invalid JSON. Return ONLY a valid JSON object matching the requested schema. No code fences, no extra text.`;
-  const groqRes2 = await generateWithGroq(reminderPrompt, tool.name);
-
-  if (!groqRes2.text) {
-    return { content: null, errorReason: groqRes2.errorReason || "Groq retry generation failed" };
+  // Attempt 2 for invalid JSON formatting
+  if (!parsed1) {
+    console.warn(`  ⚠️ Groq returned invalid JSON for ${tool.name}. Retrying once with JSON format reminder...`);
+    const jsonReminderPrompt = `${basePrompt}\n\nCRITICAL: Your previous response contained invalid JSON syntax. Return ONLY a valid JSON object starting with { and ending with }. No code fences, no extra text.`;
+    const groqRes2 = await generateWithGroq(jsonReminderPrompt, tool.name);
+    if (groqRes2.text) {
+      let parsed2 = tryParseJSON<any>(groqRes2.text);
+      if (parsed2 && typeof parsed2 === "object") {
+        const keys2 = Object.keys(parsed2);
+        parsed2 = normalizeStructuredContentKeys(parsed2);
+        return { content: parsed2, rawText: groqRes2.text, keys: keys2 };
+      }
+      return { content: null, rawText: groqRes2.text, keys: [], errorReason: "Invalid JSON returned by Groq after format retry" };
+    }
   }
 
-  const parsed2 = tryParseJSON<StructuredContent>(groqRes2.text);
-  if (parsed2) {
-    return { content: parsed2 };
-  }
-
-  const snippet = groqRes2.text.slice(0, 200);
   return {
-    content: null,
-    errorReason: `Groq returned invalid JSON after retry (snippet: ${JSON.stringify(snippet)})`,
+    content: parsed1,
+    rawText: groqRes1.text,
+    keys: keys1,
   };
+}
+
+function WEBSITE_ENROUNDMENT_GROUNDING_RULES_TEXT(): string {
+  return WEBSITE_ENRICHMENT_GROUNDING_RULES;
 }
 
 // ─── Format ai_content markdown ──────────────────────────────────────────────
@@ -793,34 +982,6 @@ async function validateGroqModel(model: string): Promise<void> {
   if (!res.ok) {
     throw new Error(`Groq model preflight failed for ${model}: ${res.errorCause || `HTTP ${res.status}`}`);
   }
-}
-
-// ─── Strict Field Validator ───────────────────────────────────────────────────
-
-function validateStructuredData(
-  readme: string | null,
-  content: StructuredContent | null
-): { valid: boolean; missingFields: string[] } {
-  const missing: string[] = [];
-
-  if (!readme || readme.trim().length === 0) {
-    missing.push("readme_excerpt");
-  }
-
-  if (!content) {
-    missing.push("structured_content");
-    return { valid: false, missingFields: missing };
-  }
-
-  const countValid = (arr: unknown) =>
-    Array.isArray(arr) ? arr.filter((s) => typeof s === "string" && s.trim().length > 0).length : 0;
-
-  if (countValid(content.best_for) === 0) missing.push("best_for");
-  if (countValid(content.not_for) === 0) missing.push("not_for");
-  if (countValid(content.pros) === 0) missing.push("pros");
-  if (countValid(content.cons) === 0) missing.push("cons");
-
-  return { valid: missing.length === 0, missingFields: missing };
 }
 
 // ─── Main Execution Pipeline ──────────────────────────────────────────────────
@@ -961,7 +1122,7 @@ async function main() {
     // Step 2: README
     let readme: string | null = null;
     if (ref) {
-      console.log(`  📄 Fetching README...`);
+      console.log(`  📄 Fetching README (max ${README_MAX_CHARS} chars)...`);
       const branch = stats?.default_branch ?? "main";
       readme = await fetchReadme(ref.owner, ref.repo, branch);
       if (readme) {
@@ -978,21 +1139,30 @@ async function main() {
     const websiteContent = await scrapeWebsiteContent(tool.url, tool.name);
     if (websiteContent) console.log(`  ✅ Website content fetched (${websiteContent.length} chars)`);
 
-    // Step 3: AI generation
+    // Step 3: AI generation & key normalization
     console.log(`  🤖 Generating structured content with Groq...`);
-    const { content, errorReason: aiErrorReason } = await generateStructuredContent(
+    const groqResult = await generateStructuredContent(
       tool,
       stats,
       readme,
       websiteContent
     );
 
-    // Step 4: Strict Field Validation (readme_excerpt, pros, cons, best_for, not_for)
+    const { content, rawText, keys, errorReason: aiErrorReason } = groqResult;
+
+    // Step 4: Validation
     const validation = validateStructuredData(readme, content);
 
     if (!content || !validation.valid) {
       const reason = aiErrorReason || `Missing required field(s): ${validation.missingFields.join(", ")}`;
       console.error(`  ❌ Validation failed for ${tool.name}: ${reason}`);
+
+      // DEBUG output: log keys returned and first 1500 chars of raw Groq response
+      if (rawText) {
+        const snippet = rawText.slice(0, 1500).trim();
+        console.error(`  🔍 DEBUG - Groq returned keys: [${keys.join(", ")}]`);
+        console.error(`  🔍 DEBUG - Raw Groq response (first 1500 chars):\n${snippet}\n--- END RAW RESPONSE ---`);
+      }
 
       // Save ONLY failed status, NEVER partial content
       const { error: statusError } = await supabase
@@ -1011,7 +1181,7 @@ async function main() {
     }
 
     // Validation passed: build markdown and update database with 'success'
-    console.log(`  ✅ Content generated and verified non-empty`);
+    console.log(`  ✅ Content generated and verified (pros: ${content.pros.length}, cons: ${content.cons.length}, best_for: ${content.best_for.length}, not_for: ${content.not_for.length})`);
     const aiContent = buildAiContent(tool, stats, content, deployment);
 
     const updatePayload: Record<string, any> = {

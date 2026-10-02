@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import slugify from "slugify";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import { marked } from "marked";
@@ -45,17 +44,10 @@ function normalizeTool(row: any): ToolRow {
     category: String(row?.category || "Developer Resource"),
     url: String(row?.url || row?.webpage_url || ""),
     ai_content: row?.ai_content || null,
-    structured_content_status: row?.structured_content_status || null
+    structured_content_status: row?.structured_content_status || null,
   };
 }
 
-function buildFallbackSlug(row: any) {
-  return slugify(String(row?.name || row?.title || ""), {
-    lower: true,
-    strict: true,
-    trim: true
-  });
-}
 
 function getDomain(url: string) {
   try {
@@ -81,8 +73,10 @@ function cleanDescription(description: string) {
     .trim();
 }
 
-function truncateDescription(description: string) {
-  return description.length > 160 ? `${description.slice(0, 157).trimEnd()}...` : description;
+/** Returns only the first sentence (used for the hero tagline to avoid duplicating the full About text). */
+function firstSentence(description: string): string {
+  const match = description.match(/^[^.!?]+[.!?]/);
+  return match ? match[0].trim() : description.slice(0, 120).trim();
 }
 
 function getSeoDescriptionSnippet(description: string) {
@@ -90,7 +84,9 @@ function getSeoDescriptionSnippet(description: string) {
 }
 
 function extractGithubUrl(description: string) {
-  const match = description.match(/https:\/\/github\.com\/[a-zA-Z0-9\-_.]+\/[a-zA-Z0-9\-_.]+/);
+  const match = description.match(
+    /https:\/\/github\.com\/[a-zA-Z0-9\-_.]+\/[a-zA-Z0-9\-_.]+/
+  );
   return match?.[0] || null;
 }
 
@@ -98,15 +94,8 @@ function extractGithubOwnerRepo(githubUrl: string) {
   try {
     const parsedUrl = new URL(githubUrl);
     const [owner, repo] = parsedUrl.pathname.split("/").filter(Boolean);
-
-    if (!owner || !repo) {
-      return null;
-    }
-
-    return {
-      owner,
-      repo: repo.replace(/\.git$/i, "")
-    };
+    if (!owner || !repo) return null;
+    return { owner, repo: repo.replace(/\.git$/i, "") };
   } catch {
     return null;
   }
@@ -114,39 +103,31 @@ function extractGithubOwnerRepo(githubUrl: string) {
 
 async function fetchGithubStats(githubUrl: string): Promise<GitHubStats | null> {
   const repoRef = extractGithubOwnerRepo(githubUrl);
-
-  if (!repoRef) {
-    return null;
-  }
+  if (!repoRef) return null;
 
   try {
-    const response = await fetch(`https://api.github.com/repos/${repoRef.owner}/${repoRef.repo}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
-        "X-GitHub-Api-Version": "2022-11-28",
-        Accept: "application/vnd.github+json"
-      },
-      next: {
-        revalidate
+    const response = await fetch(
+      `https://api.github.com/repos/${repoRef.owner}/${repoRef.repo}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+          "X-GitHub-Api-Version": "2022-11-28",
+          Accept: "application/vnd.github+json",
+        },
+        next: { revalidate },
       }
-    });
-
-    if (!response.ok) {
-      return null;
-    }
+    );
+    if (!response.ok) return null;
 
     const data = await response.json();
     const stars = Number(data?.stargazers_count || 0);
-
-    if (stars <= 0) {
-      return null;
-    }
+    if (stars <= 0) return null;
 
     return {
       stars,
       forks: Number(data?.forks_count || 0),
       language: data?.language ? String(data.language) : null,
-      license: data?.license?.spdx_id ? String(data.license.spdx_id) : null
+      license: data?.license?.spdx_id ? String(data.license.spdx_id) : null,
     };
   } catch {
     return null;
@@ -163,10 +144,7 @@ async function getToolBySlug(slug: string) {
       .or("status.eq.approved,status.eq.APPROVED")
       .single();
 
-    if (!error && data) {
-      return normalizeTool(data);
-    }
-
+    if (!error && data) return normalizeTool(data);
     return null;
   } catch {
     return null;
@@ -184,7 +162,6 @@ export async function generateStaticParams() {
       .or("status.eq.approved,status.eq.APPROVED");
 
     if (error || !Array.isArray(data)) return [];
-
     return data
       .map((row) => String(row?.slug || "").trim())
       .filter(Boolean)
@@ -203,55 +180,98 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const description = `${tool.name} is a free, self-hosted alternative for ${tool.category}. ${descriptionSnippet}. No vendor lock-in.`;
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
-
   const isSuccess = tool.structured_content_status === "success";
 
   return {
     title,
     description,
     ...(!isSuccess ? { robots: { index: false, follow: true } } : {}),
-    alternates: {
-      canonical: canonicalUrl
-    },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
       description,
       url: canonicalUrl,
-      images: faviconUrl ? [{ url: faviconUrl, alt: `${tool.name} logo` }] : []
-    }
+      images: faviconUrl ? [{ url: faviconUrl, alt: `${tool.name} logo` }] : [],
+    },
   };
 }
 
 export default async function ToolSlugPage({ params }: ToolPageProps) {
+  const supabaseAdmin = getAdmin();
+
   const tool = await getToolBySlug(params.slug);
-const supabaseAdmin = getAdmin();
-const { data: relatedVs } = await supabaseAdmin
-  .from("comparisons")
-  .select("slug, tool_a, tool_b")
-  .or(`slug.ilike.${params.slug}-vs-%,slug.ilike.%-vs-${params.slug}`)
-  .eq("status", "published")
-  .limit(3);
+  if (!tool) notFound();
+
+  // Fetch extra columns written by generate / refresh scripts
+  const { data: rawRow } = await supabaseAdmin
+    .from("open_source_tools")
+    .select("license, github_last_commit, github_checked_at")
+    .eq("slug", params.slug)
+    .single();
+
+  const dbLicense: string | null = rawRow?.license != null ? String(rawRow.license) : null;
+  const dbLastCommit: string | null = rawRow?.github_last_commit != null ? String(rawRow.github_last_commit) : null;
+  const dbCheckedAt: string | null = rawRow?.github_checked_at != null ? String(rawRow.github_checked_at) : null;
+
+  // Related vs comparisons
+  const { data: relatedVs } = await supabaseAdmin
+    .from("comparisons")
+    .select("slug, tool_a, tool_b")
+    .or(`slug.ilike.${params.slug}-vs-%,slug.ilike.%-vs-${params.slug}`)
+    .eq("status", "published")
+    .limit(3);
+
+  // Alternatives pages (saas alternatives)
   const { data: relatedAlts } = await supabaseAdmin
     .from("alternatives")
     .select("saas_slug, saas_name")
     .ilike("saas_slug", `${params.slug}%`)
     .eq("status", "published")
     .limit(2);
-  if (!tool) {
-    notFound();
-  }
+
+  // Same-category open-source tools (up to 4, exclude current, must be success)
+  const { data: categoryTools } = await supabaseAdmin
+    .from("open_source_tools")
+    .select("slug, name, description")
+    .eq("category", tool.category)
+    .eq("structured_content_status", "success")
+    .or("status.eq.approved,status.eq.APPROVED")
+    .neq("slug", tool.slug)
+    .limit(4);
 
   const faviconUrl = getFaviconUrl(tool.url);
   const cleanedDescription = cleanDescription(tool.description);
-  const githubUrl = (tool.url?.includes("github.com") ? tool.url : null) ?? extractGithubUrl(tool.description);
+  // Hero shows only the first sentence — About section shows the full description
+  const heroTagline = firstSentence(cleanedDescription);
+
+  const githubUrl =
+    (tool.url?.includes("github.com") ? tool.url : null) ??
+    extractGithubUrl(tool.description);
   const githubStats = githubUrl ? await fetchGithubStats(githubUrl) : null;
+
+  // Prefer live GitHub license; fall back to DB-stored value from last generate run
+  const displayLicense = githubStats?.license ?? dbLicense;
+
+  // Format last commit date as "Mon YYYY" (e.g. "Jan 2026")
+  function fmtMonthYear(iso: string | null): string | null {
+    if (!iso) return null;
+    try {
+      return new Date(iso).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    } catch {
+      return null;
+    }
+  }
+
+  const lastCommitLabel = fmtMonthYear(dbLastCommit);
+  const checkedAtLabel = fmtMonthYear(dbCheckedAt);
+
   const structuredData = buildToolStructuredData(
     {
       name: tool.name,
       slug: tool.slug,
       category: tool.category,
       description: cleanedDescription,
-      url: tool.url
+      url: tool.url,
     },
     siteUrl,
     faviconUrl
@@ -259,13 +279,18 @@ const { data: relatedVs } = await supabaseAdmin
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <Link
         href="/free-tools"
         className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm mb-8 transition-colors"
       >
         ← Back to Directory
       </Link>
+
+      {/* ── Hero ── short tagline (first sentence only, not the full About text) */}
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-start">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 p-3">
@@ -279,7 +304,9 @@ const { data: relatedVs } = await supabaseAdmin
                 unoptimized
               />
             ) : (
-              <span className="font-display text-3xl text-white">{tool.name[0]?.toUpperCase() || "?"}</span>
+              <span className="font-display text-3xl text-white">
+                {tool.name[0]?.toUpperCase() || "?"}
+              </span>
             )}
           </div>
 
@@ -288,20 +315,50 @@ const { data: relatedVs } = await supabaseAdmin
               {tool.category}
             </span>
             <h1 className="font-display text-4xl text-white md:text-5xl">{tool.name}</h1>
-            <p className="max-w-3xl text-base leading-7 text-white/70 md:text-lg">{truncateDescription(cleanedDescription)}</p>
+            <p className="max-w-3xl text-base leading-7 text-white/70 md:text-lg">{heroTagline}</p>
           </div>
         </div>
       </section>
 
-      {githubStats ? (
-        <section className="grid gap-3 rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">⭐ {githubStats.stars} Stars</div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">🍴 {githubStats.forks} Forks</div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">💻 {githubStats.language || "Unknown"}</div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/75">📝 {formatLicense(githubStats.license)}</div>
+      {/* ── Stats bar — shows DB-cached values; "Stats checked" date from github_checked_at */}
+      {(githubStats || displayLicense || lastCommitLabel || checkedAtLabel) ? (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-5">
+          <div className="flex flex-wrap gap-3">
+            {githubStats && (
+              <>
+                <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/75">
+                  ⭐ {githubStats.stars.toLocaleString()} Stars
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/75">
+                  🍴 {githubStats.forks.toLocaleString()} Forks
+                </div>
+                {githubStats.language && (
+                  <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/75">
+                    💻 {githubStats.language}
+                  </div>
+                )}
+              </>
+            )}
+            {(displayLicense) && (
+              <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/75">
+                📝 {formatLicense(displayLicense)}
+              </div>
+            )}
+            {lastCommitLabel && (
+              <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/75">
+                🕐 Last commit: {lastCommitLabel}
+              </div>
+            )}
+            {checkedAtLabel && (
+              <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/50">
+                Stats checked: {checkedAtLabel}
+              </div>
+            )}
+          </div>
         </section>
       ) : null}
 
+      {/* ── About ── full description (distinct from the short hero tagline above) */}
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <p className="text-xs uppercase tracking-[0.24em] text-white/45">Description</p>
         <h2 className="mt-2 text-2xl text-white">About {tool.name}</h2>
@@ -310,13 +367,10 @@ const { data: relatedVs } = await supabaseAdmin
 
       {tool.ai_content ? (
         <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-          <div 
+          <div
             className="prose prose-invert max-w-none"
             dangerouslySetInnerHTML={{
-              __html: marked(tool.ai_content, {
-                async: false,
-                breaks: true,
-              }) as string,
+              __html: marked(tool.ai_content, { async: false, breaks: true }) as string,
             }}
           />
         </section>
@@ -342,40 +396,72 @@ const { data: relatedVs } = await supabaseAdmin
           </a>
         ) : null}
       </section>
-{relatedVs && relatedVs.length > 0 && (
-  <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Comparisons</p>
-    <h2 className="mt-2 text-2xl text-white">How {tool.name} compares</h2>
-    <div className="mt-4 flex flex-wrap gap-3">
-      {relatedVs.map((vs: any) => (
-        <Link
-          key={vs.slug}
-          href={`/vs/${vs.slug}`}
-          className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
-        >
-          {vs.tool_a} vs {vs.tool_b}
-        </Link>
-      ))}
-    </div>
-  </section>
-)}
-{relatedAlts && relatedAlts.length > 0 && (
-  <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
-    <p className="text-xs uppercase tracking-[0.24em] text-white/45">Alternatives</p>
-    <h2 className="mt-2 text-2xl text-white">Alternatives to {tool.name}</h2>
-    <div className="mt-4 flex flex-wrap gap-3">
-      {relatedAlts.map((alt: any) => (
-        <Link
-          key={alt.saas_slug}
-          href={`/alternatives/${alt.saas_slug}`}
-          className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
-        >
-          {alt.saas_name}
-        </Link>
-      ))}
-    </div>
-  </section>
-)}
+
+      {/* ── Comparisons */}
+      {relatedVs && relatedVs.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/45">Comparisons</p>
+          <h2 className="mt-2 text-2xl text-white">How {tool.name} compares</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {relatedVs.map((vs: any) => (
+              <Link
+                key={vs.slug}
+                href={`/vs/${vs.slug}`}
+                className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+              >
+                {vs.tool_a} vs {vs.tool_b}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── SaaS alternatives pages */}
+      {relatedAlts && relatedAlts.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/45">Alternatives</p>
+          <h2 className="mt-2 text-2xl text-white">Alternatives to {tool.name}</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {relatedAlts.map((alt: any) => (
+              <Link
+                key={alt.saas_slug}
+                href={`/alternatives/${alt.saas_slug}`}
+                className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+              >
+                {alt.saas_name}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Same-category open-source alternatives (up to 4 success tools) */}
+      {categoryTools && categoryTools.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/45">Similar tools</p>
+          <h2 className="mt-2 text-2xl text-white">Alternatives to {tool.name}</h2>
+          <p className="mt-1 text-sm text-white/50">
+            Other open-source {tool.category} tools you might like
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {categoryTools.map((ct: any) => {
+              const ctDesc = cleanDescription(String(ct.description || ""));
+              return (
+                <Link
+                  key={ct.slug}
+                  href={`/tools/${ct.slug}`}
+                  className="rounded-2xl border border-white/10 bg-black/20 p-4 transition hover:border-white/25 hover:bg-white/[0.04]"
+                >
+                  <p className="font-semibold text-white">{ct.name}</p>
+                  <p className="mt-1 text-xs leading-5 text-white/55 line-clamp-2">
+                    {firstSentence(ctDesc)}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
