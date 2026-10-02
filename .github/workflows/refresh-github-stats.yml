@@ -51,7 +51,7 @@ jobs:
       - name: Run refresh-github-stats
         working-directory: core
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_REFRESH }}
+          GITHUB_TOKEN: ${{ secrets.GH_REFRESH_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |

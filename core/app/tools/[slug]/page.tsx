@@ -213,7 +213,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   const dbLastCommit: string | null = rawRow?.github_last_commit != null ? String(rawRow.github_last_commit) : null;
   const dbCheckedAt: string | null = rawRow?.github_checked_at != null ? String(rawRow.github_checked_at) : null;
 
-  // Related vs comparisons
+  // Related vs comparisons — select tool_a, tool_b by name from DB so chips are proper-cased
   const { data: relatedVs } = await supabaseAdmin
     .from("comparisons")
     .select("slug, tool_a, tool_b")
@@ -229,15 +229,48 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     .eq("status", "published")
     .limit(2);
 
-  // Same-category open-source tools (up to 4, exclude current, must be success)
-  const { data: categoryTools } = await supabaseAdmin
+  // Same-category open-source alternatives
+  // Rules:
+  //   • must have a github.com URL (open-source signal)
+  //   • status = approved, structured_content_status = success
+  //   • exclude current tool slug
+  //   • ordered by github_stars desc
+  // Vendor exclusion (same GitHub org/user → same vendor) is done in JS below.
+  const { data: categoryToolsCandidates } = await supabaseAdmin
     .from("open_source_tools")
-    .select("slug, name, description")
+    .select("slug, name, description, url, github_stars")
     .eq("category", tool.category)
     .eq("structured_content_status", "success")
     .or("status.eq.approved,status.eq.APPROVED")
+    .ilike("url", "%github.com%")
     .neq("slug", tool.slug)
-    .limit(4);
+    .order("github_stars", { ascending: false, nullsFirst: false })
+    .limit(8); // fetch extra so vendor-filter still leaves ≥ 4
+
+  // Extract the current tool's GitHub owner to detect same-vendor products
+  const currentGithubOwner = (() => {
+    const url = tool.url?.includes("github.com") ? tool.url : null;
+    if (!url) return null;
+    try {
+      const parts = new URL(url).pathname.split("/").filter(Boolean);
+      return parts[0]?.toLowerCase() ?? null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const categoryTools = (categoryToolsCandidates ?? [])
+    .filter((ct) => {
+      if (!currentGithubOwner) return true; // can't determine vendor, keep all
+      try {
+        const parts = new URL(String(ct.url ?? "")).pathname.split("/").filter(Boolean);
+        const owner = parts[0]?.toLowerCase() ?? "";
+        return owner !== currentGithubOwner; // exclude same-vendor
+      } catch {
+        return true;
+      }
+    })
+    .slice(0, 4); // max 4 after vendor filter
 
   const faviconUrl = getFaviconUrl(tool.url);
   const cleanedDescription = cleanDescription(tool.description);
@@ -435,13 +468,13 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         </section>
       )}
 
-      {/* ── Same-category open-source alternatives (up to 4 success tools) */}
-      {categoryTools && categoryTools.length > 0 && (
+      {/* ── Same-category open-source alternatives (hidden if fewer than 2 qualify) */}
+      {categoryTools.length >= 2 && (
         <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
           <p className="text-xs uppercase tracking-[0.24em] text-white/45">Similar tools</p>
           <h2 className="mt-2 text-2xl text-white">Alternatives to {tool.name}</h2>
           <p className="mt-1 text-sm text-white/50">
-            Other open-source {tool.category} tools you might like
+            Other open-source {tool.category} tools
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {categoryTools.map((ct: any) => {
@@ -462,6 +495,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
           </div>
         </section>
       )}
+
     </div>
   );
 }

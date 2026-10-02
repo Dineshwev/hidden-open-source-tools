@@ -1,0 +1,38 @@
+page_type,slug,tool_a_or_saas,tool_b_or_alt_slugs,tool_a_slug,tool_b_slug,both_all_tools_success,tool_a_status,tool_b_or_alts_status,has_numbers,has_percentages,has_prices,word_count,links_tool_a,links_tool_b_or_all
+vs,activepieces-vs-zapier,Activepieces,Zapier,activepieces,,false,success,NOT FOUND,true,false,false,112,false,false
+vs,appflowy-vs-notion,AppFlowy,Notion,appflowy,notion,true,success,success,true,false,false,238,false,false
+vs,appsmith-vs-retool,Appsmith,Retool,appsmith,retool,true,success,success,true,false,false,133,false,false
+vs,appwrite-vs-firebase,Appwrite,Firebase,appwrite,,false,success,NOT FOUND,true,false,false,226,false,false
+vs,formbricks-vs-typeform,Formbricks,Typeform,formbricks,,false,success,NOT FOUND,true,false,false,83,false,false
+vs,gitea-vs-github,Gitea,Github,gitea,,false,success,NOT FOUND,true,false,false,143,false,false
+vs,immich-vs-google-photos,Immich,Google Photos,immich,,false,success,NOT FOUND,true,false,false,125,false,false
+vs,linkwarden-vs-pocket,Linkwarden,Pocket,linkwarden,,false,success,NOT FOUND,true,false,false,329,false,false
+vs,matomo-vs-google-analytics,Matomo,Google Analytics,matomo,google-analytics,false,success,skipped,true,false,false,284,false,false
+vs,meilisearch-vs-algolia,Meilisearch,Algolia,meilisearch,,false,success,NOT FOUND,true,false,false,83,false,false
+vs,meilisearch-vs-typesense,Meilisearch,Typesense,meilisearch,typesense,true,success,success,true,false,false,238,false,false
+vs,memos-vs-notion,Memos,Notion,memos,notion,true,success,success,true,false,false,309,false,false
+vs,nextcloud-vs-google-drive,Nextcloud,Google Drive,nextcloud,,false,success,NOT FOUND,true,false,false,88,false,false
+vs,openproject-vs-jira,OpenProject,Jira,openproject,jira,true,success,success,true,false,false,141,false,false
+vs,owncloud-vs-nextcloud,OwnCloud,Nextcloud,owncloud,nextcloud,true,success,success,true,false,false,251,false,false
+vs,penpot-vs-figma,Penpot,Figma,penpot,,false,success,NOT FOUND,true,false,false,80,false,false
+vs,plane-vs-jira,Plane,jira,plane,jira,true,success,success,true,false,false,90,false,false
+vs,plane-vs-linear,Plane,Linear,plane,linear,true,success,success,true,false,false,90,false,false
+vs,plausible-vs-google-analytics,Plausible,Google Analytics,,google-analytics,false,NOT FOUND,skipped,true,false,false,83,false,false
+vs,plausible-vs-umami,Plausible,Umami,,umami,false,NOT FOUND,success,true,false,false,201,false,false
+vs,posthog-vs-amplitude,PostHog,Amplitude,posthog,,false,success,NOT FOUND,true,false,false,87,false,false
+vs,posthog-vs-mixpanel,PostHog,Mixpanel,posthog,mixpanel,true,success,success,true,false,false,87,false,false
+vs,postiz-vs-buffer,Postiz,Buffer,postiz,,false,success,NOT FOUND,true,false,false,146,false,false
+vs,qdrant-vs-pinecone,Qdrant,Pinecone,qdrant,,false,success,NOT FOUND,true,false,false,267,false,false
+vs,seafile-vs-nextcloud,Seafile,Nextcloud,seafile,nextcloud,true,success,success,true,false,false,197,false,false
+vs,tally-vs-typeform,Tally,Typeform,,,false,NOT FOUND,NOT FOUND,false,false,false,103,false,false
+vs,tooljet-vs-retool,ToolJet,Retool,tooljet,retool,true,success,success,true,false,false,80,false,false
+vs,umami-vs-google-analytics,Umami,Google Analytics,umami,google-analytics,false,success,skipped,true,false,false,88,false,false
+alternatives,datadog,Datadog,prometheus; grafana; zabbix; netdata; victoriametrics,,,false,,prometheus=NOT FOUND; grafana=NOT FOUND; zabbix=NOT FOUND; netdata=NOT FOUND; victoriametrics=NOT FOUND,true,false,false,718,,false
+alternatives,figma,Figma,penpot; excalidraw; inkscape; akira; pencil-project,,,false,,excalidraw=NOT FOUND; inkscape=NOT FOUND; akira=NOT FOUND; pencil-project=NOT FOUND,false,false,false,688,,false
+alternatives,intercom,Intercom,chatwoot; rocket-chat; zammad; helpy; live-helper-chat,,,false,,chatwoot=NOT FOUND; rocket-chat=NOT FOUND; zammad=NOT FOUND; helpy=NOT FOUND; live-helper-chat=NOT FOUND,false,false,false,841,,false
+alternatives,linear,Linear,taiga; openproject; focalboard; wekan; zentao,,,false,,wekan=NOT FOUND,false,false,false,761,,false
+alternatives,loom,Loom,obs-studio; sharex; vdo-ninja; jitsi-meet; clipbucket,,,false,,obs-studio=NOT FOUND; sharex=NOT FOUND; vdo-ninja=NOT FOUND; clipbucket=NOT FOUND,true,false,false,798,,false
+alternatives,mixpanel,Mixpanel,posthog; countly; matomo; snowplow; plausible-analytics,,,false,,countly=NOT FOUND; snowplow=NOT FOUND,false,false,false,860,,false
+alternatives,notion,Notion,betula; digislides; mafl; cryptpad; erpnext; tryton,,,true,,all-success,true,false,false,363,,false
+alternatives,retool,Retool,appsmith; tooljet; budibase; nocodb; lowdefy,,,false,,budibase=NOT FOUND; nocodb=NOT FOUND,true,false,false,766,,false
+alternatives,zapier,Zapier,n8n; huginn; node-red; apache-airflow; temporal,,,false,,n8n=NOT FOUND; huginn=NOT FOUND; node-red=NOT FOUND; apache-airflow=NOT FOUND; temporal=NOT FOUND,true,false,false,794,,false
