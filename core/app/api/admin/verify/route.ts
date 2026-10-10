@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeCompare } from "@/lib/admin-session";
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (secret === adminSecret) {
+    if (typeof secret === "string" && safeCompare(secret, adminSecret)) {
       return NextResponse.json({ success: true, verified: true });
     }
 
