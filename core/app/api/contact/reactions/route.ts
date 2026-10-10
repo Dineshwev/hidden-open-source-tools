@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { addReaction } from "@/lib/services/contact.service";
+import { catchError } from "@/lib/utils/api-response";
 
 export async function POST(req: Request) {
   try {
@@ -21,10 +22,7 @@ export async function POST(req: Request) {
     await addReaction(reply_id, reaction);
 
     return NextResponse.json({ success: true }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return catchError(error);
   }
 }

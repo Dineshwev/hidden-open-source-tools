@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabasePublic } from "@/lib/backend_lib/supabase-scraper";
 import { getPublicQueries } from "@/lib/services/contact.service";
+import { catchError } from "@/lib/utils/api-response";
 
 function normalizePage(value: string | null) {
   const parsed = Number(value || "1");
@@ -47,10 +48,7 @@ export async function GET(req: Request) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return catchError(error);
   }
 }

@@ -1,35 +1,12 @@
 import { NextResponse } from "next/server";
 import { replyToMessage } from "@/lib/services/contact.service";
-
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
-function isAuthorized(req: Request) {
-  const adminSecret = process.env.ADMIN_SECRET?.trim() || "";
-  const authHeader = req.headers.get("authorization") || "";
-  const token = authHeader.trim();
-
-  if (!adminSecret) {
-    return {
-      ok: false,
-      status: 503,
-      error: "Admin auth is not configured. Set ADMIN_SECRET."
-    };
-  }
-
-  if (!token || token !== adminSecret) {
-    return { ok: false, status: 401, error: "Unauthorized" };
-  }
-
-  return { ok: true as const };
-}
+import { isAuthorizedByHeader } from "@/lib/utils/admin-auth";
+import { catchError } from "@/lib/utils/api-response";
+import type { RouteContext } from "@/lib/types/api.types";
 
 export async function POST(req: Request, { params }: RouteContext) {
   try {
-    const auth = isAuthorized(req);
+    const auth = isAuthorizedByHeader(req);
     if (!auth.ok) {
       return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
     }
@@ -45,10 +22,7 @@ export async function POST(req: Request, { params }: RouteContext) {
     const reply = await replyToMessage(params.id, reply_text, is_public);
 
     return NextResponse.json({ success: true, reply }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, error: error?.message || "Internal Server Error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    return catchError(error);
   }
 }
