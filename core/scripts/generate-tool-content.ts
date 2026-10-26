@@ -73,7 +73,15 @@ async function generateContentWithGroq(tool: Tool): Promise<string> {
 
   const prompt = `You are a senior technical writer for a developer-focused open source discovery platform called The Cloud Rain.
 
-Your job is to write a detailed, honest, and developer-friendly page about an open source tool. The tone is direct, technical, and opinionated — like a senior engineer explaining a tool to a teammate, not a marketing copy.
+Your job is to write a concise, accurate, developer-friendly page about an open source tool. The tone is direct and factual.
+
+SOURCE RULES:
+- Use ONLY the facts explicitly present in the tool fields below. You do not have access to the repository README or website content in this generation path.
+- Do not infer or invent features, architecture, supported languages, integrations, deployment methods, activity, audience, limitations, security claims, setup commands, alternatives, prices, or benchmarks.
+- If the supplied fields do not support a section, omit that section. Never fill space with typical category assumptions or generic pros and cons.
+- Do not turn missing metadata (including a null language) into a claim about how the tool works.
+- Do not include cost comparisons or Quick Start commands unless those exact details are in the supplied fields.
+- Write only what a reader can safely conclude from the supplied fields. Do not claim the page is comprehensive or independently verified.
 
 Tool: ${tool.name}
 Category: ${tool.category}
@@ -83,31 +91,31 @@ Language: ${tool.language}
 License: ${tool.license}
 URL: ${tool.url}
 
-Write the following sections in this exact order using markdown. Each section must be detailed and specific to this tool — do NOT write generic content that could apply to any tool.
+Write only sections supported by the supplied facts, using markdown. Do not pad the page to meet a section count.
 
 ## What is ${tool.name}?
-Write 2-3 paragraphs. Explain what problem it solves, what kind of developer or team would use it, and what makes it different from mainstream alternatives. Be specific about its architecture or approach if relevant.
+Write one short paragraph that restates the supplied description without adding claims. If the description is empty, omit this section.
 
 ## Key Features
-List exactly 6 features. Each must be a real, specific feature of this tool — not generic claims like "easy to use" or "open source". Format as bullet points.
+List only features explicitly present in the supplied description. If none are explicit, omit this section.
 
 ## Who Should Use ${tool.name}?
-Write 1-2 paragraphs. Be specific about the ideal user — solo developer, startup, agency, enterprise, DevOps team, etc. Mention what stack or use case it fits best.
+Include this section only when the supplied description explicitly identifies a user or use case.
 
 ## Pros
-List 4 honest pros. Be specific.
+Include only factual advantages explicitly supported by the supplied fields. Omit this section if none are supported.
 
 ## Cons
-List 3 honest cons or limitations. Be specific. Do not skip this section — developers trust honest reviews.
+Include only limitations explicitly supported by the supplied fields. Do not invent drawbacks to make the page appear balanced. Omit this section if none are supported.
 
 ## Self-Hosting vs Managed Alternatives
-Write 1-2 paragraphs comparing self-hosting this tool vs using a paid managed alternative. Include rough cost comparison if possible.
+Omit this section unless the supplied fields explicitly describe deployment options and a managed alternative. Never estimate prices.
 
 ## Quick Start
-Provide the most common installation command or setup steps. Use a code block with the appropriate language tag. Keep it minimal — just enough to get started.
+Omit this section. No verified installation instructions are supplied to this generator.
 
 ## Alternatives to ${tool.name}
-List 3-4 alternatives (can be open source or paid). One line each explaining when you would choose that alternative instead.
+Omit this section unless alternatives are explicitly named in the supplied fields.
 
 Write in markdown. Be technical, honest, and opinionated. Avoid generic marketing language.`;
 

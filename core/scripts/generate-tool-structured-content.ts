@@ -7,9 +7,8 @@
  *   - Detailed error cause logging for fetch failures and non-200 responses.
  *   - Debug logging of raw response & returned keys when validation fails.
  *   - Auto-retry with JSON reminder if Groq returns invalid JSON.
- *   - Auto-retry with strict cons/not_for reminder if cons/not_for are missing.
  *   - Key normalization for common JSON field variants (notFor, not_ideal_for, limitations, etc.).
- *   - Strict validation: requires pros >= 2, cons >= 1, best_for >= 1, not_for >= 1, readme_excerpt non-empty.
+ *   - Validation permits empty claim arrays when the source material does not support them.
  *   - Inter-tool delay (default 3s, configurable via --delay=ms or GROQ_DELAY_MS).
  *   - Support for --limit=N, --retry-failed, and --slug="a,b".
  *   - Grouped failure summary report.
@@ -83,6 +82,7 @@ type DeploymentInfo = {
 };
 
 type StructuredContent = {
+  short_description: string;
   summary: string;
   best_for: string[];
   not_for: string[];
@@ -187,6 +187,10 @@ function isRetryFailedRun(): boolean {
     process.argv.includes("--retry-failed") ||
     process.argv.includes("--retry-skipped")
   );
+}
+
+function isRetrySkippedRun(): boolean {
+  return process.argv.includes("--retry-skipped");
 }
 
 function isForceRun(): boolean {
@@ -523,7 +527,7 @@ function parseDeploymentInfo(readme: string | null): DeploymentInfo {
     docker_compose: lower.includes("docker-compose") || lower.includes("docker compose") ? true : null,
     kubernetes: lower.includes("kubernetes") || lower.includes("k8s") ? true : null,
     helm: lower.includes("helm") ? true : null,
-    self_hosted: lower.includes("self-host") || lower.includes("self host") || lower.includes("on-premise") ? true : true,
+    self_hosted: lower.includes("self-host") || lower.includes("self host") || lower.includes("on-premise") ? true : null,
     cloud_version: lower.includes("cloud") && (lower.includes("managed") || lower.includes("hosted")) ? true : null,
   };
 }
@@ -604,6 +608,15 @@ function normalizeStructuredContentKeys(rawObj: any): StructuredContent {
 
   const res: Record<string, any> = { ...rawObj };
 
+  if (typeof res.short_description !== "string" || !res.short_description.trim()) {
+    const candidate = [res.short_description, res.shortDescription, res.tagline, res.description]
+      .find((value) => typeof value === "string" && value.trim());
+    const summary = typeof res.summary === "string" ? res.summary.trim() : "";
+    res.short_description = typeof candidate === "string"
+      ? candidate.trim()
+      : summary.split(/(?<=[.!?])\s+/)[0] || summary;
+  }
+
   const getStringArray = (keys: string[]): string[] => {
     for (const key of keys) {
       if (key in res) {
@@ -651,7 +664,7 @@ function normalizeStructuredContentKeys(rawObj: any): StructuredContent {
 function validateStructuredData(
   readme: string | null,
   content: StructuredContent | null
-): { valid: boolean; missingFields: string[]; isOnlyConsOrNotForMissing: boolean } {
+): { valid: boolean; missingFields: string[] } {
   const missing: string[] = [];
 
   if (!readme || readme.trim().length === 0) {
@@ -660,28 +673,13 @@ function validateStructuredData(
 
   if (!content) {
     missing.push("structured_content");
-    return { valid: false, missingFields: missing, isOnlyConsOrNotForMissing: false };
+    return { valid: false, missingFields: missing };
   }
 
-  const countValid = (arr: unknown) =>
-    Array.isArray(arr) ? arr.filter((s) => typeof s === "string" && s.trim().length > 0).length : 0;
+  // Empty arrays are valid: do not invent praise, drawbacks, audiences, or exclusions
+  // simply to satisfy a content quota.
 
-  const prosCount = countValid(content.pros);
-  const consCount = countValid(content.cons);
-  const bestForCount = countValid(content.best_for);
-  const notForCount = countValid(content.not_for);
-
-  if (prosCount < 2) missing.push(`pros (has ${prosCount}, required >= 2)`);
-  if (consCount < 1) missing.push(`cons (has ${consCount}, required >= 1)`);
-  if (bestForCount < 1) missing.push("best_for (required >= 1)");
-  if (notForCount < 1) missing.push("not_for (required >= 1)");
-
-  const nonConsNotForMissing = missing.filter(
-    (m) => !m.startsWith("cons") && !m.startsWith("not_for")
-  );
-  const isOnlyConsOrNotForMissing = missing.length > 0 && nonConsNotForMissing.length === 0;
-
-  return { valid: missing.length === 0, missingFields: missing, isOnlyConsOrNotForMissing };
+  return { valid: missing.length === 0, missingFields: missing };
 }
 
 // ─── Structured content generator ────────────────────────────────────────────
@@ -694,9 +692,9 @@ async function generateStructuredContent(
 ): Promise<GroqResult> {
   const sourceGuidance = stats === null
     ? `
-This tool has no GitHub or README data. Use only the short description provided below.
-Keep every generated field brief: summary must be 1-2 short sentences, and every item in
-best_for, not_for, pros, and cons must be one short sentence.`
+No GitHub repository metadata is available. Use the description, README excerpt, and official
+website content supplied below. Keep claims limited to those sources, and keep the summary
+concise when the available source material is limited.`
     : "";
 
   // Compute days since last commit for activity signal
@@ -762,21 +760,24 @@ ${websiteContent || "Not available"}
 ${WEBSITE_ENROUNDMENT_GROUNDING_RULES_TEXT()}
 
 INSTRUCTIONS FOR "cons" AND "not_for":
-- Every tool has real trade-offs. You MUST generate non-empty arrays for "cons" (at least 2 items) and "not_for" (at least 1 item).
-- Derive "cons" and "not_for" from:
-  (a) Explicit limitations, system requirements, or missing features stated in the README/website.
-  (b) Real technical trade-offs implied by the metadata (e.g., self-hosting & infrastructure maintenance overhead, steep setup curve, complex stack dependencies, copyleft license restrictions, low commit activity, high open issue counts, lack of managed SaaS version).
-  (c) If the source text states no explicit cons, write 2 realistic, honest trade-offs typical for this category of ${tool.category} tool (e.g. "Requires setting up and managing your own server infrastructure", "Lacks out-of-the-box SaaS enterprise support").
-- Never invent fake benchmarks, fake metrics, or non-existent features.
+- Include claims only when directly supported by the README, official website, or supplied metadata.
+- Do not infer features, pros, cons, pricing, deployment options, or user exclusions from category or missing information.
+- Empty arrays are valid when sources do not support a claim. Never invent generic trade-offs or estimate costs.
+- Never invent benchmarks, fake metrics, setup instructions, integrations, or non-existent features.
+- Do not treat demo dashboards, placeholder companies, illustrative reviews, or sample metrics as verified product facts.
+- Do not state a third-party rating, review count, user setup time, or product limitation unless the source clearly presents it as a verified fact.
+- Do not call the product self-hosted unless its official setup documentation explicitly describes self-hosting.
+- List integrations only when the source explicitly identifies them as supported integrations; decorative logos and example workflows are insufficient evidence.
 ${activityConRequirement}
 
 Output this exact JSON structure:
 {
-  "summary": "100-150 word description of what this tool does and who it is for. Base it only on README/docs. No fluff.",
-  "best_for": ["use case 1", "use case 2", "use case 3"],
-  "not_for": ["limitation or unsuited use case 1", "limitation or unsuited use case 2"],
-  "pros": ["pro 1", "pro 2", "pro 3", "pro 4"],
-  "cons": ["con 1", "con 2", "con 3"],
+  "short_description": "One accurate, source-grounded sentence for the directory description field.",
+  "summary": "Describe what this tool does and who it is for using only the supplied sources. Aim for 100-150 words when the sources support that length; be shorter rather than add unsupported detail.",
+  "best_for": [],
+  "not_for": [],
+  "pros": [],
+  "cons": [],
   "pricing_info": null,
   "key_features": [],
   "integrations": [],
@@ -806,32 +807,6 @@ Output this exact JSON structure:
       return { content: parsed1, rawText: groqRes1.text, keys: keys1 };
     }
 
-    // Attempt 2: If ONLY cons/not_for are missing, retry once with a stricter reminder prompt
-    if (val1.isOnlyConsOrNotForMissing) {
-      console.warn(`  ⚠️ Groq output for ${tool.name} missing required cons/not_for. Retrying once with strict reminder...`);
-      const reminderPrompt = `${basePrompt}
-
-CRITICAL REQUIREMENT MISSING IN PREVIOUS RESPONSE:
-Your previous output was missing valid non-empty arrays for "cons" and/or "not_for".
-You MUST include:
-- "cons": a JSON array containing at least 2 trade-offs, limitations, or maintenance overhead items.
-- "not_for": a JSON array containing at least 1 target audience/use case where this tool is NOT recommended.
-Do NOT leave "cons" or "not_for" empty. Return ONLY a valid JSON object starting with { and ending with }.`;
-
-      const groqResRetry = await generateWithGroq(reminderPrompt, tool.name);
-      if (groqResRetry.text) {
-        let parsedRetry = tryParseJSON<any>(groqResRetry.text);
-        if (parsedRetry && typeof parsedRetry === "object") {
-          const keysRetry = Object.keys(parsedRetry);
-          parsedRetry = normalizeStructuredContentKeys(parsedRetry);
-          const valRetry = validateStructuredData(readme, parsedRetry);
-          if (valRetry.valid) {
-            return { content: parsedRetry, rawText: groqResRetry.text, keys: keysRetry };
-          }
-          return { content: parsedRetry, rawText: groqResRetry.text, keys: keysRetry };
-        }
-      }
-    }
   }
 
   // Attempt 2 for invalid JSON formatting
@@ -1021,6 +996,7 @@ async function main() {
   console.log("✅ Groq model is available.");
 
   const retryRun = isRetryFailedRun();
+  const retrySkippedRun = isRetrySkippedRun();
   const limit = getLimit();
   const slugFilter = getSlugFilter();
   const forceRun = isForceRun();
@@ -1029,8 +1005,10 @@ async function main() {
   console.log(
     slugFilter.length > 0
       ? `🎯 Fetching requested slugs: ${slugFilter.join(", ")}`
-      : retryRun
-        ? "🔁 Fetching tools with NULL or 'failed' status for retry..."
+    : retryRun
+        ? retrySkippedRun
+          ? "🔁 Fetching approved tools with NULL, 'failed', or 'skipped' status for retry..."
+          : "🔁 Fetching approved tools with NULL or 'failed' status for retry..."
         : forceRecheckRun
           ? "🔄 Fetching already-enriched successful tools for recheck..."
           : forceRun
@@ -1042,14 +1020,13 @@ async function main() {
     let query = supabase
       .from("open_source_tools")
       .select("id, name, slug, description, category, url, github_stars, language, license, pricing_info, key_features, integrations, enrichment_completed_at, structured_content_status")
+      .or("status.eq.approved,status.eq.APPROVED")
       .order("created_at", { ascending: true })
       .order("id", { ascending: true });
 
     if (slugFilter.length > 0) {
       return query.in("slug", slugFilter);
     }
-
-    query = query.eq("status", "approved");
 
     if (forceRecheckRun) {
       return query
@@ -1062,8 +1039,11 @@ async function main() {
         .is("enrichment_completed_at", null);
     }
 
-    // Default & --retry-failed: fetch tools where structured_content_status is NULL or 'failed'
-    return query.or("structured_content_status.is.null,structured_content_status.eq.failed");
+    // Default & --retry-failed include NULL/failed. --retry-skipped explicitly adds skipped rows.
+    const retryStatuses = "structured_content_status.is.null,structured_content_status.eq.failed";
+    return query.or(retrySkippedRun
+      ? `${retryStatuses},structured_content_status.eq.skipped`
+      : retryStatuses);
   });
 
   const tools = limit === null ? fetchedTools : fetchedTools.slice(0, limit);
@@ -1079,19 +1059,21 @@ async function main() {
     const tool = tools[i] as Tool;
     console.log(`[${i + 1}/${tools.length}] Processing: ${tool.name} (${tool.slug})`);
 
+    const websiteContent = await scrapeWebsiteContent(tool.url, tool.name);
+    if (websiteContent) console.log(`  ✅ Website content fetched (${websiteContent.length} chars)`);
+
     const githubUrl = findGithubUrl(tool);
-    if (!githubUrl) {
-      if (!tool.description || tool.description.length < 50) {
-        console.log(`  ⚠️  No GitHub URL and description too short — skipping`);
-        const { error: statusError } = await supabase
-          .from("open_source_tools")
-          .update({ structured_content_status: "skipped" })
-          .eq("id", tool.id);
-        if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
-        skippedCount++;
-        await delay(delayMs);
-        continue;
-      }
+    const hasLongDescription = Boolean(tool.description?.trim() && tool.description.trim().length >= 50);
+    if (!githubUrl && !hasLongDescription && !websiteContent) {
+      console.log(`  ⚠️  No GitHub URL, usable description, or website content — skipping`);
+      const { error: statusError } = await supabase
+        .from("open_source_tools")
+        .update({ structured_content_status: "skipped" })
+        .eq("id", tool.id);
+      if (statusError) console.error(`  ❌ Failed to save skipped status: ${statusError.message}`);
+      skippedCount++;
+      await delay(delayMs);
+      continue;
     }
 
     const ref = githubUrl ? extractGithubOwnerRepo(githubUrl) : null;
@@ -1131,13 +1113,11 @@ async function main() {
         console.log(`  ⚠️  README not found`);
       }
     } else {
-      // Fallback README excerpt from description if no GitHub repo
-      readme = tool.description.slice(0, README_MAX_CHARS);
+      // Use the official site as source material when no GitHub repository is linked.
+      readme = (websiteContent || tool.description || "").slice(0, README_MAX_CHARS);
     }
 
     const deployment = parseDeploymentInfo(readme);
-    const websiteContent = await scrapeWebsiteContent(tool.url, tool.name);
-    if (websiteContent) console.log(`  ✅ Website content fetched (${websiteContent.length} chars)`);
 
     // Step 3: AI generation & key normalization
     console.log(`  🤖 Generating structured content with Groq...`);
@@ -1185,6 +1165,7 @@ async function main() {
     const aiContent = buildAiContent(tool, stats, content, deployment);
 
     const updatePayload: Record<string, any> = {
+      description: content.short_description,
       ai_content: aiContent,
       deployment_info: deployment,
       best_for: content.best_for,

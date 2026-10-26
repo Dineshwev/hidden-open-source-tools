@@ -80,7 +80,8 @@ function firstSentence(description: string): string {
 }
 
 function getSeoDescriptionSnippet(description: string) {
-  return cleanDescription(description).slice(0, 100).trimEnd();
+  const cleaned = cleanDescription(description);
+  return cleaned.length > 160 ? `${cleaned.slice(0, 157).trimEnd()}...` : cleaned;
 }
 
 function extractGithubUrl(description: string) {
@@ -175,9 +176,8 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const tool = await getToolBySlug(params.slug);
   if (!tool) return {};
 
-  const title = `${tool.name} — Open Source ${tool.category} | Self-hosted Alternative`;
-  const descriptionSnippet = getSeoDescriptionSnippet(tool.description);
-  const description = `${tool.name} is a free, self-hosted alternative for ${tool.category}. ${descriptionSnippet}. No vendor lock-in.`;
+  const title = `${tool.name} | ${tool.category} tool`;
+  const description = getSeoDescriptionSnippet(tool.description) || `${tool.name} project details and source links.`;
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
   const isSuccess = tool.structured_content_status === "success";

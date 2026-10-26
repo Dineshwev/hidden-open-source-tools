@@ -158,7 +158,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     while (hasMore) {
       const { data: pageTools, error: toolsError } = await supabase
         .from("open_source_tools")
-        .select("slug, created_at, category")
+        .select("slug, created_at, enrichment_completed_at")
         .eq("status", "approved")
         .eq("structured_content_status", "success")
         .not("slug", "is", null)
@@ -181,7 +181,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (allTools.length > 0) {
       toolEntries = allTools.map((tool: any) => ({
         url: `${siteUrl}/tools/${tool.slug}`,
-        lastModified: tool?.created_at ? new Date(tool.created_at) : currentLastModified,
+        lastModified: tool?.enrichment_completed_at
+          ? new Date(tool.enrichment_completed_at)
+          : tool?.created_at
+            ? new Date(tool.created_at)
+            : currentLastModified,
         changeFrequency: "monthly",
         priority: 0.7
       }));
