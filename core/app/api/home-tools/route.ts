@@ -15,12 +15,32 @@ export async function GET() {
     supabase
       .from("open_source_tools")
       .select("*", { count: "exact", head: true })
-      .eq("status", "approved")
-      .eq("structured_content_status", "success"),
+      .eq("status", "approved"),
   ]);
 
+  let tools = toolsResult.data ?? [];
+
+  // Fallback if specific slugs don't return enough tools
+  if (tools.length < 6) {
+    const { data: fallbackTools } = await supabase
+      .from("open_source_tools")
+      .select("id, name, slug, description, category, url, logo_url, github_stars")
+      .eq("status", "approved")
+      .order("github_stars", { ascending: false, nullsFirst: false })
+      .limit(6);
+
+    if (fallbackTools && fallbackTools.length > 0) {
+      const existingSlugs = new Set(tools.map((t) => t.slug));
+      for (const t of fallbackTools) {
+        if (!existingSlugs.has(t.slug) && tools.length < 6) {
+          tools.push(t);
+        }
+      }
+    }
+  }
+
   return NextResponse.json({
-    tools: toolsResult.data ?? [],
+    tools,
     total: countResult.count ?? 375,
   });
 }

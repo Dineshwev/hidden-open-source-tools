@@ -11,6 +11,8 @@ export interface ScrapedTool {
   logo_url?: string | null;
   webpage_url: string;
   category: ToolCategory;
+  raw_category?: string | null;
+  github_stars?: number | null;
   source_site: string | null;
   status: ToolStatus;
   scraped_at: string;

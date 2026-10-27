@@ -3,14 +3,18 @@ import Logo from "./Logo";
 
 const mainLinks = [
   { href: "/", label: "Home" },
-  { href: "/mystery-box", label: "Random Tool Finder" },
-  { href: "/upload", label: "Upload" }
+  { href: "/free-tools", label: "Explore Tools" },
+  { href: "/alternatives", label: "Alternatives" },
+  { href: "/vs", label: "Comparisons" },
+  { href: "/article-museum", label: "Articles" },
+  { href: "/weekly-roundups", label: "Weekly Roundups" },
+  { href: "/upload", label: "Submit a Tool" }
 ];
 
 const communityLinks = [
   { href: "/contact", label: "Contact" },
   { href: "/general-queries", label: "General Queries" },
-  { href: "/upload", label: "Upload" }
+  { href: "/upload", label: "Submit a Tool" }
 ];
 
 const legalLinks = [
@@ -25,11 +29,11 @@ const legalLinks = [
 ];
 
 const seoLinks = [
+  { href: "/free-tools", label: "Open-Source Tools Directory" },
+  { href: "/alternatives", label: "SaaS Alternatives" },
+  { href: "/vs", label: "Tool Comparisons" },
   { href: "/best-free-developer-tools", label: "Developer Tool Comparisons" },
-  { href: "/open-source-software", label: "Open Source Alternatives" },
-  { href: "/hidden-tools", label: "Developer Utilities" },
-  { href: "/free-tools", label: "No-Cost Resources" },
-  { href: "/article-museum", label: "Tool Deep Dives" }
+  { href: "/article-museum", label: "Tool Deep Dives & Articles" }
 ];
 
 const socialLinks = [
@@ -47,11 +51,13 @@ export default function Footer() {
             The Cloud Rain
           </p>
           <p className="max-w-md text-sm leading-relaxed text-white/65">
-            A curated resource hub for lightweight open-source tools, self-hosted software, and practical SaaS alternatives for developers.
+            A curated directory of lightweight open-source tools, self-hosted software, and practical SaaS alternatives for developers and makers.
           </p>
           <div className="rounded-2xl border border-white/15 bg-white/[0.03] p-4">
-            <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Company Standard</p>
-            <p className="mt-2 text-sm text-white/70">Every discovery flow is transparent, moderated, and designed around useful developer evaluation.</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/85">Curation Standard</p>
+            <p className="mt-2 text-sm text-white/70">
+              Every tool is evaluated for open-source license integrity, active maintenance, and transparent developer utility.
+            </p>
           </div>
           <div className="flex flex-wrap gap-3">
             {socialLinks.map((link) => (
@@ -79,18 +85,12 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/contact"
-            className="inline-flex items-center rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
-          >
-            Contact Us
-          </Link>
         </div>
 
         <div className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Community</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Explore</p>
           <ul className="flex flex-col gap-3">
-            {communityLinks.map((link) => (
+            {seoLinks.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-cyan-200">
                   {link.label}
@@ -98,33 +98,14 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-          <Link
-            href="/contact"
-            className="inline-flex items-center rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
-          >
-            Community Contact
-          </Link>
         </div>
 
         <div className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Company & Legal</p>
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Legal & Trust</p>
           <ul className="flex flex-col gap-3">
             {legalLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-white">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-widest text-white/80">Popular Searches</p>
-          <ul className="flex flex-col gap-3">
-            {seoLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-emerald-200">
+                <Link href={link.href} className="text-sm text-white/60 transition-colors hover:text-cyan-200">
                   {link.label}
                 </Link>
               </li>
@@ -133,13 +114,8 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 border-t border-white/10 px-6 py-6 md:flex-row md:items-center">
-        <p className="text-xs text-white/45">Copyright {new Date().getFullYear()} The Cloud Rain. All rights reserved.</p>
-        <div className="flex items-center gap-2">
-          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Fast Unlocks</span>
-          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Verified Files</span>
-          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-white/65">Global Traffic</span>
-        </div>
+      <div className="border-t border-white/10 px-6 py-6 text-center text-xs text-white/40">
+        © {new Date().getFullYear()} The Cloud Rain. Handcrafted for open-source builders and indie hackers.
       </div>
     </footer>
   );

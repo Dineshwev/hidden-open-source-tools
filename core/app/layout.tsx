@@ -14,12 +14,12 @@ const siteName = "The Cloud Rain";
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
   const toolCount = await getApprovedSuccessToolCount();
-  const description = `Browse ${toolCount}+ open-source tools and developer resources. Compare projects and review source links, licenses, deployment options, and other details where available.`;
+  const description = `Browse ${toolCount}+ curated open-source tools and developer resources. Discover self-hosted software, SaaS alternatives, GitHub stars, and source code links.`;
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: "The Cloud Rain | Open-Source Tools and Comparisons",
+      default: "The Cloud Rain | Curated Open-Source Tools & SaaS Alternatives",
       template: "%s | The Cloud Rain"
     },
     description,
@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       url: siteUrl,
       siteName,
-      title: "The Cloud Rain | Open-Source Tools and Comparisons",
+      title: "The Cloud Rain | Curated Open-Source Tools & SaaS Alternatives",
       description,
       locale: "en_US",
       images: [
@@ -46,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: "The Cloud Rain | Open-Source Tools and Comparisons",
+      title: "The Cloud Rain | Curated Open-Source Tools & SaaS Alternatives",
       description,
       site: "@TheCloudRain_",
       images: [`${siteUrl}/og-image.png`]
@@ -83,7 +83,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           height: 512
         },
         description:
-          `A directory of ${toolCount}+ open-source tools and developer resources, with project details and source links where available.`,
+          `A curated directory of ${toolCount}+ open-source tools and developer resources, with project details and source links.`,
         sameAs: [
           "https://x.com/TheCloudRain_",
           "https://github.com/Dineshwev/hidden-open-source-tools",
@@ -115,8 +115,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
-          { "@type": "ListItem", position: 2, name: "No-Cost Resources", item: `${siteUrl}/free-tools` },
-          { "@type": "ListItem", position: 3, name: "Tool Deep Dives", item: `${siteUrl}/article-museum` }
+          { "@type": "ListItem", position: 2, name: "Explore Tools", item: `${siteUrl}/free-tools` },
+          { "@type": "ListItem", position: 3, name: "Articles", item: `${siteUrl}/article-museum` }
         ]
       }
     ]
@@ -126,16 +126,13 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-        {/* Google Search Console verification (paste the tag value and remove comment to verify):
-            <meta name="google-site-verification" content="PASTE_CODE_HERE" />
-        */}
         <Script defer data-domain="thecloudrain.org" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </head>
       <body className="flex min-h-screen flex-col">
         <AuthProvider>
           <Navbar />
           <ScrollProgress />
-          <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-10 pt-4">{children}</main>
+          <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-8 pt-4">{children}</main>
           <Footer />
           <SpeedInsights />
         </AuthProvider>

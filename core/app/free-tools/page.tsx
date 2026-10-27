@@ -15,8 +15,8 @@ export const fetchCache = "force-no-store";
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
   const toolCount = await getApprovedSuccessToolCount();
-  const pageTitle = `Open-Source Developer Tools Directory`;
-  const pageDescription = `Browse ${toolCount}+ open-source developer tools and software projects. Review descriptions, source links, licenses, and deployment details where available.`;
+  const pageTitle = `Open-Source Developer Tools & SaaS Alternatives Directory`;
+  const pageDescription = `Browse ${toolCount}+ curated open-source developer tools, self-hosted software, and privacy-focused SaaS alternatives. Discover GitHub repos, ratings, and deployment options.`;
 
   return {
     title: pageTitle,
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: `${siteUrl}/og/free-tools.png`,
           width: 1200,
           height: 630,
-          alt: "No-Cost Developer Resources Directory"
+          alt: "Open-Source Tools Directory"
         }
       ]
     }
@@ -76,6 +76,8 @@ function mapOpenSourceTool(row: any): ScrapedTool {
     logo_url: row?.logo_url ?? null,
     webpage_url: String(row?.url || row?.webpage_url || ""),
     category: normalizeDbCategory(row?.category),
+    raw_category: row?.category ? String(row.category) : null,
+    github_stars: typeof row?.github_stars === "number" ? row.github_stars : null,
     source_site: row?.source_site ?? null,
     status: "approved",
     scraped_at: String(row?.created_at || row?.scraped_at || row?.inserted_at || row?.updated_at || new Date(0).toISOString()),
@@ -87,30 +89,29 @@ function mapOpenSourceTool(row: any): ScrapedTool {
 export default async function FreeToolsPage({
   searchParams
 }: {
-  searchParams?: { search?: string | string[] };
+  searchParams?: { search?: string | string[]; category?: string | string[] };
 }) {
   const supabase = getAdmin();
   const { data, error } = await supabase
     .from("open_source_tools")
     .select("*")
     .eq("status", "approved")
-    .order("created_at", { ascending: false });
+    .order("github_stars", { ascending: false, nullsFirst: false });
 
-  if (error) console.error('Supabase error:', JSON.stringify(error));
-  else console.log('Tools fetched:', data?.length, 'first row keys:', data?.[0] ? Object.keys(data[0]) : []);
+  if (error) {
+    console.error("Supabase error in FreeToolsPage:", JSON.stringify(error));
+  }
 
-  const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim().toLowerCase() || "";
+  const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim() || "";
+  const categoryParam = normalizeSearchTerm(searchParams?.category)?.trim() || "";
 
   const initialTools = error ? [] : (Array.isArray(data) ? data.map(mapOpenSourceTool) : []);
-  const filteredTools = searchTerm
-    ? initialTools.filter((tool) => {
-        const haystack = `${tool.title} ${tool.description || ""} ${tool.category || ""} ${tool.source_site || ""}`.toLowerCase();
-        return haystack.includes(searchTerm);
-      })
-    : initialTools;
 
   // Fetch exact category values and compute counts server-side
-  const { data: categoryRows } = await supabase.from("open_source_tools").select("category").eq("status", "approved");
+  const { data: categoryRows } = await supabase
+    .from("open_source_tools")
+    .select("category")
+    .eq("status", "approved");
 
   const rawCounts = Array.isArray(categoryRows)
     ? categoryRows.reduce<Record<string, number>>((acc, r) => {
@@ -122,7 +123,7 @@ export default async function FreeToolsPage({
     : {};
 
   const counts: Record<string, number> = {
-    All: filteredTools.length,
+    All: initialTools.length,
     "Developer Tools": rawCounts["Developer Tools"] || 0,
     "Self-Hosting & Infrastructure": rawCounts["Self-Hosting & Infrastructure"] || 0,
     "Analytics & Search": rawCounts["Analytics & Search"] || 0,
@@ -136,8 +137,10 @@ export default async function FreeToolsPage({
 
   return (
     <FreeToolsPageClient
-      initialTools={filteredTools}
-      initialCount={filteredTools.length}
+      initialTools={initialTools}
+      initialCount={initialTools.length}
+      initialCategory={categoryParam || "all"}
+      initialSearch={searchTerm}
       categoryCounts={counts}
     />
   );
