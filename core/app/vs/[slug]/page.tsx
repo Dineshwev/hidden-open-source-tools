@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { marked } from "marked";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 type ComparisonPageProps = {
@@ -19,6 +19,7 @@ type Comparison = {
   tool_b: string;
   content: string;
   status: string;
+  verified_regenerated_at?: string | null;
 };
 
 type ToolLink = {
@@ -86,6 +87,27 @@ async function getToolLinks(toolA: string, toolB: string): Promise<ToolLink[]> {
   }
 }
 
+function stripMarkdown(value: string): string {
+  return value
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_`#|]/g, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getSearchTitle(comparison: Comparison): string {
+  const heading = comparison.content.match(/^#{1,2}\s+(.+)$/m)?.[1]?.trim();
+  return heading || `${comparison.tool_a} vs ${comparison.tool_b}: Comparison`;
+}
+
+function getSearchDescription(comparison: Comparison): string {
+  const body = comparison.content.replace(/^#{1,2}\s+.+\r?\n/m, "").trimStart();
+  const firstParagraph = body.split(/\r?\n\s*\r?\n/).find((paragraph) => stripMarkdown(paragraph).length > 30);
+  const description = firstParagraph ? stripMarkdown(firstParagraph) : "";
+  return description.length > 160 ? `${description.slice(0, 157).trimEnd()}...` : description;
+}
+
 export async function generateStaticParams() {
   try {
     const supabase = getAdmin();
@@ -103,8 +125,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: ComparisonPageProps): Promise<Metadata> {
   const comparison = await getComparisonBySlug(params.slug);
   if (!comparison) return {};
-  const title = `${comparison.tool_a} vs ${comparison.tool_b}: Comparison`;
-  const description = `Read a side-by-side overview of ${comparison.tool_a} and ${comparison.tool_b}, including the differences covered on this page.`;
+  const title = getSearchTitle(comparison);
+  const description = getSearchDescription(comparison) || `Compare ${comparison.tool_a} and ${comparison.tool_b} using the specific features and trade-offs covered on this page.`;
   return {
     title,
     description,
@@ -144,9 +166,11 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         <h1 className="mt-2 font-display text-3xl text-white md:text-5xl">
           {comparison.tool_a} vs {comparison.tool_b}
         </h1>
-        <p className="mt-3 text-sm text-white/60">
-          Last updated 2026 · The Cloud Rain
-        </p>
+        {comparison.verified_regenerated_at && (
+          <p className="mt-3 text-sm text-white/60">
+            Last reviewed {new Date(comparison.verified_regenerated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })} · The Cloud Rain
+          </p>
+        )}
         <div className="mt-4 flex flex-wrap gap-3">
           <span className="inline-flex rounded-full border border-orange-300/30 bg-orange-300/10 px-3 py-1 text-xs font-semibold text-orange-200">
             {comparison.tool_a}

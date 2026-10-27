@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 function stripMarkdown(text: string): string {
   return text

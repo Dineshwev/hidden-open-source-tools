@@ -8,7 +8,7 @@ import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 type ToolRow = {

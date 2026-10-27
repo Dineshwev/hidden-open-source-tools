@@ -1,0 +1,20 @@
+[
+  {
+    "id": "ded56d6a-e795-4e40-9081-5292f1450476",
+    "slug": "supabase",
+    "name": "Supabase",
+    "ai_content": "## Supabase\n\nSupabase is an open‑source backend‑as‑a‑service that delivers a full PostgreSQL database with built‑in authentication, row‑level security, realtime data synchronization, object storage, edge functions, vector search and instant REST APIs. The platform’s free tier includes authentication, a realtime database and storage, letting developers quickly spin up a Firebase‑like backend without vendor lock‑in. It also provides ready‑to‑use integrations for AI models via OpenAI and Hugging Face, and offers starter templates for frameworks such as React, Next.js, Flutter and Expo. Supabase’s dashboard includes tools like table and SQL editors and policy management, making it suitable for rapid prototyping as well as production‑grade applications across web, mobile and AI use cases.\n\n## Best For\n- ✓ building full‑stack apps with auth and realtime data\n- ✓ rapidly prototyping backend services\n- ✓ adding AI/ML vector search to applications\n\n## Not Ideal For\n- ✗ projects that require on‑prem self‑hosting without Supabase‑managed cloud\n- ✗ workloads that need non‑PostgreSQL databases\n\n## Pros\n- ✓ Provides a full PostgreSQL database with built‑in auth and RLS\n- ✓ Offers instant REST APIs and realtime synchronization\n- ✓ Includes edge functions without managing servers\n- ✓ Integrates storage, vector search and AI model support\n\n## Cons\n- ✗ Advanced enterprise features may require paid plans\n\n## Key Features\n- Postgres Database\n- Authentication with Row Level Security\n- Edge Functions\n- Storage\n- Realtime\n- Vector embeddings\n- Data APIs (REST)\n\n## Integrations\n- OpenAI\n- Hugging Face\n- React\n- Next.js\n- Flutter\n- Expo\n- Stripe",
+    "cons": [
+      "Advanced enterprise features may require paid plans"
+    ],
+    "not_for": [
+      "projects that require on‑prem self‑hosting without Supabase‑managed cloud",
+      "workloads that need non‑PostgreSQL databases"
+    ],
+    "removed_items": [
+      "Not Ideal For (unsupported): projects that require on‑prem self‑hosting without Supabase‑managed cloud",
+      "Summary: removed absolute claim 'without vendor lock-in'",
+      "Not Ideal For: ✗ projects that require on‑prem self‑hosting without Supabase‑managed cloud (unsupported)"
+    ]
+  }
+]

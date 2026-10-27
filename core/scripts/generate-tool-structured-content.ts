@@ -763,6 +763,9 @@ INSTRUCTIONS FOR "cons" AND "not_for":
 - Include claims only when directly supported by the README, official website, or supplied metadata.
 - Do not infer features, pros, cons, pricing, deployment options, or user exclusions from category or missing information.
 - Empty arrays are valid when sources do not support a claim. Never invent generic trade-offs or estimate costs.
+- A missing detail in the source is not a product disadvantage. Never write cons such as "not detailed in the description" or "limited information is provided"; omit those claims.
+- Do not repeat the same fact across the summary, pros, cons, and key_features. Prefer concise, concrete phrases.
+- Do not claim "no vendor lock-in" unless the sources substantiate it; describe portability and product-specific dependencies precisely.
 - Never invent benchmarks, fake metrics, setup instructions, integrations, or non-existent features.
 - Do not treat demo dashboards, placeholder companies, illustrative reviews, or sample metrics as verified product facts.
 - Do not state a third-party rating, review count, user setup time, or product limitation unless the source clearly presents it as a verified fact.
@@ -773,7 +776,7 @@ ${activityConRequirement}
 Output this exact JSON structure:
 {
   "short_description": "One accurate, source-grounded sentence for the directory description field.",
-  "summary": "Describe what this tool does and who it is for using only the supplied sources. Aim for 100-150 words when the sources support that length; be shorter rather than add unsupported detail.",
+  "summary": "Describe what this tool does and who it is for using only the supplied sources. Use 60-100 words, avoid repeating the feature/pros lists, and be shorter when the sources support fewer details.",
   "best_for": [],
   "not_for": [],
   "pros": [],

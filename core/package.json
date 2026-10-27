@@ -13,6 +13,7 @@
     "generate-comparisons": "tsx scripts/generate-comparisons.ts",
     "generate-alternatives": "tsx scripts/generate-alternatives.ts",
     "generate-structured-content": "tsx scripts/generate-tool-structured-content.ts",
+    "clean-structured-content": "tsx scripts/clean-tool-structured-content.ts",
     "generate-saas-enrichment": "tsx scripts/generate-saas-reference-enrichment.ts"
   },
   "dependencies": {

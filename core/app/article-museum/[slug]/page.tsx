@@ -26,7 +26,7 @@ const siteUrl = getSiteUrl();
 const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
 export const dynamic = 'force-static';
-export const revalidate = 86400;
+export const revalidate = 3600;
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
   const supabase = getAdmin();

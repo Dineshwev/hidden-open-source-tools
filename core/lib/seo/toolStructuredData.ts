@@ -28,7 +28,7 @@ export function buildToolStructuredData(tool: {
         "@id": `${pageUrl}#breadcrumb`,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
-          { "@type": "ListItem", position: 2, name: "Tools", item: `${siteUrl.replace(/\/$/, "")}/tools` },
+          { "@type": "ListItem", position: 2, name: "Free Tools", item: `${siteUrl.replace(/\/$/, "")}/free-tools` },
           { "@type": "ListItem", position: 3, name: tool.name, item: pageUrl }
         ]
       },

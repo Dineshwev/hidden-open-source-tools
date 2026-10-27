@@ -4,116 +4,98 @@ import { getSiteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
 
+// Refresh the generated URL list after database status/content changes.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticLastModified = new Date("2026-06-11");
-  const currentLastModified = new Date();
-  
   const staticEntries: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
-      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 1
     },
     {
       url: `${siteUrl}/free-tools`,
-      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 0.95
     },
     {
       url: `${siteUrl}/vs`,
-      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9
     },
     {
       url: `${siteUrl}/alternatives`,
-      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9
     },
     {
       url: `${siteUrl}/article-museum`,
-      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9
     },
     {
       url: `${siteUrl}/open-source-software`,
-      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 0.85
     },
     {
       url: `${siteUrl}/hidden-tools`,
-      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 0.85
     },
     {
       url: `${siteUrl}/best-free-developer-tools`,
-      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.8
     },
     {
       url: `${siteUrl}/weekly-roundups`,
-      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.8
     },
     {
       url: `${siteUrl}/weekly-roundups/weekly-roundup-2026-05-21`,
-      lastModified: new Date("2026-05-21"),
       changeFrequency: "monthly",
       priority: 0.75
     },
     {
       url: `${siteUrl}/security`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.6
     },
     {
       url: `${siteUrl}/privacy`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.4
     },
     {
       url: `${siteUrl}/terms`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.4
     },
     {
       url: `${siteUrl}/contact`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.5
     },
     {
       url: `${siteUrl}/about`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.6
     },
     {
       url: `${siteUrl}/copyright`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.5
     },
     {
       url: `${siteUrl}/dmca`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.5
     },
     {
       url: `${siteUrl}/license`,
-      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.5
     }
@@ -137,7 +119,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (articles) {
       articleEntries = articles.map((art: any) => ({
         url: `${siteUrl}/article-museum/${art.slug}`,
-        lastModified: art.published_at ? new Date(art.published_at) : staticLastModified,
         changeFrequency: "monthly",
         priority: 0.8
       }));
@@ -175,11 +156,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (allTools.length > 0) {
       toolEntries = allTools.map((tool: any) => ({
         url: `${siteUrl}/tools/${tool.slug}`,
-        lastModified: tool?.enrichment_completed_at
-          ? new Date(tool.enrichment_completed_at)
-          : tool?.created_at
-            ? new Date(tool.created_at)
-            : currentLastModified,
+        ...(tool?.enrichment_completed_at
+          ? { lastModified: new Date(tool.enrichment_completed_at) }
+          : {}),
         changeFrequency: "monthly",
         priority: 0.7
       }));
@@ -194,7 +173,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (industryPages) {
       industryEntries = industryPages.map((row: any) => ({
         url: `${siteUrl}/best-${row.slug}`,
-        lastModified: row.created_at ? new Date(row.created_at) : currentLastModified,
         changeFrequency: "monthly",
         priority: 0.8
       }));
@@ -202,13 +180,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const { data: comparisons } = await supabase
       .from("comparisons")
-      .select("slug, created_at")
+      .select("slug, verified_regenerated_at")
       .eq("status", "published");
 
     if (comparisons) {
       comparisonEntries = comparisons.map((row: any) => ({
         url: `${siteUrl}/vs/${row.slug}`,
-        lastModified: row.created_at ? new Date(row.created_at) : currentLastModified,
+        ...(row.verified_regenerated_at ? { lastModified: new Date(row.verified_regenerated_at) } : {}),
         changeFrequency: "monthly",
         priority: 0.75
       }));
@@ -216,13 +194,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     const { data: altsData } = await supabase
       .from("alternatives")
-      .select("saas_slug, created_at")
-      .eq("status", "published");
+      .select("saas_slug, verified_regenerated_at")
+      .eq("status", "approved");
 
     if (altsData) {
       altEntries = altsData.map((row: any) => ({
         url: `${siteUrl}/alternatives/${row.saas_slug}`,
-        lastModified: row.created_at ? new Date(row.created_at) : currentLastModified,
+        ...(row.verified_regenerated_at ? { lastModified: new Date(row.verified_regenerated_at) } : {}),
         changeFrequency: "monthly",
         priority: 0.75
       }));

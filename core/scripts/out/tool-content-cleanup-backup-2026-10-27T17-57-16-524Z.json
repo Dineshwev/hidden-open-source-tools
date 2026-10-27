@@ -1,0 +1,607 @@
+[
+  {
+    "id": "f36a061a-cdfb-4e96-a50f-075e54d9d0f6",
+    "slug": "cups",
+    "name": "CUPS",
+    "ai_content": "## CUPS\n\nOpenPrinting CUPS is a standards-based, open source printing system for Linux and other Unix-like operating systems, supporting various printing protocols and interfaces. It is for users who need a flexible and configurable printing solution.\n\n## GitHub Stats\n- ⭐ Stars: 1,657\n- 🍴 Forks: 303\n- 🐛 Open Issues: 25\n- 👥 Contributors: 170\n- 🕐 Last Commit: Jun 27, 2026\n- 🏷️ Latest Release: v2.4.19\n- 💻 Language: C\n- 📄 License: Apache-2.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ printing to AirPrint and IPP Everywhere printers\n- ✓ printing to network and local printers with Printer Applications\n- ✓ printing to network and local printers with legacy PPD-based printer drivers\n\n## Not Ideal For\n- ✗ users who require a non-open source printing system\n- ✗ users who need a printing system for non-Unix like operating systems\n\n## Pros\n- ✓ standards-based\n- ✓ open source\n- ✓ configurable web interface\n- ✓ supports multiple printing protocols\n\n## Cons\n- ✗ may require technical expertise to configure\n- ✗ limited information available for non-technical users\n- ✗ no mention of mobile support\n",
+    "cons": [
+      "may require technical expertise to configure",
+      "limited information available for non-technical users",
+      "no mention of mobile support"
+    ],
+    "not_for": [
+      "users who require a non-open source printing system",
+      "users who need a printing system for non-Unix like operating systems"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available for non-technical users",
+      "Cons: limited information available for non-technical users"
+    ]
+  },
+  {
+    "id": "969a82f9-0fa5-45b9-af25-c689b97d11c4",
+    "slug": "d1",
+    "name": "D1",
+    "ai_content": "## D1\n\nD1 is a self‑hosted data storage solution designed to handle up to 5 million row reads per day and 100 k row writes per day while keeping the total data footprint around 1 GB. It targets applications that need fast read‑heavy access to a modest amount of data, such as analytics dashboards, caching layers, or small‑scale telemetry. The tool is intended for developers or teams that prefer to run the service on‑premises or in their own container environment rather than relying on a managed cloud offering. Because it is optimized for read‑intensive workloads, it can deliver low‑latency queries on a limited dataset without requiring large storage resources.\n\n## Best For\n- ✓ Read‑heavy applications with modest data size.\n- ✓ Analytics dashboards that query a small dataset frequently.\n- ✓ Self‑hosted environments where low storage overhead is required.\n\n## Not Ideal For\n- ✗ Large‑scale data storage beyond 1 GB.\n- ✗ Write‑intensive workloads requiring high write throughput.\n\n## Pros\n- ✓ Handles up to 5 million reads per day.\n- ✓ Supports 100 k writes per day.\n- ✓ Operates within a 1 GB storage limit.\n- ✓ Designed for self‑hosted deployment.\n\n## Cons\n- ✗ Limited to 1 GB total storage.\n- ✗ Not optimized for write‑heavy scenarios.\n- ✗ No managed cloud version is indicated.\n",
+    "cons": [
+      "Limited to 1 GB total storage.",
+      "Not optimized for write‑heavy scenarios.",
+      "No managed cloud version is indicated."
+    ],
+    "not_for": [
+      "Large‑scale data storage beyond 1 GB.",
+      "Write‑intensive workloads requiring high write throughput."
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "ab57f2a7-f825-4874-8329-a44a6b4c9e6d",
+    "slug": "ddracenetwork",
+    "name": "DDraceNetwork",
+    "ai_content": "## DDraceNetwork\n\nDDraceNetwork is a Teeworlds mod, a flavor of DDRace. It is for users who want to participate in development discussions on Quakenet or learn about the source code from the wiki article. The tool provides binary releases and can be cloned from the GitHub repository.\n\n## GitHub Stats\n- ⭐ Stars: 785\n- 🍴 Forks: 613\n- 🐛 Open Issues: 969\n- 👥 Contributors: 346\n- 🕐 Last Commit: Jun 15, 2026\n- 💻 Language: C++\n- 📄 License: NOASSERTION\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ Teeworlds mod users\n- ✓ DDRace enthusiasts\n- ✓ Self-hosting infrastructure\n\n## Not Ideal For\n- ✗ Users without necessary libraries\n- ✗ Those who want a cloud version\n\n## Pros\n- ✓ Customizable\n- ✓ Open-source\n- ✓ Community-driven\n- ✓ Available binary releases\n\n## Cons\n- ✗ Steep learning curve\n- ✗ Requires technical knowledge\n- ✗ Limited information available\n",
+    "cons": [
+      "Steep learning curve",
+      "Requires technical knowledge",
+      "Limited information available"
+    ],
+    "not_for": [
+      "Users without necessary libraries",
+      "Those who want a cloud version"
+    ],
+    "removed_items": [
+      "Cons: ✗ Limited information available",
+      "Cons: Limited information available"
+    ]
+  },
+  {
+    "id": "018fa459-e146-4b8b-8ae5-6654bec4d1b7",
+    "slug": "dietpi",
+    "name": "DietPi",
+    "ai_content": "## DietPi\n\nDietPi is a lightweight Debian-based OS highly optimised for minimal CPU and RAM resource usage, ensuring single-board computers run at maximum potential. It provides a feature-rich configuration tool and ready to run optimised software choices, making it suitable for everyone.\n\n## GitHub Stats\n- ⭐ Stars: 6,113\n- 🍴 Forks: 555\n- 🐛 Open Issues: 436\n- 👥 Contributors: 133\n- 🕐 Last Commit: May 20, 2026\n- 🏷️ Latest Release: v10.4\n- 💻 Language: Shell\n- 📄 License: GPL-2.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ single-board computers\n- ✓ minimal resource usage\n- ✓ optimised software choices\n\n## Not Ideal For\n- ✗ high-resource applications\n- ✗ complex command line usage\n\n## Pros\n- ✓ lightweight\n- ✓ optimised for minimal CPU and RAM usage\n- ✓ feature-rich configuration tool\n- ✓ easy installation of optimised applications\n\n## Cons\n- ✗ limited information available\n- ✗ may not be suitable for high-resource applications\n",
+    "cons": [
+      "limited information available",
+      "may not be suitable for high-resource applications"
+    ],
+    "not_for": [
+      "high-resource applications",
+      "complex command line usage"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available",
+      "Cons: limited information available"
+    ]
+  },
+  {
+    "id": "c5f0a7a5-7591-4af2-8a0d-49e8bbba86fa",
+    "slug": "esmira",
+    "name": "ESMira",
+    "ai_content": "## ESMira\n\nESMira is a tool for research projects using Experience Sampling Method designs, offering a simple set-up process and ease of use. It is free, decentralized, and open-source, allowing study administrators to install it on their own webspace without needing much technical knowledge, making them independent from third-party services.\n\n## GitHub Stats\n- ⭐ Stars: 23\n- 🍴 Forks: 3\n- 🐛 Open Issues: 7\n- 👥 Contributors: 20\n- 🕐 Last Commit: Jun 8, 2026\n- 📄 License: AGPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ research projects\n- ✓ Experience Sampling Method designs\n- ✓ study administrators\n\n## Not Ideal For\n- ✗ users requiring third-party services\n- ✗ those needing advanced technical knowledge for setup\n\n## Pros\n- ✓ free\n- ✓ decentralized\n- ✓ open-source\n- ✓ simple set-up process\n\n## Cons\n- ✗ unknown language\n- ✗ limited information available\n",
+    "cons": [
+      "unknown language",
+      "limited information available"
+    ],
+    "not_for": [
+      "users requiring third-party services",
+      "those needing advanced technical knowledge for setup"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available",
+      "Cons: limited information available"
+    ]
+  },
+  {
+    "id": "5fe7afb2-0a39-42d1-8cc7-dc5f3c361c24",
+    "slug": "fava",
+    "name": "Fava",
+    "ai_content": "## Fava\n\nFava is a web interface for the double-entry bookkeeping software Beancount, focusing on features and usability. It is for users who want a user-friendly interface to manage their finances with Beancount. The tool provides an online demo and a Getting Started guide for easy installation and setup.\n\n## GitHub Stats\n- ⭐ Stars: 2,493\n- 🍴 Forks: 382\n- 🐛 Open Issues: 115\n- 👥 Contributors: 121\n- 🕐 Last Commit: Jun 10, 2026\n- 💻 Language: Python\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ double-entry bookkeeping\n- ✓ Beancount users\n- ✓ personal finance management\n\n## Not Ideal For\n- ✗ single-entry bookkeeping\n- ✗ users without Beancount experience\n\n## Pros\n- ✓ user-friendly interface\n- ✓ web-based\n- ✓ easy installation\n- ✓ online demo available\n\n## Cons\n- ✗ requires Beancount knowledge\n- ✗ limited information available\n",
+    "cons": [
+      "requires Beancount knowledge",
+      "limited information available"
+    ],
+    "not_for": [
+      "single-entry bookkeeping",
+      "users without Beancount experience"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available",
+      "Cons: limited information available"
+    ]
+  },
+  {
+    "id": "8baa15ec-0ec9-4b2c-967b-ba43e36c8fe7",
+    "slug": "fider",
+    "name": "Fider",
+    "ai_content": "## Fider\n\nFider is a feedback portal for feature requests and suggestions, allowing customers to provide input on product development. It is designed for product teams to gather feedback and build the right product, reducing guesswork and increasing customer satisfaction.\n\n## GitHub Stats\n- ⭐ Stars: 4,364\n- 🍴 Forks: 810\n- 🐛 Open Issues: 60\n- 👥 Contributors: 70\n- 🕐 Last Commit: Jun 12, 2026\n- 🏷️ Latest Release: v0.35.0\n- 💻 Language: Go\n- 📄 License: AGPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n- Cloud Version: ✅\n\n## Best For\n- ✓ product teams\n- ✓ customer feedback collection\n- ✓ feature request management\n\n## Not Ideal For\n- ✗ complex project management\n- ✗ large-scale enterprise solutions\n\n## Pros\n- ✓ fully managed cloud service available\n- ✓ self-hosted option available\n- ✓ free self-hosted option\n- ✓ easy to get started\n\n## Cons\n- ✗ self-hosted option requires manual management\n- ✗ limited information available on advanced features\n",
+    "cons": [
+      "self-hosted option requires manual management",
+      "limited information available on advanced features"
+    ],
+    "not_for": [
+      "complex project management",
+      "large-scale enterprise solutions"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on advanced features",
+      "Cons: limited information available on advanced features"
+    ]
+  },
+  {
+    "id": "eefb2105-6135-455e-b6e2-fd2406c1bb23",
+    "slug": "gameap",
+    "name": "GameAP",
+    "ai_content": "## GameAP\n\nGameAP is a free and open-source game server management panel that allows users to easily manage and deploy game servers. It provides a user-friendly web interface for managing game servers, users, and configurations, making it suitable for game server administrators and managers.\n\n## GitHub Stats\n- ⭐ Stars: 33\n- 🍴 Forks: 6\n- 🐛 Open Issues: 8\n- 👥 Contributors: 2\n- 🕐 Last Commit: May 17, 2026\n- 🏷️ Latest Release: v4.2.4\n- 💻 Language: Go\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ game server management\n- ✓ game server deployment\n- ✓ small to medium-sized deployments\n\n## Not Ideal For\n- ✗ large-scale deployments with complex requirements\n- ✗ environments with limited RAM or outdated CPU\n\n## Pros\n- ✓ user-friendly web interface\n- ✓ easy management and deployment of game servers\n- ✓ includes all necessary dependencies in a single binary file\n- ✓ supports multiple operating systems and database backends\n\n## Cons\n- ✗ may not be suitable for large-scale deployments\n- ✗ limited information available on scalability and performance\n",
+    "cons": [
+      "may not be suitable for large-scale deployments",
+      "limited information available on scalability and performance"
+    ],
+    "not_for": [
+      "large-scale deployments with complex requirements",
+      "environments with limited RAM or outdated CPU"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on scalability and performance",
+      "Cons: limited information available on scalability and performance"
+    ]
+  },
+  {
+    "id": "5f6c7663-5880-4c14-aba3-6f70f58112e5",
+    "slug": "goatcounter",
+    "name": "GoatCounter",
+    "ai_content": "## GoatCounter\n\nGoatCounter is an open‑source web analytics platform that can be used as a free hosted service for non‑commercial sites or self‑hosted on your own infrastructure. It focuses on privacy‑friendly tracking, avoiding personal identifiers and GDPR notices, while still providing useful metrics such as browser type, location, screen size, referrers and campaign data. The interface is lightweight (adding roughly 3.5 KB), accessible, and designed to be simple compared with more complex tools like Google Analytics or Matomo. Users can integrate it via a single script tag, a no‑JavaScript image pixel, backend middleware, or by importing log files, and they retain full ownership of their data with easy export and cancellation options.\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ personal blogs and small‑to‑medium websites that need privacy‑focused analytics\n- ✓ developers who want a lightweight, easy‑to‑integrate tracking solution\n- ✓ organizations preferring open‑source software they can self‑host\n\n## Not Ideal For\n- ✗ high‑traffic sites requiring millions of pageviews per day\n- ✗ teams that need extensive enterprise‑level reporting or dedicated SaaS support\n\n## Pros\n- ✓ Privacy‑first design without unique user identifiers\n- ✓ Very small script size and optional JavaScript‑free tracking\n- ✓ Accessible UI that works well with screen readers\n- ✓ Open‑source code allows full auditability and self‑hosting\n\n## Cons\n- ✗ Self‑hosting requires you to manage server infrastructure and updates\n- ✗ Free hosted tier limits data retention to six months and 100 k pageviews per month\n- ✗ Limited built‑in enterprise features such as advanced segmentation or paid support\n\n## Pricing\nFree for non‑commercial use with unlimited sites, six months data retention, and 100 k pageviews per month; paid donations accepted for hosted service\n\n## Key Features\n- Privacy‑aware tracking without personal identifiers\n- Lightweight (~3.5 KB) script and optional image pixel\n- Unique visit identification without cookies\n- Statistics on browser, location, screen size, referrers and campaigns\n- Accessibility‑focused interface\n- Full data export and easy cancellation\n\n## Integrations\n- Single JavaScript script tag\n- No‑JavaScript image‑based tracker\n- Backend middleware integration\n- Log file import\n",
+    "cons": [
+      "Self‑hosting requires you to manage server infrastructure and updates",
+      "Free hosted tier limits data retention to six months and 100 k pageviews per month",
+      "Limited built‑in enterprise features such as advanced segmentation or paid support"
+    ],
+    "not_for": [
+      "high‑traffic sites requiring millions of pageviews per day",
+      "teams that need extensive enterprise‑level reporting or dedicated SaaS support"
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "f9f048d2-beb7-466e-b50c-fa4d03d4204e",
+    "slug": "grist",
+    "name": "Grist",
+    "ai_content": "## Grist\n\nGrist is a modern relational spreadsheet that combines the flexibility of a spreadsheet with the robustness of a database. It is suitable for users who need to host and manage spreadsheets, with options for self-hosted servers, desktop apps, and in-browser displays. Grist is developed by an NYC-based company and has received contributions from the French government and other organizations.\n\n## GitHub Stats\n- ⭐ Stars: 11,140\n- 🍴 Forks: 584\n- 🐛 Open Issues: 662\n- 👥 Contributors: 187\n- 🕐 Last Commit: Jun 12, 2026\n- 🏷️ Latest Release: v1.7.15\n- 💻 Language: TypeScript\n- 📄 License: Apache-2.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ hosting spreadsheets\n- ✓ viewing and editing spreadsheets\n- ✓ displaying spreadsheets on a website\n\n## Not Ideal For\n- ✗ users who require a non-relational spreadsheet\n- ✗ users who need a closed-source solution\n\n## Pros\n- ✓ flexible spreadsheet capabilities\n- ✓ robust database features\n- ✓ open-source with Apache License\n- ✓ available in desktop and in-browser versions\n\n## Cons\n- ✗ may require technical expertise for self-hosting\n- ✗ limited information available about paid edition features\n",
+    "cons": [
+      "may require technical expertise for self-hosting",
+      "limited information available about paid edition features"
+    ],
+    "not_for": [
+      "users who require a non-relational spreadsheet",
+      "users who need a closed-source solution"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available about paid edition features",
+      "Cons: limited information available about paid edition features"
+    ]
+  },
+  {
+    "id": "c5ed1e42-c9e0-4fc1-aad3-dddb34a6832b",
+    "slug": "homeserverhq",
+    "name": "HomeServerHQ",
+    "ai_content": "## HomeServerHQ\n\nHomeServerHQ is an all-in-one home server infrastructure designed for simplicity and ease of use, even for those without prior software or IT experience. It allows users to host email servers and public websites from home, access their HomeServer remotely, and run their own private internet with a focus on security and privacy.\n\n## GitHub Stats\n- ⭐ Stars: 63\n- 🍴 Forks: 7\n- 🐛 Open Issues: 0\n- 👥 Contributors: 3\n- 🕐 Last Commit: May 26, 2026\n- 🏷️ Latest Release: 234\n- 💻 Language: Shell\n- 📄 License: GPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ hosting email servers\n- ✓ hosting public websites\n- ✓ remote access to HomeServer\n\n## Not Ideal For\n- ✗ users who require advanced customization\n- ✗ users who are not behind CGNAT but need other specific network configurations\n\n## Pros\n- ✓ simple and easy to setup\n- ✓ secure and private\n- ✓ allows remote access\n- ✓ novel networking approach\n\n## Cons\n- ✗ limited information available on advanced customization\n- ✗ may have limitations for users with specific network configurations\n",
+    "cons": [
+      "limited information available on advanced customization",
+      "may have limitations for users with specific network configurations"
+    ],
+    "not_for": [
+      "users who require advanced customization",
+      "users who are not behind CGNAT but need other specific network configurations"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on advanced customization",
+      "Cons: limited information available on advanced customization"
+    ]
+  },
+  {
+    "id": "6c4dbf33-cb36-485e-a94d-260fd105941d",
+    "slug": "joplin",
+    "name": "Joplin",
+    "ai_content": "## Joplin\n\nJoplin is a free, open source note taking and to-do application for individuals who need to organize a large number of notes into notebooks. It allows users to search, copy, tag, and modify notes, and supports importing notes from Evernote and plain Markdown files. Joplin is designed for offline use, ensuring notes are always accessible with or without an internet connection.\n\n## GitHub Stats\n- ⭐ Stars: 55,217\n- 🍴 Forks: 6,142\n- 🐛 Open Issues: 565\n- 👥 Contributors: 807\n- 🕐 Last Commit: Jun 15, 2026\n- 🏷️ Latest Release: v3.6.14\n- 💻 Language: TypeScript\n- 📄 License: NOASSERTION\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ note taking\n- ✓ to-do lists\n- ✓ offline access\n\n## Not Ideal For\n- ✗ real-time collaboration\n- ✗ team-based note taking\n\n## Pros\n- ✓ free and open source\n- ✓ offline first\n- ✓ supports importing from Evernote\n- ✓ securely syncs with various cloud services\n\n## Cons\n- ✗ limited information available on collaboration features\n- ✗ no information available on scalability\n",
+    "cons": [
+      "limited information available on collaboration features",
+      "no information available on scalability"
+    ],
+    "not_for": [
+      "real-time collaboration",
+      "team-based note taking"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on collaboration features",
+      "Cons: limited information available on collaboration features"
+    ]
+  },
+  {
+    "id": "c50913d1-d18d-4809-bd38-020e1c9845a9",
+    "slug": "libre-translate",
+    "name": "Libre Translate",
+    "ai_content": "## Libre Translate\n\nLibre Translate is a free and open source machine translation API that is entirely self-hosted, powered by an open source library. It does not rely on proprietary software such as Google or Azure to perform translations, making it a suitable option for those seeking an alternative to proprietary translation APIs.\n\n## GitHub Stats\n- ⭐ Stars: 14,549\n- 🍴 Forks: 1,484\n- 🐛 Open Issues: 123\n- 👥 Contributors: 295\n- 🕐 Last Commit: Jun 10, 2026\n- 🏷️ Latest Release: v1.9.6\n- 💻 Language: Python\n- 📄 License: AGPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ self-hosted machine translation\n- ✓ open source translation solutions\n- ✓ users seeking alternatives to proprietary APIs\n\n## Not Ideal For\n- ✗ users relying on Google or Azure for translations\n- ✗ those requiring proprietary software for translation\n\n## Pros\n- ✓ free and open source\n- ✓ self-hosted\n- ✓ powered by open source library\n- ✓ alternative to proprietary APIs\n\n## Cons\n- ✗ limited information available on performance and accuracy\n",
+    "cons": [
+      "limited information available on performance and accuracy"
+    ],
+    "not_for": [
+      "users relying on Google or Azure for translations",
+      "those requiring proprietary software for translation"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on performance and accuracy",
+      "Cons: limited information available on performance and accuracy"
+    ]
+  },
+  {
+    "id": "09a30373-264c-4be8-b1e5-63bf9515e748",
+    "slug": "linear",
+    "name": "Linear",
+    "ai_content": "## Linear\n\nLinear is a lightweight issue‑tracking and project‑management tool that emphasizes a clean, streamlined interface. It is designed for teams that need a simple way to create, organize, and follow up on work items without the overhead of complex configurations. The service is offered for free to an unlimited number of members, making it suitable for small to medium‑sized groups or open‑source projects. Each file attachment is limited to 10 MB, and the free tier supports up to 250 active issues, with older items moved to an archive. Linear therefore targets users who value ease of use and cost‑free collaboration while accepting modest limits on issue volume and attachment size.\n\n## Best For\n- ✓ simple issue tracking for small teams\n- ✓ free collaboration with unlimited members\n- ✓ projects needing a clean UI\n\n## Not Ideal For\n- ✗ limited to 250 active issues\n- ✗ file uploads capped at 10 MB\n- ✗ no self‑hosted or enterprise deployment options known\n\n## Pros\n- ✓ free for unlimited members\n- ✓ streamlined, easy‑to‑use interface\n- ✓ quick setup without complex configuration\n- ✓ supports basic issue tracking\n\n## Cons\n- ✗ maximum 250 active issues\n- ✗ file upload size limited to 10 MB\n- ✗ unknown hosting options may limit enterprise use\n",
+    "cons": [
+      "maximum 250 active issues",
+      "file upload size limited to 10 MB",
+      "unknown hosting options may limit enterprise use"
+    ],
+    "not_for": [
+      "limited to 250 active issues",
+      "file uploads capped at 10 MB",
+      "no self‑hosted or enterprise deployment options known"
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "857d89cd-980e-424a-aca2-e103da32ee46",
+    "slug": "logto",
+    "name": "Logto",
+    "ai_content": "## Logto\n\nLogto is an open‑source authentication and authorization platform that lets developers secure and manage user identities across web, mobile and cloud applications. It supports OAuth 2.1, OIDC and SAML, and offers passwordless email/SMS login, traditional password authentication and social sign‑in with providers like Google, Apple and Discord. The service is free for up to 5,000 monthly active users and provides a self‑hosted option, with quick‑start guides for frameworks such as Next.js, React, Vue, Angular, Go and Android. Designed for developers, Logto aims to simplify identity management while giving full control over deployment and customization.\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ Startups that need a quick, developer‑friendly auth solution\n- ✓ Multi‑platform products requiring passwordless and social login\n- ✓ Teams that prefer an open‑source, self‑hostable identity provider\n\n## Not Ideal For\n- ✗ Very large enterprises that need unlimited free usage or dedicated SaaS support\n- ✗ Organizations without DevOps resources to manage self‑hosting infrastructure\n\n## Pros\n- ✓ Supports OAuth 2.1, OIDC and SAML standards\n- ✓ Provides passwordless email and SMS login flows\n- ✓ Includes social sign‑in with major providers\n- ✓ Open‑source with self‑hosting option\n- ✓ Developer‑first quick‑start guides for many frameworks\n\n## Cons\n- ✗ Self‑hosting requires managing server infrastructure and updates\n- ✗ Free tier limited to 5,000 MAUs may be insufficient for high‑traffic apps\n- ✗ No dedicated managed SaaS enterprise tier is advertised\n\n## Pricing\nFree for up to 5,000 monthly active users; pay‑as‑you‑go token‑based pricing beyond the free tier\n\n## Key Features\n- OAuth 2.1, OIDC and SAML support\n- Passwordless email and SMS authentication\n- Social sign‑in (Google, Apple, Discord, etc.)\n- Traditional password authentication\n- Multi‑app omni sign‑in experience\n\n## Integrations\n- Next.js\n- React\n- Vue\n- Angular\n- Go\n- Android\n",
+    "cons": [
+      "Self‑hosting requires managing server infrastructure and updates",
+      "Free tier limited to 5,000 MAUs may be insufficient for high‑traffic apps",
+      "No dedicated managed SaaS enterprise tier is advertised"
+    ],
+    "not_for": [
+      "Very large enterprises that need unlimited free usage or dedicated SaaS support",
+      "Organizations without DevOps resources to manage self‑hosting infrastructure"
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "534663a8-c789-4caf-86dd-48b2e6084309",
+    "slug": "lychee",
+    "name": "Lychee",
+    "ai_content": "## Lychee\n\nLychee is a free, open-source photo-management tool that allows users to upload, manage, and share their photos seamlessly. It is suitable for individuals looking for a user-friendly and secure photo management system that can be installed on their server or web space.\n\n## GitHub Stats\n- ⭐ Stars: 4,189\n- 🍴 Forks: 369\n- 🐛 Open Issues: 40\n- 👥 Contributors: 122\n- 🕐 Last Commit: Jun 15, 2026\n- 🏷️ Latest Release: v7.5.4\n- 💻 Language: PHP\n- 📄 License: MIT\n\n## Deployment\n- Docker: ✅\n- Self-Hosted: ✅\n\n## Best For\n- ✓ personal photo management\n- ✓ small-scale photo sharing\n- ✓ self-hosted photo storage\n\n## Not Ideal For\n- ✗ large-scale enterprise photo management\n- ✗ complex photo editing requirements\n\n## Pros\n- ✓ quick and easy installation\n- ✓ user-friendly interface\n- ✓ secure photo storage\n- ✓ free and open-source\n\n## Cons\n- ✗ may require technical expertise for advanced features\n- ✗ limited information available on scalability\n",
+    "cons": [
+      "may require technical expertise for advanced features",
+      "limited information available on scalability"
+    ],
+    "not_for": [
+      "large-scale enterprise photo management",
+      "complex photo editing requirements"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on scalability",
+      "Cons: limited information available on scalability"
+    ]
+  },
+  {
+    "id": "229a7dd8-745e-4c80-ae26-c0a7b46946d4",
+    "slug": "make",
+    "name": "Make",
+    "ai_content": "## Make\n\nMake is a workflow automation platform designed for CI/CD that enables users to visually connect applications and automate processes through an intuitive UI. It offers integrations with a wide range of apps and popular APIs, allowing teams to build custom pipelines without writing code. The service is free for public GitHub repositories and provides a free tier that includes 100 MB of storage, up to 1,000 operations, and a minimum interval of 15 minutes between runs. Make targets developers, DevOps engineers, and product teams seeking a low‑code solution to streamline builds, deployments, and other repetitive tasks. It is suitable for small to medium projects that need quick integration without extensive infrastructure setup.\n\n## Best For\n- ✓ Creating CI/CD pipelines without code\n- ✓ Integrating multiple SaaS applications\n- ✓ Automating repetitive development tasks\n\n## Not Ideal For\n- ✗ Heavy usage exceeding free tier limits\n- ✗ Private repository automation without a paid plan\n\n## Pros\n- ✓ Visual UI for building workflows\n- ✓ Broad app and API integrations\n- ✓ Free tier available for public repos\n- ✓ No coding required for basic automations\n\n## Cons\n- ✗ Free tier limited to 100 MB storage and 1,000 operations\n- ✗ Minimum 15‑minute interval may be too long for fast feedback\n- ✗ Lack of self‑hosted or on‑premise deployment options\n",
+    "cons": [
+      "Free tier limited to 100 MB storage and 1,000 operations",
+      "Minimum 15‑minute interval may be too long for fast feedback",
+      "Lack of self‑hosted or on‑premise deployment options"
+    ],
+    "not_for": [
+      "Heavy usage exceeding free tier limits",
+      "Private repository automation without a paid plan"
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "0830c8db-0540-4456-a5de-afd3df6b0cb7",
+    "slug": "mergeable",
+    "name": "Mergeable",
+    "ai_content": "## Mergeable\n\nMergeable is a better inbox for GitHub pull requests, allowing users to organize pull requests into sections, navigate quickly with keyboard shortcuts, and connect to multiple GitHub instances. It is designed for developers and teams who want to streamline their pull request workflow. The tool stores data locally in the browser storage and does not require any GitHub app to be installed.\n\n## GitHub Stats\n- ⭐ Stars: 107\n- 🍴 Forks: 12\n- 🐛 Open Issues: 26\n- 👥 Contributors: 8\n- 🕐 Last Commit: Jun 3, 2025\n- 🏷️ Latest Release: v0.10.0\n- 💻 Language: TypeScript\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ streamlining pull request workflow\n- ✓ organizing pull requests\n- ✓ teams using GitHub\n\n## Not Ideal For\n- ✗ users who require a GitHub app installation\n\n## Pros\n- ✓ organize pull requests into sections\n- ✓ keyboard shortcuts for navigation\n- ✓ connect to multiple GitHub instances\n- ✓ data stored locally in browser storage\n\n## Cons\n- ✗ no GitHub app installation required, which may be a limitation for some users\n- ✗ limited information available about potential drawbacks\n",
+    "cons": [
+      "no GitHub app installation required, which may be a limitation for some users",
+      "limited information available about potential drawbacks"
+    ],
+    "not_for": [
+      "users who require a GitHub app installation"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available about potential drawbacks",
+      "Cons: limited information available about potential drawbacks"
+    ]
+  },
+  {
+    "id": "e4ac0ddb-5774-4e51-a6de-c01d6dbd7ae9",
+    "slug": "mixpost",
+    "name": "Mixpost",
+    "ai_content": "## Mixpost\n\nMixpost is a self‑hosted social media management platform built in PHP that lets agencies, businesses, and creators create, schedule, publish, and manage content across multiple networks from a single dashboard. The Lite version of Mixpost Pro offers core capabilities such as post composition, AI‑assisted drafting, calendar views, media library, analytics, account connections, and templates, all without monthly subscription fees or usage limits. Designed for users who need full data ownership, privacy, and the ability to customize or extend the software, Mixpost runs on the user’s own infrastructure, providing unlimited scalability and control over social media workflows.\n\n## GitHub Stats\n- ⭐ Stars: 132\n- 🍴 Forks: 42\n- 🐛 Open Issues: 4\n- 👥 Contributors: 1\n- 🕐 Last Commit: May 28, 2025\n- 🏷️ Latest Release: v2.1.0\n- 💻 Language: PHP\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ Agencies managing multiple client accounts\n- ✓ Businesses seeking privacy‑first social media publishing\n- ✓ Creators needing a unified, customizable posting tool\n\n## Not Ideal For\n- ✗ Teams without technical resources to self‑host\n- ✗ Users requiring advanced Pro‑only features\n- ✗ Organizations preferring a hosted SaaS solution\n\n## Pros\n- ✓ Open‑source with unlimited scalability\n- ✓ No recurring subscription fees\n- ✓ Full data ownership on user‑controlled servers\n- ✓ Supports 12 major social platforms out of the box\n\n## Cons\n- ✗ Requires self‑hosting and technical setup\n- ✗ Limited to Lite feature set compared to Pro\n- ✗ License information not disclosed\n\n## Key Features\n- Compose Post\n- AI Compose Post\n- Monthly Calendar\n- Weekly Calendar\n- Posts overview\n- Media Library\n- Analytics\n- Connected Accounts\n- Templates\n- Scheduling\n- Analytics\n- Engagement\n- Teams\n\n## Integrations\n- Facebook\n- Instagram\n- Threads\n- X\n- LinkedIn\n- YouTube\n- TikTok\n- Pinterest\n- Mastodon\n- Bluesky\n- Pixelfed\n- Google Business\n",
+    "cons": [
+      "Requires self‑hosting and technical setup",
+      "Limited to Lite feature set compared to Pro",
+      "License information not disclosed"
+    ],
+    "not_for": [
+      "Teams without technical resources to self‑host",
+      "Users requiring advanced Pro‑only features",
+      "Organizations preferring a hosted SaaS solution"
+    ],
+    "removed_items": [
+      "Key Features: Duplicate: Analytics"
+    ]
+  },
+  {
+    "id": "6e35d11f-cb98-465b-a3dc-83440e0a326d",
+    "slug": "mybucksonline",
+    "name": "Mybucks.online",
+    "ai_content": "## Mybucks.online\n\nMybucks.online is a seedless, disposable crypto wallet designed for speed and convenience. It generates a private key from a passphrase and PIN using the Scrypt Key Derivation Function, allowing users to transfer, receive, and hold crypto assets instantly. This tool is for users who want a convenient and secure way to manage their crypto assets without relying on third-party APIs or storage.\n\n## GitHub Stats\n- ⭐ Stars: 18\n- 🍴 Forks: 10\n- 🐛 Open Issues: 1\n- 👥 Contributors: 1\n- 🕐 Last Commit: Jun 11, 2026\n- 🏷️ Latest Release: v2.5.1\n- 💻 Language: JavaScript\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ fast and secure crypto transactions\n- ✓ convenient crypto asset management\n- ✓ users who want a disposable crypto wallet\n\n## Not Ideal For\n- ✗ users who require long-term crypto storage\n- ✗ users who need to integrate with third-party APIs\n\n## Pros\n- ✓ seedless and disposable\n- ✓ fast and convenient\n- ✓ secure with Scrypt Key Derivation Function\n- ✓ runs on browser side without third-party APIs\n\n## Cons\n- ✗ may not be suitable for long-term crypto storage\n- ✗ limited information available about security audits or testing\n- ✗ may be vulnerable to brute-force attacks despite Scrypt KDF\n",
+    "cons": [
+      "may not be suitable for long-term crypto storage",
+      "limited information available about security audits or testing",
+      "may be vulnerable to brute-force attacks despite Scrypt KDF"
+    ],
+    "not_for": [
+      "users who require long-term crypto storage",
+      "users who need to integrate with third-party APIs"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available about security audits or testing",
+      "Cons: limited information available about security audits or testing"
+    ]
+  },
+  {
+    "id": "db6428e4-dc76-406a-9669-dab2ccf6f778",
+    "slug": "paaster",
+    "name": "paaster",
+    "ai_content": "## paaster\n\nPaaster is a secure and user-friendly pastebin application that prioritizes privacy and simplicity. It offers end-to-end encryption and paste history, making it suitable for users who need to share confidential code. With features like file drag & drop, keyboard shortcuts, and themes, Paaster provides a convenient and customizable experience.\n\n## GitHub Stats\n- ⭐ Stars: 545\n- 🍴 Forks: 22\n- 🐛 Open Issues: 7\n- 👥 Contributors: 9\n- 🕐 Last Commit: Jun 8, 2026\n- 🏷️ Latest Release: v3.2.2\n- 💻 Language: Svelte\n- 📄 License: AGPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ developers who need to share code snippets\n- ✓ users who prioritize privacy and security\n- ✓ those who require a simple and user-friendly pastebin experience\n\n## Not Ideal For\n- ✗ users who require dynamically loaded 3rd party dependencies\n- ✗ those who need a pastebin with complex or advanced features\n\n## Pros\n- ✓ end-to-end encryption\n- ✓ paste history\n- ✓ memory efficient\n- ✓ file drag & drop\n- ✓ keyboard shortcuts\n- ✓ i18n support\n\n## Cons\n- ✗ limited information available about potential drawbacks\n- ✗ requires S3-com for deployment\n",
+    "cons": [
+      "limited information available about potential drawbacks",
+      "requires S3-com for deployment"
+    ],
+    "not_for": [
+      "users who require dynamically loaded 3rd party dependencies",
+      "those who need a pastebin with complex or advanced features"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available about potential drawbacks",
+      "Cons: limited information available about potential drawbacks"
+    ]
+  },
+  {
+    "id": "a0814ff3-b5ef-490d-b2c6-684ba0818354",
+    "slug": "passbolt",
+    "name": "Passbolt",
+    "ai_content": "## Passbolt\n\nPassbolt is an open source password manager for teams, helping organizations centralize, organize, and share passwords and secrets securely. It features a security-first approach with end-to-end encryption and user-owned secret keys, making it suitable for teams and organizations that require secure password management.\n\n## GitHub Stats\n- ⭐ Stars: 5,969\n- 🍴 Forks: 381\n- 🐛 Open Issues: 24\n- 👥 Contributors: 563\n- 🕐 Last Commit: Jun 11, 2026\n- 🏷️ Latest Release: v5.13.0\n- 💻 Language: PHP\n- 📄 License: AGPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ teams\n- ✓ organizations\n- ✓ secure password management\n\n## Not Ideal For\n- ✗ individuals\n- ✗ personal use\n\n## Pros\n- ✓ security-first approach\n- ✓ end-to-end encryption\n- ✓ user-owned secret keys\n- ✓ collaboration features\n\n## Cons\n- ✗ limited information available\n- ✗ no personal data collection or telemetry may not be suitable for all use cases\n",
+    "cons": [
+      "limited information available",
+      "no personal data collection or telemetry may not be suitable for all use cases"
+    ],
+    "not_for": [
+      "individuals",
+      "personal use"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available",
+      "Cons: limited information available"
+    ]
+  },
+  {
+    "id": "6d8ac8a3-da98-4da4-a23b-86fb57078630",
+    "slug": "password-pusher",
+    "name": "Password Pusher",
+    "ai_content": "## Password Pusher\n\nPassword Pusher is an open source web app for sharing sensitive information safely. It allows users to push passwords, notes, files, or URLs and the recipient gets a one-time link that expires after a set number of views and/or time. This tool is for individuals who need to share sensitive information securely, such as passwords or files, and want to do so in a way that is encrypted, auditable, and auto-self-destruct.\n\n## GitHub Stats\n- ⭐ Stars: 3,044\n- 🍴 Forks: 447\n- 🐛 Open Issues: 136\n- 👥 Contributors: 63\n- 🕐 Last Commit: Jun 12, 2026\n- 🏷️ Latest Release: v2.7.3\n- 💻 Language: Ruby\n- 📄 License: Apache-2.0\n\n## Deployment\n- Docker: ✅\n- Self-Hosted: ✅\n\n## Best For\n- ✓ sharing sensitive information\n- ✓ securely sending passwords or files\n- ✓ creating self-deleting links\n\n## Not Ideal For\n- ✗ permanent storage of sensitive information\n- ✗ sharing large amounts of data\n\n## Pros\n- ✓ secure by default\n- ✓ encrypted storage\n- ✓ optional passphrase\n- ✓ expiry by views and/or time\n\n## Cons\n- ✗ limited information available on potential drawbacks\n",
+    "cons": [
+      "limited information available on potential drawbacks"
+    ],
+    "not_for": [
+      "permanent storage of sensitive information",
+      "sharing large amounts of data"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on potential drawbacks",
+      "Cons: limited information available on potential drawbacks"
+    ]
+  },
+  {
+    "id": "8c158853-14b9-4f12-9834-878480f92e97",
+    "slug": "plane",
+    "name": "Plane",
+    "ai_content": "## Plane\n\nPlane is an open‑source, simple yet extensible tool for managing projects and products. It provides core issue tracking, road‑mapping, and collaboration features while remaining free for unlimited team members. The platform supports file uploads up to 5 MB and allows up to 1,000 issues per instance, making it suitable for small to medium‑sized teams that need a lightweight, self‑hosted solution without licensing costs. Its extensibility lets developers add custom workflows or integrations as needed, positioning Plane as a flexible alternative to heavier commercial project management suites.\n\n## Best For\n- ✓ small to medium teams needing a free, self‑hosted project management solution\n- ✓ product managers looking for a simple, extensible issue tracker\n- ✓ developers who want to customize workflows without licensing fees\n\n## Not Ideal For\n- ✗ organizations requiring large file uploads beyond 5 MB\n- ✗ projects that need more than 1,000 issues\n\n## Pros\n- ✓ Open‑source and free for unlimited members\n- ✓ Simple, easy‑to‑use interface\n- ✓ Extensible for custom workflows\n- ✓ No licensing costs\n\n## Cons\n- ✗ File upload size limited to 5 MB\n- ✗ Issue cap of 1,000 per instance\n- ✗ Limited scalability for large enterprises\n",
+    "cons": [
+      "File upload size limited to 5 MB",
+      "Issue cap of 1,000 per instance",
+      "Limited scalability for large enterprises"
+    ],
+    "not_for": [
+      "organizations requiring large file uploads beyond 5 MB",
+      "projects that need more than 1,000 issues"
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "e8d19138-3272-4a47-a528-e69ce0932aa0",
+    "slug": "r2",
+    "name": "R2",
+    "ai_content": "## R2\n\nR2 is a storage offering that provides up to 10 GB of data transfer each month together with limits of 1 million Class A operations and 10 million Class B operations per month. It targets developers and teams that need a straightforward, quota‑driven object storage solution for modest workloads. The service’s clear limits make it easy to predict usage costs and to fit within small‑scale projects such as static asset hosting, low‑traffic API data, or development and testing environments. Because the limits are defined per month, users can plan capacity and operation counts in advance, while the simplicity of the model avoids complex configuration and minimal overhead.\n\n## Best For\n- ✓ static asset hosting\n- ✓ low‑traffic API data storage\n- ✓ development and testing environments\n\n## Not Ideal For\n- ✗ high‑traffic applications exceeding operation limits\n- ✗ large data sets beyond 10 GB monthly transfer\n\n## Pros\n- ✓ Predictable monthly data transfer limit\n- ✓ Clear operation quotas for Class A and B\n- ✓ Simple pricing model based on usage\n- ✓ Suitable for low‑volume workloads\n\n## Cons\n- ✗ Limited to 10 GB per month\n- ✗ Operation caps may restrict high‑frequency use\n- ✗ No information on self‑hosting or cloud availability\n",
+    "cons": [
+      "Limited to 10 GB per month",
+      "Operation caps may restrict high‑frequency use",
+      "No information on self‑hosting or cloud availability"
+    ],
+    "not_for": [
+      "high‑traffic applications exceeding operation limits",
+      "large data sets beyond 10 GB monthly transfer"
+    ],
+    "removed_items": []
+  },
+  {
+    "id": "23483117-b2d8-4dd9-b62d-ec76de25ef62",
+    "slug": "reactive-resume",
+    "name": "Reactive Resume",
+    "ai_content": "## Reactive Resume\n\nReactive Resume is a free and open-source resume builder that simplifies the process of creating, updating, and sharing your resume. It allows users to pick a template, fill in their details, and export to PDF without requiring an account for basic use. The application can be self-hosted on your own infrastructure, giving users complete ownership of their data.\n\n## GitHub Stats\n- ⭐ Stars: 38,401\n- 🍴 Forks: 4,344\n- 🐛 Open Issues: 90\n- 👥 Contributors: 222\n- 🕐 Last Commit: Jun 6, 2026\n- 🏷️ Latest Release: v5.1.8\n- 💻 Language: TypeScript\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ building resumes\n- ✓ exporting to PDF\n- ✓ self-hosting\n\n## Not Ideal For\n- ✗ users requiring advanced tracking or analytics\n- ✗ users who want a cloud-based service with no self-hosting option\n\n## Pros\n- ✓ real-time preview as you type\n- ✓ multiple export formats\n- ✓ no account required for basic use\n- ✓ complete ownership of your data\n\n## Cons\n- ✗ limited information available on advanced features\n- ✗ may require technical expertise for self-hosting\n",
+    "cons": [
+      "limited information available on advanced features",
+      "may require technical expertise for self-hosting"
+    ],
+    "not_for": [
+      "users requiring advanced tracking or analytics",
+      "users who want a cloud-based service with no self-hosting option"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on advanced features",
+      "Cons: limited information available on advanced features"
+    ]
+  },
+  {
+    "id": "03c77645-d336-4a62-b5f7-5f9aa4db4f2c",
+    "slug": "revealjs",
+    "name": "revealjs",
+    "ai_content": "## revealjs\n\nReveal.js is an open source HTML presentation framework that enables anyone with a web browser to create beautiful presentations for free. It comes with a powerful feature set and is suitable for individuals looking to create presentations without extensive design experience.\n\n## GitHub Stats\n- ⭐ Stars: 71,711\n- 🍴 Forks: 16,812\n- 🐛 Open Issues: 906\n- 👥 Contributors: 362\n- 🕐 Last Commit: May 22, 2026\n- 🏷️ Latest Release: 6.0.1\n- 💻 Language: JavaScript\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ creating presentations\n- ✓ users with web browsers\n- ✓ those who want free presentation software\n\n## Not Ideal For\n- ✗ users without web browsers\n- ✗ those requiring advanced design capabilities beyond the framework's features\n\n## Pros\n- ✓ free to use\n- ✓ open source\n- ✓ powerful feature set\n- ✓ easy to use\n\n## Cons\n- ✗ limited information available on advanced features\n- ✗ no mention of collaboration tools\n",
+    "cons": [
+      "limited information available on advanced features",
+      "no mention of collaboration tools"
+    ],
+    "not_for": [
+      "users without web browsers",
+      "those requiring advanced design capabilities beyond the framework's features"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on advanced features",
+      "Cons: limited information available on advanced features"
+    ]
+  },
+  {
+    "id": "422930f1-2dbb-4bd5-a73d-28093104a532",
+    "slug": "sentryshot",
+    "name": "SentryShot",
+    "ai_content": "## SentryShot\n\nSentryShot is an open‑source video surveillance management system built with Rust and distributed as a Docker image under the GPL‑2.0 license. It provides a self‑hosted platform for aggregating, storing, and viewing video feeds from security cameras, targeting organizations that need full control over their surveillance infrastructure. By leveraging Docker, SentryShot simplifies deployment and scaling on on‑premise servers, while its Rust foundation offers performance and safety. The tool is suited for teams comfortable managing containerized services and who prefer an open‑source solution without reliance on external cloud providers.\n\n## Deployment\n- Docker: ✅\n- Self-Hosted: ✅\n- Cloud Version: ❌\n\n## Best For\n- ✓ Managing on‑premise video surveillance networks\n- ✓ Deploying a self‑hosted security camera system\n- ✓ Running a containerized Rust application for video management\n\n## Not Ideal For\n- ✗ Users needing a fully managed cloud surveillance service\n- ✗ Environments without Docker support\n\n## Pros\n- ✓ Open‑source GPL‑2.0 license\n- ✓ Docker‑based deployment simplifies setup\n- ✓ High‑performance Rust implementation\n- ✓ Self‑hosted gives full data control\n\n## Cons\n- ✗ No native cloud version available\n- ✗ Limited documentation may require technical expertise\n- ✗ Feature set not detailed in description\n",
+    "cons": [
+      "No native cloud version available",
+      "Limited documentation may require technical expertise",
+      "Feature set not detailed in description"
+    ],
+    "not_for": [
+      "Users needing a fully managed cloud surveillance service",
+      "Environments without Docker support"
+    ],
+    "removed_items": [
+      "Cons: ✗ Feature set not detailed in description",
+      "Cons: Feature set not detailed in description"
+    ]
+  },
+  {
+    "id": "ded56d6a-e795-4e40-9081-5292f1450476",
+    "slug": "supabase",
+    "name": "Supabase",
+    "ai_content": "## Supabase\n\nSupabase is an open‑source backend‑as‑a‑service that delivers a full PostgreSQL database with built‑in authentication, row‑level security, realtime data synchronization, object storage, edge functions, vector search and instant REST APIs. The platform’s free tier includes authentication, a realtime database and storage, letting developers quickly spin up a Firebase‑like backend without vendor lock‑in. It also provides ready‑to‑use integrations for AI models via OpenAI and Hugging Face, and offers starter templates for frameworks such as React, Next.js, Flutter and Expo. Supabase’s dashboard includes tools like table and SQL editors and policy management, making it suitable for rapid prototyping as well as production‑grade applications across web, mobile and AI use cases.\n\n## Best For\n- ✓ building full‑stack apps with auth and realtime data\n- ✓ rapidly prototyping backend services\n- ✓ adding AI/ML vector search to applications\n\n## Not Ideal For\n- ✗ projects that require on‑prem self‑hosting without Supabase‑managed cloud\n- ✗ workloads that need non‑PostgreSQL databases\n\n## Pros\n- ✓ Provides a full PostgreSQL database with built‑in auth and RLS\n- ✓ Offers instant REST APIs and realtime synchronization\n- ✓ Includes edge functions without managing servers\n- ✓ Integrates storage, vector search and AI model support\n\n## Cons\n- ✗ Self‑hosting options are not detailed in the description\n- ✗ Advanced enterprise features may require paid plans\n- ✗ Limited language/runtime specifics are provided\n\n## Key Features\n- Postgres Database\n- Authentication with Row Level Security\n- Edge Functions\n- Storage\n- Realtime\n- Vector embeddings\n- Data APIs (REST)\n\n## Integrations\n- OpenAI\n- Hugging Face\n- React\n- Next.js\n- Flutter\n- Expo\n- Stripe\n",
+    "cons": [
+      "Self‑hosting options are not detailed in the description",
+      "Advanced enterprise features may require paid plans",
+      "Limited language/runtime specifics are provided"
+    ],
+    "not_for": [
+      "projects that require on‑prem self‑hosting without Supabase‑managed cloud",
+      "workloads that need non‑PostgreSQL databases"
+    ],
+    "removed_items": [
+      "Cons: ✗ Self‑hosting options are not detailed in the description",
+      "Cons: ✗ Limited language/runtime specifics are provided",
+      "Cons: Self‑hosting options are not detailed in the description",
+      "Cons: Limited language/runtime specifics are provided"
+    ]
+  },
+  {
+    "id": "c8631bb2-5b21-4d66-9496-9ba6906416c6",
+    "slug": "syncloud",
+    "name": "Syncloud",
+    "ai_content": "## Syncloud\n\nSyncloud is a self-hosting platform that allows users to easily host popular apps on their own devices. It provides a simple way to deploy and manage apps, and is available as an image or pre-built package. Syncloud is suitable for users who want to have control over their data and apps, and for hardware vendors who want to include Syncloud in their products.\n\n## GitHub Stats\n- ⭐ Stars: 432\n- 🍴 Forks: 46\n- 🐛 Open Issues: 46\n- 👥 Contributors: 9\n- 🕐 Last Commit: Jun 6, 2026\n- 💻 Language: Go\n- 📄 License: GPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ self-hosting\n- ✓ app deployment\n- ✓ device management\n\n## Not Ideal For\n- ✗ complex enterprise deployments\n- ✗ large-scale cloud infrastructure\n\n## Pros\n- ✓ simple self-hosting\n- ✓ easy app deployment\n- ✓ shared services for apps\n- ✓ device settings management\n\n## Cons\n- ✗ limited information available\n- ✗ may require technical expertise\n",
+    "cons": [
+      "limited information available",
+      "may require technical expertise"
+    ],
+    "not_for": [
+      "complex enterprise deployments",
+      "large-scale cloud infrastructure"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available",
+      "Cons: limited information available"
+    ]
+  },
+  {
+    "id": "9d9bc557-8c7c-4d15-849c-5b9d3406debb",
+    "slug": "wallabag",
+    "name": "Wallabag",
+    "ai_content": "## Wallabag\n\nwallabag is a web application that allows users to save web pages for later reading, extracting content to minimize distractions. It can be installed on a personal server or used through an account, making it suitable for individuals who want to read web content at their convenience.\n\n## GitHub Stats\n- ⭐ Stars: 12,805\n- 🍴 Forks: 880\n- 🐛 Open Issues: 752\n- 👥 Contributors: 391\n- 🕐 Last Commit: Jun 22, 2026\n- 🏷️ Latest Release: 2.6.14\n- 💻 Language: PHP\n- 📄 License: MIT\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ reading web pages offline\n- ✓ saving articles for later\n- ✓ minimizing online distractions\n\n## Not Ideal For\n- ✗ users who prefer to read original webpage layouts\n- ✗ those who want to interact with saved web pages\n\n## Pros\n- ✓ extracts content for distraction-free reading\n- ✓ allows installation on personal server\n- ✓ available for various platforms\n\n## Cons\n- ✗ may not preserve original webpage layout\n- ✗ limited information available about mobile apps\n",
+    "cons": [
+      "may not preserve original webpage layout",
+      "limited information available about mobile apps"
+    ],
+    "not_for": [
+      "users who prefer to read original webpage layouts",
+      "those who want to interact with saved web pages"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available about mobile apps",
+      "Cons: limited information available about mobile apps"
+    ]
+  },
+  {
+    "id": "78a91851-7992-467d-aeb8-9c3825cb9825",
+    "slug": "wallos",
+    "name": "Wallos",
+    "ai_content": "## Wallos\n\nWallos is an open-source, self-hostable web application designed to help individuals manage their finances with ease. It simplifies the process of tracking expenses and helps users gain better control over their financial life by keeping track of recurring subscriptions and payments, and organizing expenses into customizable categories.\n\n## GitHub Stats\n- ⭐ Stars: 8,066\n- 🍴 Forks: 374\n- 🐛 Open Issues: 77\n- 👥 Contributors: 72\n- 🕐 Last Commit: Jun 7, 2026\n- 🏷️ Latest Release: v4.9.5\n- 💻 Language: PHP\n- 📄 License: GPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ individuals with multiple subscriptions\n- ✓ people who want to track their expenses\n- ✓ those who need to organize their finances\n\n## Not Ideal For\n- ✗ large businesses\n- ✗ complex financial operations\n\n## Pros\n- ✓ open-source\n- ✓ self-hostable\n- ✓ simplifies expense tracking\n- ✓ helps with subscription management\n\n## Cons\n- ✗ limited information available\n- ✗ may require technical expertise to self-host\n",
+    "cons": [
+      "limited information available",
+      "may require technical expertise to self-host"
+    ],
+    "not_for": [
+      "large businesses",
+      "complex financial operations"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available",
+      "Cons: limited information available"
+    ]
+  },
+  {
+    "id": "37102992-4afc-4443-ac68-1d3077157b60",
+    "slug": "weewx",
+    "name": "WeeWX",
+    "ai_content": "## WeeWX\n\nWeeWX is open source software for collecting data from various weather stations and sensors, generating plots, HTML pages, and reports, and uploading data to online weather services. It is suitable for users who need to collect and analyze weather data, particularly those with their own weather stations.\n\n## GitHub Stats\n- ⭐ Stars: 1,169\n- 🍴 Forks: 320\n- 🐛 Open Issues: 12\n- 👥 Contributors: 118\n- 🕐 Last Commit: Jun 12, 2026\n- 🏷️ Latest Release: v5.3.1\n- 💻 Language: Python\n- 📄 License: GPL-3.0\n\n## Deployment\n- Self-Hosted: ✅\n\n## Best For\n- ✓ personal weather stations\n- ✓ small-scale weather monitoring\n- ✓ data analysis and reporting\n\n## Not Ideal For\n- ✗ large-scale commercial weather monitoring\n- ✗ complex weather forecasting\n\n## Pros\n- ✓ supports multiple weather stations and sensors\n- ✓ generates plots, HTML pages, and reports\n- ✓ can upload data to online weather services\n- ✓ runs on various platforms including Raspberry Pi\n\n## Cons\n- ✗ limited information available on scalability and performance\n- ✗ may require technical expertise to set up and configure\n",
+    "cons": [
+      "limited information available on scalability and performance",
+      "may require technical expertise to set up and configure"
+    ],
+    "not_for": [
+      "large-scale commercial weather monitoring",
+      "complex weather forecasting"
+    ],
+    "removed_items": [
+      "Cons: ✗ limited information available on scalability and performance",
+      "Cons: limited information available on scalability and performance"
+    ]
+  },
+  {
+    "id": "dce8bde6-b17e-4833-aa8e-d5fe758b4faa",
+    "slug": "yopass",
+    "name": "Yopass",
+    "ai_content": "## Yopass\n\nYopass is an open‑source tool that enables secure, one‑time sharing of secrets, passwords and files over the web. Built with Go and distributed as a Docker image, it lets users generate temporary links that automatically expire after the data is retrieved, reducing the risk of credential leakage. The service is licensed under Apache‑2.0, making it free to use, modify and self‑host. Yopass is aimed at developers, system administrators and teams who need a quick, disposable method to transmit sensitive information without relying on email or permanent storage solutions. Its lightweight design and container‑first delivery simplify deployment in a variety of environments.\n\n## Deployment\n- Docker: ✅\n- Self-Hosted: ✅\n- Cloud Version: ❌\n\n## Best For\n- ✓ Sharing one‑time secret links.\n- ✓ Transferring passwords securely.\n- ✓ Distributing temporary files.\n\n## Not Ideal For\n- ✗ Not a full‑featured password manager.\n- ✗ No hosted cloud service provided.\n\n## Pros\n- ✓ Apache‑2.0 open source license.\n- ✓ Docker‑based deployment simplifies setup.\n- ✓ Written in Go for performance.\n- ✓ Supports secrets, passwords and files.\n\n## Cons\n- ✗ No official cloud‑hosted version.\n- ✗ Limited UI information available.\n- ✗ May require self‑hosting expertise.\n",
+    "cons": [
+      "No official cloud‑hosted version.",
+      "Limited UI information available.",
+      "May require self‑hosting expertise."
+    ],
+    "not_for": [
+      "Not a full‑featured password manager.",
+      "No hosted cloud service provided."
+    ],
+    "removed_items": [
+      "Cons: ✗ Limited UI information available.",
+      "Cons: Limited UI information available."
+    ]
+  }
+]

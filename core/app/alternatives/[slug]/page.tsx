@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 
-export const revalidate = 86400;
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 type AlternativePageProps = {
