@@ -6,17 +6,17 @@ const siteUrl = getSiteUrl();
 const freeToolsStructuredData = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  name: "No-Cost Developer Resources",
+  name: "Open-Source Developer Tools Directory",
   url: `${siteUrl}/free-tools`,
   description:
-    "Curated no-cost developer resources, open-source tools, self-hosted utilities, and practical components for engineering teams.",
+    "A directory of open-source developer tools and software projects, with project details and source links where available.",
   isPartOf: {
     "@type": "WebSite",
     name: "The Cloud Rain",
     url: siteUrl
   },
   about: [
-    "No-cost developer tools",
+    "Open-source developer tools",
     "Open source resources",
     "Self-hosted software",
     "Developer utilities",
@@ -29,31 +29,23 @@ import { getApprovedSuccessToolCount } from "@/lib/tool-count";
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
   const toolCount = await getApprovedSuccessToolCount();
-  const description = `Browse ${toolCount}+ no-cost developer resources — open-source tools, self-hosted utilities, and developer components curated for practical engineering work.`;
+  const description = `Browse ${toolCount}+ open-source developer tools and software projects. Review descriptions, source links, licenses, and deployment details where available.`;
 
   return {
-    title: "No-Cost Developer Resources and Open Source Tools",
+    title: "Open-Source Developer Tools Directory",
     description,
-    keywords: [
-      "no-cost developer tools",
-      "open source tools",
-      "self-hosted software",
-      "developer utilities",
-      "engineering workflows",
-      "open source directory"
-    ],
     alternates: {
       canonical: "/free-tools"
     },
     openGraph: {
       type: "website",
       url: `${siteUrl}/free-tools`,
-      title: "No-Cost Developer Resources and Open Source Tools",
+      title: "Open-Source Developer Tools Directory",
       description
     },
     twitter: {
       card: "summary_large_image",
-      title: "No-Cost Developer Resources and Open Source Tools",
+      title: "Open-Source Developer Tools Directory",
       description
     }
   };

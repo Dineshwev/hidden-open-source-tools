@@ -13,20 +13,19 @@ type WeeklyRoundupRow = {
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Weekly Open Source Tool Roundups",
-  description: "Weekly curated picks of the best open-source tools, self-hosted software, and developer utilities. New issue every Thursday.",
-  keywords: ["weekly open source tools", "developer tools newsletter", "open source roundup", "self-hosted tools weekly"],
+  title: "Open-Source Tool Roundups",
+  description: "Browse published roundups of open-source software and developer tools, with summaries for the projects included in each issue.",
   alternates: { canonical: "/weekly-roundups" },
   openGraph: {
-    title: "Weekly Roundups | The Cloud Rain",
-    description: "Browse weekly open-source tool roundups, developer picks, and self-hosted software summaries from The Cloud Rain.",
+    title: "Open-Source Tool Roundups | The Cloud Rain",
+    description: "Browse published roundups of open-source software and developer tools.",
     type: "website",
     url: `${siteUrl}/weekly-roundups`
   },
   twitter: {
     card: "summary_large_image",
-    title: "Weekly Roundups | The Cloud Rain",
-    description: "Browse weekly open-source tool roundups, developer picks, and self-hosted software summaries from The Cloud Rain."
+    title: "Open-Source Tool Roundups | The Cloud Rain",
+    description: "Browse published roundups of open-source software and developer tools."
   }
 };
 
@@ -60,11 +59,10 @@ export default async function WeeklyRoundupsPage() {
       <section>
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">Weekly Roundups</p>
         <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">
-          Weekly open-source tool roundups
+          Open-source tool roundups
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">
-          Curated weekly briefs covering open-source developer tools, self-hosted software,
-          and practical alternatives for builders. New issue every week.
+          Browse published roundups of open-source developer tools and software projects. Each issue covers the tools included in that edition.
         </p>
       </section>
 

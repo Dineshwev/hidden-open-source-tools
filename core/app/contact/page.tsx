@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: "Contact",
   description:
     "Reach Dinesh with identified or anonymous messages. Private replies for identified messages and public community answers for anonymous queries.",
-  keywords: ["contact the cloud rain", "developer resources contact", "open source tools support"],
   alternates: {
     canonical: "/contact"
   }

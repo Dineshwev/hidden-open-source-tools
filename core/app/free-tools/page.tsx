@@ -15,25 +15,12 @@ export const fetchCache = "force-no-store";
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
   const toolCount = await getApprovedSuccessToolCount();
-  const pageTitle = `${toolCount}+ Free Open Source Developer Tools`;
-  const pageDescription = `Browse ${toolCount}+ free open-source developer tools, self-hosted software, AI utilities, and practical components. No paywalls, no vendor lock-in. Curated for builders.`;
+  const pageTitle = `Open-Source Developer Tools Directory`;
+  const pageDescription = `Browse ${toolCount}+ open-source developer tools and software projects. Review descriptions, source links, licenses, and deployment details where available.`;
 
   return {
     title: pageTitle,
     description: pageDescription,
-    keywords: [
-      "free open source tools",
-      "free developer tools",
-      "open source software",
-      "self-hosted software",
-      "developer utilities",
-      "open source discovery",
-      "open source alternatives",
-      "self-hosted tools",
-      "no cost resources",
-      "developer utilities",
-      "free software directory"
-    ],
     alternates: {
       canonical: pagePath
     },

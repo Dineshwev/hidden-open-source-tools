@@ -103,8 +103,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: ComparisonPageProps): Promise<Metadata> {
   const comparison = await getComparisonBySlug(params.slug);
   if (!comparison) return {};
-  const title = `${comparison.tool_a} vs ${comparison.tool_b} (2026): Full Comparison`;
-  const description = `Detailed comparison of ${comparison.tool_a} vs ${comparison.tool_b}. Features, pricing, self-hosting, pros and cons — everything you need to choose the right tool.`;
+  const title = `${comparison.tool_a} vs ${comparison.tool_b}: Comparison`;
+  const description = `Read a side-by-side overview of ${comparison.tool_a} and ${comparison.tool_b}, including the differences covered on this page.`;
   return {
     title,
     description,

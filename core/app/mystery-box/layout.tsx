@@ -30,11 +30,6 @@ export const metadata: Metadata = {
   title: "Random Open Source Tool Discovery for Developer Teams",
   description:
     "Use randomized discovery to find open-source developer tools, self-hosted utilities, and lightweight SaaS alternatives curated by The Cloud Rain.",
-  keywords: [
-    "random developer resources",
-    "open source discovery",
-    "lightweight SaaS alternatives"
-  ],
   alternates: {
     canonical: "/mystery-box"
   },

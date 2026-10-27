@@ -160,9 +160,6 @@ export default function SecurityPage() {
           <Link href="/privacy" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
             Privacy Policy
           </Link>
-          <Link href="/ads-disclosure" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
-            Ads Disclosure
-          </Link>
           <Link href="/contact" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">
             Contact
           </Link>

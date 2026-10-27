@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: "Terms of Service",
   description:
     "Review The Cloud Rain Terms of Service for platform use, uploads, moderation standards, liability limits, and account responsibilities.",
-  keywords: ["terms of service", "platform terms", "acceptable use", "The Cloud Rain terms"],
   alternates: {
     canonical: "/terms"
   },
@@ -163,7 +162,7 @@ export default function TermsPage() {
         <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 space-y-4">
           <h2 className="font-display text-2xl font-semibold text-white">12. Relationship to Other Policies</h2>
           <p className="text-sm leading-relaxed">
-            These Terms work alongside our Privacy Policy, Copyright Policy, DMCA Policy, License Information page, and Ads Disclosure page. Each document explains a different part of how the platform operates, and together they form the practical rule set for using The Cloud Rain.
+            These Terms work alongside our Privacy Policy, Copyright Policy, DMCA Policy, and License Information page. Each document explains a different part of how the platform operates, and together they form the practical rule set for using The Cloud Rain.
           </p>
           <p className="text-sm leading-relaxed">
             Where a more specific policy applies to a particular issue, that specific policy may control for that issue while these Terms continue to apply more generally.
@@ -178,7 +177,6 @@ export default function TermsPage() {
             <Link href="/copyright" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">Copyright Policy</Link>
             <Link href="/dmca" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">DMCA Policy</Link>
             <Link href="/license" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">License Information</Link>
-            <Link href="/ads-disclosure" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">Ads Disclosure</Link>
           </div>
         </section>
       </div>

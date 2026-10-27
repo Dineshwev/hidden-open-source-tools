@@ -9,12 +9,11 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Tool Comparisons | Open Source vs SaaS",
-  description: "Compare open-source tools side by side. Gitea vs GitHub, Meilisearch vs Algolia, and 20+ more comparisons for developers choosing their stack.",
-  keywords: ["tool comparison", "open source vs saas", "gitea vs github", "self-hosted alternatives comparison"],
+  description: "Compare selected open-source and commercial software projects. Review feature, deployment, pricing, and other details included on each comparison page.",
   alternates: { canonical: `${siteUrl}/vs` },
   openGraph: {
     title: "Open Source Tool Comparisons | The Cloud Rain",
-    description: "Detailed comparisons of open source tools vs popular SaaS alternatives.",
+    description: "Comparisons of selected software projects, including open-source tools and commercial products.",
     url: `${siteUrl}/vs`,
     siteName: "The Cloud Rain",
     type: "website",

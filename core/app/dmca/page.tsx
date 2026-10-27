@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: "DMCA Policy",
   description:
     "Review The Cloud Rain DMCA notice and counter-notice process, infringement reporting requirements, and copyright dispute handling.",
-  keywords: ["DMCA", "copyright takedown", "counter notice", "The Cloud Rain DMCA"],
   alternates: {
     canonical: "/dmca"
   },

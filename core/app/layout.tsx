@@ -3,7 +3,6 @@ import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
-import GitHubSponsorFloat from "@/components/GitHubSponsorFloat";
 import { AuthProvider } from "@/lib/AuthProvider";
 import { getSiteUrl } from "@/lib/site-url";
 import { getApprovedSuccessToolCount } from "@/lib/tool-count";
@@ -15,28 +14,15 @@ const siteName = "The Cloud Rain";
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
   const toolCount = await getApprovedSuccessToolCount();
-  const description = `Curated directory of ${toolCount}+ open-source tools, self-hosted software, and practical SaaS alternatives for developers and DevOps teams.`;
+  const description = `Browse ${toolCount}+ open-source tools and developer resources. Compare projects and review source links, licenses, deployment options, and other details where available.`;
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: "The Cloud Rain | Open Source SaaS Alternatives",
+      default: "The Cloud Rain | Open-Source Tools and Comparisons",
       template: "%s | The Cloud Rain"
     },
     description,
-    keywords: [
-      "free open source tools",
-      "self-hosted alternatives",
-      "SaaS replacements",
-      "developer tools",
-      "open source directory",
-      "no-cost resources",
-      "self-hosted tools directory",
-      "developer workflow tools",
-      "DevOps tools",
-      "privacy focused tools",
-      "The Cloud Rain"
-    ],
     applicationName: siteName,
     category: "technology",
     alternates: {
@@ -46,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       url: siteUrl,
       siteName,
-      title: "The Cloud Rain | Open Source SaaS Alternatives",
+      title: "The Cloud Rain | Open-Source Tools and Comparisons",
       description,
       locale: "en_US",
       images: [
@@ -60,7 +46,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: "The Cloud Rain | Open Source SaaS Alternatives",
+      title: "The Cloud Rain | Open-Source Tools and Comparisons",
       description,
       site: "@TheCloudRain_",
       images: [`${siteUrl}/og-image.png`]
@@ -97,7 +83,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           height: 512
         },
         description:
-          `A curated directory of ${toolCount}+ self-hosted open-source tools and lightweight alternatives to expensive SaaS platforms, built for developers and DevOps engineers.`,
+          `A directory of ${toolCount}+ open-source tools and developer resources, with project details and source links where available.`,
         sameAs: [
           "https://x.com/TheCloudRain_",
           "https://github.com/Dineshwev/hidden-open-source-tools",
@@ -114,7 +100,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         name: siteName,
         url: siteUrl,
         description:
-          "Self-hosted software directory and open-source tools curator — lightweight SaaS alternatives for developers and DevOps engineers.",
+          "A directory of open-source tools and developer resources, with comparisons and practical project guides.",
         inLanguage: "en",
         potentialAction: {
           "@type": "SearchAction",
@@ -153,7 +139,6 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <Footer />
           <SpeedInsights />
         </AuthProvider>
-        <GitHubSponsorFloat />
       </body>
     </html>
   );

@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
     "Read how The Cloud Rain collects, uses, protects, and retains data across account access, moderation workflows, and resource discovery features.",
-  keywords: ["privacy policy", "data handling", "GDPR", "CCPA", "The Cloud Rain privacy"],
   alternates: {
     canonical: "/privacy"
   },
@@ -188,7 +187,6 @@ export default function PrivacyPage() {
             <Link href="/copyright" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">Copyright Policy</Link>
             <Link href="/dmca" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">DMCA Policy</Link>
             <Link href="/license" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">License Information</Link>
-            <Link href="/ads-disclosure" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/90">Ads Disclosure</Link>
           </div>
         </section>
       </div>

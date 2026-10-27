@@ -3,18 +3,17 @@ import type { Metadata } from "next";
 import ArticleMuseumClient from "./ArticleMuseumClient";
 
 export const metadata: Metadata = {
-  title: "Tool Deep Dives | Open Source Software Reviews",
-  description: "In-depth articles on hidden open-source tools. Origin stories, real use cases, and hands-on code for self-hosted software.",
-  keywords: ["open source tool reviews", "self-hosted software guide", "developer tool articles", "open source deep dive"],
+  title: "Open-Source Tool Guides and Project Overviews",
+  description: "Read guides about open-source software projects. Each article covers the details available for that specific tool.",
   openGraph: {
-    title: "Open Source Tool Deep Dives for Developers and DevOps",
-    description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",
+    title: "Open-Source Tool Guides and Project Overviews | The Cloud Rain",
+    description: "Read guides about open-source software projects, with coverage based on the information available for each tool.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Open Source Tool Deep Dives for Developers and DevOps",
-    description: "Read practical deep dives on open-source developer tools, self-hosted software, and lightweight SaaS alternatives for builders and DevOps teams.",
+    title: "Open-Source Tool Guides and Project Overviews | The Cloud Rain",
+    description: "Read guides about open-source software projects, with coverage based on the information available for each tool.",
   }
 };
 

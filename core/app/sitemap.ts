@@ -100,12 +100,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6
     },
     {
-      url: `${siteUrl}/ads-disclosure`,
-      lastModified: staticLastModified,
-      changeFrequency: "monthly",
-      priority: 0.5
-    },
-    {
       url: `${siteUrl}/copyright`,
       lastModified: staticLastModified,
       changeFrequency: "monthly",

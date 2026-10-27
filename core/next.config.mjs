@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/ads-disclosure",
+        destination: "/privacy",
+        permanent: true
+      }
+    ];
+  },
   images: {
     domains: ["www.google.com", "github.com"],
     unoptimized: false,
@@ -40,7 +49,7 @@ const nextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https: http:",
               "connect-src 'self' https://*.supabase.co https://*.firebase.com https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebase.googleapis.com https://raw.githack.com https://raw.githubusercontent.com https://*.githubusercontent.com https://plausible.io",
-              "frame-src 'self' https://*.firebaseapp.com https://*.doubleclick.net",
+              "frame-src 'self' https://*.firebaseapp.com",
               "object-src 'none'",
               "base-uri 'self'"
             ].join('; ')

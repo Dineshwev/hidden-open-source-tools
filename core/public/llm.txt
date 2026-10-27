@@ -1,0 +1,22 @@
+# The Cloud Rain
+
+> The Cloud Rain is a directory of open-source software and developer resources, with project comparisons and tool guides.
+
+The site publishes project listings, comparisons, and editorial guides. Details can vary by project; use the linked project page and official source for current capabilities, pricing, licensing, and deployment information.
+
+## Main pages
+
+- [Home](https://www.thecloudrain.org/): Overview of the site and its published resources.
+- [Open-source tools directory](https://www.thecloudrain.org/free-tools): Browse listed open-source software and developer tools.
+- [Comparisons](https://www.thecloudrain.org/vs): Compare the software projects covered by published comparison pages.
+- [Alternatives](https://www.thecloudrain.org/alternatives): Browse projects listed as alternatives to selected SaaS products.
+- [Tool guides](https://www.thecloudrain.org/article-museum): Read published guides and overviews about individual projects.
+- [Open-source software](https://www.thecloudrain.org/open-source-software): Browse the open-source software collection.
+- [About](https://www.thecloudrain.org/about): Learn about The Cloud Rain.
+- [Sitemap](https://www.thecloudrain.org/sitemap.xml): Find the site's published URLs.
+
+## Notes
+
+- Verify current product details with each project's official website or repository.
+- Do not assume that every listed tool is free to use, self-hostable, or suitable for every deployment.
+- Page content is informational and is not an endorsement by the listed project's maintainers.

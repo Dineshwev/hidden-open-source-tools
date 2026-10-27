@@ -7,13 +7,12 @@ export const revalidate = 86400;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Open Source Alternatives to Popular SaaS",
-  description: "Find free, self-hostable alternatives to Figma, Linear, Datadog, Loom, and 50+ popular SaaS tools. Curated for developers.",
-  keywords: ["open source alternatives", "saas alternatives", "self-hosted alternatives", "free software alternatives"],
+  title: "Open-Source Alternatives to SaaS Tools",
+  description: "Browse open-source projects listed as alternatives to selected SaaS products. Compare the available project details before choosing an option.",
   alternates: { canonical: `${siteUrl}/alternatives` },
   openGraph: {
-    title: "Best Open Source Alternatives to Popular SaaS | The Cloud Rain",
-    description: "Find the best free, open source alternatives to popular SaaS tools.",
+    title: "Open-Source Alternatives to SaaS Tools | The Cloud Rain",
+    description: "Browse projects listed as alternatives to selected SaaS products and compare their available details.",
     url: `${siteUrl}/alternatives`,
     siteName: "The Cloud Rain",
     type: "website",
@@ -50,9 +49,9 @@ export default async function AlternativesListingPage() {
     <div className="mx-auto max-w-5xl space-y-10 px-4 py-10">
       <section>
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">Open Source Alternatives</p>
-        <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Ditch the SaaS Tax</h1>
+        <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Open-Source Alternatives</h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">
-          Free, open source alternatives to the tools you pay for every month. Self-hostable, privacy-first, no vendor lock-in.
+          Browse projects listed as alternatives to selected SaaS products. Check each project’s official source for current pricing, hosting, license, and privacy details.
         </p>
       </section>
       <AlternativesListingClient alternatives={alternatives} />

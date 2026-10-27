@@ -5,21 +5,16 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Self-Hosted Open Source Software Alternatives for Teams",
+  title: "Open-Source Software Directory",
   description:
-    "Browse curated self-hosted and open-source tools for developers, DevOps teams, and indie hackers comparing lightweight SaaS alternatives.",
-  keywords: [
-    "self-hosted software",
-    "open source SaaS alternatives",
-    "lightweight developer tools"
-  ],
+    "Browse open-source software projects and review available information about their features, licenses, source code, and deployment options.",
   alternates: {
     canonical: "/open-source-software"
   },
   openGraph: {
-    title: "Self-Hosted Open Source Software Alternatives for Teams",
+    title: "Open-Source Software Directory",
     description:
-      "Browse curated self-hosted and open-source tools for developers, DevOps teams, and indie hackers comparing lightweight SaaS alternatives.",
+      "Browse open-source software projects and review available information about their features, licenses, source code, and deployment options.",
     url: `${siteUrl}/open-source-software`
   }
 };

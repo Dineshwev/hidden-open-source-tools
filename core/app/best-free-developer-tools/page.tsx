@@ -5,21 +5,16 @@ import Link from "next/link";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Developer Tool Comparisons for Open Source Teams",
+  title: "Open-Source Developer Tools for Teams",
   description:
-    "Compare practical developer tools, open-source software, and lightweight SaaS alternatives for engineering teams.",
-  keywords: [
-    "developer tool comparisons",
-    "open source developer tools",
-    "lightweight SaaS alternatives"
-  ],
+    "Browse open-source developer tools grouped by practical areas such as infrastructure, analytics, security, and productivity.",
   alternates: {
     canonical: "/best-free-developer-tools"
   },
   openGraph: {
-    title: "Developer Tool Comparisons for Open Source Teams",
+    title: "Open-Source Developer Tools for Teams",
     description:
-      "Compare practical developer tools across self-hosting, AI, analytics, security, and productivity workflows.",
+      "Browse open-source developer tools grouped by infrastructure, analytics, security, and productivity.",
     url: `${siteUrl}/best-free-developer-tools`
   }
 };

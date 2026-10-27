@@ -7,20 +7,12 @@ import HomeDesktopLanding from "@/components/home/HomeDesktopLanding";
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
   const toolCount = await getApprovedSuccessToolCount();
-  const title = "The Cloud Rain | Open Source Alternatives to SaaS";
-  const description = `Browse ${toolCount}+ curated open-source tools, self-hosted software, and free alternatives to expensive SaaS. No accounts, no paywalls.`;
+  const title = "Open-Source Tools and Comparisons | The Cloud Rain";
+  const description = `Explore ${toolCount}+ open-source tools and developer resources. Compare projects and read practical guides to help evaluate software for your workflow.`;
 
   return {
     title: { absolute: title },
     description,
-    keywords: [
-      "open source alternatives",
-      "self-hosted software",
-      "free developer tools",
-      "SaaS alternatives",
-      "open source directory",
-      "self-hosted tools"
-    ],
     alternates: { canonical: "/" },
     openGraph: {
       title,

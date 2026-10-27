@@ -8,11 +8,6 @@ export const metadata: Metadata = {
   title: "Lesser-Known Developer Utilities and SaaS Alternatives",
   description:
     "Find lesser-known developer utilities, open-source projects, and lightweight SaaS alternatives curated for practical engineering workflows.",
-  keywords: [
-    "developer utilities",
-    "lesser-known open source tools",
-    "SaaS alternatives for developers"
-  ],
   alternates: {
     canonical: "/hidden-tools"
   },

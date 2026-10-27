@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "Learn how The Cloud Rain curates open-source developer tools, self-hosted software, and lightweight SaaS alternatives with moderation-first quality control.",
-  keywords: ["about the cloud rain", "developer resource platform", "moderated open source tools"],
   alternates: {
     canonical: "/about"
   },
