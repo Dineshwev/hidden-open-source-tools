@@ -176,8 +176,14 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const tool = await getToolBySlug(params.slug);
   if (!tool) return {};
 
-  const title = `${tool.name} | ${tool.category} tool`;
-  const description = getSeoDescriptionSnippet(tool.description) || `${tool.name} project details and source links.`;
+  const cleanCat = tool.category && !["other", "Developer Resource"].includes(tool.category)
+    ? tool.category
+    : "Developer";
+  const title = `${tool.name} – Open Source ${cleanCat} Alternative`;
+  const snippet = getSeoDescriptionSnippet(tool.description);
+  const description = snippet
+    ? `${snippet.slice(0, 115)}... Compare features, GitHub stars, license, and alternatives.`
+    : `Explore ${tool.name}: a curated open-source ${cleanCat.toLowerCase()} tool. Review GitHub stars, license, and self-hosted alternatives.`;
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
   const isSuccess = tool.structured_content_status === "success";
