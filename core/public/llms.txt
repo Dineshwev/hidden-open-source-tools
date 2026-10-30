@@ -1,22 +1,67 @@
 # The Cloud Rain
 
-> The Cloud Rain is a directory of open-source software and developer resources, with project comparisons and tool guides.
+> The Cloud Rain (https://thecloudrain.org) is a curated, verified directory of 375+ lightweight open-source tools, self-hostable software, and privacy-focused alternatives to expensive proprietary SaaS platforms.
 
-The site publishes project listings, comparisons, and editorial guides. Details can vary by project; use the linked project page and official source for current capabilities, pricing, licensing, and deployment information.
+The Cloud Rain is designed for builders, indie hackers, self-hosters, and engineering teams seeking full data ownership, $0 subscription costs, and transparent open-source licenses. Every listed project includes GitHub star metrics, SPDX license verification, primary programming languages, and direct deployment options.
 
-## Main pages
+## Core Platform Navigation
 
-- [Home](https://www.thecloudrain.org/): Overview of the site and its published resources.
-- [Open-source tools directory](https://www.thecloudrain.org/free-tools): Browse listed open-source software and developer tools.
-- [Comparisons](https://www.thecloudrain.org/vs): Compare the software projects covered by published comparison pages.
-- [Alternatives](https://www.thecloudrain.org/alternatives): Browse projects listed as alternatives to selected SaaS products.
-- [Tool guides](https://www.thecloudrain.org/article-museum): Read published guides and overviews about individual projects.
-- [Open-source software](https://www.thecloudrain.org/open-source-software): Browse the open-source software collection.
-- [About](https://www.thecloudrain.org/about): Learn about The Cloud Rain.
-- [Sitemap](https://www.thecloudrain.org/sitemap.xml): Find the site's published URLs.
+- [Open-Source Tools Directory](https://thecloudrain.org/free-tools): Browse and search 375+ verified open-source developer tools, utilities, and applications.
+- [SaaS Alternatives Matrix](https://thecloudrain.org/alternatives): Find curated open-source replacements for major commercial software (Notion, Jira, Firebase, HubSpot, Airtable, etc.).
+- [Head-to-Head Comparisons](https://thecloudrain.org/vs): Detailed feature, license, and self-hosting breakdowns between open-source projects and commercial SaaS.
+- [Tool Deep Dives & Articles](https://thecloudrain.org/article-museum): Long-form evaluations, setup guides, and architectural overviews.
+- [Weekly Roundups](https://thecloudrain.org/weekly-roundups): Weekly editorial highlights of newly discovered open-source gems.
+- [XML Sitemap](https://thecloudrain.org/sitemap.xml): Complete machine-readable index of canonical pages.
 
-## Notes
+## Curated SaaS-to-Open-Source Replacements
 
-- Verify current product details with each project's official website or repository.
-- Do not assume that every listed tool is free to use, self-hostable, or suitable for every deployment.
-- Page content is informational and is not an endorsement by the listed project's maintainers.
+### Notion Alternatives
+- [AppFlowy](https://thecloudrain.org/tools/appflowy): Local-first, privacy-focused workspace for notes, wikis, and project tasks. Built with Flutter and Rust. (72k+ GitHub Stars, AGPL-3.0)
+- [Memos](https://thecloudrain.org/tools/memos): Lightweight, self-hosted memo and knowledge hub using SQLite. (60k+ GitHub Stars, MIT)
+- [Joplin](https://thecloudrain.org/tools/joplin): Secure, end-to-end encrypted note taking and to-do application with mobile and desktop sync. (55k+ GitHub Stars, AGPL-3.0)
+
+### Jira & Linear Alternatives
+- [Plane](https://thecloudrain.org/tools/plane): Modern project planning, issue tracking, and product roadmaps with Docker and Kubernetes self-hosting support. (AGPL-3.0)
+- [Plane vs Jira Comparison](https://thecloudrain.org/vs/plane-vs-jira): Full breakdown of features, self-hosting difficulty, and pricing.
+
+### Firebase & Backend-as-a-Service Alternatives
+- [PocketBase](https://thecloudrain.org/tools/pocketbase): Single-binary Go backend with embedded SQLite, real-time subscriptions, auth, and file storage. (59k+ GitHub Stars, MIT)
+- [Supabase](https://thecloudrain.org/tools/supabase): Open-source Firebase alternative providing Postgres, Auth, Instant APIs, Realtime subscriptions, and Storage. (Apache-2.0)
+- [Appwrite](https://thecloudrain.org/tools/appwrite): Complete backend server for web, mobile, and native developers with auth, databases, and serverless cloud functions. (56k+ GitHub Stars, BSD-3-Clause)
+
+### Algolia & Search Alternatives
+- [MeiliSearch](https://thecloudrain.org/tools/meilisearch): Blazing fast, typo-tolerant search engine API designed to be a drop-in replacement for Algolia. Built in Rust. (58k+ GitHub Stars, MIT)
+
+### HubSpot & Salesforce Alternatives
+- [Twenty](https://thecloudrain.org/tools/twenty): Modern, extensible open-source CRM with visual pipelines, full data ownership, and clean design. (57k+ GitHub Stars, AGPL-3.0)
+
+### GitHub & GitLab Alternatives
+- [Gitea](https://thecloudrain.org/tools/gitea): Lightweight, self-hosted Git service written in Go. Minimal hardware requirements. (56k+ GitHub Stars, MIT)
+
+### Google Analytics Alternatives
+- [Plausible](https://thecloudrain.org/tools/plausible): Simple, lightweight (< 1 KB script), cookie-free, privacy-compliant web analytics. (AGPL-3.0)
+
+### Heroku, Vercel & Cloud PaaS Alternatives
+- [Coolify](https://thecloudrain.org/tools/coolify): Self-hosted, all-in-one PaaS to deploy applications, databases, and WordPress on any Linux VPS with 1-click simplicity. (Apache-2.0)
+
+### Presentation & Content Tools
+- [reveal.js](https://thecloudrain.org/tools/revealjs): The HTML presentation framework for creating beautiful, code-rich interactive slides. (71k+ GitHub Stars, MIT)
+
+## Categories
+
+- [Developer Tools](https://thecloudrain.org/free-tools?category=developer-tools): Compilers, CLIs, debuggers, API clients, and code generation utilities.
+- [Self-Hosting & Infrastructure](https://thecloudrain.org/free-tools?category=self-hosting-infrastructure): Docker containers, server management, monitoring, reverse proxies, and PaaS.
+- [Analytics & Search](https://thecloudrain.org/free-tools?category=analytics-search): Privacy-first analytics, full-text search engines, metrics, and error tracking.
+- [Media & Utilities](https://thecloudrain.org/free-tools?category=media-utilities): Image processing, video encoding, format converters, and audio tools.
+- [Productivity](https://thecloudrain.org/free-tools?category=productivity): Note taking, task management, calendars, and documentation wikis.
+- [Security](https://thecloudrain.org/free-tools?category=security): Identity management, vault storage, authentication, and vulnerability scanning.
+- [Business Tools](https://thecloudrain.org/free-tools?category=business-tools): CRMs, invoicing, accounting, customer support, and billing systems.
+- [Community & Events](https://thecloudrain.org/free-tools?category=community-events): Forum software, chat platforms, event scheduling, and community hubs.
+
+## Evaluation & Inclusion Criteria
+
+1. **Source Code Availability**: Project source code must be publicly available on GitHub, GitLab, or a self-hosted Git forge.
+2. **Open-Source License**: Software must use recognized open-source or source-available licenses (MIT, Apache-2.0, GPL, AGPL, BSD, MPL).
+3. **Active Maintenance**: Projects are monitored for commit recency, release cadence, and active maintainer responsiveness.
+4. **Self-Hostability**: Preference is given to tools with straightforward self-hosting options (Docker Compose, single-binary binaries, Kubernetes helm charts).
+5. **No Stealth Paywalls**: Core features must be genuinely usable without forced enterprise licensing or hidden telemetry requirements.

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -77,21 +78,23 @@ export async function generateMetadata({ params }: AlternativePageProps): Promis
   const alt = await getAlternativeBySlug(params.slug);
   if (!alt) return {};
   const c = alt.content;
+  const title = cleanSeoTitle(c.meta_title);
+  const description = cleanSeoDescription(c.meta_description);
   return {
-    title: c.meta_title,
-    description: c.meta_description,
+    title,
+    description,
     alternates: { canonical: `${siteUrl}/alternatives/${alt.saas_slug}` },
     openGraph: {
-      title: c.meta_title,
-      description: c.meta_description,
+      title,
+      description,
       url: `${siteUrl}/alternatives/${alt.saas_slug}`,
       siteName: "The Cloud Rain",
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
-      title: c.meta_title,
-      description: c.meta_description,
+      title,
+      description,
     },
   };
 }
@@ -101,9 +104,82 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
   if (!alt) notFound();
 
   const c = alt.content;
+  const pageUrl = `${siteUrl}/alternatives/${alt.saas_slug}`;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": pageUrl,
+        name: `Best Open Source Alternatives to ${alt.saas_name}`,
+        url: pageUrl,
+        description: c.meta_description || c.intro,
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          name: "The Cloud Rain",
+          url: siteUrl,
+        },
+        breadcrumb: { "@id": `${pageUrl}#breadcrumb` },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Alternatives", item: `${siteUrl}/alternatives` },
+          { "@type": "ListItem", position: 3, name: `${alt.saas_name} Alternatives`, item: pageUrl },
+        ],
+      },
+      ...(Array.isArray(c.alternatives) && c.alternatives.length > 0
+        ? [
+            {
+              "@type": "ItemList",
+              name: `Top Open Source Alternatives to ${alt.saas_name}`,
+              itemListElement: c.alternatives.map((tool, idx) => ({
+                "@type": "ListItem",
+                position: idx + 1,
+                item: {
+                  "@type": "SoftwareApplication",
+                  name: tool.name,
+                  url: `${siteUrl}/tools/${tool.slug}`,
+                  description: tool.description || tool.tagline,
+                  operatingSystem: "Cross-Platform",
+                  offers: {
+                    "@type": "Offer",
+                    price: "0",
+                    priceCurrency: "USD",
+                  },
+                },
+              })),
+            },
+          ]
+        : []),
+      ...(Array.isArray(c.faq) && c.faq.length > 0
+        ? [
+            {
+              "@type": "FAQPage",
+              mainEntity: c.faq.map((item) => ({
+                "@type": "Question",
+                name: item.q,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: item.a,
+                },
+              })),
+            },
+          ]
+        : []),
+    ],
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <Link href="/alternatives" className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors">
         ← All Alternatives
       </Link>
@@ -114,7 +190,62 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
           Best Open Source Alternatives to {alt.saas_name}
         </h1>
         <p className="mt-4 text-sm leading-7 text-white/60">{c.intro}</p>
+
+        {/* Fact Pills Strip */}
+        <div className="mt-5 flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 text-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 font-semibold text-cyan-200">
+            ✓ {c.alternatives?.length || 0} Open Source Alternatives
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 font-semibold text-emerald-300">
+            ✓ Self-Hostable via Docker
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
+            ✓ SPDX Verified Licenses
+          </span>
+        </div>
       </section>
+
+      {/* ── Concrete Comparison Matrix Table (Featured Snippet & AI Overview Anchor) ── */}
+      {c.alternatives && c.alternatives.length > 0 && (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <h2 className="text-lg font-semibold text-white">At a Glance: {alt.saas_name} Alternatives</h2>
+            <Link href="/about#methodology" className="text-xs text-cyan-300/80 hover:text-cyan-200 transition">
+              Evaluation Methodology →
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-white/70">
+              <thead>
+                <tr className="border-b border-white/10 text-white/40 uppercase tracking-wider font-semibold">
+                  <th className="py-2.5 pr-4">Software</th>
+                  <th className="py-2.5 px-4">Stars</th>
+                  <th className="py-2.5 px-4">License</th>
+                  <th className="py-2.5 px-4">Best For</th>
+                  <th className="py-2.5 px-4">Match</th>
+                  <th className="py-2.5 pl-4">Review</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {c.alternatives.map((t) => (
+                  <tr key={t.slug} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 pr-4 font-semibold text-white">{t.name}</td>
+                    <td className="py-3 px-4 text-amber-300 font-medium">⭐ {t.github_stars}</td>
+                    <td className="py-3 px-4 font-mono text-cyan-200">{t.license}</td>
+                    <td className="py-3 px-4 text-white/60">{t.best_for}</td>
+                    <td className="py-3 px-4 text-emerald-300 font-semibold">{t.similarity_score}%</td>
+                    <td className="py-3 pl-4">
+                      <Link href={`/tools/${t.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2">
+                        Details →
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <h2 className="text-xl text-white">Why look for {alt.saas_name} alternatives?</h2>

@@ -151,9 +151,48 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
   if (!comparison) notFound();
 
   const toolLinks = await getToolLinks(comparison.tool_a, comparison.tool_b);
+  const pageUrl = `${siteUrl}/vs/${comparison.slug}`;
+
+  const comparisonStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Article",
+        "@id": `${pageUrl}#article`,
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          name: "The Cloud Rain",
+          url: siteUrl,
+        },
+        headline: `${comparison.tool_a} vs ${comparison.tool_b}: Comparison`,
+        description: getSearchDescription(comparison),
+        datePublished: comparison.verified_regenerated_at || undefined,
+        dateModified: comparison.verified_regenerated_at || undefined,
+        about: [
+          { "@type": "SoftwareApplication", name: comparison.tool_a },
+          { "@type": "SoftwareApplication", name: comparison.tool_b },
+        ],
+        mainEntityOfPage: pageUrl,
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${pageUrl}#breadcrumb`,
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Comparisons", item: `${siteUrl}/vs` },
+          { "@type": "ListItem", position: 3, name: `${comparison.tool_a} vs ${comparison.tool_b}`, item: pageUrl },
+        ],
+      },
+    ],
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(comparisonStructuredData) }}
+      />
       <Link
         href="/vs"
         className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors"

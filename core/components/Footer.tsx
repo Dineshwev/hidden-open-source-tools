@@ -19,6 +19,7 @@ const communityLinks = [
 
 const legalLinks = [
   { href: "/about", label: "About" },
+  { href: "/about#methodology", label: "Ranking Methodology" },
   { href: "/security", label: "Security & Trust" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },

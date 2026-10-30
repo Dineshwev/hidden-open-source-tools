@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { getIndustryPagePath } from "@/lib/industry-url";
+import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 
 export const revalidate = 3600;
 
@@ -39,10 +41,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
     const page = data as any;
     return {
-      title: String(page.meta_title || "Best Developer Tools"),
-      description: String(page.meta_description || "Discover the best tools."),
+      title: cleanSeoTitle(page.meta_title || "Best Developer Tools"),
+      description: cleanSeoDescription(page.meta_description || "Discover the best tools."),
       alternates: {
-        canonical: `/best-${params.slug}`
+        canonical: getIndustryPagePath(params.slug)
       }
     };
   } catch {

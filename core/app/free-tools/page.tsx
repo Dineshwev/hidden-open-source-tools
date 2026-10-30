@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import slugify from "slugify";
 import FreeToolsPageClient from "./FreeToolsPageClient";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { dedupeToolRowsBySlug } from "@/lib/tool-records";
 import type { ScrapedTool, ToolCategory } from "@/lib/types/scraped-tools.types";
 
 import { getApprovedSuccessToolCount } from "@/lib/tool-count";
@@ -105,22 +106,18 @@ export default async function FreeToolsPage({
   const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim() || "";
   const categoryParam = normalizeSearchTerm(searchParams?.category)?.trim() || "";
 
-  const initialTools = error ? [] : (Array.isArray(data) ? data.map(mapOpenSourceTool) : []);
+  const uniqueRows = error || !Array.isArray(data) ? [] : dedupeToolRowsBySlug(data);
+  const initialTools = uniqueRows.map(mapOpenSourceTool);
 
-  // Fetch exact category values and compute counts server-side
-  const { data: categoryRows } = await supabase
-    .from("open_source_tools")
-    .select("category")
-    .eq("status", "approved");
-
-  const rawCounts = Array.isArray(categoryRows)
-    ? categoryRows.reduce<Record<string, number>>((acc, r) => {
-        const key = String((r as any).category || "").trim();
-        if (!key) return acc;
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-      }, {})
-    : {};
+  const uniqueCategoryRows = dedupeToolRowsBySlug(
+    (Array.isArray(data) ? data : []).filter((row: any) => String(row?.status).toLowerCase() === "approved")
+  );
+  const rawCounts = uniqueCategoryRows.reduce<Record<string, number>>((acc, r: any) => {
+    const key = String(r?.category || "").trim();
+    if (!key) return acc;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
 
   const counts: Record<string, number> = {
     All: initialTools.length,

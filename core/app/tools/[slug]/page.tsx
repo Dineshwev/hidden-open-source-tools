@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { dedupeToolRowsBySlug } from "@/lib/tool-records";
+import { cleanSeoDescription } from "@/lib/seo/metadata-text";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
@@ -143,9 +145,13 @@ async function getToolBySlug(slug: string) {
       .select("*")
       .eq("slug", slug)
       .or("status.eq.approved,status.eq.APPROVED")
-      .single();
+      .order("created_at", { ascending: true })
+      .limit(20);
 
-    if (!error && data) return normalizeTool(data);
+    if (!error && Array.isArray(data) && data.length > 0) {
+      const [preferred] = dedupeToolRowsBySlug(data);
+      if (preferred) return normalizeTool(preferred);
+    }
     return null;
   } catch {
     return null;
@@ -163,9 +169,9 @@ export async function generateStaticParams() {
       .or("status.eq.approved,status.eq.APPROVED");
 
     if (error || !Array.isArray(data)) return [];
-    return data
+    return [...new Set(data
       .map((row) => String(row?.slug || "").trim())
-      .filter(Boolean)
+      .filter(Boolean))]
       .map((slug) => ({ slug }));
   } catch {
     return [];
@@ -179,11 +185,10 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const cleanCat = tool.category && !["other", "Developer Resource"].includes(tool.category)
     ? tool.category
     : "Developer";
-  const title = `${tool.name} – Open Source ${cleanCat} Alternative`;
+  const title = `${tool.name} – ${cleanCat}`;
   const snippet = getSeoDescriptionSnippet(tool.description);
-  const description = snippet
-    ? `${snippet.slice(0, 115)}... Compare features, GitHub stars, license, and alternatives.`
-    : `Explore ${tool.name}: a curated open-source ${cleanCat.toLowerCase()} tool. Review GitHub stars, license, and self-hosted alternatives.`;
+  const description = cleanSeoDescription(snippet ||
+    `Explore ${tool.name}, with available details about its features, license, GitHub activity, and related tools.`);
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
   const isSuccess = tool.structured_content_status === "success";
@@ -209,11 +214,14 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   if (!tool) notFound();
 
   // Fetch extra columns written by generate / refresh scripts
-  const { data: rawRow } = await supabaseAdmin
+  const { data: rawRows } = await supabaseAdmin
     .from("open_source_tools")
-    .select("license, github_last_commit, github_checked_at")
+    .select("id, slug, created_at, license, github_last_commit, github_checked_at")
     .eq("slug", params.slug)
-    .single();
+    .or("status.eq.approved,status.eq.APPROVED")
+    .order("created_at", { ascending: true })
+    .limit(20);
+  const [rawRow] = dedupeToolRowsBySlug(rawRows ?? []);
 
   const dbLicense: string | null = rawRow?.license != null ? String(rawRow.license) : null;
   const dbLastCommit: string | null = rawRow?.github_last_commit != null ? String(rawRow.github_last_commit) : null;
@@ -302,6 +310,8 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       category: tool.category,
       description: cleanedDescription,
       url: tool.url,
+      stars: githubStats?.stars,
+      license: displayLicense,
     },
     siteUrl,
     faviconUrl
@@ -432,6 +442,14 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                 <span>Last commit: {lastCommitLabel}</span>
               </div>
             )}
+
+            <Link
+              href="/about#methodology"
+              className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-cyan-300/80 hover:text-cyan-200 transition"
+              title="Learn how The Cloud Rain audits GitHub stars, licenses, and self-hosting metrics"
+            >
+              <span>Audit Methodology →</span>
+            </Link>
           </div>
         </section>
       )}
@@ -488,6 +506,31 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               <ExternalLink className="h-3.5 w-3.5 text-white/60" />
             </a>
           )}
+        </div>
+      </section>
+
+      {/* ── Maintainer Badge / Embed in README ── */}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-white/40">For Project Maintainers</p>
+            <h2 className="mt-1 font-display text-xl font-bold text-white">Embed Badge in GitHub README</h2>
+            <p className="mt-1 text-xs text-white/50">
+              Display verified open-source status and recognition on your project repository.
+            </p>
+          </div>
+          <div className="shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/badge/${tool.slug}`}
+              alt={`${tool.name} badge`}
+              className="h-6"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs text-cyan-200 overflow-x-auto select-all cursor-pointer">
+          {`[![Listed on The Cloud Rain](${siteUrl}/api/badge/${tool.slug})](${siteUrl}/tools/${tool.slug})`}
         </div>
       </section>
 

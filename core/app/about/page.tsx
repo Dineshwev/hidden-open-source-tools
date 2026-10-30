@@ -136,6 +136,51 @@ export default function AboutPage() {
         </ul>
       </div>
 
+      {/* ── Auditable Listing & Ranking Methodology ── */}
+      <section id="methodology" className="scroll-mt-24 rounded-3xl border border-cyan-400/20 bg-white/[0.03] p-6 sm:p-8">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-cyan-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-cyan-300">
+            E-E-A-T & Transparency
+          </span>
+        </div>
+        <h2 className="mt-3 font-display text-2xl font-bold text-white">
+          Listing & Ranking Methodology
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-white/70">
+          To ensure every recommendation is defensible, trustworthy, and safe for engineering teams, The Cloud Rain follows a strict, published evaluation framework:
+        </p>
+
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <h3 className="font-semibold text-white text-base">1. Data Sources & Verification</h3>
+            <p className="mt-2 text-xs leading-relaxed text-white/60">
+              Repository metadata—including GitHub stars, forks, primary programming language, and last commit dates—is fetched directly from the official GitHub API. Every project must have a verifiable public repository and accessible source code.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <h3 className="font-semibold text-white text-base">2. SPDX License Integrity</h3>
+            <p className="mt-2 text-xs leading-relaxed text-white/60">
+              We audit each tool&apos;s license against official SPDX and OSI registries. We distinguish between permissive licenses (MIT, Apache-2.0, BSD) and copyleft licenses (GPL-3.0, AGPL-3.0) so engineering leaders understand legal obligations before deploying.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <h3 className="font-semibold text-white text-base">3. Directory Ranking Signals</h3>
+            <p className="mt-2 text-xs leading-relaxed text-white/60">
+              Default tool rankings are calculated using objective signals: total GitHub star momentum, community adoption, active maintenance (commits within the last 90–180 days), and completion of structured evaluation data.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <h3 className="font-semibold text-white text-base">4. Editorial Independence & Sponsored Policy</h3>
+            <p className="mt-2 text-xs leading-relaxed text-white/60">
+              No tool can purchase a higher organic star rating or alter factual review metrics. If a placement is sponsored or featured, it is explicitly labeled as such in accordance with our advertising disclosure.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
         <p className="text-xs uppercase tracking-[0.26em] text-white/45">Trust and safety</p>
         <h2 className="mt-2 text-xl text-white">How we handle risk</h2>

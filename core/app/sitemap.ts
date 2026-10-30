@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { getIndustryPagePath } from "@/lib/industry-url";
 import { getSiteUrl } from "@/lib/site-url";
+import { dedupeToolRowsBySlug } from "@/lib/tool-records";
 
 const siteUrl = getSiteUrl();
 
@@ -133,7 +135,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     while (hasMore) {
       const { data: pageTools, error: toolsError } = await supabase
         .from("open_source_tools")
-        .select("slug, created_at, enrichment_completed_at")
+        .select("id, slug, created_at, enrichment_completed_at")
         .eq("status", "approved")
         .eq("structured_content_status", "success")
         .not("slug", "is", null)
@@ -154,7 +156,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     if (allTools.length > 0) {
-      toolEntries = allTools.map((tool: any) => ({
+      toolEntries = dedupeToolRowsBySlug(allTools).map((tool: any) => ({
         url: `${siteUrl}/tools/${tool.slug}`,
         ...(tool?.enrichment_completed_at
           ? { lastModified: new Date(tool.enrichment_completed_at) }
@@ -171,11 +173,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq("status", "published");
 
     if (industryPages) {
-      industryEntries = industryPages.map((row: any) => ({
-        url: `${siteUrl}/best-${row.slug}`,
-        changeFrequency: "monthly",
-        priority: 0.8
-      }));
+      industryEntries = industryPages
+        .filter((row: any) => typeof row?.slug === "string" && row.slug.trim().length > 0)
+        .map((row: any) => ({
+          url: `${siteUrl}${getIndustryPagePath(row.slug)}`,
+          changeFrequency: "monthly",
+          priority: 0.8
+        }));
     }
 
     const { data: comparisons } = await supabase
