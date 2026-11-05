@@ -33,6 +33,9 @@ const SOURCE_GAP_PATTERNS = [
   /\b(?:not|no)\s+(?:enough|much|any)\s+(?:information|detail|documentation)\b.{0,80}\b(?:description|source|readme|documentation|website|material)\b/i,
 ];
 
+const VOLATILE_STAT_LINE_REGEX =
+  /^\s*[-*•]?\s*(?:(?:⭐|🍴|🐛|👥|🕐|🏷️|👁️)\s*)?(?:Stars|Forks|Open\s*Issues|Issues|Contributors|Last\s*Commit|Latest\s*Release|Watchers)\s*:\s*.+$/iu;
+
 const BULLET_SECTIONS = new Set([
   "Best For",
   "Not Ideal For",
@@ -95,6 +98,12 @@ function cleanMarkdown(markdown: string | null): { cleaned: string | null; remov
   for (const line of lines) {
     const heading = line.match(/^##\s+(.+?)\s*#*$/);
     if (heading) currentSection = heading[1].trim();
+
+    if (VOLATILE_STAT_LINE_REGEX.test(line)) {
+      removedContent = true;
+      removed.push(`Volatile Stat: ${line.trim()}`);
+      continue;
+    }
 
     const bullet = line.match(/^\s*[-*+]\s+(.+?)\s*$/);
     if (bullet && BULLET_SECTIONS.has(currentSection)) {

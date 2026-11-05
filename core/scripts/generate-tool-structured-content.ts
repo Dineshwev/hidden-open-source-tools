@@ -854,17 +854,8 @@ function buildAiContent(
   lines.push(content.summary);
   lines.push("");
 
-  if (stats) {
+  if (stats && (stats.language || stats.license)) {
     lines.push("## GitHub Stats");
-    lines.push(`- ⭐ Stars: ${stats.stars.toLocaleString()}`);
-    lines.push(`- 🍴 Forks: ${stats.forks.toLocaleString()}`);
-    lines.push(`- 🐛 Open Issues: ${stats.open_issues}`);
-    lines.push(`- 👥 Contributors: ${stats.contributors}`);
-    if (stats.last_commit) {
-      const d = new Date(stats.last_commit);
-      lines.push(`- 🕐 Last Commit: ${d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}`);
-    }
-    if (stats.latest_release) lines.push(`- 🏷️ Latest Release: ${stats.latest_release}`);
     if (stats.language) lines.push(`- 💻 Language: ${stats.language}`);
     if (stats.license) lines.push(`- 📄 License: ${stats.license}`);
     lines.push("");

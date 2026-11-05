@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { dedupeToolRowsBySlug } from "@/lib/tool-records";
 import { cleanSeoDescription } from "@/lib/seo/metadata-text";
+import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
@@ -82,7 +83,7 @@ function firstSentence(description: string): string {
 }
 
 function getSeoDescriptionSnippet(description: string) {
-  const cleaned = cleanDescription(description);
+  const cleaned = cleanToolMarkdownContent(cleanDescription(description));
   return cleaned.length > 160 ? `${cleaned.slice(0, 157).trimEnd()}...` : cleaned;
 }
 
@@ -281,8 +282,9 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     .slice(0, 4);
 
   const faviconUrl = getFaviconUrl(tool.url);
-  const cleanedDescription = cleanDescription(tool.description);
+  const cleanedDescription = cleanToolMarkdownContent(cleanDescription(tool.description));
   const heroTagline = firstSentence(cleanedDescription);
+  const cleanedAiContent = tool.ai_content ? cleanToolMarkdownContent(tool.ai_content) : null;
 
   const githubUrl =
     (tool.url?.includes("github.com") ? tool.url : null) ??
@@ -464,12 +466,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       </section>
 
       {/* ── AI Structured Deep Dive Content (if available) ── */}
-      {tool.ai_content && (
+      {cleanedAiContent && (
         <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
           <div
             className="prose prose-invert max-w-none text-sm sm:text-base leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: marked(tool.ai_content, { async: false, breaks: true }) as string,
+              __html: marked(cleanedAiContent, { async: false, breaks: true }) as string,
             }}
           />
         </section>
