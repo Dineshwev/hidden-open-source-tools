@@ -8,9 +8,10 @@ import { dedupeToolRowsBySlug } from "@/lib/tool-records";
 import { cleanSeoDescription } from "@/lib/seo/metadata-text";
 import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
+import DockerQuickstart from "@/components/tools/DockerQuickstart";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
-import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ArrowLeft } from "lucide-react";
+import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ArrowLeft, ChevronDown } from "lucide-react";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -83,7 +84,7 @@ function firstSentence(description: string): string {
 }
 
 function getSeoDescriptionSnippet(description: string) {
-  const cleaned = cleanToolMarkdownContent(cleanDescription(description));
+  const cleaned = cleanDescription(cleanToolMarkdownContent(description));
   return cleaned.length > 160 ? `${cleaned.slice(0, 157).trimEnd()}...` : cleaned;
 }
 
@@ -186,13 +187,43 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
   const cleanCat = tool.category && !["other", "Developer Resource"].includes(tool.category)
     ? tool.category
     : "Developer";
-  const title = `${tool.name} – ${cleanCat}`;
+
+  let saasTarget: string | null = null;
+  try {
+    const supabase = getAdmin();
+    const { data: altRows } = await supabase
+      .from("alternatives")
+      .select("saas_name, content")
+      .or("status.eq.approved,status.eq.published");
+
+    const matched = (altRows ?? []).find((alt: any) => {
+      const list = alt?.content?.alternatives;
+      if (!Array.isArray(list)) return false;
+      return list.some(
+        (item: any) =>
+          String(item?.slug || "").toLowerCase() === params.slug.toLowerCase() ||
+          String(item?.name || "").toLowerCase() === tool.name.toLowerCase()
+      );
+    });
+    if (matched?.saas_name) {
+      saasTarget = String(matched.saas_name);
+    }
+  } catch {
+    // Non-blocking fallback
+  }
+
+  const title = saasTarget
+    ? `${tool.name} – Open Source ${saasTarget} Alternative (Self-Hosted)`
+    : `${tool.name} – Open Source ${cleanCat} Tool`;
   const snippet = getSeoDescriptionSnippet(tool.description);
   const description = cleanSeoDescription(snippet ||
-    `Explore ${tool.name}, with available details about its features, license, GitHub activity, and related tools.`);
+    (saasTarget
+      ? `Explore ${tool.name}: a verified open-source alternative to ${saasTarget}. Review GitHub stars, license, features, and self-hosted deployment.`
+      : `Explore ${tool.name}, with available details about its features, license, GitHub activity, and related tools.`));
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
   const isSuccess = tool.structured_content_status === "success";
+  const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(tool.name)}&subtitle=${encodeURIComponent(description.slice(0, 100))}&badge=${encodeURIComponent(saasTarget ? `Replaces ${saasTarget}` : "VERIFIED OPEN SOURCE")}&category=${encodeURIComponent(cleanCat)}`;
 
   return {
     title,
@@ -203,7 +234,20 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
       title,
       description,
       url: canonicalUrl,
-      images: faviconUrl ? [{ url: faviconUrl, alt: `${tool.name} logo` }] : [],
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${tool.name} – The Cloud Rain`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
     },
   };
 }
@@ -217,7 +261,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   // Fetch extra columns written by generate / refresh scripts
   const { data: rawRows } = await supabaseAdmin
     .from("open_source_tools")
-    .select("id, slug, created_at, license, github_last_commit, github_checked_at")
+    .select("id, slug, created_at, license, github_last_commit, github_checked_at, deployment_info")
     .eq("slug", params.slug)
     .or("status.eq.approved,status.eq.APPROVED")
     .order("created_at", { ascending: true })
@@ -228,6 +272,21 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   const dbLastCommit: string | null = rawRow?.github_last_commit != null ? String(rawRow.github_last_commit) : null;
   const dbCheckedAt: string | null = rawRow?.github_checked_at != null ? String(rawRow.github_checked_at) : null;
 
+  // Deployment metadata
+  const deploymentInfo = rawRow?.deployment_info as {
+    docker?: boolean | null;
+    docker_compose?: boolean | null;
+    self_hosted?: boolean | null;
+  } | null;
+  const isSelfHostable = Boolean(
+    deploymentInfo?.self_hosted ||
+    deploymentInfo?.docker ||
+    deploymentInfo?.docker_compose ||
+    tool.category.toLowerCase().includes("self-host") ||
+    tool.description.toLowerCase().includes("docker") ||
+    tool.description.toLowerCase().includes("self-host")
+  );
+
   // Related vs comparisons
   const { data: relatedVs } = await supabaseAdmin
     .from("comparisons")
@@ -236,13 +295,27 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     .eq("status", "published")
     .limit(3);
 
-  // Alternatives pages (saas alternatives)
-  const { data: relatedAlts } = await supabaseAdmin
+  // Alternatives pages (find which commercial SaaS this tool replaces)
+  const { data: allAlts } = await supabaseAdmin
     .from("alternatives")
-    .select("saas_slug, saas_name")
-    .ilike("saas_slug", `${params.slug}%`)
-    .eq("status", "published")
-    .limit(2);
+    .select("saas_slug, saas_name, content")
+    .or("status.eq.approved,status.eq.published");
+
+  const matchingAlternatives = (allAlts ?? [])
+    .filter((alt: any) => {
+      const list = alt?.content?.alternatives;
+      if (!Array.isArray(list)) return false;
+      return list.some(
+        (item: any) =>
+          String(item?.slug || "").toLowerCase() === params.slug.toLowerCase() ||
+          String(item?.name || "").toLowerCase() === tool.name.toLowerCase()
+      );
+    })
+    .map((alt: any) => ({
+      saas_slug: String(alt.saas_slug),
+      saas_name: String(alt.saas_name),
+    }))
+    .slice(0, 3);
 
   // Same-category open-source alternatives
   const { data: categoryToolsCandidates } = await supabaseAdmin
@@ -282,7 +355,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     .slice(0, 4);
 
   const faviconUrl = getFaviconUrl(tool.url);
-  const cleanedDescription = cleanToolMarkdownContent(cleanDescription(tool.description));
+  const cleanedDescription = cleanDescription(cleanToolMarkdownContent(tool.description));
   const heroTagline = firstSentence(cleanedDescription);
   const cleanedAiContent = tool.ai_content ? cleanToolMarkdownContent(tool.ai_content) : null;
 
@@ -305,6 +378,41 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   const lastCommitLabel = fmtMonthYear(dbLastCommit);
   const checkedAtLabel = fmtMonthYear(dbCheckedAt);
 
+  const primarySaas = matchingAlternatives[0]?.saas_name || null;
+  const licenseLabel = displayLicense ? formatLicense(displayLicense) : null;
+  const toolCategory = tool.category || "developer software";
+
+  const toolFaqs: Array<{ q: string; a: string }> = [
+    {
+      q: `Is ${tool.name} free and open source?`,
+      a: `Yes, ${tool.name} is free, open-source software${licenseLabel ? ` distributed under the ${licenseLabel} license` : ""}. Anyone can inspect, audit, or contribute to its public codebase.`,
+    },
+  ];
+
+  if (isSelfHostable) {
+    toolFaqs.push({
+      q: `Can I self-host ${tool.name}?`,
+      a: `Yes, ${tool.name} is designed for self-hosting on private clouds, VPS, or on-premise hardware. You can deploy it using Docker or containers to maintain complete control over your data.`,
+    });
+  }
+
+  if (primarySaas) {
+    toolFaqs.push({
+      q: `What proprietary SaaS does ${tool.name} replace?`,
+      a: `${tool.name} provides a transparent, self-hosted open-source alternative to commercial platforms like ${primarySaas}, preventing vendor lock-in and eliminating per-seat subscription costs.`,
+    });
+  } else {
+    toolFaqs.push({
+      q: `What are the best open-source alternatives to ${tool.name}?`,
+      a: `Explore top alternatives in the ${toolCategory} category on The Cloud Rain, where projects are verified for active maintenance, license integrity, and developer usability.`,
+    });
+  }
+
+  toolFaqs.push({
+    q: `How is ${tool.name} verified on The Cloud Rain?`,
+    a: `Our curation pipeline verifies ${tool.name} for license authenticity, repository commit cadence, and deployment viability according to our transparent audit methodology.`,
+  });
+
   const structuredData = buildToolStructuredData(
     {
       name: tool.name,
@@ -316,7 +424,8 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       license: displayLicense,
     },
     siteUrl,
-    faviconUrl
+    faviconUrl,
+    toolFaqs
   );
 
   return (
@@ -456,6 +565,43 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         </section>
       )}
 
+      {/* ── SaaS Replacement Callout Banner ── */}
+      {matchingAlternatives.length > 0 && (
+        <section className="rounded-2xl border border-cyan-400/25 bg-gradient-to-r from-cyan-950/40 via-cyan-900/20 to-slate-900/40 p-4 sm:p-5 backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/15 border border-cyan-400/30 text-cyan-300 text-lg">
+                💡
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Looking for an open-source replacement for{" "}
+                  <span className="text-cyan-300 font-bold">
+                    {matchingAlternatives.map((a) => a.saas_name).join(" or ")}
+                  </span>
+                  ?
+                </p>
+                <p className="mt-0.5 text-xs text-white/70 leading-relaxed">
+                  {tool.name} is a verified, self-hostable alternative with zero vendor lock-in and $0 subscription fees.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+              {matchingAlternatives.map((alt) => (
+                <Link
+                  key={alt.saas_slug}
+                  href={`/alternatives/${alt.saas_slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-2 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/25 hover:text-white"
+                >
+                  <span>All {alt.saas_name} Alternatives</span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── About Section ── */}
       <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
         <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
@@ -475,6 +621,15 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
             }}
           />
         </section>
+      )}
+
+      {/* ── 1-Click Docker / Self-Hosting Quickstart ── */}
+      {isSelfHostable && (
+        <DockerQuickstart
+          toolName={tool.name}
+          slug={tool.slug}
+          repoOwner={currentGithubOwner}
+        />
       )}
 
       {/* ── Bottom Action Strip ── */}
@@ -556,18 +711,22 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       )}
 
       {/* ── SaaS Alternatives ── */}
-      {relatedAlts && relatedAlts.length > 0 && (
+      {matchingAlternatives.length > 0 && (
         <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-white/40">SaaS Alternatives</p>
-          <h2 className="mt-1 font-display text-xl font-bold text-white">Commercial Alternatives to {tool.name}</h2>
+          <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80 font-semibold">SaaS Replacement</p>
+          <h2 className="mt-1 font-display text-xl font-bold text-white">Commercial Software Replaced by {tool.name}</h2>
+          <p className="mt-2 text-xs text-white/60">
+            {tool.name} serves as a verified open-source, self-hosted replacement for the following proprietary platforms:
+          </p>
           <div className="mt-4 flex flex-wrap gap-2.5">
-            {relatedAlts.map((alt: any) => (
+            {matchingAlternatives.map((alt) => (
               <Link
                 key={alt.saas_slug}
                 href={`/alternatives/${alt.saas_slug}`}
-                className="inline-flex items-center rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 hover:text-white"
               >
-                <span>{alt.saas_name} Alternatives</span>
+                <span>Browse all {alt.saas_name} Alternatives</span>
+                <span aria-hidden="true">→</span>
               </Link>
             ))}
           </div>
@@ -597,6 +756,30 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                 </Link>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {/* ── Frequently Asked Questions (FAQPage) ── */}
+      {toolFaqs.length > 0 && (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/40">Knowledge Base</p>
+          <h2 className="mt-1 font-display text-2xl font-bold text-white">Frequently Asked Questions</h2>
+          <div className="mt-6 space-y-3">
+            {toolFaqs.map((faq, i) => (
+              <details
+                key={i}
+                className="group rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-colors open:border-cyan-400/30 open:bg-white/[0.04]"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-white transition hover:text-cyan-200">
+                  <span className="text-sm sm:text-base font-semibold">{faq.q}</span>
+                  <ChevronDown className="h-4 w-4 shrink-0 text-white/40 transition-transform duration-200 group-open:rotate-180" />
+                </summary>
+                <p className="mt-3 text-xs sm:text-sm leading-relaxed text-white/70">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
           </div>
         </section>
       )}

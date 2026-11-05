@@ -127,6 +127,8 @@ export async function generateMetadata({ params }: ComparisonPageProps): Promise
   if (!comparison) return {};
   const title = getSearchTitle(comparison);
   const description = getSearchDescription(comparison) || `Compare ${comparison.tool_a} and ${comparison.tool_b} using the specific features and trade-offs covered on this page.`;
+  const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(`${comparison.tool_a} vs ${comparison.tool_b}`)}&subtitle=${encodeURIComponent('Detailed feature comparison, self-hosting difficulty, and verdict')}&badge=${encodeURIComponent("Head-to-Head Comparison")}&category=${encodeURIComponent("Tool Comparison")}`;
+
   return {
     title,
     description,
@@ -137,11 +139,20 @@ export async function generateMetadata({ params }: ComparisonPageProps): Promise
       url: `${siteUrl}/vs/${comparison.slug}`,
       siteName: "The Cloud Rain",
       type: "article",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${comparison.tool_a} vs ${comparison.tool_b} Comparison – The Cloud Rain`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [ogImageUrl],
     },
   };
 }

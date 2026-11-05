@@ -26,7 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: siteName,
     category: "technology",
     alternates: {
-      canonical: siteUrl
+      canonical: siteUrl,
+      types: {
+        "application/rss+xml": `${siteUrl}/feed.xml`,
+      },
     },
     openGraph: {
       type: "website",
@@ -125,6 +128,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="The Cloud Rain - Open-Source Tools &amp; SaaS Alternatives"
+          href="/feed.xml"
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <Script defer data-domain="thecloudrain.org" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
       </head>

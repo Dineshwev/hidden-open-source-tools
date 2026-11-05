@@ -51,38 +51,70 @@ export default function VSListingClient({ comparisons }: VSListingClientProps) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-full sm:max-w-md">
-          <input
-            type="text"
-            placeholder="Search comparisons..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-white/20 transition-colors"
-          />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="w-full sm:max-w-md">
+            <input
+              type="text"
+              placeholder="Search comparisons (e.g. Jira, Firebase, Notion)..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-cyan-400/40 transition-colors"
+            />
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-white/50 mr-2">Sort by:</span>
+            {(
+              [
+                { id: "latest", label: "Latest First" },
+                { id: "oldest", label: "Oldest First" },
+                { id: "az", label: "A→Z" },
+              ] as const
+            ).map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => setSortBy(opt.id)}
+                className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+                  sortBy === opt.id
+                    ? "border-cyan-300 bg-cyan-300 text-slate-950 font-semibold"
+                    : "border-white/20 text-white/70 hover:bg-white/[0.05] hover:text-white"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
-        
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-white/50 mr-2">Sort by:</span>
-          {(
-            [
-              { id: "latest", label: "Latest First" },
-              { id: "oldest", label: "Oldest First" },
-              { id: "az", label: "A→Z" },
-            ] as const
-          ).map((opt) => (
+
+        {/* Quick Jump Popular Comparisons */}
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <span className="text-xs font-semibold uppercase tracking-wider text-white/40 mr-1">
+            Top Matches:
+          </span>
+          {["Jira", "Firebase", "Notion", "Google Analytics", "Heroku", "Algolia"].map((term) => (
             <button
-              key={opt.id}
-              onClick={() => setSortBy(opt.id)}
-              className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
-                sortBy === opt.id
-                  ? "border-cyan-300 bg-cyan-300 text-slate-900 font-medium"
-                  : "border-white/20 text-white/70 hover:bg-white/[0.05] hover:text-white"
+              key={term}
+              type="button"
+              onClick={() => setSearch(search === term ? "" : term)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                search === term
+                  ? "bg-cyan-400 text-slate-950 font-bold"
+                  : "border border-white/10 bg-white/5 text-white/70 hover:border-cyan-400/30 hover:bg-white/10 hover:text-white"
               }`}
             >
-              {opt.label}
+              vs {term}
             </button>
           ))}
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="text-xs text-white/40 hover:text-white underline ml-1"
+            >
+              Clear filter
+            </button>
+          )}
         </div>
       </div>
 

@@ -11,6 +11,7 @@ The Cloud Rain is designed for builders, indie hackers, self-hosters, and engine
 - [Head-to-Head Comparisons](https://thecloudrain.org/vs): Detailed feature, license, and self-hosting breakdowns between open-source projects and commercial SaaS.
 - [Tool Deep Dives & Articles](https://thecloudrain.org/article-museum): Long-form evaluations, setup guides, and architectural overviews.
 - [Weekly Roundups](https://thecloudrain.org/weekly-roundups): Weekly editorial highlights of newly discovered open-source gems.
+- [RSS 2.0 Syndication Feed](https://thecloudrain.org/feed.xml): Real-time XML syndication feed of newly approved open-source tools.
 - [XML Sitemap](https://thecloudrain.org/sitemap.xml): Complete machine-readable index of canonical pages.
 
 ## Curated SaaS-to-Open-Source Replacements

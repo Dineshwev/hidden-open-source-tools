@@ -4,9 +4,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { getIndustryPagePath } from "@/lib/industry-url";
+import { getSiteUrl } from "@/lib/site-url";
 import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 
 export const revalidate = 3600;
+const siteUrl = getSiteUrl();
 
 export async function generateStaticParams() {
   try {
@@ -79,8 +81,49 @@ export default async function IndustrySlugPage({ params }: { params: { slug: str
     }
   }
 
+  const pageUrl = `${siteUrl}${getIndustryPagePath(params.slug)}`;
+
+  const industryStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": pageUrl,
+        url: pageUrl,
+        name: page.h1_title || "Best Developer Tools",
+        description: page.intro_paragraph || page.meta_description,
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          name: "The Cloud Rain",
+          url: siteUrl,
+        },
+      },
+      ...(tools.length > 0
+        ? [
+            {
+              "@type": "ItemList",
+              name: page.h1_title || "Recommended Open Source Tools",
+              numberOfItems: tools.length,
+              itemListElement: tools.map((tool: any, idx: number) => ({
+                "@type": "ListItem",
+                position: idx + 1,
+                name: tool.name,
+                url: tool.slug ? `${siteUrl}/tools/${tool.slug}` : (tool.url || pageUrl),
+                description: tool.description,
+              })),
+            },
+          ]
+        : []),
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-5xl space-y-12 px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(industryStructuredData) }}
+      />
       <section>
         <h1 className="font-display text-4xl text-white md:text-5xl lg:text-6xl">{page.h1_title}</h1>
         {page.intro_paragraph && (

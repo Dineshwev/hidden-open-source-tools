@@ -8,12 +8,12 @@ export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Tool Comparisons | Open Source vs SaaS",
-  description: "Compare selected open-source and commercial software projects. Review feature, deployment, pricing, and other details included on each comparison page.",
+  title: "Open Source vs SaaS Tool Comparisons & Benchmarks | The Cloud Rain",
+  description: "Side-by-side technical comparisons between top open-source tools and proprietary SaaS. Compare features, self-hosting difficulty, Docker support, and pricing.",
   alternates: { canonical: `${siteUrl}/vs` },
   openGraph: {
-    title: "Open Source Tool Comparisons | The Cloud Rain",
-    description: "Comparisons of selected software projects, including open-source tools and commercial products.",
+    title: "Open Source vs SaaS Tool Comparisons & Benchmarks",
+    description: "In-depth head-to-head comparisons of open-source tools versus commercial software. Features, self-hosting, and trade-offs.",
     url: `${siteUrl}/vs`,
     siteName: "The Cloud Rain",
     type: "website",
@@ -47,11 +47,45 @@ async function getComparisons(): Promise<Comparison[]> {
 export default async function VSListingPage() {
   const comparisons = await getComparisons();
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${siteUrl}/vs`,
+        url: `${siteUrl}/vs`,
+        name: "Open Source vs SaaS Tool Comparisons",
+        description: "Side-by-side technical comparisons of open-source projects and proprietary SaaS.",
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          name: "The Cloud Rain",
+          url: siteUrl,
+        },
+      },
+      {
+        "@type": "ItemList",
+        name: "Software Comparisons",
+        numberOfItems: comparisons.length,
+        itemListElement: comparisons.map((c, idx) => ({
+          "@type": "ListItem",
+          position: idx + 1,
+          name: `${c.tool_a} vs ${c.tool_b}`,
+          url: `${siteUrl}/vs/${c.slug}`,
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-5xl space-y-10 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <section>
-        <p className="text-xs uppercase tracking-[0.25em] text-white/40">Tool Comparisons</p>
-        <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Open Source vs SaaS</h1>
+        <p className="text-xs uppercase tracking-[0.25em] text-cyan-300 font-semibold">Tool Comparisons</p>
+        <h1 className="mt-2 font-display text-4xl text-white md:text-5xl font-bold">Open Source vs SaaS</h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">
           Detailed, honest comparisons between open source tools and their popular paid alternatives.
           Features, pricing, self-hosting difficulty, and a clear verdict — so you can stop researching and start building.

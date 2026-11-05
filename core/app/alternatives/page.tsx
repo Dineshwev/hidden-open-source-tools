@@ -7,12 +7,12 @@ export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Open-Source Alternatives to SaaS Tools",
-  description: "Browse open-source projects listed as alternatives to selected SaaS products. Compare the available project details before choosing an option.",
+  title: "Best Open-Source SaaS Alternatives (Free & Self-Hosted Directory)",
+  description: "Browse 50+ curated open-source alternatives to Notion, Jira, Firebase, Airtable, Google Analytics, Slack, and more. Self-hostable, zero vendor lock-in, and $0 monthly subscriptions.",
   alternates: { canonical: `${siteUrl}/alternatives` },
   openGraph: {
-    title: "Open-Source Alternatives to SaaS Tools | The Cloud Rain",
-    description: "Browse projects listed as alternatives to selected SaaS products and compare their available details.",
+    title: "Best Open-Source SaaS Alternatives | The Cloud Rain",
+    description: "Discover verified open-source replacements for expensive proprietary SaaS tools. Complete data ownership and free self-hosting.",
     url: `${siteUrl}/alternatives`,
     siteName: "The Cloud Rain",
     type: "website",
@@ -45,13 +45,48 @@ async function getAlternatives(): Promise<Alternative[]> {
 export default async function AlternativesListingPage() {
   const alternatives = await getAlternatives();
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${siteUrl}/alternatives`,
+        url: `${siteUrl}/alternatives`,
+        name: "Best Open-Source SaaS Alternatives Directory",
+        description: "Curated collection of open-source alternatives to commercial software.",
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          name: "The Cloud Rain",
+          url: siteUrl,
+        },
+      },
+      {
+        "@type": "ItemList",
+        name: "Open-Source SaaS Alternatives Hubs",
+        numberOfItems: alternatives.length,
+        itemListElement: alternatives.map((alt, idx) => ({
+          "@type": "ListItem",
+          position: idx + 1,
+          name: `${alt.saas_name} Alternatives`,
+          url: `${siteUrl}/alternatives/${alt.saas_slug}`,
+          description: alt.saas_description || `Best open-source alternatives to ${alt.saas_name}`,
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-5xl space-y-10 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <section>
-        <p className="text-xs uppercase tracking-[0.25em] text-white/40">Open Source Alternatives</p>
-        <h1 className="mt-2 font-display text-4xl text-white md:text-5xl">Open-Source Alternatives</h1>
+        <p className="text-xs uppercase tracking-[0.25em] text-cyan-300 font-semibold">Open Source Alternatives</p>
+        <h1 className="mt-2 font-display text-4xl text-white md:text-5xl font-bold">Open-Source SaaS Alternatives</h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">
-          Browse projects listed as alternatives to selected SaaS products. Check each project’s official source for current pricing, hosting, license, and privacy details.
+          Discover verified open-source replacements for expensive proprietary SaaS platforms. Review features, GitHub momentum, SPDX licenses, and self-hosting guides before you deploy.
         </p>
       </section>
       <AlternativesListingClient alternatives={alternatives} />

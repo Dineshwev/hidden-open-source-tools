@@ -34,9 +34,12 @@ export default function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMac, setIsMac] = useState(false);
 
   // Global Ctrl+K / Cmd+K shortcut
   useEffect(() => {
+    setIsMac(/(Mac|iPhone|iPod|iPad)/i.test(navigator?.userAgent || ""));
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -131,7 +134,7 @@ export default function Navbar() {
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Search</span>
             <kbd className="hidden md:inline rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-white/40">
-              ⌘K
+              {isMac ? "⌘K" : "Ctrl+K"}
             </kbd>
           </button>
 
@@ -158,48 +161,82 @@ export default function Navbar() {
 
       {/* ── Search Dropdown Panel ── */}
       {searchOpen && (
-        <motion.div
-          className="absolute right-4 top-full mt-2 w-[calc(100%-2rem)] max-w-lg rounded-2xl border border-[color:var(--nav-border)] bg-[var(--nav-search-bg)] p-4 shadow-2xl md:right-8"
-          initial={{ opacity: 0, scale: 0.95, y: -8 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          <form
-            className="space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              runSearch("/free-tools");
-            }}
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            onClick={closePanels}
+          />
+          <motion.div
+            className="absolute right-4 top-full z-50 mt-2 w-[calc(100%-2rem)] max-w-lg rounded-2xl border border-[color:var(--nav-border)] bg-[var(--nav-search-bg)] p-4 shadow-2xl md:right-8"
+            initial={{ opacity: 0, scale: 0.95, y: -8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.15 }}
           >
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search tools by name, category, or SaaS (e.g. Supabase, Jira)..."
-                className="w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-12 pr-4 text-sm text-white placeholder-white/40 focus:border-cyan-400/60 focus:outline-none"
-                autoFocus
-              />
-            </div>
+            <form
+              className="space-y-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                runSearch("/free-tools");
+              }}
+            >
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search tools by name, category, or SaaS (e.g. Supabase, Jira)..."
+                  className="w-full rounded-xl border border-white/15 bg-white/5 py-3 pl-12 pr-4 text-sm text-white placeholder-white/40 focus:border-cyan-400/60 focus:outline-none"
+                  autoFocus
+                />
+              </div>
 
-            <div className="flex gap-2 text-xs">
-              <button
-                type="submit"
-                className="flex-1 rounded-xl bg-cyan-400 px-4 py-2 font-semibold text-slate-950 transition hover:bg-cyan-300"
-              >
-                Search Directory
-              </button>
-              <button
-                type="button"
-                onClick={() => runSearch("/article-museum")}
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
-              >
-                Search Articles
-              </button>
-            </div>
-          </form>
-        </motion.div>
+              <div className="flex gap-2 text-xs">
+                <button
+                  type="submit"
+                  className="flex-1 rounded-xl bg-cyan-400 px-4 py-2 font-semibold text-slate-950 transition hover:bg-cyan-300"
+                >
+                  Search Directory
+                </button>
+                <button
+                  type="button"
+                  onClick={() => runSearch("/article-museum")}
+                  className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+                >
+                  Search Articles
+                </button>
+              </div>
+
+              {/* Popular Instant Searches */}
+              <div className="pt-2 border-t border-white/5">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40 mb-1.5">
+                  Top Searches
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { label: "Notion Alternatives", path: "/alternatives/notion" },
+                    { label: "Firebase Alternatives", path: "/alternatives/firebase" },
+                    { label: "Jira Alternatives", path: "/alternatives/jira" },
+                    { label: "Docker Self-Hosted", path: "/free-tools?search=docker" },
+                    { label: "Developer Tools", path: "/free-tools?category=developer-tools" },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => {
+                        closePanels();
+                        router.push(item.path);
+                      }}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-white/70 hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-cyan-200 transition"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </form>
+          </motion.div>
+        </>
       )}
 
       {/* ── Mobile Navigation Drawer ── */}

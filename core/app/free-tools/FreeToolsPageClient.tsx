@@ -2,8 +2,9 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, X, Star, Sparkles, Filter, Frown, ArrowUpDown, RefreshCw } from "lucide-react";
+import { Search, X, Star, Sparkles, Filter, Frown, ArrowUpDown, RefreshCw, Bookmark, Share2, Check } from "lucide-react";
 import ToolCard from "@/components/ToolCard";
+import { getSavedSlugs } from "@/lib/saved-tools";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
 type SortOption = "stars" | "newest" | "alpha" | "shuffle";
@@ -80,6 +81,38 @@ export default function FreeToolsPageClient({
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || "all");
   const [sortOption, setSortOption] = useState<SortOption>("stars");
   const [shuffleSeed, setShuffleSeed] = useState(Date.now());
+  const [savedSlugs, setSavedSlugs] = useState<Set<string>>(new Set());
+  const [filterSavedOnly, setFilterSavedOnly] = useState(false);
+  const [copiedStack, setCopiedStack] = useState(false);
+
+  const handleExportStack = (toolsToExport: ScrapedTool[]) => {
+    if (!toolsToExport || toolsToExport.length === 0) return;
+    const lines = [
+      "# My Open-Source Stack",
+      "",
+      ...toolsToExport.map((t) => {
+        const link = t.slug ? `https://thecloudrain.org/tools/${t.slug}` : t.webpage_url;
+        const desc = t.description ? ` – ${t.description.replace(/\s+/g, " ").slice(0, 110).trim()}...` : "";
+        return `- [${t.title}](${link})${desc}`;
+      }),
+      "",
+      "Curated via [The Cloud Rain](https://thecloudrain.org/free-tools)",
+    ];
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+      setCopiedStack(true);
+      setTimeout(() => setCopiedStack(false), 2500);
+    });
+  };
+
+  // Sync saved bookmarks from localStorage
+  useEffect(() => {
+    setSavedSlugs(new Set(getSavedSlugs()));
+    const handleSavedChange = () => {
+      setSavedSlugs(new Set(getSavedSlugs()));
+    };
+    window.addEventListener("cloudrain:saved-change", handleSavedChange);
+    return () => window.removeEventListener("cloudrain:saved-change", handleSavedChange);
+  }, []);
 
   // Sync if initial props change
   useEffect(() => {
@@ -99,6 +132,11 @@ export default function FreeToolsPageClient({
 
   const visibleTools = useMemo(() => {
     let list = initialTools;
+
+    // Filter by Saved Only
+    if (filterSavedOnly) {
+      list = list.filter((tool) => savedSlugs.has(tool.slug || tool.id));
+    }
 
     // Filter by Category
     if (selectedCategory && selectedCategory !== "all") {
@@ -130,14 +168,15 @@ export default function FreeToolsPageClient({
     }
 
     return sorted;
-  }, [initialTools, selectedCategory, searchQuery, sortOption, shuffleSeed]);
+  }, [initialTools, filterSavedOnly, savedSlugs, selectedCategory, searchQuery, sortOption, shuffleSeed]);
 
   const activeCategoryDef = CATEGORY_DEFS.find((c) => c.key === selectedCategory) || CATEGORY_DEFS[0];
-  const hasActiveFilters = selectedCategory !== "all" || searchQuery.trim().length > 0;
+  const hasActiveFilters = selectedCategory !== "all" || searchQuery.trim().length > 0 || filterSavedOnly;
 
   const handleResetFilters = () => {
     setSelectedCategory("all");
     setSearchQuery("");
+    setFilterSavedOnly(false);
   };
 
   return (
@@ -250,38 +289,80 @@ export default function FreeToolsPageClient({
             )}
           </div>
 
-          {/* Sort Options */}
-          <div className="flex items-center gap-1.5">
-            <span className="flex items-center gap-1 text-white/40">
-              <ArrowUpDown className="h-3 w-3" />
-              Sort:
-            </span>
-            {[
-              { key: "stars", label: "⭐ Most Stars" },
-              { key: "newest", label: "🕒 Newest" },
-              { key: "alpha", label: "🔤 A-Z" },
-              { key: "shuffle", label: "🎲 Shuffle" }
-            ].map((opt) => (
+          {/* Saved Filter & Sort Options */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFilterSavedOnly(!filterSavedOnly)}
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition ${
+                filterSavedOnly
+                  ? "border-cyan-400/50 bg-cyan-400/20 text-cyan-200 font-semibold"
+                  : "border-white/10 bg-white/5 text-white/70 hover:border-white/20 hover:text-white"
+              }`}
+              title="Show tools saved in your stack"
+            >
+              <Bookmark className={`h-3.5 w-3.5 ${filterSavedOnly ? "fill-cyan-300 text-cyan-300" : "text-white/40"}`} />
+              <span>Saved Stack ({savedSlugs.size})</span>
+            </button>
+
+            {savedSlugs.size > 0 && (
               <button
-                key={opt.key}
                 type="button"
                 onClick={() => {
-                  if (opt.key === "shuffle") {
-                    setSortOption("shuffle");
-                    setShuffleSeed(Date.now());
-                  } else {
-                    setSortOption(opt.key as SortOption);
-                  }
+                  const targetList = filterSavedOnly ? visibleTools : initialTools.filter((t) => savedSlugs.has(t.slug || t.id));
+                  handleExportStack(targetList);
                 }}
-                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-                  sortOption === opt.key
-                    ? "bg-white/15 text-white font-semibold"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white transition"
+                title="Copy saved stack as Markdown list"
               >
-                {opt.label}
+                {copiedStack ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="text-emerald-300 font-medium">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-3.5 w-3.5 text-white/50" />
+                    <span>Export Stack</span>
+                  </>
+                )}
               </button>
-            ))}
+            )}
+
+            <span className="hidden sm:inline-block h-4 w-px bg-white/10 mx-1" />
+
+            <div className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1 text-white/40">
+                <ArrowUpDown className="h-3 w-3" />
+                Sort:
+              </span>
+              {[
+                { key: "stars", label: "⭐ Most Stars" },
+                { key: "newest", label: "🕒 Newest" },
+                { key: "alpha", label: "🔤 A-Z" },
+                { key: "shuffle", label: "🎲 Shuffle" }
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => {
+                    if (opt.key === "shuffle") {
+                      setSortOption("shuffle");
+                      setShuffleSeed(Date.now());
+                    } else {
+                      setSortOption(opt.key as SortOption);
+                    }
+                  }}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                    sortOption === opt.key
+                      ? "bg-white/15 text-white font-semibold"
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -299,10 +380,13 @@ export default function FreeToolsPageClient({
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white/40">
             <Frown className="h-7 w-7" />
           </div>
-          <h2 className="mt-4 font-display text-xl font-semibold text-white">No tools found</h2>
+          <h2 className="mt-4 font-display text-xl font-semibold text-white">
+            {filterSavedOnly && savedSlugs.size === 0 ? "Your stack is empty" : "No tools found"}
+          </h2>
           <p className="mt-2 max-w-md text-sm text-white/60">
-            We couldn&apos;t find any open-source tools matching &ldquo;{searchQuery}&rdquo;{" "}
-            {selectedCategory !== "all" ? `in ${activeCategoryDef.label}` : ""}.
+            {filterSavedOnly && savedSlugs.size === 0
+              ? "You haven't saved any tools yet. Click the bookmark icon on any tool card to add it to your stack!"
+              : `We couldn't find any open-source tools matching "${searchQuery}" ${selectedCategory !== "all" ? `in ${activeCategoryDef.label}` : ""}.`}
           </p>
           <button
             type="button"

@@ -17,6 +17,7 @@ Unlike generic software aggregators:
 
 Canonical Website: https://thecloudrain.org
 Sitemap: https://thecloudrain.org/sitemap.xml
+RSS Feed: https://thecloudrain.org/feed.xml
 LLM Index: https://thecloudrain.org/llms.txt
 
 ---

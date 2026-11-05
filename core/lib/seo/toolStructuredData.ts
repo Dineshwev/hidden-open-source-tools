@@ -9,15 +9,14 @@ export function buildToolStructuredData(
     license?: string | null;
   },
   siteUrl: string,
-  faviconUrl?: string
+  faviconUrl?: string,
+  faqs?: Array<{ q: string; a: string }>
 ) {
   const pageUrl = `${siteUrl.replace(/\/$/, "")}/tools/${tool.slug}`;
   const cleanedDescription = (tool.description || "").replace(/\s+/g, " ").trim();
   const starsCount = tool.stars && tool.stars > 0 ? tool.stars : null;
 
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
+  const graphNodes: any[] = [
       {
         "@type": "WebPage",
         "@id": pageUrl,
@@ -81,7 +80,26 @@ export function buildToolStructuredData(
             "Open Source Maintainers",
         },
       },
-    ],
+    ];
+
+  if (faqs && faqs.length > 0) {
+    graphNodes.push({
+      "@type": "FAQPage",
+      "@id": `${pageUrl}#faq`,
+      mainEntity: faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.a,
+        },
+      })),
+    });
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": graphNodes,
   };
 }
 

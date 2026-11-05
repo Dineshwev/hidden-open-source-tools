@@ -8,7 +8,8 @@ const mainLinks = [
   { href: "/vs", label: "Comparisons" },
   { href: "/article-museum", label: "Articles" },
   { href: "/weekly-roundups", label: "Weekly Roundups" },
-  { href: "/upload", label: "Submit a Tool" }
+  { href: "/upload", label: "Submit a Tool" },
+  { href: "/feed.xml", label: "RSS Feed" }
 ];
 
 const communityLinks = [

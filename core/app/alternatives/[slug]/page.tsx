@@ -80,6 +80,8 @@ export async function generateMetadata({ params }: AlternativePageProps): Promis
   const c = alt.content;
   const title = cleanSeoTitle(c.meta_title);
   const description = cleanSeoDescription(c.meta_description);
+  const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(`Best Open Source ${alt.saas_name} Alternatives`)}&subtitle=${encodeURIComponent(`Curated privacy-first, self-hostable replacements for ${alt.saas_name}`)}&badge=${encodeURIComponent("Open Source Alternative")}&category=${encodeURIComponent("SaaS Alternative")}`;
+
   return {
     title,
     description,
@@ -90,11 +92,20 @@ export async function generateMetadata({ params }: AlternativePageProps): Promis
       url: `${siteUrl}/alternatives/${alt.saas_slug}`,
       siteName: "The Cloud Rain",
       type: "article",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Open Source ${alt.saas_name} Alternatives – The Cloud Rain`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [ogImageUrl],
     },
   };
 }
@@ -277,6 +288,8 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
             <div className="mt-4">
               <Link
                 href={`/tools/${tool.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
               >
                 View {tool.name} →

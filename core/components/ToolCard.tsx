@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ExternalLink, ArrowRight } from "lucide-react";
+import { Star, ExternalLink, ArrowRight, Bookmark } from "lucide-react";
+import { isToolSaved, toggleSaveTool } from "@/lib/saved-tools";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
 function stripMarkdown(text: string): string {
@@ -39,11 +40,31 @@ function getDomain(url: string): string {
 
 const ToolCard = React.memo(({ tool, onOpen }: ToolCardProps) => {
   const [imgFailed, setImgFailed] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const domain = getDomain(tool.webpage_url || "");
   const firstLetter = (tool.title || "?")[0]?.toUpperCase() || "?";
   const displayCategory = tool.raw_category || (tool.category === "other" ? "Developer Tool" : tool.category);
   const starsLabel = formatStars(tool.github_stars);
   const targetSlug = tool.slug || tool.id;
+
+  useEffect(() => {
+    setIsSaved(isToolSaved(targetSlug));
+    const handleSavedChange = (e: Event) => {
+      const custom = e as CustomEvent;
+      if (custom.detail?.slug === targetSlug) {
+        setIsSaved(custom.detail.isSaved);
+      }
+    };
+    window.addEventListener("cloudrain:saved-change", handleSavedChange);
+    return () => window.removeEventListener("cloudrain:saved-change", handleSavedChange);
+  }, [targetSlug]);
+
+  const handleToggleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nextSaved = toggleSaveTool(targetSlug);
+    setIsSaved(nextSaved);
+  };
 
   const handleExternalClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -93,12 +114,27 @@ const ToolCard = React.memo(({ tool, onOpen }: ToolCardProps) => {
             </div>
           </Link>
 
-          {starsLabel && (
-            <div className="flex shrink-0 items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-xs font-medium text-amber-300">
-              <Star className="h-3 w-3 fill-amber-300/40 text-amber-300" />
-              <span>{starsLabel}</span>
-            </div>
-          )}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {starsLabel && (
+              <div className="flex items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-xs font-medium text-amber-300">
+                <Star className="h-3 w-3 fill-amber-300/40 text-amber-300" />
+                <span>{starsLabel}</span>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleToggleBookmark}
+              className={`flex h-6 w-6 items-center justify-center rounded-lg border transition ${
+                isSaved
+                  ? "border-cyan-400/50 bg-cyan-400/20 text-cyan-300"
+                  : "border-white/10 bg-white/5 text-white/40 hover:border-white/25 hover:text-white"
+              }`}
+              title={isSaved ? "Saved to stack (click to remove)" : "Save to my stack"}
+              aria-label={isSaved ? "Saved to stack" : "Save to my stack"}
+            >
+              <Bookmark className={`h-3 w-3 ${isSaved ? "fill-cyan-300" : ""}`} />
+            </button>
+          </div>
         </div>
 
         {/* Description */}
