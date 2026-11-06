@@ -6,6 +6,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ShareButton from "@/components/ShareButton";
+import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -271,18 +272,24 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
       {/* ── Concrete Comparison Matrix Table (Featured Snippet & AI Overview Anchor) ── */}
       {c.alternatives && c.alternatives.length > 0 && (
         <section id="comparison-matrix" className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 overflow-hidden scroll-mt-20">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-            <h2 className="text-lg font-semibold text-white">At a Glance: {alt.saas_name} Alternatives</h2>
-            <Link href="/about#methodology" className="text-xs text-cyan-300/80 hover:text-cyan-200 transition">
-              Evaluation Methodology →
-            </Link>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-white">At a Glance: {alt.saas_name} Alternatives</h2>
+              <p className="text-xs text-white/50">Verified open-source software with self-hosted Docker support.</p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <AlternativesStackAction saasName={alt.saas_name} tools={c.alternatives} />
+              <Link href="/about#methodology" className="text-xs text-cyan-300/80 hover:text-cyan-200 transition">
+                Methodology →
+              </Link>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-white/70">
               <thead>
                 <tr className="border-b border-white/10 text-white/40 uppercase tracking-wider font-semibold">
                   <th className="py-2.5 pr-4">Software</th>
-                  <th className="py-2.5 px-4">Stars</th>
+                  <th className="py-2.5 px-4">Deployment</th>
                   <th className="py-2.5 px-4">License</th>
                   <th className="py-2.5 px-4">Best For</th>
                   <th className="py-2.5 px-4">Match</th>
@@ -293,8 +300,8 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
                 {c.alternatives.map((t) => (
                   <tr key={t.slug} className="hover:bg-white/[0.02] transition-colors">
                     <td className="py-3 pr-4 font-semibold text-white">{t.name}</td>
-                    <td className="py-3 px-4 text-amber-300 font-medium">⭐ {t.github_stars}</td>
-                    <td className="py-3 px-4 font-mono text-cyan-200">{t.license}</td>
+                    <td className="py-3 px-4 font-mono text-cyan-200">🐳 Docker / Self-Host</td>
+                    <td className="py-3 px-4 font-mono text-white/80">{t.license}</td>
                     <td className="py-3 px-4 text-white/60">{t.best_for}</td>
                     <td className="py-3 px-4 text-emerald-300 font-semibold">{t.similarity_score}%</td>
                     <td className="py-3 pl-4">
@@ -331,7 +338,7 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
                 <p className="mt-1 text-sm text-white/50">{tool.tagline}</p>
                 <p className="mt-3 text-sm leading-6 text-white/60">{tool.description}</p>
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/40">
-                  <span>⭐ {tool.github_stars}</span>
+                  <span>🐳 Docker / Self-Host Ready</span>
                   <span>📄 {tool.license}</span>
                   <span>🎯 {tool.best_for}</span>
                 </div>
