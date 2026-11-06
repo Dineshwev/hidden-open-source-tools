@@ -3,6 +3,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { getIndustryPagePath } from "@/lib/industry-url";
 import { getSiteUrl } from "@/lib/site-url";
 import { dedupeToolRowsBySlug } from "@/lib/tool-records";
+import { getAllCategorySlugs } from "@/lib/categories";
 
 const siteUrl = getSiteUrl();
 
@@ -51,6 +52,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.9
     },
+    ...getAllCategorySlugs().map((catSlug) => ({
+      url: `${siteUrl}/categories/${catSlug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.85
+    })),
     {
       url: `${siteUrl}/open-source-software`,
       changeFrequency: "daily",

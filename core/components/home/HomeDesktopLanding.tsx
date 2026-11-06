@@ -358,7 +358,7 @@ export default function HomeDesktopLanding({
           {CATEGORIES.map((cat) => (
             <Link
               key={cat.slug}
-              href={`/free-tools?category=${cat.slug}`}
+              href={`/categories/${cat.slug}`}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white/70 transition hover:border-cyan-400/40 hover:bg-white/[0.06] hover:text-white"
             >
               <span>{cat.label}</span>
