@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Terminal, Server } from "lucide-react";
+import { Check, Copy, Terminal, Server, Layers } from "lucide-react";
+import DockerStackModal from "./DockerStackModal";
 
 interface DockerQuickstartProps {
   toolName: string;
@@ -12,6 +13,7 @@ interface DockerQuickstartProps {
 export default function DockerQuickstart({ toolName, slug, repoOwner }: DockerQuickstartProps) {
   const [activeTab, setActiveTab] = useState<"compose" | "cli">("compose");
   const [copied, setCopied] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Derive standard container image name
   const imageName = repoOwner ? `${repoOwner.toLowerCase()}/${slug.toLowerCase()}:latest` : `${slug.toLowerCase()}:latest`;
@@ -103,6 +105,16 @@ export default function DockerQuickstart({ toolName, slug, repoOwner }: DockerQu
               </>
             )}
           </button>
+
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3 py-2 text-xs font-medium text-cyan-200 transition hover:border-cyan-400/50 hover:bg-cyan-400/20"
+            title="Open in Multi-Service Stack Builder"
+          >
+            <Layers className="h-3.5 w-3.5 text-cyan-300" />
+            <span className="hidden sm:inline">Stack Builder</span>
+          </button>
         </div>
       </div>
 
@@ -116,6 +128,12 @@ export default function DockerQuickstart({ toolName, slug, repoOwner }: DockerQu
       <p className="mt-3 text-[11px] text-white/40 leading-relaxed">
         💡 Note: Adjust port mappings and storage volumes as specified in {toolName}&apos;s official repository documentation.
       </p>
+
+      <DockerStackModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        tools={[{ name: toolName, slug }]}
+      />
     </section>
   );
 }

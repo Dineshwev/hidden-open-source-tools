@@ -2,9 +2,10 @@
 
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, X, Star, Sparkles, Filter, Frown, ArrowUpDown, RefreshCw, Bookmark, Share2, Check } from "lucide-react";
+import { Search, X, Star, Sparkles, Filter, Frown, ArrowUpDown, RefreshCw, Bookmark, Share2, Check, Server } from "lucide-react";
 import ToolCard from "@/components/ToolCard";
-import { getSavedSlugs } from "@/lib/saved-tools";
+import { getSavedSlugs, toggleSaveTool } from "@/lib/saved-tools";
+import DockerStackModal from "@/components/tools/DockerStackModal";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
 type SortOption = "stars" | "newest" | "alpha" | "shuffle";
@@ -84,6 +85,19 @@ export default function FreeToolsPageClient({
   const [savedSlugs, setSavedSlugs] = useState<Set<string>>(new Set());
   const [filterSavedOnly, setFilterSavedOnly] = useState(false);
   const [copiedStack, setCopiedStack] = useState(false);
+  const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
+
+  const savedToolsForCompose = useMemo(() => {
+    return initialTools
+      .filter((t) => savedSlugs.has(t.slug || t.id))
+      .map((t) => ({
+        id: t.id,
+        name: t.title,
+        slug: t.slug || t.id,
+        category: t.raw_category,
+        url: t.webpage_url,
+      }));
+  }, [initialTools, savedSlugs]);
 
   const handleExportStack = (toolsToExport: ScrapedTool[]) => {
     if (!toolsToExport || toolsToExport.length === 0) return;
@@ -306,27 +320,39 @@ export default function FreeToolsPageClient({
             </button>
 
             {savedSlugs.size > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  const targetList = filterSavedOnly ? visibleTools : initialTools.filter((t) => savedSlugs.has(t.slug || t.id));
-                  handleExportStack(targetList);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white transition"
-                title="Copy saved stack as Markdown list"
-              >
-                {copiedStack ? (
-                  <>
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span className="text-emerald-300 font-medium">Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="h-3.5 w-3.5 text-white/50" />
-                    <span>Export Stack</span>
-                  </>
-                )}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsComposeModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-2.5 py-1.5 text-xs text-cyan-200 hover:border-cyan-400/60 hover:bg-cyan-400/20 transition font-medium"
+                  title="Generate docker-compose.yml for saved tools"
+                >
+                  <Server className="h-3.5 w-3.5 text-cyan-300" />
+                  <span>Docker Compose ({savedSlugs.size})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const targetList = filterSavedOnly ? visibleTools : initialTools.filter((t) => savedSlugs.has(t.slug || t.id));
+                    handleExportStack(targetList);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1.5 text-xs text-white/70 hover:border-white/20 hover:bg-white/10 hover:text-white transition"
+                  title="Copy saved stack as Markdown list"
+                >
+                  {copiedStack ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      <span className="text-emerald-300 font-medium">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="h-3.5 w-3.5 text-white/50" />
+                      <span>Export Stack</span>
+                    </>
+                  )}
+                </button>
+              </>
             )}
 
             <span className="hidden sm:inline-block h-4 w-px bg-white/10 mx-1" />
@@ -424,6 +450,15 @@ export default function FreeToolsPageClient({
           </div>
         </div>
       </section>
+
+      <DockerStackModal
+        isOpen={isComposeModalOpen}
+        onClose={() => setIsComposeModalOpen(false)}
+        tools={savedToolsForCompose}
+        onRemoveTool={(slug) => {
+          toggleSaveTool(slug);
+        }}
+      />
     </div>
   );
 }
