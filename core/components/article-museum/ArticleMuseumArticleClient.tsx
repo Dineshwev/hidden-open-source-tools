@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { ChevronLeft, Zap, BookOpen, Lightbulb, Code2, Search, Briefcase } from "lucide-react";
+import { Zap, BookOpen, Lightbulb, Code2, Search, Briefcase } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ShareButton from "@/components/ShareButton";
 
 type Article = {
   id: string;
@@ -21,13 +23,11 @@ type Article = {
 export default function ArticleMuseumArticleClient({ article }: { article: Article }) {
   return (
     <article className="mx-auto max-w-3xl space-y-12 pb-20 pt-6">
-      <Link
-        href="/article-museum"
-        className="inline-flex items-center gap-2 text-sm font-medium text-white/50 transition hover:text-white"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Back to Museum
-      </Link>
+      <Breadcrumbs items={[
+        { label: "Home", href: "/" },
+        { label: "Articles", href: "/article-museum" },
+        { label: article.tool_name || article.title },
+      ]} />
 
       <header className="space-y-4">
         <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
@@ -36,10 +36,16 @@ export default function ArticleMuseumArticleClient({ article }: { article: Artic
         <h1 className="font-display text-4xl font-bold leading-tight text-white md:text-5xl">
           {article.title}
         </h1>
-        <div className="flex flex-wrap items-center gap-3 text-sm text-white/40">
-          <span>{article.read_time || "5 min read"}</span>
-          <span>|</span>
-          <span>{new Date(article.published_at).toLocaleDateString()}</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-white/40 pt-2 border-t border-white/5">
+          <div className="flex items-center gap-3">
+            <span>{article.read_time || "5 min read"}</span>
+            <span>|</span>
+            <span>{new Date(article.published_at).toLocaleDateString()}</span>
+          </div>
+
+          <ShareButton
+            title={`${article.title} | The Cloud Rain`}
+          />
         </div>
       </header>
 

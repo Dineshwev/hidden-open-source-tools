@@ -4,6 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { marked } from "marked";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ShareButton from "@/components/ShareButton";
+import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -204,12 +207,11 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(comparisonStructuredData) }}
       />
-      <Link
-        href="/vs"
-        className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors"
-      >
-        ← All Comparisons
-      </Link>
+      <Breadcrumbs items={[
+        { label: "Home", href: "/" },
+        { label: "Comparisons", href: "/vs" },
+        { label: `${comparison.tool_a} vs ${comparison.tool_b}` },
+      ]} />
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">Comparison</p>
@@ -221,13 +223,20 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             Last reviewed {new Date(comparison.verified_regenerated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })} · The Cloud Rain
           </p>
         )}
-        <div className="mt-4 flex flex-wrap gap-3">
-          <span className="inline-flex rounded-full border border-orange-300/30 bg-orange-300/10 px-3 py-1 text-xs font-semibold text-orange-200">
-            {comparison.tool_a}
-          </span>
-          <span className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-200">
-            {comparison.tool_b}
-          </span>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex rounded-full border border-orange-300/30 bg-orange-300/10 px-3 py-1 text-xs font-semibold text-orange-200">
+              {comparison.tool_a}
+            </span>
+            <span className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-200">
+              {comparison.tool_b}
+            </span>
+          </div>
+
+          <ShareButton
+            title={`${comparison.tool_a} vs ${comparison.tool_b} | The Cloud Rain`}
+            url={`${siteUrl}/vs/${comparison.slug}`}
+          />
         </div>
 
         {/* Links to both tool pages & alternatives rendered directly from DB slugs */}
@@ -260,7 +269,7 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             prose-strong:text-white
             prose-code:text-cyan-300 prose-code:bg-white/5 prose-code:px-1 prose-code:rounded"
           dangerouslySetInnerHTML={{
-            __html: marked(comparison.content, { async: false, breaks: true }) as string,
+            __html: marked(cleanToolMarkdownContent(comparison.content), { async: false, breaks: true }) as string,
           }}
         />
       </section>

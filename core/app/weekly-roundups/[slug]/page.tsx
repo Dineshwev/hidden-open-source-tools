@@ -3,6 +3,8 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ShareButton from "@/components/ShareButton";
 
 type FeaturedTool = {
   name: string;
@@ -222,7 +224,9 @@ export default async function WeeklyRoundupPage({
 
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@graph": [
+      {
+        "@type": "Article",
     headline: roundup.title,
     datePublished: roundup.week_date,
     dateModified: roundup.week_date,
@@ -235,7 +239,17 @@ export default async function WeeklyRoundupPage({
       name: "The Cloud Rain",
       url: siteUrl
     },
-    mainEntityOfPage: `${siteUrl}/weekly-roundups/${params.slug}`
+        mainEntityOfPage: `${siteUrl}/weekly-roundups/${params.slug}`
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Weekly Roundups", item: `${siteUrl}/weekly-roundups` },
+          { "@type": "ListItem", position: 3, name: roundup.title, item: `${siteUrl}/weekly-roundups/${params.slug}` }
+        ]
+      }
+    ]
   };
 
   const featuredTools = roundup.featured_tools || [];
@@ -282,8 +296,20 @@ export default async function WeeklyRoundupPage({
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-10">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
 
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Weekly Roundups", href: "/weekly-roundups" },
+          { label: roundup.title },
+        ]} />
+
         <header className="space-y-4">
-          <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundup</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Weekly Roundup</p>
+            <ShareButton
+              title={`${roundup.title} | The Cloud Rain`}
+              url={`${siteUrl}/weekly-roundups/${params.slug}`}
+            />
+          </div>
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">{roundup.title}</h1>
           <p className="text-sm text-white/60">{formatWeekDate(roundup.week_date)}</p>
         </header>

@@ -9,9 +9,12 @@ import { cleanSeoDescription } from "@/lib/seo/metadata-text";
 import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import DockerQuickstart from "@/components/tools/DockerQuickstart";
+import ToolDetailActions from "@/components/tools/ToolDetailActions";
+import MaintainerBadgeCard from "@/components/tools/MaintainerBadgeCard";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
-import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ArrowLeft, ChevronDown } from "lucide-react";
+import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -317,6 +320,15 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     }))
     .slice(0, 3);
 
+  // Check if this tool is featured in an Article Museum deep dive
+  const { data: featuredArticle } = await supabaseAdmin
+    .from("articles")
+    .select("slug, title, mystery_intro, read_time")
+    .or(`tool_name.ilike.%${tool.name}%,slug.ilike.%${params.slug}%`)
+    .eq("is_published", true)
+    .limit(1)
+    .maybeSingle();
+
   // Same-category open-source alternatives
   const { data: categoryToolsCandidates } = await supabaseAdmin
     .from("open_source_tools")
@@ -435,14 +447,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Back Link */}
-      <Link
-        href="/free-tools"
-        className="inline-flex items-center gap-2 text-sm text-white/60 transition hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span>Back to Explore Tools</span>
-      </Link>
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={[
+        { label: "Home", href: "/" },
+        { label: "Explore Tools", href: "/free-tools" },
+        { label: tool.name },
+      ]} />
 
       {/* ── Hero Section with Instant Action CTAs ── */}
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md">
@@ -511,6 +521,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                 <ExternalLink className="h-3.5 w-3.5 text-white/60" />
               </a>
             )}
+
+            <ToolDetailActions
+              toolName={tool.name}
+              slug={tool.slug}
+              canonicalUrl={`${siteUrl}/tools/${tool.slug}`}
+            />
           </div>
         </div>
       </section>
@@ -551,6 +567,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs sm:text-sm text-white/70">
                 <Clock className="h-4 w-4 text-white/50" />
                 <span>Last commit: {lastCommitLabel}</span>
+              </div>
+            )}
+
+            {checkedAtLabel && (
+              <div className="flex items-center gap-1.5 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-3.5 py-2 text-xs sm:text-sm text-emerald-300/80">
+                <span>✓ Verified: {checkedAtLabel}</span>
               </div>
             )}
 
@@ -632,6 +654,28 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         />
       )}
 
+      {/* ── Featured Editorial Museum Article (if published) ── */}
+      {featuredArticle && (
+        <section className="rounded-3xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-slate-900/40 p-6 sm:p-8 backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-purple-300/80 font-semibold">The Article Museum</p>
+              <h2 className="mt-1 font-display text-xl font-bold text-white">{String(featuredArticle.title)}</h2>
+              <p className="mt-2 text-xs sm:text-sm text-white/70 max-w-2xl line-clamp-2">
+                {String(featuredArticle.mystery_intro || "")}
+              </p>
+            </div>
+            <Link
+              href={`/article-museum/${featuredArticle.slug}`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-purple-400/30 bg-purple-400/10 px-4 py-2.5 text-xs sm:text-sm font-semibold text-purple-200 hover:bg-purple-400/20 hover:text-white transition sm:shrink-0"
+            >
+              <span>Read Museum Deep Dive</span>
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+        </section>
+      )}
+
       {/* ── Bottom Action Strip ── */}
       <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
         <div>
@@ -663,33 +707,21 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               <ExternalLink className="h-3.5 w-3.5 text-white/60" />
             </a>
           )}
+
+          <ToolDetailActions
+            toolName={tool.name}
+            slug={tool.slug}
+            canonicalUrl={`${siteUrl}/tools/${tool.slug}`}
+          />
         </div>
       </section>
 
       {/* ── Maintainer Badge / Embed in README ── */}
-      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-white/40">For Project Maintainers</p>
-            <h2 className="mt-1 font-display text-xl font-bold text-white">Embed Badge in GitHub README</h2>
-            <p className="mt-1 text-xs text-white/50">
-              Display verified open-source status and recognition on your project repository.
-            </p>
-          </div>
-          <div className="shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/badge/${tool.slug}`}
-              alt={`${tool.name} badge`}
-              className="h-6"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs text-cyan-200 overflow-x-auto select-all cursor-pointer">
-          {`[![Listed on The Cloud Rain](${siteUrl}/api/badge/${tool.slug})](${siteUrl}/tools/${tool.slug})`}
-        </div>
-      </section>
+      <MaintainerBadgeCard
+        toolName={tool.name}
+        slug={tool.slug}
+        siteUrl={siteUrl}
+      />
 
       {/* ── Comparisons ── */}
       {relatedVs && relatedVs.length > 0 && (

@@ -115,16 +115,28 @@ export default async function ArticleMuseumSinglePage({ params }: { params: { sl
 
   const articleSchema = {
     "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
-    description: article.mystery_intro,
-    image: article.image_url || fallbackOgImage,
-    datePublished: article.published_at,
-    author: {
-      "@type": "Organization",
-      name: "The Cloud Rain"
-    },
-    mainEntityOfPage: `${siteUrl}/article-museum/${article.slug}`
+    "@graph": [
+      {
+        "@type": "Article",
+        headline: article.title,
+        description: article.mystery_intro,
+        image: article.image_url || fallbackOgImage,
+        datePublished: article.published_at,
+        author: {
+          "@type": "Organization",
+          name: "The Cloud Rain"
+        },
+        mainEntityOfPage: `${siteUrl}/article-museum/${article.slug}`
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Articles", item: `${siteUrl}/article-museum` },
+          { "@type": "ListItem", position: 3, name: article.tool_name || article.title, item: `${siteUrl}/article-museum/${article.slug}` }
+        ]
+      }
+    ]
   };
 
   return (

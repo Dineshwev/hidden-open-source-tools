@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ShareButton from "@/components/ShareButton";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -191,9 +193,11 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <Link href="/alternatives" className="inline-flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors">
-        ← All Alternatives
-      </Link>
+      <Breadcrumbs items={[
+        { label: "Home", href: "/" },
+        { label: "Alternatives", href: "/alternatives" },
+        { label: `${alt.saas_name} Alternatives` },
+      ]} />
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">Open Source Alternatives</p>
@@ -202,23 +206,71 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
         </h1>
         <p className="mt-4 text-sm leading-7 text-white/60">{c.intro}</p>
 
-        {/* Fact Pills Strip */}
-        <div className="mt-5 flex flex-wrap items-center gap-2.5 pt-3 border-t border-white/10 text-xs">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 font-semibold text-cyan-200">
-            ✓ {c.alternatives?.length || 0} Open Source Alternatives
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 font-semibold text-emerald-300">
-            ✓ Self-Hostable via Docker
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
-            ✓ SPDX Verified Licenses
-          </span>
+        {/* Fact Pills Strip & Share */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 font-semibold text-cyan-200">
+              ✓ {c.alternatives?.length || 0} Open Source Alternatives
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 font-semibold text-emerald-300">
+              ✓ Self-Hostable via Docker
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-white/70">
+              ✓ SPDX Verified Licenses
+            </span>
+          </div>
+
+          <ShareButton
+            title={`Best Open Source Alternatives to ${alt.saas_name} | The Cloud Rain`}
+            url={`${siteUrl}/alternatives/${alt.saas_slug}`}
+          />
+        </div>
+
+        {/* Quick Jump Anchors */}
+        <div className="mt-4 flex flex-wrap items-center gap-1.5 pt-3 border-t border-white/5 text-xs">
+          <span className="text-white/40 mr-1 text-[11px] uppercase tracking-wider font-semibold">Jump to:</span>
+          {c.alternatives && c.alternatives.length > 0 && (
+            <a
+              href="#comparison-matrix"
+              className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/70 hover:border-cyan-400/40 hover:text-cyan-200 transition"
+            >
+              📊 Comparison Matrix
+            </a>
+          )}
+          <a
+            href="#why-switch"
+            className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/70 hover:border-cyan-400/40 hover:text-cyan-200 transition"
+          >
+            💡 Why Switch
+          </a>
+          <a
+            href="#top-alternatives"
+            className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/70 hover:border-cyan-400/40 hover:text-cyan-200 transition"
+          >
+            ⭐ Top Alternatives ({c.alternatives?.length || 0})
+          </a>
+          {c.migration_tips && (
+            <a
+              href="#migration-tips"
+              className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/70 hover:border-cyan-400/40 hover:text-cyan-200 transition"
+            >
+              🚀 Migration Tips
+            </a>
+          )}
+          {c.faq && c.faq.length > 0 && (
+            <a
+              href="#faq"
+              className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/70 hover:border-cyan-400/40 hover:text-cyan-200 transition"
+            >
+              ❓ FAQs
+            </a>
+          )}
         </div>
       </section>
 
       {/* ── Concrete Comparison Matrix Table (Featured Snippet & AI Overview Anchor) ── */}
       {c.alternatives && c.alternatives.length > 0 && (
-        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 overflow-hidden">
+        <section id="comparison-matrix" className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 overflow-hidden scroll-mt-20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <h2 className="text-lg font-semibold text-white">At a Glance: {alt.saas_name} Alternatives</h2>
             <Link href="/about#methodology" className="text-xs text-cyan-300/80 hover:text-cyan-200 transition">
@@ -258,12 +310,12 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
         </section>
       )}
 
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+      <section id="why-switch" className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8 scroll-mt-20">
         <h2 className="text-xl text-white">Why look for {alt.saas_name} alternatives?</h2>
         <p className="mt-3 text-sm leading-7 text-white/60">{c.why_alternatives}</p>
       </section>
 
-      <section className="space-y-4">
+      <section id="top-alternatives" className="space-y-4 scroll-mt-20">
         <h2 className="text-2xl text-white">Top Alternatives</h2>
         {c.alternatives?.map((tool, i) => (
           <div key={tool.slug} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
@@ -299,13 +351,13 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
         ))}
       </section>
 
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+      <section id="migration-tips" className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8 scroll-mt-20">
         <h2 className="text-xl text-white">Migration Tips</h2>
         <p className="mt-3 text-sm leading-7 text-white/60">{c.migration_tips}</p>
       </section>
 
       {c.faq && c.faq.length > 0 && (
-        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+        <section id="faq" className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8 scroll-mt-20">
           <h2 className="text-xl text-white">Frequently Asked Questions</h2>
           <div className="mt-4 space-y-4">
             {c.faq.map((item, i) => (

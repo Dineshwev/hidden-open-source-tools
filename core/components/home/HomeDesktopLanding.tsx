@@ -16,7 +16,66 @@ const CATEGORIES = [
   { label: "Community", slug: "community-events", count: 16 },
 ];
 
-type Tool = {
+export const SAAS_REPLACEMENTS = [
+  {
+    saas: "Notion",
+    replaces: "Docs, wikis & notes",
+    osAlt: "AppFlowy, Memos",
+    href: "/alternatives/notion",
+    icon: "📝"
+  },
+  {
+    saas: "Firebase",
+    replaces: "Backend & database",
+    osAlt: "Supabase, PocketBase",
+    href: "/alternatives/firebase",
+    icon: "🔥"
+  },
+  {
+    saas: "Jira / Linear",
+    replaces: "Issue & project tracking",
+    osAlt: "Plane",
+    href: "/alternatives/jira",
+    icon: "📋"
+  },
+  {
+    saas: "Google Analytics",
+    replaces: "Web & traffic analytics",
+    osAlt: "Plausible, Umami",
+    href: "/alternatives/google-analytics",
+    icon: "📊"
+  },
+  {
+    saas: "Airtable",
+    replaces: "Databases & spreadsheets",
+    osAlt: "NocoDB",
+    href: "/alternatives/airtable",
+    icon: "🗃️"
+  },
+  {
+    saas: "Heroku / Vercel",
+    replaces: "Cloud application PaaS",
+    osAlt: "Coolify",
+    href: "/alternatives/heroku",
+    icon: "⚡"
+  },
+  {
+    saas: "HubSpot",
+    replaces: "Customer CRM & sales",
+    osAlt: "Twenty",
+    href: "/alternatives/hubspot",
+    icon: "💼"
+  },
+  {
+    saas: "Algolia",
+    replaces: "Fast search API",
+    osAlt: "MeiliSearch",
+    href: "/alternatives/algolia",
+    icon: "🔍"
+  },
+];
+
+export type Tool = {
   id: string;
   name: string;
   slug: string;
@@ -111,10 +170,18 @@ function ToolCard({ tool }: { tool: Tool }) {
   );
 }
 
-export default function HomeDesktopLanding() {
+type HomeLandingProps = {
+  initialTools?: Tool[];
+  initialCount?: number;
+};
+
+export default function HomeDesktopLanding({
+  initialTools,
+  initialCount,
+}: HomeLandingProps = {}) {
   const router = useRouter();
-  const [tools, setTools] = useState<Tool[]>([]);
-  const [totalCount, setTotalCount] = useState(375);
+  const [tools, setTools] = useState<Tool[]>(initialTools || []);
+  const [totalCount, setTotalCount] = useState(initialCount || 375);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -142,14 +209,16 @@ export default function HomeDesktopLanding() {
   ];
 
   useEffect(() => {
-    fetch("/api/home-tools")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.tools && data.tools.length > 0) setTools(data.tools);
-        if (data.total) setTotalCount(data.total);
-      })
-      .catch(() => {});
-  }, []);
+    if (!initialTools || initialTools.length === 0) {
+      fetch("/api/home-tools")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.tools && data.tools.length > 0) setTools(data.tools);
+          if (data.total) setTotalCount(data.total);
+        })
+        .catch(() => {});
+    }
+  }, [initialTools]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,6 +297,13 @@ export default function HomeDesktopLanding() {
                 className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-white/70 hover:border-white/20 hover:text-white transition"
               >
                 Self-Hosting
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/free-tools")}
+                className="rounded-md border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-cyan-200 hover:bg-cyan-400/20 hover:text-white transition font-medium"
+              >
+                ★ Saved Stack
               </button>
             </div>
           </form>
@@ -331,29 +407,43 @@ export default function HomeDesktopLanding() {
         </div>
       </section>
 
-      {/* ── Popular Use Cases / Replacements ── */}
-      <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
-        <p className="mb-2 text-xs uppercase tracking-[0.25em] text-white/40">Popular use cases</p>
-        <h3 className="font-display text-lg font-semibold text-white mb-4">Direct SaaS Replacements</h3>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { label: "Replace Jira", href: "/best-project-management-for-startups", desc: "Open-source issue tracking" },
-            { label: "Replace HubSpot", href: "/best-crm-for-agencies", desc: "Customer relationship tools" },
-            { label: "Compare Tools", href: "/vs", desc: "Head-to-head VS breakdowns" },
-            { label: "Find Alternatives", href: "/alternatives", desc: "Browse by commercial SaaS" },
-          ].map((item) => (
+      {/* ── Top SaaS to Open-Source Replacements ── */}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80 font-semibold">Ditch Vendor Lock-In</p>
+            <h2 className="mt-1 font-display text-2xl font-bold text-white">Popular SaaS Replacements</h2>
+          </div>
+          <Link
+            href="/alternatives"
+            className="text-xs text-white/50 transition hover:text-cyan-300 flex items-center gap-1 sm:self-end"
+          >
+            All SaaS alternatives <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          {SAAS_REPLACEMENTS.map((item) => (
             <Link
-              key={item.href}
+              key={item.saas}
               href={item.href}
-              className="group flex flex-col justify-between rounded-xl border border-white/10 bg-white/[0.02] p-4 text-white/70 transition hover:border-cyan-400/30 hover:bg-white/[0.05] hover:text-white"
+              className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/30 hover:bg-white/[0.05]"
             >
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-sm text-white group-hover:text-cyan-300 transition-colors">
-                  {item.label}
-                </span>
-                <ArrowRight className="h-4 w-4 text-white/30 group-hover:text-cyan-300 group-hover:translate-x-0.5 transition" />
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors flex items-center gap-2">
+                    <span>{item.icon}</span>
+                    <span>Replace {item.saas}</span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-white/30 group-hover:text-cyan-300 group-hover:translate-x-0.5 transition" />
+                </div>
+                <p className="mt-1 text-xs text-white/45">{item.replaces}</p>
               </div>
-              <p className="mt-1 text-xs text-white/45">{item.desc}</p>
+
+              <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
+                <span className="text-white/40">Switch to:</span>
+                <span className="text-cyan-200 font-medium">{item.osAlt}</span>
+              </div>
             </Link>
           ))}
         </div>
