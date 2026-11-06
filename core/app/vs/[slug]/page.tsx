@@ -6,6 +6,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { marked } from "marked";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ShareButton from "@/components/ShareButton";
+import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
 import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 
 export const revalidate = 3600;
@@ -233,10 +234,18 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             </span>
           </div>
 
-          <ShareButton
-            title={`${comparison.tool_a} vs ${comparison.tool_b} | The Cloud Rain`}
-            url={`${siteUrl}/vs/${comparison.slug}`}
-          />
+          <div className="flex items-center gap-2">
+            {toolLinks.filter((l) => l.type === "tool").length > 0 && (
+              <AlternativesStackAction
+                saasName={`${comparison.tool_a} vs ${comparison.tool_b}`}
+                tools={toolLinks.filter((l) => l.type === "tool")}
+              />
+            )}
+            <ShareButton
+              title={`${comparison.tool_a} vs ${comparison.tool_b} | The Cloud Rain`}
+              url={`${siteUrl}/vs/${comparison.slug}`}
+            />
+          </div>
         </div>
 
         {/* Links to both tool pages & alternatives rendered directly from DB slugs */}
