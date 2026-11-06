@@ -9,7 +9,8 @@ const mainLinks = [
   { href: "/article-museum", label: "Articles" },
   { href: "/weekly-roundups", label: "Weekly Roundups" },
   { href: "/upload", label: "Submit a Tool" },
-  { href: "/feed.xml", label: "RSS Feed" }
+  { href: "/feed.xml", label: "RSS Feed" },
+  { href: "/llms.txt", label: "LLMs.txt (AI Index)" }
 ];
 
 const communityLinks = [

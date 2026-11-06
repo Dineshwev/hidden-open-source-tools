@@ -29,6 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: siteUrl,
       types: {
         "application/rss+xml": `${siteUrl}/feed.xml`,
+        "text/plain": `${siteUrl}/llms.txt`,
       },
     },
     openGraph: {
@@ -133,6 +134,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           type="application/rss+xml"
           title="The Cloud Rain - Open-Source Tools &amp; SaaS Alternatives"
           href="/feed.xml"
+        />
+        <link
+          rel="alternate"
+          type="text/plain"
+          title="The Cloud Rain - LLMs.txt AI Index"
+          href="/llms.txt"
         />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <Script defer data-domain="thecloudrain.org" src="https://plausible.io/js/script.js" strategy="afterInteractive" />
