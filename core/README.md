@@ -100,6 +100,7 @@ Copy `.env.example` to `.env.local` and fill in the following:
 | `ADMIN_SECRET` | Master password for the Admin Panel |
 | `ADMIN_PANEL_ROUTE_SECRET` | The multi-segment "hidden" path (e.g., `a/b/c/d`) |
 
+
 ### 3. Installation
 ```bash
 cd core
