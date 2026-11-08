@@ -13,7 +13,6 @@ const primaryDesktopLinks = [
   { href: "/alternatives", label: "Alternatives" },
   { href: "/vs", label: "Comparisons" },
   { href: "/article-museum", label: "Articles" },
-  { href: "/weekly-roundups", label: "Roundups" },
 ];
 
 const mobileLinks = [
@@ -22,7 +21,6 @@ const mobileLinks = [
   { href: "/alternatives", label: "SaaS Alternatives" },
   { href: "/vs", label: "Head-to-Head Comparisons" },
   { href: "/article-museum", label: "Deep-Dive Articles" },
-  { href: "/weekly-roundups", label: "Weekly Roundups" },
   { href: "/contact", label: "Contact" },
   { href: "/upload", label: "Submit a Tool" },
 ];
