@@ -59,6 +59,30 @@ type ComparisonSide = ToolRow | SaaSReference;
 
 const OPEN_SOURCE_ALIASES: Record<string, string> = {
   plausible: 'plausible-analytics',
+  changedetection: 'changedetectionio',
+  'changedetection.io': 'changedetectionio',
+  openobserve: 'openobserveai',
+  'openobserve.ai': 'openobserveai',
+  affine: 'affine-community-edition',
+  'affine-community-edition': 'affine-community-edition',
+  netdata: 'netdatacloud',
+  'netdata.cloud': 'netdatacloud',
+  outline: 'outline-server',
+  'outline-server': 'outline-server',
+  infisical: 'infisical-community-edition',
+  'infisical-community-edition': 'infisical-community-edition',
+  'open-webui': 'openwebui',
+  openwebui: 'openwebui',
+  'open webui': 'openwebui',
+  zitadel: 'zitadel-cloud',
+  'zitadel-cloud': 'zitadel-cloud',
+  sentry: 'sentryio',
+  'sentry.io': 'sentryio',
+  cal: 'calcom',
+  'cal.com': 'calcom',
+  hoarder: 'hoarder-(karakeep)',
+  'hoarder-(karakeep)': 'hoarder-(karakeep)',
+  pocket: 'pocket',
 };
 
 interface GroqResponse {
@@ -142,14 +166,9 @@ function buildFixedVerifiedSignals(toolA: ComparisonSide, toolB: ComparisonSide)
       const keyFeatures = filterDisplayEntries(tool.key_features, `${tool.name} key_features`);
       const integrations = filterDisplayEntries(tool.integrations, `${tool.name} integrations`);
       const githubSignals = isToolRow(tool)
-        ? `| GitHub stars | ${formatMetric(tool.github_stars)} |
-| GitHub forks | ${formatMetric(tool.github_forks)} |
-| Contributors | ${formatMetric(tool.github_contributors)} |
-| Open issues | ${formatMetric(tool.github_open_issues)} |
-| Last commit | ${formatMetric(tool.github_last_commit)} |
-| Language | ${formatMetric(tool.language)} |
+        ? `| Language | ${formatMetric(tool.language)} |
 | License | ${formatLicense(tool.license)} |`
-        : '| GitHub signals | Not available for SaaS |';
+        : '| Architecture | Not available for SaaS |';
 
       return `### ${tool.name || 'Tool'}
 
@@ -203,6 +222,7 @@ function buildVerifiedToolData(tool: ToolRow | SaaSReference) {
   return {
     name: tool.name,
     slug: tool.slug,
+    description: tool.description,
     category: tool.category,
     github_stars: tool.github_stars,
     github_forks: tool.github_forks,
@@ -625,11 +645,11 @@ async function main() {
     }
 
     const invalidStatus = [
-      isToolRow(toolA) && toolA.structured_content_status !== 'success'
-        ? `${toolA.name || comparison.tool_a} status=${toolA.structured_content_status || 'null'}`
+      isToolRow(toolA) && !toolA.description && toolA.structured_content_status !== 'success'
+        ? `${toolA.name || comparison.tool_a} has no description`
         : null,
-      isToolRow(toolB) && toolB.structured_content_status !== 'success'
-        ? `${toolB.name || comparison.tool_b} status=${toolB.structured_content_status || 'null'}`
+      isToolRow(toolB) && !toolB.description && toolB.structured_content_status !== 'success'
+        ? `${toolB.name || comparison.tool_b} has no description`
         : null,
     ].filter(Boolean).join('; ');
 
