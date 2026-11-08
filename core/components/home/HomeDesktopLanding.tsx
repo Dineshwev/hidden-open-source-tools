@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Star, Zap, Search, ShieldCheck, DollarSign, Cpu, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import SaaSTaxCalculator from "./SaaSTaxCalculator";
 
 const CATEGORIES = [
   { label: "Developer Tools", slug: "developer-tools", count: 116 },
@@ -448,6 +449,9 @@ export default function HomeDesktopLanding({
           ))}
         </div>
       </section>
+
+      {/* ── SaaS Tax Savings Calculator ── */}
+      <SaaSTaxCalculator />
 
       {/* ── FAQ Section ── */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
