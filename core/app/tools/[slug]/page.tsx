@@ -13,7 +13,7 @@ import ToolDetailActions from "@/components/tools/ToolDetailActions";
 import MaintainerBadgeCard from "@/components/tools/MaintainerBadgeCard";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
-import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown } from "lucide-react";
+import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown, ArrowRight } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export const dynamic = "force-dynamic";
@@ -292,13 +292,48 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     tool.description.toLowerCase().includes("self-host")
   );
 
-  // Related vs comparisons
-  const { data: relatedVs } = await supabaseAdmin
+  // Related vs comparisons (find any comparisons involving this tool)
+  const cleanToolName = tool.name.replace(/community edition|server|ce/gi, "").trim();
+  const baseSlug = tool.slug.replace(/-community-edition|-server/gi, "").trim();
+  const slugNoHyphens = baseSlug.replace(/-/g, "");
+
+  const { data: rawRelatedVs } = await supabaseAdmin
     .from("comparisons")
     .select("slug, tool_a, tool_b")
-    .or(`slug.ilike.${params.slug}-vs-%,slug.ilike.%-vs-${params.slug}`)
+    .or(
+      `slug.ilike.%${baseSlug}%,slug.ilike.%${slugNoHyphens}%,tool_a.ilike.%${cleanToolName}%,tool_b.ilike.%${cleanToolName}%`
+    )
     .eq("status", "published")
-    .limit(3);
+    .limit(10);
+
+  type RelatedComparison = {
+    slug: string;
+    tool_a: string;
+    tool_b: string;
+  };
+
+  const relatedVs: RelatedComparison[] = (rawRelatedVs ?? [])
+    .filter((comp: any) => {
+      const slug = String(comp?.slug || "").toLowerCase();
+      const a = String(comp?.tool_a || "").toLowerCase();
+      const b = String(comp?.tool_b || "").toLowerCase();
+      const targetSlug = baseSlug.toLowerCase();
+      const targetSlugNoHyphens = slugNoHyphens.toLowerCase();
+      const targetName = cleanToolName.toLowerCase();
+
+      return (
+        slug.includes(targetSlug) ||
+        slug.includes(targetSlugNoHyphens) ||
+        a.includes(targetName) ||
+        b.includes(targetName)
+      );
+    })
+    .map((comp: any) => ({
+      slug: String(comp?.slug || ""),
+      tool_a: String(comp?.tool_a || ""),
+      tool_b: String(comp?.tool_b || ""),
+    }))
+    .slice(0, 6);
 
   // Alternatives pages (find which commercial SaaS this tool replaces)
   const { data: allAlts } = await supabaseAdmin
@@ -621,6 +656,46 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                   <span aria-hidden="true">→</span>
                 </Link>
               ))}
+
+              {relatedVs.length > 0 && (
+                <Link
+                  href={`/vs/${relatedVs[0].slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-semibold text-white transition hover:border-white/30 hover:bg-white/10"
+                >
+                  <span>Compare: {relatedVs[0].tool_a} vs {relatedVs[0].tool_b}</span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Head-to-Head Comparison Banner (if no alternative banner) ── */}
+      {matchingAlternatives.length === 0 && relatedVs.length > 0 && (
+        <section className="rounded-2xl border border-cyan-400/25 bg-gradient-to-r from-cyan-950/40 via-cyan-900/20 to-slate-900/40 p-4 sm:p-5 backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/15 border border-cyan-400/30 text-cyan-300 text-lg">
+                ⚡
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Deciding whether {tool.name} is right for your stack?
+                </p>
+                <p className="mt-0.5 text-xs text-white/70 leading-relaxed">
+                  Read our verified side-by-side technical comparison with architecture and self-hosting verdicts.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
+              <Link
+                href={`/vs/${relatedVs[0].slug}`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-2 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/25 hover:text-white"
+              >
+                <span>Read: {relatedVs[0].tool_a} vs {relatedVs[0].tool_b}</span>
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
         </section>
@@ -738,18 +813,55 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       {/* ── Comparisons ── */}
       {relatedVs && relatedVs.length > 0 && (
         <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-white/40">Comparisons</p>
-          <h2 className="mt-1 font-display text-xl font-bold text-white">How {tool.name} compares</h2>
-          <div className="mt-4 flex flex-wrap gap-2.5">
-            {relatedVs.map((vs: any) => (
-              <Link
-                key={vs.slug}
-                href={`/vs/${vs.slug}`}
-                className="inline-flex items-center rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-white"
-              >
-                <span>{vs.tool_a} vs {vs.tool_b}</span>
-              </Link>
-            ))}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80 font-semibold">Head-to-Head Benchmarks</p>
+              <h2 className="mt-1 font-display text-2xl font-bold text-white">How {tool.name} Compares</h2>
+            </div>
+            <Link
+              href="/vs"
+              className="text-xs text-white/50 transition hover:text-cyan-300 flex items-center gap-1 sm:self-end"
+            >
+              All Comparisons <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {relatedVs.map((vs: any) => {
+              const otherSide =
+                vs.tool_a.toLowerCase().includes(cleanToolName.toLowerCase())
+                  ? vs.tool_b
+                  : vs.tool_a;
+
+              return (
+                <Link
+                  key={vs.slug}
+                  href={`/vs/${vs.slug}`}
+                  className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-400/40 hover:bg-white/[0.05] shadow-lg shadow-black/20"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-200 uppercase tracking-wider">
+                        VS Comparison
+                      </span>
+                      <ArrowRight className="h-4 w-4 text-white/30 group-hover:text-cyan-300 group-hover:translate-x-0.5 transition" />
+                    </div>
+
+                    <h3 className="font-display text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
+                      {vs.tool_a} <span className="text-cyan-400 font-normal">vs</span> {vs.tool_b}
+                    </h3>
+                    <p className="mt-1.5 text-xs text-white/50 leading-relaxed">
+                      Detailed breakdown of features, architecture, self-hosting difficulty, and clear verdict.
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+                    <span className="text-white/40">Compare against:</span>
+                    <span className="text-cyan-200 font-semibold">{otherSide} →</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}
