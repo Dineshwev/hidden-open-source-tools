@@ -16,7 +16,9 @@ import { formatLicense } from "@/lib/utils/license";
 import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 const siteUrl = getSiteUrl();
 
 type ToolRow = {
@@ -625,13 +627,16 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       )}
 
       {/* ── About / Deep Dive Section ── */}
-      {cleanedAiContent ? (
-        // If we have AI-generated deep-dive content, show it as the primary content block
-        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
-          <h2 className="mt-1 font-display text-2xl font-bold text-white">About {tool.name}</h2>
+      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+        <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
+        <h2 className="mt-1 font-display text-2xl font-bold text-white">About {tool.name}</h2>
+        <p className="mt-4 whitespace-pre-wrap text-sm sm:text-base leading-relaxed text-white/75">
+          {cleanedDescription}
+        </p>
+
+        {cleanedAiContent ? (
           <div
-            className="prose prose-invert max-w-none mt-6 text-sm sm:text-base leading-relaxed
+            className="prose prose-invert max-w-none mt-8 border-t border-white/10 pt-8 text-sm sm:text-base leading-relaxed
               prose-headings:text-white prose-headings:font-display prose-headings:font-semibold
               prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3
               prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-2
@@ -645,20 +650,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               __html: marked(cleanedAiContent, { async: false, breaks: true }) as string,
             }}
           />
-        </section>
-      ) : (
-        // Fallback: short description-only About section
-        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-          <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
-          <h2 className="mt-1 font-display text-2xl font-bold text-white">About {tool.name}</h2>
-          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
-            {cleanedDescription}
-          </p>
+        ) : (
           <p className="mt-6 text-xs text-white/30 italic">
             Detailed content for this tool is being generated — check back soon.
           </p>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* ── 1-Click Docker / Self-Hosting Quickstart ── */}
       {isSelfHostable && (

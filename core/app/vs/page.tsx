@@ -4,7 +4,9 @@ import Link from "next/link";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import VSListingClient from "./VSListingClient";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
