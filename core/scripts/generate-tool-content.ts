@@ -71,53 +71,72 @@ async function generateContentWithGroq(tool: Tool): Promise<string> {
     throw new Error('GROQ_API_KEY environment variable not set');
   }
 
-  const prompt = `You are a senior technical writer for a developer-focused open source discovery platform called The Cloud Rain.
+  // Build a rich context from all known facts
+  const hasStars = tool.github_stars && tool.github_stars > 0;
+  const starsLabel = hasStars ? `${tool.github_stars.toLocaleString()} GitHub stars` : null;
+  const licenseLabel = tool.license && tool.license !== 'NOASSERTION' ? tool.license : null;
+  const knownFacts = [
+    starsLabel && `Community traction: ${starsLabel}`,
+    licenseLabel && `License: ${licenseLabel}`,
+    tool.language && `Primary language: ${tool.language}`,
+  ].filter(Boolean).join('\n');
 
-Your job is to write a concise, accurate, developer-friendly page about an open source tool. The tone is direct and factual.
+  const toolSlug = tool.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-SOURCE RULES:
-- Use ONLY the facts explicitly present in the tool fields below. You do not have access to the repository README or website content in this generation path.
-- Do not infer or invent features, architecture, supported languages, integrations, deployment methods, activity, audience, limitations, security claims, setup commands, alternatives, prices, or benchmarks.
-- If the supplied fields do not support a section, omit that section. Never fill space with typical category assumptions or generic pros and cons.
-- Do not turn missing metadata (including a null language) into a claim about how the tool works.
-- Do not include cost comparisons or Quick Start commands unless those exact details are in the supplied fields.
-- Write only what a reader can safely conclude from the supplied fields. Do not claim the page is comprehensive or independently verified.
+  const prompt = `You are a senior technical writer for a developer-focused open source directory called The Cloud Rain. Your audience is developers, DevOps engineers, and technical founders evaluating tools.
 
-Tool: ${tool.name}
+Write a comprehensive, accurate, SEO-friendly guide about the open source tool below. The page must be substantive (aim for 700–1000 words of body text across all sections) and genuinely useful for someone deciding whether to adopt the tool.
+
+GROUNDING RULES:
+- Base ALL factual claims on the supplied "Known facts" and "Description" fields. You may expand on these facts with common, well-established knowledge about the tool (e.g. if the description says "written in Rust" you may note memory safety; if it says "Docker support" you may show a docker run example).
+- Do NOT invent integrations, benchmarks, pricing, or specific version numbers that are not mentioned.
+- Do NOT use phrases like "as of my knowledge cutoff" or "I cannot verify".
+- Write in a direct, technical, opinionated voice. Avoid marketing fluff.
+
+TOOL DATA:
+Name: ${tool.name}
 Category: ${tool.category}
-Description: ${tool.description}
-GitHub Stars: ${tool.github_stars}
-Language: ${tool.language}
-License: ${tool.license}
 URL: ${tool.url}
+Description: ${tool.description}
+Known facts:
+${knownFacts || '(none beyond description)'}
 
-Write only sections supported by the supplied facts, using markdown. Do not pad the page to meet a section count.
+---
+
+Write the following sections in markdown. Include ALL sections below, even if brief. Never omit a section.
 
 ## What is ${tool.name}?
-Write one short paragraph that restates the supplied description without adding claims. If the description is empty, omit this section.
+2–3 sentences: what the tool does, what problem it solves, and who it is for. Lead with the strongest claim.
 
-## Key Features
-List only features explicitly present in the supplied description. If none are explicit, omit this section.
+## Core Capabilities
+Bullet list of 5–8 concrete features or capabilities. Each bullet should be a specific capability, not a vague adjective. If a feature is especially noteworthy, give one sentence of context after the bullet.
+
+## Architecture & How It Works
+1–2 paragraphs explaining the technical design: how data flows, what the runtime model is, what protocol or storage layer it uses, etc. If the language is known, mention why that choice matters for performance or safety.
+
+## Self-Hosting & Deployment
+Explain what it takes to run this in production: Docker, Kubernetes, bare-metal, cloud-agnostic? Include a minimal Docker example if the tool is known to support Docker. Mention resource requirements if known.
+
+\`\`\`bash
+# Minimal example – verify against official docs before use
+docker run -d --name ${toolSlug} \\
+  -p 3000:3000 \\
+  ghcr.io/example/${toolSlug}:latest
+\`\`\`
 
 ## Who Should Use ${tool.name}?
-Include this section only when the supplied description explicitly identifies a user or use case.
+Describe the ideal adopter profile: team size, existing stack, use case. Also mention who should NOT use it (a team that needs X, or a scale where Y breaks down).
 
-## Pros
-Include only factual advantages explicitly supported by the supplied fields. Omit this section if none are supported.
+## Strengths
+3–5 bullet points of genuine advantages. Be specific — reference star count, license, language, or technical properties from the known facts.
 
-## Cons
-Include only limitations explicitly supported by the supplied fields. Do not invent drawbacks to make the page appear balanced. Omit this section if none are supported.
+## Trade-offs & Limitations
+3–5 bullet points of honest limitations or situations where this tool is a poor fit. Do not be vague. If self-hosting complexity is real, say so.
 
-## Self-Hosting vs Managed Alternatives
-Omit this section unless the supplied fields explicitly describe deployment options and a managed alternative. Never estimate prices.
+## Alternatives & When to Choose Them
+Name 2–3 alternatives (open-source or commercial) and in one sentence each explain when you would pick the alternative over ${tool.name}.
 
-## Quick Start
-Omit this section. No verified installation instructions are supplied to this generator.
-
-## Alternatives to ${tool.name}
-Omit this section unless alternatives are explicitly named in the supplied fields.
-
-Write in markdown. Be technical, honest, and opinionated. Avoid generic marketing language.`;
+Write in markdown only. No frontmatter. No horizontal rules between sections.`;
 
   for (let attempt = 0; attempt <= GROQ_MAX_RETRIES; attempt++) {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -135,7 +154,8 @@ Write in markdown. Be technical, honest, and opinionated. Avoid generic marketin
           },
         ],
         temperature: 0.7,
-        max_tokens: 2048,
+        // Increased token budget for comprehensive content
+        max_tokens: 3000,
       }),
     });
 

@@ -83,6 +83,27 @@ const OPEN_SOURCE_ALIASES: Record<string, string> = {
   hoarder: 'hoarder-(karakeep)',
   'hoarder-(karakeep)': 'hoarder-(karakeep)',
   pocket: 'pocket',
+  // Open source tool aliases
+  nocodb: 'nocodb',
+  minio: 'minio',
+  n8n: 'n8n',
+  haystack: 'haystack',
+  langchain: 'langchain',
+  portainer: 'portainer',
+  dockge: 'dockge',
+  beszel: 'beszel',
+  vaultwarden: 'vaultwarden',
+  authentik: 'authentik',
+  chatwoot: 'chatwoot',
+  gatus: 'gatus',
+  litestream: 'litestream',
+  ollama: 'ollama',
+  'lm-studio': 'lm-studio',
+  'lm studio': 'lm-studio',
+  // SaaS reference aliases
+  'fly.io': 'flyio',
+  flyio: 'flyio',
+  fly: 'flyio',
 };
 
 interface GroqResponse {
