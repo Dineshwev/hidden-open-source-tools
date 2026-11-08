@@ -624,24 +624,39 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         </section>
       )}
 
-      {/* ── About Section ── */}
-      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-        <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
-        <h2 className="mt-1 font-display text-2xl font-bold text-white">About {tool.name}</h2>
-        <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
-          {cleanedDescription}
-        </p>
-      </section>
-
-      {/* ── AI Structured Deep Dive Content (if available) ── */}
-      {cleanedAiContent && (
+      {/* ── About / Deep Dive Section ── */}
+      {cleanedAiContent ? (
+        // If we have AI-generated deep-dive content, show it as the primary content block
         <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
+          <h2 className="mt-1 font-display text-2xl font-bold text-white">About {tool.name}</h2>
           <div
-            className="prose prose-invert max-w-none text-sm sm:text-base leading-relaxed"
+            className="prose prose-invert max-w-none mt-6 text-sm sm:text-base leading-relaxed
+              prose-headings:text-white prose-headings:font-display prose-headings:font-semibold
+              prose-h2:text-xl prose-h2:mt-8 prose-h2:mb-3
+              prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-2
+              prose-p:text-white/75 prose-p:leading-relaxed
+              prose-li:text-white/75
+              prose-strong:text-white prose-strong:font-semibold
+              prose-code:text-cyan-300 prose-code:bg-white/5 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+              prose-pre:bg-slate-900 prose-pre:border prose-pre:border-white/10 prose-pre:rounded-xl
+              prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:text-cyan-300"
             dangerouslySetInnerHTML={{
               __html: marked(cleanedAiContent, { async: false, breaks: true }) as string,
             }}
           />
+        </section>
+      ) : (
+        // Fallback: short description-only About section
+        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/40">Overview</p>
+          <h2 className="mt-1 font-display text-2xl font-bold text-white">About {tool.name}</h2>
+          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-white/70">
+            {cleanedDescription}
+          </p>
+          <p className="mt-6 text-xs text-white/30 italic">
+            Detailed content for this tool is being generated — check back soon.
+          </p>
         </section>
       )}
 

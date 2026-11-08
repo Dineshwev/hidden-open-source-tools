@@ -184,10 +184,31 @@ Write in markdown only. No frontmatter. No horizontal rules between sections.`;
 async function saveContentToSupabase(
   supabase: any,
   toolId: string,
-  content: string
+  content: string,
+  toolDescription: string
 ): Promise<void> {
+  // Extract a better description from the "What is X?" section of the AI content
+  // if the existing description is too short (< 80 chars)
+  const updatePayload: Record<string, string> = { ai_content: content };
+
+  if (toolDescription.length < 80) {
+    // Parse the first paragraph after "## What is" heading
+    const whatIsMatch = content.match(/##\s+What is [^\n]+\n+([\s\S]+?)(?=\n##|$)/i);
+    if (whatIsMatch) {
+      const extractedPara = whatIsMatch[1].trim().split('\n')[0].trim();
+      if (extractedPara && extractedPara.length > toolDescription.length) {
+        // Strip any markdown links
+        const cleanPara = extractedPara.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
+        if (cleanPara.length > 50) {
+          updatePayload.description = cleanPara.slice(0, 500);
+          console.log(`  ↳ Backfilled description from AI content (${cleanPara.length} chars)`);
+        }
+      }
+    }
+  }
+
   const { error } = await (supabase.from('open_source_tools') as any)
-    .update({ ai_content: content })
+    .update(updatePayload)
     .eq('id', toolId);
 
   if (error) {
@@ -278,8 +299,8 @@ async function main() {
       // Generate content
       const content = await generateContentWithGroq(tool);
 
-      // Save to Supabase
-      await saveContentToSupabase(supabase, tool.id, content);
+      // Save to Supabase (also backfills description if it was too short)
+      await saveContentToSupabase(supabase, tool.id, content, tool.description || '');
 
       console.log(`✅ Generated: ${tool.name} (${i + 1}/${tools.length})\n`);
       successCount++;
