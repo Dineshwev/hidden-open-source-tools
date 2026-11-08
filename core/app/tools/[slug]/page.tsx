@@ -28,6 +28,10 @@ type ToolRow = {
   description: string;
   category: string;
   url: string;
+  github_stars?: number | null;
+  github_forks?: number | null;
+  language?: string | null;
+  license?: string | null;
   ai_content?: string | null;
   structured_content_status?: string | null;
 };
@@ -53,6 +57,10 @@ function normalizeTool(row: any): ToolRow {
     description: String(row?.description || "No description available yet."),
     category: String(row?.category || "Developer Resource"),
     url: String(row?.url || row?.webpage_url || ""),
+    github_stars: typeof row?.github_stars === "number" ? row.github_stars : (row?.github_stars ? Number(row.github_stars) : null),
+    github_forks: typeof row?.github_forks === "number" ? row.github_forks : (row?.github_forks ? Number(row.github_forks) : null),
+    language: row?.language ? String(row.language) : null,
+    license: row?.license ? String(row.license) : null,
     ai_content: row?.ai_content || null,
     structured_content_status: row?.structured_content_status || null,
   };
@@ -227,13 +235,16 @@ export async function generateMetadata({ params }: ToolPageProps): Promise<Metad
       : `Explore ${tool.name}, with available details about its features, license, GitHub activity, and related tools.`));
   const faviconUrl = getFaviconUrl(tool.url);
   const canonicalUrl = `${siteUrl}/tools/${tool.slug}`;
-  const isSuccess = tool.structured_content_status === "success";
+  const hasSubstantiveContent =
+    tool.structured_content_status === "success" ||
+    Boolean(tool.ai_content && tool.ai_content.length > 100) ||
+    tool.description.length > 60;
   const ogImageUrl = `${siteUrl}/api/og?title=${encodeURIComponent(tool.name)}&subtitle=${encodeURIComponent(description.slice(0, 100))}&badge=${encodeURIComponent(saasTarget ? `Replaces ${saasTarget}` : "VERIFIED OPEN SOURCE")}&category=${encodeURIComponent(cleanCat)}`;
 
   return {
     title,
     description,
-    ...(!isSuccess ? { robots: { index: false, follow: true } } : {}),
+    ...(!hasSubstantiveContent ? { robots: { index: false, follow: true } } : {}),
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
@@ -410,10 +421,18 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
 
   const githubUrl =
     (tool.url?.includes("github.com") ? tool.url : null) ??
-    extractGithubUrl(tool.description);
+    extractGithubUrl(tool.description) ??
+    (tool.ai_content ? extractGithubUrl(tool.ai_content) : null);
   const githubStats = githubUrl ? await fetchGithubStats(githubUrl) : null;
 
-  const displayLicense = githubStats?.license ?? dbLicense;
+  const starsCount = (githubStats?.stars && githubStats.stars > 0)
+    ? githubStats.stars
+    : (tool.github_stars && tool.github_stars > 0 ? tool.github_stars : null);
+  const forksCount = (githubStats?.forks && githubStats.forks > 0)
+    ? githubStats.forks
+    : (tool.github_forks && tool.github_forks > 0 ? tool.github_forks : null);
+  const displayLanguage = githubStats?.language ?? tool.language;
+  const displayLicense = githubStats?.license ?? dbLicense ?? tool.license;
 
   function fmtMonthYear(iso: string | null): string | null {
     if (!iso) return null;
@@ -469,7 +488,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       category: tool.category,
       description: cleanedDescription,
       url: tool.url,
-      stars: githubStats?.stars,
+      stars: starsCount ?? undefined,
       license: displayLicense,
     },
     siteUrl,
@@ -517,6 +536,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                 <span className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200">
                   {tool.category}
                 </span>
+                {starsCount != null && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-300">
+                    <Star className="h-3.5 w-3.5 fill-amber-300/30 text-amber-300" />
+                    <span>{starsCount.toLocaleString()} stars</span>
+                  </span>
+                )}
                 {displayLicense && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-xs text-white/70">
                     <Scale className="h-3 w-3 text-white/50" />
@@ -569,28 +594,28 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
       </section>
 
       {/* ── Key Metrics & Stats Strip ── */}
-      {(githubStats || displayLicense || lastCommitLabel || checkedAtLabel) && (
+      {(starsCount || forksCount || displayLanguage || displayLicense || lastCommitLabel || checkedAtLabel) && (
         <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
           <div className="flex flex-wrap gap-2.5 sm:gap-3">
-            {githubStats && (
-              <>
-                <div className="flex items-center gap-1.5 rounded-xl border border-amber-400/20 bg-amber-400/10 px-3.5 py-2 text-xs sm:text-sm font-semibold text-amber-300">
-                  <Star className="h-4 w-4 fill-amber-300/30 text-amber-300" />
-                  <span>{githubStats.stars.toLocaleString()} Stars</span>
-                </div>
+            {starsCount != null && (
+              <div className="flex items-center gap-1.5 rounded-xl border border-amber-400/20 bg-amber-400/10 px-3.5 py-2 text-xs sm:text-sm font-semibold text-amber-300">
+                <Star className="h-4 w-4 fill-amber-300/30 text-amber-300" />
+                <span>{starsCount.toLocaleString()} Stars</span>
+              </div>
+            )}
 
-                <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs sm:text-sm text-white/80">
-                  <GitFork className="h-4 w-4 text-white/50" />
-                  <span>{githubStats.forks.toLocaleString()} Forks</span>
-                </div>
+            {forksCount != null && (
+              <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs sm:text-sm text-white/80">
+                <GitFork className="h-4 w-4 text-white/50" />
+                <span>{forksCount.toLocaleString()} Forks</span>
+              </div>
+            )}
 
-                {githubStats.language && (
-                  <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs sm:text-sm text-white/80">
-                    <Code2 className="h-4 w-4 text-cyan-300" />
-                    <span>{githubStats.language}</span>
-                  </div>
-                )}
-              </>
+            {displayLanguage && (
+              <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs sm:text-sm text-white/80">
+                <Code2 className="h-4 w-4 text-cyan-300" />
+                <span>{displayLanguage}</span>
+              </div>
             )}
 
             {displayLicense && (

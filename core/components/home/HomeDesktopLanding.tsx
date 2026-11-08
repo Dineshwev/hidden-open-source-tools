@@ -268,44 +268,39 @@ export default function HomeDesktopLanding({
               </button>
             </div>
 
-            {/* Quick search shortcuts */}
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-white/50">
-              <span className="text-white/40">Try:</span>
-              <button
-                type="button"
-                onClick={() => router.push("/free-tools?search=jira")}
-                className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-white/70 hover:border-white/20 hover:text-white transition"
+            {/* Popular Alternatives Quick-Filter Pill Bar */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium uppercase tracking-wider text-white/40 flex items-center gap-1">
+                <span>Top SaaS Replacements:</span>
+              </span>
+              {[
+                { name: "Airtable", slug: "airtable", icon: "🗃️" },
+                { name: "Jira / Linear", slug: "jira", icon: "📋" },
+                { name: "Notion", slug: "notion", icon: "📝" },
+                { name: "Zapier", slug: "zapier", icon: "⚡" },
+                { name: "Firebase", slug: "firebase", icon: "🔥" },
+                { name: "Google Analytics", slug: "google-analytics", icon: "📊" },
+                { name: "Heroku / Vercel", slug: "heroku", icon: "🚀" },
+                { name: "Datadog", slug: "datadog", icon: "📈" },
+                { name: "1Password", slug: "1password", icon: "🔐" },
+              ].map((saas) => (
+                <Link
+                  key={saas.slug}
+                  href={`/alternatives/${saas.slug}`}
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/70 transition hover:border-cyan-400/40 hover:bg-cyan-400/10 hover:text-cyan-200"
+                >
+                  <span className="text-xs">{saas.icon}</span>
+                  <span>{saas.name}</span>
+                  <span className="text-white/30 group-hover:text-cyan-300 group-hover:translate-x-0.5 transition-transform text-[10px]">→</span>
+                </Link>
+              ))}
+              <Link
+                href="/alternatives"
+                className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/15 px-3 py-1 text-xs font-semibold text-cyan-200 hover:bg-cyan-400/25 transition"
               >
-                Replace Jira
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/free-tools?search=firebase")}
-                className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-white/70 hover:border-white/20 hover:text-white transition"
-              >
-                Replace Firebase
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/free-tools?search=analytics")}
-                className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-white/70 hover:border-white/20 hover:text-white transition"
-              >
-                Analytics
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/free-tools?category=self-hosting-infrastructure")}
-                className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-white/70 hover:border-white/20 hover:text-white transition"
-              >
-                Self-Hosting
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push("/free-tools")}
-                className="rounded-md border border-cyan-400/30 bg-cyan-400/10 px-2 py-0.5 text-cyan-200 hover:bg-cyan-400/20 hover:text-white transition font-medium"
-              >
-                ★ Saved Stack
-              </button>
+                <span>All Alternatives</span>
+                <span>→</span>
+              </Link>
             </div>
           </form>
         </div>
