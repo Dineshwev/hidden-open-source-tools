@@ -62,7 +62,11 @@ const ToolCard = React.memo(({ tool, onOpen }: ToolCardProps) => {
   const handleToggleBookmark = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const nextSaved = toggleSaveTool(targetSlug);
+    const nextSaved = toggleSaveTool(targetSlug, {
+      name: tool.title,
+      url: tool.webpage_url,
+      category: displayCategory,
+    });
     setIsSaved(nextSaved);
   };
 

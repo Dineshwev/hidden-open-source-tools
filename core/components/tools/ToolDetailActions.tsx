@@ -30,7 +30,10 @@ export default function ToolDetailActions({
   }, [slug]);
 
   const handleToggleSave = () => {
-    const next = toggleSaveTool(slug);
+    const next = toggleSaveTool(slug, {
+      name: toolName,
+      url: canonicalUrl,
+    });
     setSaved(next);
   };
 

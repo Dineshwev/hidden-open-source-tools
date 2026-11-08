@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
 import Footer from "@/components/Footer";
+import FloatingStackDock from "@/components/tools/FloatingStackDock";
 import { AuthProvider } from "@/lib/AuthProvider";
 import { getSiteUrl } from "@/lib/site-url";
 import { getApprovedSuccessToolCount } from "@/lib/tool-count";
@@ -149,6 +150,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <Navbar />
           <ScrollProgress />
           <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-8 pt-4">{children}</main>
+          <FloatingStackDock />
           <Footer />
           <SpeedInsights />
         </AuthProvider>
