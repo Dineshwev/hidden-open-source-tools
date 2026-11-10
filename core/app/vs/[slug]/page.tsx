@@ -103,14 +103,22 @@ function stripMarkdown(value: string): string {
 }
 
 function getSearchTitle(comparison: Comparison): string {
-  const heading = comparison.content.match(/^#{1,2}\s+(.+)$/m)?.[1]?.trim();
-  return heading || `${comparison.tool_a} vs ${comparison.tool_b}: Comparison`;
+  const toolA = comparison.tool_a?.trim() || "Tool A";
+  const toolB = comparison.tool_b?.trim() || "Tool B";
+  return `${toolA} vs ${toolB} (2026): In-Depth Comparison & Migration Guide`;
 }
 
 function getSearchDescription(comparison: Comparison): string {
+  const toolA = comparison.tool_a?.trim() || "Tool A";
+  const toolB = comparison.tool_b?.trim() || "Tool B";
   const body = comparison.content.replace(/^#{1,2}\s+.+\r?\n/m, "").trimStart();
-  const firstParagraph = body.split(/\r?\n\s*\r?\n/).find((paragraph) => stripMarkdown(paragraph).length > 30);
-  const description = firstParagraph ? stripMarkdown(firstParagraph) : "";
+  const firstParagraph = body.split(/\r?\n\s*\r?\n/).find((paragraph) => {
+    const text = stripMarkdown(paragraph);
+    return text.length > 50 && !text.toLowerCase().includes("verified project signals");
+  });
+  const description = firstParagraph
+    ? stripMarkdown(firstParagraph)
+    : `Compare ${toolA} vs ${toolB}: architecture differences, performance benchmarks, self-hosting difficulty, and our final developer verdict.`;
   return description.length > 160 ? `${description.slice(0, 157).trimEnd()}...` : description;
 }
 
