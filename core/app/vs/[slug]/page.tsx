@@ -177,6 +177,28 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
 
   const toolLinks = await getToolLinks(comparison.tool_a, comparison.tool_b);
   const pageUrl = `${siteUrl}/vs/${comparison.slug}`;
+  const toolA = comparison.tool_a?.trim() || "Tool A";
+  const toolB = comparison.tool_b?.trim() || "Tool B";
+  const verdictSnippet = getSearchDescription(comparison);
+
+  const comparisonFaqs = [
+    {
+      q: `What are the key architectural differences between ${toolA} and ${toolB}?`,
+      a: `${toolA} and ${toolB} take different approaches to runtime performance, deployment complexity, and hosting. ${verdictSnippet}`
+    },
+    {
+      q: `Is ${toolA} good for startups and small engineering teams compared to ${toolB}?`,
+      a: `Yes, for teams that want zero per-seat licensing, full data ownership, and self-hosted privacy, ${toolA} eliminates proprietary subscription lock-in. ${toolB} may suit organizations that require vendor-managed hosting SLAs without maintaining their own servers.`
+    },
+    {
+      q: `Can I self-host ${toolA} using Docker?`,
+      a: `Most verified open-source developer tools, including ${toolA}, offer simple production deployment via Docker containers and docker-compose. Review our self-hosting and architecture breakdown above for setup guidance.`
+    },
+    {
+      q: `How does ${toolA} compare in development flexibility against ${toolB}?`,
+      a: `Open-source alternatives like ${toolA} offer deeper code-level flexibility, custom plugin support, direct database connectivity, and unmetered API calls, whereas proprietary tools like ${toolB} typically restrict customization behind higher enterprise pricing tiers.`
+    }
+  ];
 
   const comparisonStructuredData = {
     "@context": "https://schema.org",
@@ -190,15 +212,27 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
           name: "The Cloud Rain",
           url: siteUrl,
         },
-        headline: `${comparison.tool_a} vs ${comparison.tool_b}: Comparison`,
-        description: getSearchDescription(comparison),
+        headline: `${toolA} vs ${toolB} (2026): Detailed Technical Comparison & Verdict`,
+        description: verdictSnippet,
         datePublished: comparison.verified_regenerated_at || undefined,
         dateModified: comparison.verified_regenerated_at || undefined,
         about: [
-          { "@type": "SoftwareApplication", name: comparison.tool_a },
-          { "@type": "SoftwareApplication", name: comparison.tool_b },
+          { "@type": "SoftwareApplication", name: toolA },
+          { "@type": "SoftwareApplication", name: toolB },
         ],
         mainEntityOfPage: pageUrl,
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${pageUrl}#faq`,
+        mainEntity: comparisonFaqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.a,
+          },
+        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -206,7 +240,7 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
           { "@type": "ListItem", position: 2, name: "Comparisons", item: `${siteUrl}/vs` },
-          { "@type": "ListItem", position: 3, name: `${comparison.tool_a} vs ${comparison.tool_b}`, item: pageUrl },
+          { "@type": "ListItem", position: 3, name: `${toolA} vs ${toolB}`, item: pageUrl },
         ],
       },
     ],
@@ -291,6 +325,30 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             __html: marked(cleanToolMarkdownContent(comparison.content), { async: false, breaks: true }) as string,
           }}
         />
+      </section>
+
+      {/* ── Frequently Asked Questions ── */}
+      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+        <p className="text-xs uppercase tracking-[0.25em] text-white/40">FAQ</p>
+        <h2 className="mt-2 font-display text-2xl text-white">
+          Frequently Asked Questions: {toolA} vs {toolB}
+        </h2>
+        <div className="mt-6 space-y-4">
+          {comparisonFaqs.map((faq, idx) => (
+            <details
+              key={idx}
+              className="group rounded-xl border border-white/10 bg-white/[0.02] p-4 open:bg-white/[0.04] transition-colors"
+            >
+              <summary className="cursor-pointer list-none flex items-center justify-between text-sm sm:text-base font-semibold text-white/90 group-hover:text-cyan-200">
+                <span>{faq.q}</span>
+                <span className="text-xs text-white/40 group-open:rotate-180 transition-transform ml-3">▼</span>
+              </summary>
+              <p className="mt-3 text-xs sm:text-sm leading-relaxed text-white/70">
+                {faq.a}
+              </p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
