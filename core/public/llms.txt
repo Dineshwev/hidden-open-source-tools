@@ -1,12 +1,12 @@
 # The Cloud Rain
 
-> The Cloud Rain (https://thecloudrain.org) is a curated, verified directory of 375+ lightweight open-source tools, self-hostable software, and privacy-focused alternatives to expensive proprietary SaaS platforms.
+> The Cloud Rain (https://thecloudrain.org) is a curated, verified directory of 470+ lightweight open-source tools, self-hostable software, and privacy-focused alternatives to expensive proprietary SaaS platforms.
 
 The Cloud Rain is designed for builders, indie hackers, self-hosters, and engineering teams seeking full data ownership, $0 subscription costs, and transparent open-source licenses. Every listed project includes GitHub star metrics, SPDX license verification, primary programming languages, and direct deployment options.
 
 ## Core Platform Navigation
 
-- [Open-Source Tools Directory](https://thecloudrain.org/free-tools): Browse and search 375+ verified open-source developer tools, utilities, and applications.
+- [Open-Source Tools Directory](https://thecloudrain.org/free-tools): Browse and search 470+ verified open-source developer tools, utilities, and applications.
 - [SaaS Alternatives Matrix](https://thecloudrain.org/alternatives): Find curated open-source replacements for major commercial software (Notion, Jira, Firebase, HubSpot, Airtable, etc.).
 - [Head-to-Head Comparisons](https://thecloudrain.org/vs): Detailed feature, license, and self-hosting breakdowns between open-source projects and commercial SaaS.
 - [Tool Deep Dives & Articles](https://thecloudrain.org/article-museum): Long-form evaluations, setup guides, and architectural overviews.

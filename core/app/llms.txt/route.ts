@@ -53,7 +53,7 @@ export async function GET() {
 ## Core Resources
 
 - [Full LLM Machine-Readable Index](${siteUrl}/llms-full.txt): Complete directory of all curated open-source tools with categories, descriptions, URLs, and repository links.
-- [Free Tools Directory](${siteUrl}/free-tools): Searchable and filterable database of 375+ open-source tools with Docker snippets and stack exports.
+- [Free Tools Directory](${siteUrl}/free-tools): Searchable and filterable database of 470+ open-source tools with Docker snippets and stack exports.
 - [SaaS Alternatives Directory](${siteUrl}/alternatives): Comprehensive catalog of open-source replacements for proprietary software (Notion, Firebase, Jira, Google Analytics, Airtable, etc.).
 - [Head-to-Head Comparisons](${siteUrl}/vs): Side-by-side technical benchmarks and feature comparisons.
 - [Article Museum](${siteUrl}/article-museum): Long-form engineering essays and deep dives on software architecture.

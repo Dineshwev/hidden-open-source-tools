@@ -3,17 +3,23 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 export async function getApprovedSuccessToolCount(): Promise<number> {
   try {
     const supabase = getAdmin();
-    const { count, error } = await supabase
+    const { data, error } = await supabase
       .from("open_source_tools")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "approved")
-      .eq("structured_content_status", "success");
+      .select("slug")
+      .or("status.eq.approved,status.eq.APPROVED");
 
-    if (!error && typeof count === "number" && count > 0) {
-      return count;
+    if (!error && Array.isArray(data) && data.length > 0) {
+      const uniqueSlugs = new Set(
+        data
+          .map((r: any) => String(r.slug || "").trim().toLowerCase())
+          .filter(Boolean)
+      );
+      if (uniqueSlugs.size > 0) {
+        return uniqueSlugs.size;
+      }
     }
   } catch (err) {
     console.error("Failed to fetch tool count from DB:", err);
   }
-  return 375;
+  return 479;
 }

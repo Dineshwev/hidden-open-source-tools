@@ -182,14 +182,14 @@ export default function HomeDesktopLanding({
 }: HomeLandingProps = {}) {
   const router = useRouter();
   const [tools, setTools] = useState<Tool[]>(initialTools || []);
-  const [totalCount, setTotalCount] = useState(initialCount || 375);
+  const [totalCount, setTotalCount] = useState(initialCount || 479);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const faqs = [
     {
       q: "What is The Cloud Rain?",
-      a: "A curated directory of 375+ open-source tools, self-hosted software, and free alternatives to expensive SaaS products. Every tool is manually reviewed before being added.",
+      a: `A curated directory of ${totalCount}+ open-source tools, self-hosted software, and free alternatives to expensive SaaS products. Every tool is manually reviewed before being added.`,
     },
     {
       q: "Are all tools completely free?",
@@ -210,6 +210,9 @@ export default function HomeDesktopLanding({
   ];
 
   useEffect(() => {
+    if (initialCount) {
+      setTotalCount(initialCount);
+    }
     if (!initialTools || initialTools.length === 0) {
       fetch("/api/home-tools")
         .then((r) => r.json())
@@ -219,7 +222,7 @@ export default function HomeDesktopLanding({
         })
         .catch(() => {});
     }
-  }, [initialTools]);
+  }, [initialTools, initialCount]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -4,7 +4,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import type { Metadata } from "next";
 import HomeDesktopLanding, { type Tool } from "@/components/home/HomeDesktopLanding";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();

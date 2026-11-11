@@ -258,7 +258,7 @@ export default function Navbar() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search 375+ tools..."
+              placeholder="Search 470+ tools..."
               className="w-full rounded-xl border border-white/15 bg-white/5 py-2.5 pl-10 pr-3 text-xs text-white placeholder-white/40 focus:border-cyan-400/60 focus:outline-none"
             />
           </form>

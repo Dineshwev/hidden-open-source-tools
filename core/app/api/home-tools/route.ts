@@ -14,8 +14,8 @@ export async function GET() {
       .limit(6),
     supabase
       .from("open_source_tools")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "approved"),
+      .select("slug")
+      .or("status.eq.approved,status.eq.APPROVED"),
   ]);
 
   let tools = toolsResult.data ?? [];
@@ -39,8 +39,14 @@ export async function GET() {
     }
   }
 
+  const uniqueSlugs = new Set(
+    (countResult.data || [])
+      .map((t: any) => String(t.slug || "").trim().toLowerCase())
+      .filter(Boolean)
+  );
+
   return NextResponse.json({
     tools,
-    total: countResult.count ?? 375,
+    total: uniqueSlugs.size || 479,
   });
 }

@@ -1,7 +1,7 @@
 # The Cloud Rain (Complete Knowledge Base)
 
 > Comprehensive reference documentation and machine-readable catalog for The Cloud Rain (https://thecloudrain.org).
-> Curated directory of 375+ open-source developer tools, self-hostable infrastructure, and SaaS alternatives.
+> Curated directory of 470+ open-source developer tools, self-hostable infrastructure, and SaaS alternatives.
 
 ---
 
