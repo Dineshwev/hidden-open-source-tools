@@ -24,6 +24,7 @@ type AlternativeTool = {
   github_stars: string;
   license: string;
   similarity_score: number;
+  url?: string;
 };
 
 type AlternativeContent = {
@@ -116,6 +117,18 @@ export async function generateMetadata({ params }: AlternativePageProps): Promis
 export default async function AlternativePage({ params }: AlternativePageProps) {
   const alt = await getAlternativeBySlug(params.slug);
   if (!alt) notFound();
+
+  const supabase = getAdmin();
+  const { data: approvedToolsData } = await supabase
+    .from("open_source_tools")
+    .select("slug, url")
+    .or("status.eq.approved,status.eq.APPROVED");
+
+  const approvedSlugs = new Set(
+    (approvedToolsData || [])
+      .map((t: any) => String(t?.slug || "").toLowerCase().trim())
+      .filter(Boolean)
+  );
 
   const c = alt.content;
   const pageUrl = `${siteUrl}/alternatives/${alt.saas_slug}`;
@@ -297,20 +310,31 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {c.alternatives.map((t) => (
-                  <tr key={t.slug} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="py-3 pr-4 font-semibold text-white">{t.name}</td>
-                    <td className="py-3 px-4 font-mono text-cyan-200">🐳 Docker / Self-Host</td>
-                    <td className="py-3 px-4 font-mono text-white/80">{t.license}</td>
-                    <td className="py-3 px-4 text-white/60">{t.best_for}</td>
-                    <td className="py-3 px-4 text-emerald-300 font-semibold">{t.similarity_score}%</td>
-                    <td className="py-3 pl-4">
-                      <Link href={`/tools/${t.slug}`} target="_blank" rel="noopener noreferrer" className="text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2">
-                        Details →
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {c.alternatives.map((t) => {
+                  const tSlug = String(t.slug || "").toLowerCase().trim();
+                  const isInternal = approvedSlugs.has(tSlug);
+                  const href = isInternal ? `/tools/${tSlug}` : (t.url || `https://github.com/search?q=${encodeURIComponent(t.name)}`);
+
+                  return (
+                    <tr key={t.slug} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="py-3 pr-4 font-semibold text-white">{t.name}</td>
+                      <td className="py-3 px-4 font-mono text-cyan-200">🐳 Docker / Self-Host</td>
+                      <td className="py-3 px-4 font-mono text-white/80">{t.license}</td>
+                      <td className="py-3 px-4 text-white/60">{t.best_for}</td>
+                      <td className="py-3 px-4 text-emerald-300 font-semibold">{t.similarity_score}%</td>
+                      <td className="py-3 pl-4">
+                        <Link
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2"
+                        >
+                          {isInternal ? "Details →" : "Visit Site ↗"}
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -324,38 +348,44 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
 
       <section id="top-alternatives" className="space-y-4 scroll-mt-20">
         <h2 className="text-2xl text-white">Top Alternatives</h2>
-        {c.alternatives?.map((tool, i) => (
-          <div key={tool.slug} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-white/30">#{i + 1}</span>
-                  <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
-                  <span className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2 py-0.5 text-xs text-emerald-300">
-                    {tool.similarity_score}% match
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-white/50">{tool.tagline}</p>
-                <p className="mt-3 text-sm leading-6 text-white/60">{tool.description}</p>
-                <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/40">
-                  <span>🐳 Docker / Self-Host Ready</span>
-                  <span>📄 {tool.license}</span>
-                  <span>🎯 {tool.best_for}</span>
+        {c.alternatives?.map((tool, i) => {
+          const toolSlug = String(tool.slug || "").toLowerCase().trim();
+          const isInternal = approvedSlugs.has(toolSlug);
+          const href = isInternal ? `/tools/${toolSlug}` : (tool.url || `https://github.com/search?q=${encodeURIComponent(tool.name)}`);
+
+          return (
+            <div key={tool.slug} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold text-white/30">#{i + 1}</span>
+                    <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
+                    <span className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2 py-0.5 text-xs text-emerald-300">
+                      {tool.similarity_score}% match
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-white/50">{tool.tagline}</p>
+                  <p className="mt-3 text-sm leading-6 text-white/60">{tool.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/40">
+                    <span>🐳 Docker / Self-Host Ready</span>
+                    <span>📄 {tool.license}</span>
+                    <span>🎯 {tool.best_for}</span>
+                  </div>
                 </div>
               </div>
+              <div className="mt-4">
+                <Link
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+                >
+                  {isInternal ? `View ${tool.name} →` : `Visit ${tool.name} ↗`}
+                </Link>
+              </div>
             </div>
-            <div className="mt-4">
-              <Link
-                href={`/tools/${tool.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
-              >
-                View {tool.name} →
-              </Link>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       <section id="migration-tips" className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8 scroll-mt-20">
