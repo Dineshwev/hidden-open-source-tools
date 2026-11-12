@@ -119,10 +119,37 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
   if (!alt) notFound();
 
   const supabase = getAdmin();
-  const { data: approvedToolsData } = await supabase
-    .from("open_source_tools")
-    .select("slug, url")
-    .or("status.eq.approved,status.eq.APPROVED");
+  const saasName = alt.saas_name.trim();
+  const [approvedToolsRes, relatedVsRes, relatedArtsRes] = await Promise.all([
+    supabase
+      .from("open_source_tools")
+      .select("slug, url")
+      .or("status.eq.approved,status.eq.APPROVED"),
+    supabase
+      .from("comparisons")
+      .select("slug, tool_a, tool_b")
+      .eq("status", "published")
+      .or(`tool_a.ilike.%${saasName}%,tool_b.ilike.%${saasName}%`)
+      .limit(6),
+    supabase
+      .from("articles")
+      .select("slug, tool_name, title")
+      .eq("is_published", true)
+      .ilike("title", `%${saasName}%`)
+      .limit(3),
+  ]);
+
+  const approvedToolsData = approvedToolsRes.data;
+  const relatedComparisons = (relatedVsRes.data || []).map((c: any) => ({
+    slug: String(c.slug || ""),
+    tool_a: String(c.tool_a || ""),
+    tool_b: String(c.tool_b || ""),
+  }));
+  const relatedArticles = (relatedArtsRes.data || []).map((a: any) => ({
+    slug: String(a.slug || ""),
+    tool_name: String(a.tool_name || ""),
+    title: String(a.title || ""),
+  }));
 
   const approvedSlugs = new Set(
     (approvedToolsData || [])
@@ -376,8 +403,8 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
               <div className="mt-4">
                 <Link
                   href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={isInternal ? undefined : "_blank"}
+                  rel={isInternal ? undefined : "noopener noreferrer"}
                   className="inline-flex rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
                 >
                   {isInternal ? `View ${tool.name} →` : `Visit ${tool.name} ↗`}
@@ -412,12 +439,61 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
         <p className="mt-3 text-sm leading-7 text-white/60">{c.conclusion}</p>
       </section>
 
+      {relatedComparisons.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80">Head-to-Head</p>
+          <h2 className="mt-2 font-display text-2xl text-white">
+            {alt.saas_name} Head-to-Head Comparisons
+          </h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {relatedComparisons.map((comp) => (
+              <Link
+                key={comp.slug}
+                href={`/vs/${comp.slug}`}
+                className="group flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-medium text-white/85 transition hover:border-cyan-400/40 hover:text-cyan-200"
+              >
+                <span>{comp.tool_a} vs {comp.tool_b}</span>
+                <span className="text-cyan-300 group-hover:translate-x-0.5 transition-transform">→</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {relatedArticles.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/40">Article Museum</p>
+          <h2 className="mt-2 font-display text-2xl text-white">
+            Related {alt.saas_name} Replacement Guides
+          </h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {relatedArticles.map((art) => (
+              <Link
+                key={art.slug}
+                href={`/article-museum/${art.slug}`}
+                className="group rounded-xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-cyan-400/40"
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-300">
+                  {art.tool_name}
+                </span>
+                <p className="mt-1 text-xs font-semibold leading-snug text-white group-hover:text-cyan-200 line-clamp-2">
+                  {art.title}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">Explore more</p>
         <h2 className="mt-2 text-xl text-white">Keep discovering</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link href="/alternatives" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition">
             More alternatives
+          </Link>
+          <Link href="/best-free-developer-tools" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition">
+            Best Free Developer Tools
           </Link>
           <Link href="/vs" className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition">
             Tool comparisons

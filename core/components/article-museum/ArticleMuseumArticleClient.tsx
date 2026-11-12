@@ -20,7 +20,20 @@ type Article = {
   image_url?: string;
 };
 
-export default function ArticleMuseumArticleClient({ article }: { article: Article }) {
+export type ArticleRelatedData = {
+  tool?: { name: string; slug: string; category?: string | null; github_stars?: number | null } | null;
+  comparisons?: { slug: string; tool_a: string; tool_b: string }[];
+  alternatives?: { saas_name: string; saas_slug: string }[];
+  moreArticles?: { slug: string; tool_name: string; title: string }[];
+};
+
+export default function ArticleMuseumArticleClient({
+  article,
+  related,
+}: {
+  article: Article;
+  related?: ArticleRelatedData;
+}) {
   return (
     <article className="mx-auto max-w-3xl space-y-12 pb-20 pt-6">
       <Breadcrumbs items={[
@@ -47,6 +60,37 @@ export default function ArticleMuseumArticleClient({ article }: { article: Artic
             title={`${article.title} | The Cloud Rain`}
           />
         </div>
+
+        {(related?.tool || (related?.comparisons && related.comparisons.length > 0) || (related?.alternatives && related.alternatives.length > 0)) && (
+          <div className="flex flex-wrap items-center gap-2 pt-3">
+            {related?.tool && (
+              <Link
+                href={`/tools/${related.tool.slug}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-1.5 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+              >
+                <span>View {related.tool.name} Tool Page →</span>
+              </Link>
+            )}
+            {related?.comparisons?.slice(0, 2).map((comp) => (
+              <Link
+                key={comp.slug}
+                href={`/vs/${comp.slug}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-white/80 transition hover:border-cyan-400/30 hover:text-cyan-200"
+              >
+                <span>{comp.tool_a} vs {comp.tool_b} →</span>
+              </Link>
+            ))}
+            {related?.alternatives?.slice(0, 1).map((alt) => (
+              <Link
+                key={alt.saas_slug}
+                href={`/alternatives/${alt.saas_slug}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-1.5 text-xs font-medium text-white/80 transition hover:border-cyan-400/30 hover:text-cyan-200"
+              >
+                <span>{alt.saas_name} Alternatives →</span>
+              </Link>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="space-y-16">
@@ -105,7 +149,7 @@ export default function ArticleMuseumArticleClient({ article }: { article: Artic
         )}
       </div>
 
-      <footer className="mt-12 border-t border-white/10 pt-8">
+      <footer className="mt-12 space-y-8 border-t border-white/10 pt-8">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex flex-wrap gap-2">
             <span className="mr-2 text-sm font-semibold text-white/40">Tags:</span>
@@ -115,16 +159,95 @@ export default function ArticleMuseumArticleClient({ article }: { article: Artic
               </span>
             ))}
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-white/50">Related Tool:</span>
+          <div className="flex flex-wrap items-center gap-3">
+            {related?.tool ? (
+              <Link
+                href={`/tools/${related.tool.slug}`}
+                className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+              >
+                Explore {related.tool.name} Specifications →
+              </Link>
+            ) : null}
             <Link
               href="/free-tools"
-              className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-200 transition hover:bg-cyan-400/20"
+              className="inline-flex rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-sm font-medium text-white/80 transition hover:border-white/30"
             >
-              Explore directory
+              Browse All Open-Source Tools
             </Link>
           </div>
         </div>
+
+        {(related?.comparisons && related.comparisons.length > 0) && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <p className="text-xs uppercase tracking-[0.2em] text-cyan-300/80 font-semibold">Head-to-Head</p>
+            <h3 className="mt-1 font-display text-lg font-bold text-white">
+              Compare {article.tool_name} Against Commercial SaaS
+            </h3>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {related.comparisons.map((comp) => (
+                <Link
+                  key={comp.slug}
+                  href={`/vs/${comp.slug}`}
+                  className="group flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-medium text-white/85 transition hover:border-cyan-400/40 hover:text-cyan-200"
+                >
+                  <span>{comp.tool_a} vs {comp.tool_b}</span>
+                  <span className="text-cyan-300 group-hover:translate-x-0.5 transition-transform">→</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {(related?.alternatives && related.alternatives.length > 0) && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <p className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">SaaS Replacements</p>
+            <h3 className="mt-1 font-display text-lg font-bold text-white">
+              Related Open-Source Alternatives Hubs
+            </h3>
+            <div className="mt-3 flex flex-wrap gap-2.5">
+              {related.alternatives.map((alt) => (
+                <Link
+                  key={alt.saas_slug}
+                  href={`/alternatives/${alt.saas_slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+                >
+                  <span>Best Open-Source {alt.saas_name} Alternatives →</span>
+                </Link>
+              ))}
+              <Link
+                href="/best-free-developer-tools"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 py-2 text-xs font-medium text-white/80 transition hover:border-white/30"
+              >
+                <span>Best Free Developer Tools →</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {(related?.moreArticles && related.moreArticles.length > 0) && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+            <p className="text-xs uppercase tracking-[0.2em] text-white/40 font-semibold">More Deep Dives</p>
+            <h3 className="mt-1 font-display text-lg font-bold text-white">
+              Continue Reading in the Article Museum
+            </h3>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {related.moreArticles.map((art) => (
+                <Link
+                  key={art.slug}
+                  href={`/article-museum/${art.slug}`}
+                  className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-cyan-400/40"
+                >
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-300">
+                    {art.tool_name}
+                  </span>
+                  <p className="mt-1 text-xs font-semibold leading-snug text-white group-hover:text-cyan-200 line-clamp-2">
+                    {art.title}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </footer>
     </article>
   );

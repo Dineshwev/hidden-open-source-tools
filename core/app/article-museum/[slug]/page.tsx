@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
-import ArticleMuseumArticleClient from "@/components/article-museum/ArticleMuseumArticleClient";
+import ArticleMuseumArticleClient, { type ArticleRelatedData } from "@/components/article-museum/ArticleMuseumArticleClient";
 
 type Article = {
   id: string;
@@ -25,8 +25,8 @@ type Article = {
 const siteUrl = getSiteUrl();
 const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
-export const dynamic = 'force-static';
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
   const supabase = getAdmin();
@@ -136,12 +136,119 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
+async function getArticleRelatedData(article: Article): Promise<ArticleRelatedData> {
+  try {
+    const supabase = getAdmin();
+    const rawName = (article.tool_name || "").trim();
+    const normSlug = rawName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const compactSlug = rawName.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const [toolsRes, vsRes, altsRes, moreArtsRes] = await Promise.all([
+      supabase
+        .from("open_source_tools")
+        .select("name, slug, category, github_stars")
+        .or("status.eq.approved,status.eq.APPROVED")
+        .or(`slug.eq.${normSlug},slug.eq.${compactSlug},name.ilike.${rawName}`)
+        .limit(1),
+      supabase
+        .from("comparisons")
+        .select("slug, tool_a, tool_b")
+        .eq("status", "published")
+        .or(`tool_a.ilike.%${rawName}%,tool_b.ilike.%${rawName}%`)
+        .limit(6),
+      supabase
+        .from("alternatives")
+        .select("saas_name, saas_slug, content")
+        .or("status.eq.approved,status.eq.published"),
+      supabase
+        .from("articles")
+        .select("slug, tool_name, title")
+        .eq("is_published", true)
+        .neq("slug", article.slug)
+        .order("published_at", { ascending: false })
+        .limit(3),
+    ]);
+
+    const rawTool = toolsRes.data?.[0] as any;
+    const tool = rawTool
+      ? {
+          name: String(rawTool.name || ""),
+          slug: String(rawTool.slug || ""),
+          category: rawTool.category ? String(rawTool.category) : null,
+          github_stars: typeof rawTool.github_stars === "number" ? rawTool.github_stars : null,
+        }
+      : null;
+
+    let rawComparisons: any[] = vsRes.data || [];
+
+    if (rawComparisons.length === 0) {
+      const { data: fallbackVs } = await supabase
+        .from("comparisons")
+        .select("slug, tool_a, tool_b")
+        .eq("status", "published")
+        .in("slug", [
+          "appflowy-vs-notion",
+          "plane-vs-linear",
+          "tooljet-vs-retool",
+          "infisical-vs-hashicorp-vault",
+        ]);
+      rawComparisons = fallbackVs || [];
+    }
+
+    const comparisons = rawComparisons.map((c: any) => ({
+      slug: String(c.slug || ""),
+      tool_a: String(c.tool_a || ""),
+      tool_b: String(c.tool_b || ""),
+    }));
+
+    const matchedAlts: { saas_name: string; saas_slug: string }[] = [];
+    for (const alt of altsRes.data || []) {
+      const list = (alt as any)?.content?.alternatives;
+      if (Array.isArray(list)) {
+        const hit = list.some(
+          (item: any) =>
+            String(item?.slug || "").toLowerCase() === normSlug ||
+            String(item?.slug || "").toLowerCase() === compactSlug ||
+            String(item?.name || "").toLowerCase() === rawName.toLowerCase()
+        );
+        if (hit && alt.saas_name && alt.saas_slug) {
+          matchedAlts.push({ saas_name: String(alt.saas_name), saas_slug: String(alt.saas_slug) });
+        }
+      }
+    }
+
+    if (matchedAlts.length === 0) {
+      matchedAlts.push(
+        { saas_name: "Notion", saas_slug: "notion" },
+        { saas_name: "Datadog", saas_slug: "datadog" }
+      );
+    }
+
+    const moreArticles = (moreArtsRes.data || []).map((a: any) => ({
+      slug: String(a.slug || ""),
+      tool_name: String(a.tool_name || ""),
+      title: String(a.title || ""),
+    }));
+
+    return {
+      tool,
+      comparisons,
+      alternatives: matchedAlts.slice(0, 4),
+      moreArticles,
+    };
+  } catch {
+    return {};
+  }
+}
+
 export default async function ArticleMuseumSinglePage({ params }: { params: { slug: string } }) {
   const article = await getArticleBySlug(params.slug);
 
   if (!article) {
     notFound();
   }
+
+  const related = await getArticleRelatedData(article);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -177,7 +284,7 @@ export default async function ArticleMuseumSinglePage({ params }: { params: { sl
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-      <ArticleMuseumArticleClient article={article} />
+      <ArticleMuseumArticleClient article={article} related={related} />
     </>
   );
 }

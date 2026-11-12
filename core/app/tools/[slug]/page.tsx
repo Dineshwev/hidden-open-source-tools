@@ -926,8 +926,6 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                 <Link
                   key={ct.slug}
                   href={`/tools/${ct.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="group rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-cyan-400/30 hover:bg-white/[0.05]"
                 >
                   <p className="font-semibold text-white group-hover:text-cyan-300 transition-colors">{ct.name}</p>

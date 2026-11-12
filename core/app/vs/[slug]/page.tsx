@@ -235,6 +235,71 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
   const toolB = comparison.tool_b?.trim() || "Tool B";
   const verdictSnippet = getSearchDescription(comparison);
 
+  const supabase = getAdmin();
+  const [relatedVsRes, relatedArtsRes] = await Promise.all([
+    supabase
+      .from("comparisons")
+      .select("slug, tool_a, tool_b")
+      .eq("status", "published")
+      .neq("slug", comparison.slug)
+      .or(`tool_a.ilike.%${toolA}%,tool_b.ilike.%${toolA}%,tool_a.ilike.%${toolB}%,tool_b.ilike.%${toolB}%`)
+      .limit(4),
+    supabase
+      .from("articles")
+      .select("slug, tool_name, title")
+      .eq("is_published", true)
+      .or(`tool_name.ilike.%${toolA}%,tool_name.ilike.%${toolB}%,title.ilike.%${toolA}%,title.ilike.%${toolB}%`)
+      .limit(3),
+  ]);
+
+  let rawRelatedComparisons: any[] = relatedVsRes.data || [];
+  if (rawRelatedComparisons.length < 2) {
+    const { data: fallbackVs } = await supabase
+      .from("comparisons")
+      .select("slug, tool_a, tool_b")
+      .eq("status", "published")
+      .neq("slug", comparison.slug)
+      .in("slug", [
+        "keycloak-vs-auth0",
+        "appwrite-vs-firebase",
+        "openproject-vs-jira",
+        "plane-vs-linear",
+        "infisical-vs-hashicorp-vault",
+      ])
+      .limit(4);
+    const seen = new Set(rawRelatedComparisons.map((c: any) => String(c.slug)));
+    for (const item of fallbackVs || []) {
+      if (!seen.has(String((item as any).slug)) && rawRelatedComparisons.length < 4) {
+        rawRelatedComparisons.push(item);
+      }
+    }
+  }
+  const relatedComparisons = rawRelatedComparisons.map((c: any) => ({
+    slug: String(c.slug || ""),
+    tool_a: String(c.tool_a || ""),
+    tool_b: String(c.tool_b || ""),
+  }));
+
+  let rawRelatedArticles: any[] = relatedArtsRes.data || [];
+  if (rawRelatedArticles.length === 0) {
+    const { data: fallbackArts } = await supabase
+      .from("articles")
+      .select("slug, tool_name, title")
+      .eq("is_published", true)
+      .in("slug", [
+        "appwrite-the-open-source-backend-that-replaced-firebase",
+        "authentik-the-identity-provider-that-replaced-auth0",
+        "changedetection-io-the-open-source-website-watcher",
+      ])
+      .limit(3);
+    rawRelatedArticles = fallbackArts || [];
+  }
+  const relatedArticles = rawRelatedArticles.map((a: any) => ({
+    slug: String(a.slug || ""),
+    tool_name: String(a.tool_name || ""),
+    title: String(a.title || ""),
+  }));
+
   const comparisonFaqs = [
     {
       q: `What are the key architectural differences between ${toolA} and ${toolB}?`,
@@ -405,6 +470,52 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         </div>
       </section>
 
+      {relatedComparisons.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80">Related Comparisons</p>
+          <h2 className="mt-2 font-display text-2xl text-white">
+            More {toolA} &amp; {toolB} Matchups
+          </h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {relatedComparisons.map((comp) => (
+              <Link
+                key={comp.slug}
+                href={`/vs/${comp.slug}`}
+                className="group flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-medium text-white/85 transition hover:border-cyan-400/40 hover:text-cyan-200"
+              >
+                <span>{comp.tool_a} vs {comp.tool_b}</span>
+                <span className="text-cyan-300 group-hover:translate-x-0.5 transition-transform">→</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {relatedArticles.length > 0 && (
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-white/40">Article Museum</p>
+          <h2 className="mt-2 font-display text-2xl text-white">
+            Related Engineering Deep Dives
+          </h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            {relatedArticles.map((art) => (
+              <Link
+                key={art.slug}
+                href={`/article-museum/${art.slug}`}
+                className="group rounded-xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-cyan-400/40"
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-cyan-300">
+                  {art.tool_name}
+                </span>
+                <p className="mt-1 text-xs font-semibold leading-snug text-white group-hover:text-cyan-200 line-clamp-2">
+                  {art.title}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">Explore More</p>
         <h2 className="mt-2 text-xl text-white">Find the right tool for your stack</h2>
@@ -418,6 +529,18 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
               {link.type === "tool" ? `View ${link.name}` : `Alternatives to ${link.name}`}
             </Link>
           ))}
+          <Link
+            href="/best-free-developer-tools"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+          >
+            Best Free Developer Tools
+          </Link>
+          <Link
+            href="/alternatives/notion"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
+          >
+            Notion Alternatives
+          </Link>
           <Link
             href="/free-tools"
             className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
