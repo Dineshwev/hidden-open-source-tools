@@ -102,18 +102,72 @@ function stripMarkdown(value: string): string {
     .trim();
 }
 
+const VS_SEO_OVERRIDES: Record<string, { title: string; description: string }> = {
+  "infisical-vs-hashicorp-vault": {
+    title: "Infisical vs HashiCorp Vault (2026): Startup Verdict",
+    description:
+      "Compare Infisical vs HashiCorp Vault: setup complexity, Kubernetes sync, license differences, and which secrets manager fits startups vs enterprise teams.",
+  },
+  "appflowy-vs-notion": {
+    title: "AppFlowy vs Notion (2026): Local-First Privacy & Verdict",
+    description:
+      "AppFlowy vs Notion compared: offline local-first speed, Rust/Flutter architecture, AI plugins, self-hosting, and how much you save switching from Notion.",
+  },
+  "openobserve-vs-datadog": {
+    title: "OpenObserve vs Datadog (2026): 140x Lower Log Costs?",
+    description:
+      "Compare OpenObserve vs Datadog: Rust-based log & trace ingestion, S3 storage costs, OpenTelemetry support, and self-hosting vs Datadog's per-GB pricing.",
+  },
+  "tooljet-vs-retool": {
+    title: "ToolJet vs Retool (2026): Flexibility, Pricing & Verdict",
+    description:
+      "How does Retool compare with ToolJet in development flexibility? Compare open-source self-hosting, custom JS/Python plugins, and per-user pricing.",
+  },
+  "chatwoot-vs-intercom": {
+    title: "Chatwoot vs Intercom (2026): Open-Source Support Savings",
+    description:
+      "Chatwoot vs Intercom compared: live chat, omnichannel inbox, Fin AI vs self-hosted bots, and how teams save thousands switching to open-source Chatwoot.",
+  },
+  "openproject-vs-jira": {
+    title: "OpenProject vs Jira (2026): Self-Hosted PM & Pricing",
+    description:
+      "Compare OpenProject vs Jira: GPLv3 open-source self-hosting, Gantt charts, agile boards, GDPR data control, and per-seat cost savings vs Atlassian.",
+  },
+  "plane-vs-linear": {
+    title: "Plane vs Linear (2026): Open-Source Issue Tracking Verdict",
+    description:
+      "Plane vs Linear compared: AGPLv3 self-hosted Docker deployment, cycle speed, Jira migration, and pricing for engineering teams.",
+  },
+  "keycloak-vs-auth0": {
+    title: "Keycloak vs Auth0 (2026): Self-Hosted Auth Cost & Verdict",
+    description:
+      "Compare Keycloak vs Auth0: OIDC/SAML SSO, Docker/Kubernetes setup, maintenance overhead, and why teams leave Auth0's MAU pricing.",
+  },
+  "minio-vs-aws-s3": {
+    title: "MinIO vs AWS S3 (2026): Architecture, Speed & Cost",
+    description:
+      "How does MinIO architecture compare with Amazon S3? Compare erasure coding, zero-egress self-hosting, S3 API compatibility, and performance.",
+  },
+};
+
 function getSearchTitle(comparison: Comparison): string {
+  const override = VS_SEO_OVERRIDES[comparison.slug];
+  if (override) return override.title;
   const toolA = comparison.tool_a?.trim() || "Tool A";
   const toolB = comparison.tool_b?.trim() || "Tool B";
-  return `${toolA} vs ${toolB} (2026): In-Depth Comparison & Migration Guide`;
+  return `${toolA} vs ${toolB} (2026): Self-Hosted vs SaaS Verdict`;
 }
 
 function getSearchDescription(comparison: Comparison): string {
+  const override = VS_SEO_OVERRIDES[comparison.slug];
+  if (override) return override.description;
   const toolA = comparison.tool_a?.trim() || "Tool A";
   const toolB = comparison.tool_b?.trim() || "Tool B";
   const body = comparison.content.replace(/^#{1,2}\s+.+\r?\n/m, "").trimStart();
   const firstParagraph = body.split(/\r?\n\s*\r?\n/).find((paragraph) => {
-    const text = stripMarkdown(paragraph);
+    const trimmed = paragraph.trim();
+    if (/^#{1,6}\s/.test(trimmed)) return false;
+    const text = stripMarkdown(trimmed);
     return text.length > 50 && !text.toLowerCase().includes("verified project signals");
   });
   const description = firstParagraph

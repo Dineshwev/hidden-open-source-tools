@@ -53,8 +53,37 @@ async function getPublishedArticleSlugs(): Promise<string[]> {
     .filter(Boolean);
 }
 
-function getArticleDescription(article: Article) {
-  return article.mystery_intro?.slice(0, 160) || "Deep dive into open source history.";
+const ARTICLE_SEO_OVERRIDES: Record<string, { title: string; description: string }> = {
+  "changedetection-io-the-open-source-website-watcher": {
+    title: "Changedetection.io (2026): Free Self-Hosted Website Watcher",
+    description:
+      "Monitor any webpage for visual, text, or price changes with Changedetection.io. Free open-source VisualPing alternative with Docker setup and instant alerts.",
+  },
+  "appwrite-the-open-source-backend-that-replaced-firebase": {
+    title: "Appwrite (2026): Open-Source Firebase Alternative Review",
+    description:
+      "Self-host auth, databases, storage, and serverless functions with Appwrite. See how it replaces Firebase without vendor lock-in or surprise cloud bills.",
+  },
+  "authentik-the-identity-provider-that-replaced-auth0": {
+    title: "Authentik (2026): Self-Hosted Auth0 & Okta Alternative",
+    description:
+      "Replace pricey Auth0 and Okta plans with Authentik. Deploy SSO, SAML, OIDC, and MFA in Docker with visual authentication flows.",
+  },
+};
+
+function getArticleTitle(article: Article): string {
+  return ARTICLE_SEO_OVERRIDES[article.slug]?.title || article.title;
+}
+
+function getArticleDescription(article: Article): string {
+  const override = ARTICLE_SEO_OVERRIDES[article.slug]?.description;
+  if (override) return override;
+  const raw = (article.mystery_intro || "").replace(/\s+/g, " ").trim();
+  if (!raw) return "Deep dive into open source software, architecture, and self-hosting.";
+  if (raw.length <= 160) return raw;
+  const sliced = raw.slice(0, 157);
+  const lastSpace = sliced.lastIndexOf(" ");
+  return `${(lastSpace > 100 ? sliced.slice(0, lastSpace) : sliced).trimEnd()}...`;
 }
 
 export async function generateStaticParams() {
@@ -75,17 +104,18 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
+  const title = getArticleTitle(article);
   const description = getArticleDescription(article);
   const imageUrl = article.image_url || fallbackOgImage;
 
   return {
-    title: article.title,
+    title,
     description,
     alternates: {
       canonical: canonicalUrl
     },
     openGraph: {
-      title: article.title,
+      title,
       description,
       url: canonicalUrl,
       type: "article",
@@ -99,7 +129,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     },
     twitter: {
       card: "summary_large_image",
-      title: article.title,
+      title,
       description,
       images: [imageUrl]
     }
