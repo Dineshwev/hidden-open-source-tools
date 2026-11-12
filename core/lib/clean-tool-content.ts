@@ -50,8 +50,12 @@ export function cleanToolMarkdownContent(markdown: string | null | undefined): s
       }
     }
 
-    // Check if this line is a volatile stat
-    if (VOLATILE_STAT_LINE_REGEX.test(line)) {
+    // Check if this line is a volatile stat or an empty "Not available" stub row
+    if (
+      VOLATILE_STAT_LINE_REGEX.test(line) ||
+      /^\|\s*[^|]+\|\s*Not available(?:\s+for\s+SaaS|\s+in\s+verified\s+data)?\s*\|$/i.test(line.trim()) ||
+      /^[-*]\s*GitHub Repository:\s*Not available/i.test(line.trim())
+    ) {
       continue;
     }
 
