@@ -8,7 +8,7 @@ import { getAllCategorySlugs } from "@/lib/categories";
 const siteUrl = getSiteUrl();
 
 // Refresh the generated URL list after database status/content changes.
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
@@ -142,12 +142,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (articles) {
       articleEntries = articles.map((art: any) => ({
         url: `${siteUrl}/article-museum/${art.slug}`,
-        changeFrequency: "monthly",
-        priority: 0.8
+        lastModified: new Date(art.published_at || Date.now()),
+        changeFrequency: "weekly",
+        priority: 0.85
       }));
     }
 
-    // Fetch Approved Tools (all verified tools with content)
+    // Fetch Approved Tools (all verified tools)
     let allTools: any[] = [];
     let page = 0;
     const pageSize = 1000;
@@ -157,7 +158,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const { data: pageTools, error: toolsError } = await supabase
         .from("open_source_tools")
         .select("id, slug, created_at, enrichment_completed_at, last_updated, ai_content, description, structured_content_status, github_stars")
-        .eq("status", "approved")
+        .or("status.eq.approved,status.eq.APPROVED")
         .not("slug", "is", null)
         .neq("slug", "")
         .order("created_at", { ascending: false })
@@ -166,13 +167,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (toolsError || !pageTools || pageTools.length === 0) {
         hasMore = false;
       } else {
-        const indexable = pageTools.filter((t: any) =>
-          t.structured_content_status === "success" ||
-          (t.ai_content && t.ai_content.length > 100) ||
-          (t.description && t.description.length > 50) ||
-          (Number(t.github_stars || 0) > 0)
-        );
-        allTools = allTools.concat(indexable);
+        allTools = allTools.concat(pageTools);
         if (pageTools.length < pageSize) {
           hasMore = false;
         } else {
@@ -201,36 +196,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .filter((row: any) => typeof row?.slug === "string" && row.slug.trim().length > 0)
         .map((row: any) => ({
           url: `${siteUrl}${getIndustryPagePath(row.slug)}`,
-          changeFrequency: "monthly",
+          lastModified: new Date(row.created_at || Date.now()),
+          changeFrequency: "weekly",
           priority: 0.8
         }));
     }
 
     const { data: comparisons } = await supabase
       .from("comparisons")
-      .select("slug, verified_regenerated_at, updated_at, created_at")
+      .select("slug, verified_regenerated_at, created_at")
       .or("status.eq.published,status.eq.approved");
 
     if (comparisons) {
       comparisonEntries = comparisons.map((row: any) => ({
         url: `${siteUrl}/vs/${row.slug}`,
-        lastModified: new Date(row.verified_regenerated_at || row.updated_at || row.created_at || Date.now()),
+        lastModified: new Date(row.verified_regenerated_at || row.created_at || Date.now()),
         changeFrequency: "weekly",
-        priority: 0.8
+        priority: 0.85
       }));
     }
 
     const { data: altsData } = await supabase
       .from("alternatives")
-      .select("saas_slug, verified_regenerated_at, updated_at, created_at")
+      .select("saas_slug, verified_regenerated_at, created_at")
       .or("status.eq.approved,status.eq.published");
 
     if (altsData) {
       altEntries = altsData.map((row: any) => ({
         url: `${siteUrl}/alternatives/${row.saas_slug}`,
-        lastModified: new Date(row.verified_regenerated_at || row.updated_at || row.created_at || Date.now()),
+        lastModified: new Date(row.verified_regenerated_at || row.created_at || Date.now()),
         changeFrequency: "weekly",
-        priority: 0.85
+        priority: 0.9
       }));
     }
 

@@ -7,7 +7,7 @@ import { getIndustryPagePath } from "@/lib/industry-url";
 import { getSiteUrl } from "@/lib/site-url";
 import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 const siteUrl = getSiteUrl();
 
 function stripMarkdown(text: string): string {
@@ -198,13 +198,56 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
         </section>
       )}
 
+      {(page.why_open_source || page.how_to_choose) && (
+        <section className="grid gap-6 md:grid-cols-2">
+          {page.why_open_source && (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+              <p className="text-xs uppercase tracking-[0.22em] text-cyan-300/80 font-semibold">Why Self-Host</p>
+              <h2 className="mt-2 font-display text-2xl text-white">Why Choose Open Source?</h2>
+              <p className="mt-3 text-sm leading-7 text-white/70">{page.why_open_source}</p>
+            </div>
+          )}
+          {page.how_to_choose && (
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+              <p className="text-xs uppercase tracking-[0.22em] text-emerald-300/80 font-semibold">Selection Guide</p>
+              <h2 className="mt-2 font-display text-2xl text-white">How to Choose the Right Stack</h2>
+              <p className="mt-3 text-sm leading-7 text-white/70">{page.how_to_choose}</p>
+            </div>
+          )}
+        </section>
+      )}
+
+      {Array.isArray(page.related_vs_slugs) && page.related_vs_slugs.length > 0 && (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-white/40 font-semibold">Head-to-Head</p>
+          <h2 className="mt-2 font-display text-2xl text-white">Related Comparisons</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            {page.related_vs_slugs.map((vsSlug: string) => (
+              <Link
+                key={vsSlug}
+                href={`/vs/${vsSlug}`}
+                className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/20"
+              >
+                {vsSlug.replace(/-vs-/g, " vs ").replace(/-/g, " ")} →
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {(page.cta_text || page.cta_href) && (
-        <section className="text-center">
+        <section className="flex flex-wrap items-center justify-center gap-4 text-center">
           <Link
-            href={page.cta_href || "#"}
+            href={page.cta_href || "/free-tools"}
             className="inline-flex items-center justify-center rounded-full bg-cyan-300 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-200"
           >
-            {page.cta_text || "Learn More"}
+            {page.cta_text || "Explore All Open-Source Tools"}
+          </Link>
+          <Link
+            href="/alternatives"
+            className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white/85 transition hover:border-white/40"
+          >
+            Browse SaaS Alternatives →
           </Link>
         </section>
       )}
