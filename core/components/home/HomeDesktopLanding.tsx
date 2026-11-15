@@ -458,27 +458,27 @@ export default function HomeDesktopLanding({
         </div>
       </section>
 
-      {/* ── Curated Best-of Open-Source Buyer Guides ── */}
+      {/* ── Top Blog Articles (Featured on Homepage, rest in /blog) ── */}
       <section>
         <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80 font-semibold">
-              Curated Buyer Guides (2026)
+              From the Blog
             </p>
             <h2 className="mt-1 font-display text-2xl font-bold text-white">
               Best Open-Source Tools by Use Case
             </h2>
           </div>
           <Link
-            href="/best-free-developer-tools"
+            href="/blog"
             className="text-sm text-cyan-300 transition hover:text-cyan-200"
           >
-            All buyer guides →
+            View all {BEST_TOOL_GUIDES.length} guides in Blog →
           </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
-          {BEST_TOOL_GUIDES.map((guide) => (
+          {BEST_TOOL_GUIDES.slice(0, 4).map((guide) => (
             <Link
               key={guide.slug}
               href={guide.href}

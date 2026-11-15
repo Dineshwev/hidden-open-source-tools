@@ -12,6 +12,7 @@ const primaryDesktopLinks = [
   { href: "/free-tools", label: "Explore Tools" },
   { href: "/alternatives", label: "Alternatives" },
   { href: "/vs", label: "Comparisons" },
+  { href: "/blog", label: "Blog" },
   { href: "/article-museum", label: "Articles" },
 ];
 
@@ -20,6 +21,7 @@ const mobileLinks = [
   { href: "/free-tools", label: "Explore Tools" },
   { href: "/alternatives", label: "SaaS Alternatives" },
   { href: "/vs", label: "Head-to-Head Comparisons" },
+  { href: "/blog", label: "Best Tools Blog" },
   { href: "/article-museum", label: "Deep-Dive Articles" },
   { href: "/contact", label: "Contact" },
   { href: "/upload", label: "Submit a Tool" },

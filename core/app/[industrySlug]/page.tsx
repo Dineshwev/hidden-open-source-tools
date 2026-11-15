@@ -258,21 +258,21 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-cyan-300/80 font-semibold">
-              Curated Buyer Guides (2026)
+              From the Blog
             </p>
             <h2 className="mt-1 font-display text-2xl text-white">
-              More Best-of Open-Source Tool Guides
+              More Open-Source Buyer Guides
             </h2>
           </div>
           <Link
-            href="/best-free-developer-tools"
+            href="/blog"
             className="text-xs font-semibold text-cyan-300 transition hover:text-cyan-200"
           >
-            View All Guides →
+            View All in Blog →
           </Link>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          {BEST_TOOL_GUIDES.filter((g) => g.slug !== slug).map((guide) => (
+          {BEST_TOOL_GUIDES.filter((g) => g.slug !== slug).slice(0, 4).map((guide) => (
             <Link
               key={guide.slug}
               href={guide.href}
