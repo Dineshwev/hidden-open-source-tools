@@ -1,20 +1,21 @@
 import { getSiteUrl } from "@/lib/site-url";
+import { BEST_TOOL_GUIDES } from "@/lib/best-guides";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Open-Source Developer Tools for Teams",
+  title: "Best Open-Source Developer Tools & Buyer Guides (2026)",
   description:
-    "Browse open-source developer tools grouped by practical areas such as infrastructure, analytics, security, and productivity.",
+    "Browse curated 2026 open-source software buyer guides grouped by use case: CRM, project management, DevOps monitoring, homelab, AI tools, authentication, internal tools, and automation.",
   alternates: {
     canonical: "/best-free-developer-tools"
   },
   openGraph: {
-    title: "Open-Source Developer Tools for Teams",
+    title: "Best Open-Source Developer Tools & Buyer Guides (2026)",
     description:
-      "Browse open-source developer tools grouped by infrastructure, analytics, security, and productivity.",
+      "Browse curated 2026 open-source software buyer guides grouped by CRM, project management, DevOps monitoring, homelab, AI tools, and automation.",
     url: `${siteUrl}/best-free-developer-tools`
   }
 };
@@ -44,12 +45,12 @@ const toolGroups = [
 
 const articleSchema = {
   "@context": "https://schema.org",
-  "@type": "Article",
-  headline: "Developer Tool Comparisons for Open Source Teams",
+  "@type": "CollectionPage",
+  headline: "Best Open-Source Developer Tools & Buyer Guides (2026)",
   description:
-    "A practical comparison page for developer tools across open-source software, AI tools, analytics, and lightweight SaaS alternatives.",
+    "Curated 2026 buyer guides for open-source software across CRM, project management, DevOps monitoring, homelab, AI engineering, authentication, internal tools, and workflow automation.",
   datePublished: "2026-04-10",
-  dateModified: "2026-04-10",
+  dateModified: "2026-11-16",
   author: {
     "@type": "Organization",
     name: "The Cloud Rain"
@@ -59,7 +60,14 @@ const articleSchema = {
     name: "The Cloud Rain",
     url: siteUrl
   },
-  mainEntityOfPage: `${siteUrl}/best-free-developer-tools`
+  mainEntityOfPage: `${siteUrl}/best-free-developer-tools`,
+  hasPart: BEST_TOOL_GUIDES.map((guide, idx) => ({
+    "@type": "Article",
+    position: idx + 1,
+    headline: guide.title,
+    description: guide.summary,
+    url: `${siteUrl}${guide.href}`
+  }))
 };
 
 const breadcrumbSchema = {
@@ -75,7 +83,7 @@ const breadcrumbSchema = {
     {
       "@type": "ListItem",
       position: 2,
-      name: "Developer Tool Comparisons",
+      name: "Best Open-Source Tool Guides",
       item: `${siteUrl}/best-free-developer-tools`
     }
   ]
@@ -83,17 +91,51 @@ const breadcrumbSchema = {
 
 export default function BestFreeDeveloperToolsPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-2 py-8">
+    <div className="mx-auto max-w-5xl space-y-10 px-2 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <header className="space-y-3">
-        <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">Comparison Guide</p>
-        <h1 className="font-display text-3xl text-white md:text-5xl">Developer tool comparisons for open-source teams</h1>
+        <p className="text-xs uppercase tracking-[0.3em] text-emerald-200/80">2026 Buyer Guides & Stack Comparisons</p>
+        <h1 className="font-display text-3xl text-white md:text-5xl">Best Open-Source Tools by Use Case</h1>
         <p className="max-w-3xl text-white/70">
-          This comparison page helps developers quickly choose high-value tools by category, including open-source options and lightweight SaaS alternatives.
+          Explore our curated buyer guides comparing self-hostable open-source software across CRM, DevOps monitoring, AI engineering, authentication, internal tools, and workflow automation.
         </p>
       </header>
+
+      <section className="space-y-4">
+        <h2 className="font-display text-2xl text-white">Curated Best-of Open-Source Guides</h2>
+        <div className="grid gap-4 md:grid-cols-2">
+          {BEST_TOOL_GUIDES.map((guide) => (
+            <Link
+              key={guide.slug}
+              href={guide.href}
+              className="group flex flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition-all hover:border-cyan-400/35 hover:bg-white/[0.06]"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                    {guide.category}
+                  </span>
+                  <span className="text-xs font-semibold text-cyan-300 transition group-hover:translate-x-0.5">
+                    Read Guide →
+                  </span>
+                </div>
+                <h3 className="font-display text-xl font-semibold text-white transition group-hover:text-cyan-300">
+                  {guide.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/65">
+                  {guide.summary}
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-2 text-xs">
+                <span className="text-white/45 shrink-0">Recommended Stack:</span>
+                <span className="text-cyan-200 font-medium truncate">{guide.topTools}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-2">
         {toolGroups.map((group) => (
@@ -123,5 +165,3 @@ export default function BestFreeDeveloperToolsPage() {
     </div>
   );
 }
-
-

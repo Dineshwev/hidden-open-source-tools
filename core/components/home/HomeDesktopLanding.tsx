@@ -6,6 +6,7 @@ import { ArrowRight, Star, Zap, Search, ShieldCheck, DollarSign, Cpu, ChevronDow
 import { useEffect, useState } from "react";
 import SaaSTaxCalculator from "./SaaSTaxCalculator";
 import { getReplacedSaaS } from "@/lib/saas-replacements-map";
+import { BEST_TOOL_GUIDES } from "@/lib/best-guides";
 
 const CATEGORIES = [
   { label: "Developer Tools", slug: "developer-tools", count: 116 },
@@ -451,6 +452,55 @@ export default function HomeDesktopLanding({
               <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
                 <span className="text-white/40">Switch to:</span>
                 <span className="text-cyan-200 font-medium">{item.osAlt}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Curated Best-of Open-Source Buyer Guides ── */}
+      <section>
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-cyan-300/80 font-semibold">
+              Curated Buyer Guides (2026)
+            </p>
+            <h2 className="mt-1 font-display text-2xl font-bold text-white">
+              Best Open-Source Tools by Use Case
+            </h2>
+          </div>
+          <Link
+            href="/best-free-developer-tools"
+            className="text-sm text-cyan-300 transition hover:text-cyan-200"
+          >
+            All buyer guides →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+          {BEST_TOOL_GUIDES.map((guide) => (
+            <Link
+              key={guide.slug}
+              href={guide.href}
+              className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all hover:border-cyan-400/35 hover:bg-white/[0.06]"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                    {guide.category}
+                  </span>
+                  <ArrowRight className="h-4 w-4 text-white/30 transition group-hover:translate-x-0.5 group-hover:text-cyan-300 shrink-0" />
+                </div>
+                <p className="text-base font-semibold text-white group-hover:text-cyan-300 transition">
+                  {guide.title}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-white/55 line-clamp-2">
+                  {guide.summary}
+                </p>
+              </div>
+              <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between gap-2 text-xs">
+                <span className="text-white/40 shrink-0">Top Stack:</span>
+                <span className="text-cyan-200 font-medium truncate">{guide.topTools}</span>
               </div>
             </Link>
           ))}

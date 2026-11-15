@@ -35,8 +35,18 @@ const seoLinks = [
   { href: "/free-tools", label: "Open-Source Tools Directory" },
   { href: "/alternatives", label: "SaaS Alternatives" },
   { href: "/vs", label: "Tool Comparisons" },
-  { href: "/best-free-developer-tools", label: "Developer Tool Comparisons" },
-  { href: "/article-museum", label: "Tool Deep Dives & Articles" }
+  { href: "/best-free-developer-tools", label: "All Best-of Tool Guides" },
+  { href: "/article-museum", label: "Tool Deep Dives & Articles" },
+  { href: "/best-crm-for-agencies", label: "Best CRM for Agencies" },
+  { href: "/best-crm-for-government", label: "Best CRM for Government" },
+  { href: "/best-project-management-for-startups", label: "Best PM for Startups" },
+  { href: "/best-devops-monitoring-tools", label: "Best DevOps Monitoring" },
+  { href: "/best-self-hosted-apps-for-homelab", label: "Best Homelab Apps" },
+  { href: "/best-open-source-ai-tools-for-developers", label: "Best Open-Source AI Tools" },
+  { href: "/best-note-taking-apps-for-privacy", label: "Best Privacy Note Apps" },
+  { href: "/best-authentication-tools-for-saas", label: "Best Auth Tools for SaaS" },
+  { href: "/best-internal-tool-builders", label: "Best Internal Tool Builders" },
+  { href: "/best-workflow-automation-tools", label: "Best Workflow Automation" }
 ];
 
 const socialLinks = [

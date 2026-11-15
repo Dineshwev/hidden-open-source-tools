@@ -6,6 +6,7 @@ import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import { getIndustryPagePath } from "@/lib/industry-url";
 import { getSiteUrl } from "@/lib/site-url";
 import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
+import { BEST_TOOL_GUIDES } from "@/lib/best-guides";
 
 export const revalidate = 0;
 const siteUrl = getSiteUrl();
@@ -251,6 +252,47 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
           </Link>
         </section>
       )}
+
+      {/* More Best-of Open-Source Buyer Guides */}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-cyan-300/80 font-semibold">
+              Curated Buyer Guides (2026)
+            </p>
+            <h2 className="mt-1 font-display text-2xl text-white">
+              More Best-of Open-Source Tool Guides
+            </h2>
+          </div>
+          <Link
+            href="/best-free-developer-tools"
+            className="text-xs font-semibold text-cyan-300 transition hover:text-cyan-200"
+          >
+            View All Guides →
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {BEST_TOOL_GUIDES.filter((g) => g.slug !== slug).map((guide) => (
+            <Link
+              key={guide.slug}
+              href={guide.href}
+              className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-black/30 p-4 transition hover:border-cyan-400/35 hover:bg-white/[0.04]"
+            >
+              <div>
+                <span className="inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-cyan-200">
+                  {guide.category}
+                </span>
+                <h3 className="mt-2 font-display text-base font-semibold text-white transition group-hover:text-cyan-300">
+                  {guide.title}
+                </h3>
+              </div>
+              <p className="mt-2 text-xs text-white/50 truncate">
+                Stack: <span className="text-cyan-200/85">{guide.topTools}</span>
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

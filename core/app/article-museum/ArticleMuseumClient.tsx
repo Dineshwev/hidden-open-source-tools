@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { BEST_TOOL_GUIDES } from "@/lib/best-guides";
 
 type SortOption = "latest" | "oldest" | "a-z" | "z-a";
 
@@ -64,6 +65,60 @@ export default function ArticleMuseumClient({
         <p className="mt-3 text-white/60 max-w-2xl text-lg leading-relaxed">
           Practical analysis of open-source tools, self-hosted software, and lightweight SaaS alternatives worth evaluating for real projects.
         </p>
+      </section>
+
+      {/* Curated Best-of Buyer Guides Section */}
+      <section className="rounded-3xl border border-cyan-400/20 bg-gradient-to-b from-cyan-500/[0.06] to-white/[0.02] p-6 sm:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300/80">
+              2026 Curated Buyer Guides
+            </p>
+            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold text-white">
+              Best Open-Source Tools by Use Case
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm text-white/65">
+              Hand-picked, self-hostable open-source stacks ranked by architecture, license freedom, and production readiness.
+            </p>
+          </div>
+          <Link
+            href="/best-free-developer-tools"
+            className="text-xs font-semibold text-cyan-300 transition hover:text-cyan-200"
+          >
+            View All Buyer Guides →
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {BEST_TOOL_GUIDES.map((guide) => (
+            <Link
+              key={guide.slug}
+              href={guide.href}
+              className="group flex flex-col justify-between rounded-2xl border border-white/10 bg-black/30 p-5 transition-all hover:border-cyan-400/35 hover:bg-white/[0.04]"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                    {guide.category}
+                  </span>
+                  <span className="text-xs text-cyan-300/80 transition group-hover:translate-x-0.5">
+                    Read Guide →
+                  </span>
+                </div>
+                <h3 className="font-display text-lg font-semibold text-white transition group-hover:text-cyan-300">
+                  {guide.title}
+                </h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/60 line-clamp-2">
+                  {guide.summary}
+                </p>
+              </div>
+              <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2 text-[11px]">
+                <span className="text-white/40 shrink-0">Featured Stack:</span>
+                <span className="text-cyan-200/90 font-medium truncate">{guide.topTools}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* Sort filter section */}
