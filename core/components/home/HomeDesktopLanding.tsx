@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Star, Zap, Search, ShieldCheck, DollarSign, Cpu, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import SaaSTaxCalculator from "./SaaSTaxCalculator";
+import { getReplacedSaaS } from "@/lib/saas-replacements-map";
 
 const CATEGORIES = [
   { label: "Developer Tools", slug: "developer-tools", count: 116 },
@@ -107,12 +108,11 @@ function ToolCard({ tool }: { tool: Tool }) {
   })();
 
   const faviconUrl = !imgFailed && domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : null;
+  const replacedSaaS = getReplacedSaaS(tool.slug, tool.category);
 
   return (
     <Link
       href={`/tools/${tool.slug}`}
-      target="_blank"
-      rel="noopener noreferrer"
       className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-all duration-200 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-white/[0.05] hover:shadow-lg hover:shadow-cyan-500/5"
     >
       <div>
@@ -159,6 +159,15 @@ function ToolCard({ tool }: { tool: Tool }) {
         <p className="mt-3.5 line-clamp-2 text-sm leading-relaxed text-white/60">
           {stripMarkdown(tool.description ?? "") || "Curated open-source tool for modern workflows."}
         </p>
+
+        {replacedSaaS && (
+          <div className="mt-3">
+            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
+              <span className="text-white/50">Replaces:</span>
+              <span className="font-semibold">{replacedSaaS.saas}</span>
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-xs text-white/40">

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, ExternalLink, ArrowRight, Bookmark } from "lucide-react";
 import { isToolSaved, toggleSaveTool } from "@/lib/saved-tools";
+import { getReplacedSaaS } from "@/lib/saas-replacements-map";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
 function stripMarkdown(text: string): string {
@@ -46,6 +47,7 @@ const ToolCard = React.memo(({ tool, onOpen }: ToolCardProps) => {
   const displayCategory = tool.raw_category || (tool.category === "other" ? "Developer Tool" : tool.category);
   const starsLabel = formatStars(tool.github_stars);
   const targetSlug = tool.slug || tool.id;
+  const replacedSaaS = getReplacedSaaS(targetSlug, displayCategory);
 
   useEffect(() => {
     setIsSaved(isToolSaved(targetSlug));
@@ -148,6 +150,18 @@ const ToolCard = React.memo(({ tool, onOpen }: ToolCardProps) => {
         >
           {stripMarkdown(tool.description ?? "") || "Curated open-source tool for modern workflows."}
         </p>
+
+        {replacedSaaS && (
+          <div className="mt-3">
+            <Link
+              href={`/alternatives/${replacedSaaS.slug}`}
+              className="inline-flex items-center gap-1 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2 py-0.5 text-[11px] font-medium text-emerald-300 transition hover:border-emerald-400/40 hover:bg-emerald-400/15"
+            >
+              <span className="text-white/50">Replaces:</span>
+              <span className="font-semibold">{replacedSaaS.saas}</span>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Bottom Action Footer */}
