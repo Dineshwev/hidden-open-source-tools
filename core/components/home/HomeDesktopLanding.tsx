@@ -76,6 +76,34 @@ export const SAAS_REPLACEMENTS = [
     href: "/alternatives/algolia",
     icon: "🔍"
   },
+  {
+    saas: "Datadog",
+    replaces: "Cloud monitoring & APM",
+    osAlt: "SigNoz, Grafana, Beszel",
+    href: "/alternatives/datadog",
+    icon: "📈"
+  },
+  {
+    saas: "Slack",
+    replaces: "Team chat & collaboration",
+    osAlt: "Mattermost, Rocket.Chat",
+    href: "/alternatives/slack",
+    icon: "💬"
+  },
+  {
+    saas: "Calendly",
+    replaces: "Scheduling & bookings",
+    osAlt: "Cal.com",
+    href: "/alternatives/calendly",
+    icon: "📅"
+  },
+  {
+    saas: "DocuSign",
+    replaces: "Electronic signatures",
+    osAlt: "Docuseal, OpenSign",
+    href: "/alternatives/docusign",
+    icon: "✍️"
+  },
 ];
 
 export type Tool = {

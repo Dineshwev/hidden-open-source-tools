@@ -6,6 +6,7 @@ import { Search, X, Star, Sparkles, Filter, Frown, ArrowUpDown, RefreshCw, Bookm
 import ToolCard from "@/components/ToolCard";
 import { getSavedSlugs, toggleSaveTool } from "@/lib/saved-tools";
 import DockerStackModal from "@/components/tools/DockerStackModal";
+import { getReplacedSaaS, POPULAR_SAAS_FILTERS } from "@/lib/saas-replacements-map";
 import type { ScrapedTool } from "@/lib/types/scraped-tools.types";
 
 type SortOption = "stars" | "newest" | "alpha" | "shuffle";
@@ -68,6 +69,7 @@ interface FreeToolsPageClientProps {
   readonly initialCount?: number | null;
   readonly initialCategory?: string;
   readonly initialSearch?: string;
+  readonly initialSaaS?: string;
   readonly categoryCounts?: Record<string, number> | null;
 }
 
@@ -76,10 +78,12 @@ export default function FreeToolsPageClient({
   initialCount = null,
   initialCategory = "all",
   initialSearch = "",
+  initialSaaS = "all",
   categoryCounts: categoryCountsProp
 }: FreeToolsPageClientProps) {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || "all");
+  const [selectedSaaS, setSelectedSaaS] = useState<string>(initialSaaS || "all");
   const [sortOption, setSortOption] = useState<SortOption>("stars");
   const [shuffleSeed, setShuffleSeed] = useState(Date.now());
   const [savedSlugs, setSavedSlugs] = useState<Set<string>>(new Set());
@@ -141,6 +145,12 @@ export default function FreeToolsPageClient({
     }
   }, [initialSearch]);
 
+  useEffect(() => {
+    if (initialSaaS && initialSaaS !== "all") {
+      setSelectedSaaS(initialSaaS);
+    }
+  }, [initialSaaS]);
+
   const categoryCounts = categoryCountsProp ?? null;
   const totalCount = initialCount ?? initialTools.length;
 
@@ -157,7 +167,15 @@ export default function FreeToolsPageClient({
       list = list.filter((tool) => toolMatchesCategory(tool, selectedCategory));
     }
 
-    // Filter by Search Query
+    // Filter by SaaS Replacement
+    if (selectedSaaS && selectedSaaS !== "all") {
+      list = list.filter((tool) => {
+        const rep = getReplacedSaaS(tool.slug || tool.id, tool.raw_category);
+        return rep && rep.slug === selectedSaaS;
+      });
+    }
+
+    // Filter by Search Query (searches title, description, category, and replaced SaaS)
     const query = searchQuery.trim().toLowerCase();
     if (query) {
       list = list.filter((tool) => {
@@ -165,7 +183,11 @@ export default function FreeToolsPageClient({
         const descMatch = (tool.description || "").toLowerCase().includes(query);
         const catMatch = (tool.raw_category || "").toLowerCase().includes(query);
         const urlMatch = (tool.webpage_url || "").toLowerCase().includes(query);
-        return titleMatch || descMatch || catMatch || urlMatch;
+        const rep = getReplacedSaaS(tool.slug || tool.id, tool.raw_category);
+        const saasMatch = rep
+          ? rep.saas.toLowerCase().includes(query) || rep.slug.toLowerCase().includes(query)
+          : false;
+        return titleMatch || descMatch || catMatch || urlMatch || saasMatch;
       });
     }
 
@@ -182,13 +204,15 @@ export default function FreeToolsPageClient({
     }
 
     return sorted;
-  }, [initialTools, filterSavedOnly, savedSlugs, selectedCategory, searchQuery, sortOption, shuffleSeed]);
+  }, [initialTools, filterSavedOnly, savedSlugs, selectedCategory, selectedSaaS, searchQuery, sortOption, shuffleSeed]);
 
   const activeCategoryDef = CATEGORY_DEFS.find((c) => c.key === selectedCategory) || CATEGORY_DEFS[0];
-  const hasActiveFilters = selectedCategory !== "all" || searchQuery.trim().length > 0 || filterSavedOnly;
+  const activeSaaSDef = POPULAR_SAAS_FILTERS.find((s) => s.slug === selectedSaaS);
+  const hasActiveFilters = selectedCategory !== "all" || selectedSaaS !== "all" || searchQuery.trim().length > 0 || filterSavedOnly;
 
   const handleResetFilters = () => {
     setSelectedCategory("all");
+    setSelectedSaaS("all");
     setSearchQuery("");
     setFilterSavedOnly(false);
   };
@@ -285,15 +309,68 @@ export default function FreeToolsPageClient({
           </div>
         </div>
 
+        {/* ── Filter by SaaS Replacement (AlternativeTo style) ── */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-300/80">
+              <span>⚡</span>
+              <span>Find Alternative to Commercial SaaS</span>
+            </span>
+            <Link
+              href="/alternatives"
+              className="text-xs text-cyan-300/80 transition hover:text-cyan-200"
+            >
+              All 52 SaaS Hubs →
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSelectedSaaS("all")}
+              className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                selectedSaaS === "all"
+                  ? "bg-white/20 text-white font-semibold"
+                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              All SaaS
+            </button>
+            {POPULAR_SAAS_FILTERS.map((s) => {
+              const isSelected = selectedSaaS === s.slug;
+              return (
+                <button
+                  key={s.slug}
+                  type="button"
+                  onClick={() => setSelectedSaaS(isSelected ? "all" : s.slug)}
+                  className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                    isSelected
+                      ? "border border-emerald-400/50 bg-emerald-400/20 text-emerald-200 font-semibold shadow-sm"
+                      : "border border-white/5 bg-white/[0.03] text-white/70 hover:border-emerald-400/30 hover:bg-white/[0.06] hover:text-white"
+                  }`}
+                >
+                  <span className="text-[11px]">{s.icon}</span>
+                  <span>{s.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Sort & Status Bar */}
         <div className="flex flex-col gap-3 border-t border-white/5 pt-3 sm:flex-row sm:items-center sm:justify-between text-xs text-white/50">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span>
               Showing <strong className="text-white font-semibold">{visibleTools.length}</strong> of {totalCount} tools
             </span>
             {selectedCategory !== "all" && (
               <span className="rounded-md bg-white/5 px-2 py-0.5 text-white/70">
                 in {activeCategoryDef.label}
+              </span>
+            )}
+            {selectedSaaS !== "all" && (
+              <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-emerald-300 font-medium border border-emerald-400/20">
+                Replaces {activeSaaSDef?.name || selectedSaaS}
               </span>
             )}
             {searchQuery && (

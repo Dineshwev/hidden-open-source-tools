@@ -90,7 +90,7 @@ function mapOpenSourceTool(row: any): ScrapedTool {
 export default async function FreeToolsPage({
   searchParams
 }: {
-  searchParams?: { search?: string | string[]; category?: string | string[] };
+  searchParams?: { search?: string | string[]; category?: string | string[]; saas?: string | string[] };
 }) {
   const supabase = getAdmin();
   const { data, error } = await supabase
@@ -105,6 +105,7 @@ export default async function FreeToolsPage({
 
   const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim() || "";
   const categoryParam = normalizeSearchTerm(searchParams?.category)?.trim() || "";
+  const saasParam = normalizeSearchTerm(searchParams?.saas)?.trim() || "";
 
   const uniqueRows = error || !Array.isArray(data) ? [] : dedupeToolRowsBySlug(data);
   const initialTools = uniqueRows.map(mapOpenSourceTool);
@@ -138,6 +139,7 @@ export default async function FreeToolsPage({
       initialCount={initialTools.length}
       initialCategory={categoryParam || "all"}
       initialSearch={searchTerm}
+      initialSaaS={saasParam || "all"}
       categoryCounts={counts}
     />
   );

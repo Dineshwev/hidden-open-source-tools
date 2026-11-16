@@ -42,11 +42,15 @@ const DIRECT_SAAS_MAP: Record<string, { saas: string; slug: string }> = {
   n8n: { saas: "Zapier & Make", slug: "zapier" },
   activepieces: { saas: "Zapier", slug: "zapier" },
   beszel: { saas: "Datadog & New Relic", slug: "datadog" },
+  signoz: { saas: "Datadog & New Relic", slug: "datadog" },
   openobserve: { saas: "Datadog & Splunk", slug: "datadog" },
   prometheus: { saas: "Datadog", slug: "datadog" },
   grafana: { saas: "Datadog & New Relic", slug: "datadog" },
   victoriametrics: { saas: "Datadog", slug: "datadog" },
+  netdata: { saas: "Datadog", slug: "datadog" },
   netdatacloud: { saas: "Datadog", slug: "datadog" },
+  zabbix: { saas: "Datadog", slug: "datadog" },
+  glance: { saas: "Datadog", slug: "datadog" },
   vaultwarden: { saas: "1Password", slug: "1password" },
   passbolt: { saas: "1Password", slug: "1password" },
   keepassxc: { saas: "1Password", slug: "1password" },
@@ -137,3 +141,22 @@ export function getReplacedSaaS(
   }
   return null;
 }
+
+export const POPULAR_SAAS_FILTERS = [
+  { slug: "notion", name: "Notion", icon: "📝" },
+  { slug: "jira", name: "Jira / Linear", icon: "📋" },
+  { slug: "firebase", name: "Firebase", icon: "🔥" },
+  { slug: "datadog", name: "Datadog", icon: "📈" },
+  { slug: "airtable", name: "Airtable", icon: "🗃️" },
+  { slug: "slack", name: "Slack", icon: "💬" },
+  { slug: "google-analytics", name: "Google Analytics", icon: "📊" },
+  { slug: "heroku", name: "Heroku / Vercel", icon: "⚡" },
+  { slug: "calendly", name: "Calendly", icon: "📅" },
+  { slug: "docusign", name: "DocuSign", icon: "✍️" },
+  { slug: "postman", name: "Postman", icon: "🚀" },
+  { slug: "1password", name: "1Password", icon: "🔐" },
+  { slug: "auth0", name: "Auth0 / Clerk", icon: "🛡️" },
+  { slug: "retool", name: "Retool", icon: "🛠️" },
+  { slug: "google-photos", name: "Google Photos", icon: "📷" },
+  { slug: "zapier", name: "Zapier", icon: "⚙️" },
+];
