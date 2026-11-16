@@ -7,6 +7,7 @@ import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ShareButton from "@/components/ShareButton";
 import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
+import SavingsCalculator from "@/components/pricing/SavingsCalculator";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -279,6 +280,12 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
             </a>
           )}
           <a
+            href="#cost-savings"
+            className="rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-2.5 py-1 text-emerald-300/80 hover:border-emerald-400/40 hover:text-emerald-200 transition"
+          >
+            💰 Cost Savings
+          </a>
+          <a
             href="#why-switch"
             className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-white/70 hover:border-cyan-400/40 hover:text-cyan-200 transition"
           >
@@ -367,6 +374,11 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
           </div>
         </section>
       )}
+
+      {/* ── Verified Self-Hosted vs. SaaS Cost Savings Calculator ── */}
+      <section id="cost-savings" className="scroll-mt-20">
+        <SavingsCalculator saasSlug={alt.saas_slug} saasName={alt.saas_name} />
+      </section>
 
       <section id="why-switch" className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8 scroll-mt-20">
         <h2 className="text-xl text-white">Why look for {alt.saas_name} alternatives?</h2>

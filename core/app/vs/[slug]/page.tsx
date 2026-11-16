@@ -8,6 +8,8 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import ShareButton from "@/components/ShareButton";
 import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
 import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
+import SavingsCalculator from "@/components/pricing/SavingsCalculator";
+import { VERIFIED_SAAS_PRICING } from "@/lib/pricing-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -510,6 +512,13 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
     ],
   };
 
+  const saasSlugMatch = Object.keys(VERIFIED_SAAS_PRICING).find(
+    (slug) =>
+      comparison.slug.includes(slug) ||
+      toolA.toLowerCase().includes(slug) ||
+      toolB.toLowerCase().includes(slug)
+  );
+
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-4 py-10">
       <script
@@ -590,6 +599,16 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
           }}
         />
       </section>
+
+      {/* ── Verified Self-Hosted vs. SaaS Cost Savings Calculator ── */}
+      {saasSlugMatch && (
+        <section id="cost-calculator" className="scroll-mt-20">
+          <SavingsCalculator
+            saasSlug={saasSlugMatch}
+            saasName={VERIFIED_SAAS_PRICING[saasSlugMatch].saasName}
+          />
+        </section>
+      )}
 
       {/* ── Frequently Asked Questions ── */}
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
