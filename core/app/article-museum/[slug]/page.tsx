@@ -69,6 +69,16 @@ const ARTICLE_SEO_OVERRIDES: Record<string, { title: string; description: string
     description:
       "Replace pricey Auth0 and Okta plans with Authentik. Deploy SSO, SAML, OIDC, and MFA in Docker with visual authentication flows.",
   },
+  "plane-the-open-source-linear-alternative": {
+    title: "Plane (2026): Open-Source Jira & Linear Alternative Review",
+    description:
+      "Fast issue tracking, sprint cycles, and roadmaps without per-seat SaaS bills. See why engineering teams are deploying Plane with Docker.",
+  },
+  "postiz-the-self-hosted-ai-social-scheduler": {
+    title: "Postiz (2026): Free Self-Hosted AI Social Media Scheduler",
+    description:
+      "Schedule posts to Twitter, LinkedIn, Reddit, and Instagram with AI assistance. Self-host Postiz on your own VPS with zero monthly subscription limits.",
+  },
 };
 
 function getArticleTitle(article: Article): string {

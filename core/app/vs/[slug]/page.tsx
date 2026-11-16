@@ -148,6 +148,76 @@ const VS_SEO_OVERRIDES: Record<string, { title: string; description: string }> =
     description:
       "How does MinIO architecture compare with Amazon S3? Compare erasure coding, zero-egress self-hosting, S3 API compatibility, and performance.",
   },
+  "surrealdb-vs-mongodb": {
+    title: "SurrealDB vs MongoDB (2026): Multi-Model Speed & Verdict",
+    description:
+      "Compare SurrealDB vs MongoDB: multi-model queries (document, graph, relational), ACID guarantees, self-hosting ease, and when to switch from Mongo.",
+  },
+  "authentik-vs-auth0": {
+    title: "Authentik vs Auth0 (2026): Enterprise SSO & Self-Hosted Cost",
+    description:
+      "Authentik vs Auth0 compared: SAML/OIDC SSO, multi-factor auth, visual authentication flows, and how teams avoid Auth0 MAU pricing cliff.",
+  },
+  "coolify-vs-railway": {
+    title: "Coolify vs Railway (2026): Self-Hosted PaaS vs Cloud Pricing",
+    description:
+      "Compare Coolify vs Railway: Docker/Nixpacks deployment, database management, resource limits, and VPS self-hosting vs Railway monthly compute fees.",
+  },
+  "netdata-vs-datadog": {
+    title: "Netdata vs Datadog (2026): Real-Time 1-Second Metrics",
+    description:
+      "Netdata vs Datadog compared: zero-config 1-second metric streaming, CPU/RAM resource footprint, per-host monitoring costs, and self-hosted privacy.",
+  },
+  "glitchtip-vs-sentry": {
+    title: "GlitchTip vs Sentry (2026): Sentry-Compatible Error Tracking",
+    description:
+      "Compare GlitchTip vs Sentry: drop-in Sentry SDK compatibility, lightweight PostgreSQL architecture, self-hosted Docker, and $0 error ingestion costs.",
+  },
+  "appwrite-vs-firebase": {
+    title: "Appwrite vs Firebase (2026): Self-Hosted BaaS Architecture",
+    description:
+      "Appwrite vs Firebase compared: auth, real-time databases, storage, serverless cloud functions, Docker setup, and zero proprietary Google lock-in.",
+  },
+  "affine-vs-notion": {
+    title: "AFFiNE vs Notion (2026): Canvas + Docs Local-First Workspace",
+    description:
+      "Compare AFFiNE vs Notion: unified markdown docs and whiteboard canvas, local-first data ownership, privacy, and self-hosting without Notion limits.",
+  },
+  "dragonfly-vs-redis": {
+    title: "Dragonfly vs Redis (2026): 25x Higher Throughput Benchmarks",
+    description:
+      "Dragonfly vs Redis compared: multi-threaded shared-nothing architecture, memory efficiency, Redis API drop-in compatibility, and cloud hardware savings.",
+  },
+  "outline-vs-notion": {
+    title: "Outline vs Notion (2026): Fast Markdown Team Knowledge Base",
+    description:
+      "Outline vs Notion compared: lightning-fast markdown wiki, sub-second search, team permissioning, Docker self-hosting, and why dev teams switch from Notion.",
+  },
+  "postiz-vs-buffer": {
+    title: "Postiz vs Buffer (2026): Self-Hosted AI Social Scheduler",
+    description:
+      "Compare Postiz vs Buffer: unlimited social accounts, AI content generation, multi-platform scheduling, Docker deployment, and zero monthly seat fees.",
+  },
+  "penpot-vs-figma": {
+    title: "Penpot vs Figma (2026): Open Web Standards & Team Verdict",
+    description:
+      "Penpot vs Figma compared: native SVG/CSS flexbox design, zero Adobe lock-in, self-hosted Docker privacy, and collaboration features for teams.",
+  },
+  "tally-vs-typeform": {
+    title: "Tally vs Typeform (2026): Free Forms & Unlimited Responses",
+    description:
+      "Compare Tally vs Typeform: Notion-style form builder, 99% free features, unlimited responses, custom domains, and why teams leave Typeform's paywall.",
+  },
+  "gitea-vs-gitlab": {
+    title: "Gitea vs GitLab (2026): Lightweight Git Hosting on 100MB RAM",
+    description:
+      "Gitea vs GitLab compared: minimal hardware requirements (runs on Raspberry Pi), CI/CD runner speed, GitHub issue parity, and enterprise Git features.",
+  },
+  "posthog-vs-mixpanel": {
+    title: "PostHog vs Mixpanel (2026): Product Analytics & Session Replay",
+    description:
+      "Compare PostHog vs Mixpanel: event-based analytics, session recordings, feature flags, A/B testing, and self-hosted ClickHouse data sovereignty.",
+  },
 };
 
 function getSearchTitle(comparison: Comparison): string {
