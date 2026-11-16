@@ -104,6 +104,83 @@ export const SAAS_REPLACEMENTS = [
     href: "/alternatives/docusign",
     icon: "✍️"
   },
+  {
+    saas: "Postman",
+    replaces: "API testing & collections",
+    osAlt: "Bruno, Hoppscotch",
+    href: "/alternatives/postman",
+    icon: "🚀"
+  },
+  {
+    saas: "Retool",
+    replaces: "Internal developer tools",
+    osAlt: "Windmill, ToolJet, Appsmith",
+    href: "/alternatives/retool",
+    icon: "🛠️"
+  },
+  {
+    saas: "Salesforce",
+    replaces: "Enterprise CRM & leads",
+    osAlt: "Twenty, SuiteCRM",
+    href: "/alternatives/salesforce",
+    icon: "🏢"
+  },
+  {
+    saas: "Auth0 / Okta",
+    replaces: "SSO & authentication",
+    osAlt: "Authentik, Keycloak",
+    href: "/alternatives/auth0",
+    icon: "🔐"
+  },
+  {
+    saas: "Mailchimp",
+    replaces: "Newsletters & marketing",
+    osAlt: "Listmonk, Mautic",
+    href: "/alternatives/mailchimp",
+    icon: "✉️"
+  },
+  {
+    saas: "Sentry",
+    replaces: "Error & crash monitoring",
+    osAlt: "GlitchTip, Highlight",
+    href: "/alternatives/sentry",
+    icon: "🐛"
+  },
+  {
+    saas: "Redis",
+    replaces: "In-memory caching & queues",
+    osAlt: "Dragonfly",
+    href: "/alternatives/redis",
+    icon: "⚡"
+  },
+  {
+    saas: "Terraform",
+    replaces: "Infrastructure as Code",
+    osAlt: "OpenTofu",
+    href: "/alternatives/terraform",
+    icon: "🏗️"
+  },
+  {
+    saas: "1Password",
+    replaces: "Team password manager",
+    osAlt: "Vaultwarden, Passbolt",
+    href: "/alternatives/1password",
+    icon: "🔑"
+  },
+  {
+    saas: "Buffer",
+    replaces: "AI social media scheduling",
+    osAlt: "Postiz",
+    href: "/alternatives/buffer",
+    icon: "📱"
+  },
+  {
+    saas: "Docker Desktop",
+    replaces: "Local container engine",
+    osAlt: "Podman, Portainer",
+    href: "/alternatives/docker-desktop",
+    icon: "🐳"
+  },
 ];
 
 export type Tool = {

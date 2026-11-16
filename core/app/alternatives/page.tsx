@@ -8,7 +8,7 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Best Open-Source SaaS Alternatives (Free & Self-Hosted Directory)",
-  description: "Browse 50+ curated open-source alternatives to Notion, Jira, Firebase, Airtable, Google Analytics, Slack, and more. Self-hostable, zero vendor lock-in, and $0 monthly subscriptions.",
+  description: "Browse 70+ curated open-source alternatives to Notion, Jira, Datadog, DocuSign, Retool, Postman, Airtable, Slack, and more. Self-hostable, zero vendor lock-in, and $0 monthly subscriptions.",
   alternates: { canonical: `${siteUrl}/alternatives` },
   openGraph: {
     title: "Best Open-Source SaaS Alternatives | The Cloud Rain",
