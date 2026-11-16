@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { DollarSign, Server, ExternalLink, ChevronDown, ChevronUp, ShieldCheck, Calculator } from "lucide-react";
+import { useState, useEffect } from "react";
+import { DollarSign, Server, ExternalLink, ChevronDown, ShieldCheck, Calculator } from "lucide-react";
 import { getSaasPricingModel, type SaasPricingModel } from "@/lib/pricing-data";
 
 interface SavingsCalculatorProps {
@@ -32,9 +32,28 @@ const PROVIDERS: Record<ProviderKey, { name: string; label: string; url: string 
 export default function SavingsCalculator({ saasSlug, saasName }: SavingsCalculatorProps) {
   const model: SaasPricingModel = getSaasPricingModel(saasSlug, saasName);
 
+  // Accordion collapsed by default as requested
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [units, setUnits] = useState<number>(model.defaultUnits);
   const [provider, setProvider] = useState<ProviderKey>("hetzner");
   const [showSources, setShowSources] = useState<boolean>(false);
+
+  // Automatically open if user lands on or clicks the #cost-savings anchor
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash === "#cost-savings" || hash === "#cost-calculator") {
+        setIsOpen(true);
+      }
+      const handleHashChange = () => {
+        if (window.location.hash === "#cost-savings" || window.location.hash === "#cost-calculator") {
+          setIsOpen(true);
+        }
+      };
+      window.addEventListener("hashchange", handleHashChange);
+      return () => window.removeEventListener("hashchange", handleHashChange);
+    }
+  }, []);
 
   // Compute monthly VPS cost based on chosen provider
   const vpsMonthlyCost =
@@ -55,210 +74,251 @@ export default function SavingsCalculator({ saasSlug, saasName }: SavingsCalcula
   const currentProviderInfo = PROVIDERS[provider];
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-6 md:p-8 backdrop-blur-sm">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-400">
+    <div
+      className={`rounded-3xl border transition-all duration-200 ${
+        isOpen
+          ? "border-cyan-400/30 bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-6 md:p-8 backdrop-blur-sm shadow-xl shadow-cyan-950/20"
+          : "border-white/10 bg-white/[0.02] p-5 sm:p-6 hover:border-cyan-400/30 hover:bg-white/[0.04]"
+      }`}
+    >
+      {/* Clickable Header Accordion Trigger */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full text-left flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 cursor-pointer group select-none"
+        aria-expanded={isOpen}
+      >
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
+              isOpen
+                ? "border-emerald-400/40 bg-emerald-400/20 text-emerald-300 shadow-sm shadow-emerald-500/20"
+                : "border-white/10 bg-white/5 text-emerald-400 group-hover:border-cyan-400/30 group-hover:bg-cyan-400/10"
+            }`}
+          >
             <Calculator className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">
-              Self-Hosted Cost Savings Calculator
-            </h3>
-            <p className="text-xs text-white/50">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-white group-hover:text-cyan-200 transition-colors">
+                Self-Hosted Cost Savings Calculator
+              </h3>
+              {!isOpen && (
+                <span className="hidden sm:inline-block rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                  Save up to ${Math.round(model.defaultUnits * model.unitCostMonthly * 12).toLocaleString()}/yr
+                </span>
+              )}
+            </div>
+            <p className="mt-0.5 text-xs text-white/50 group-hover:text-white/70 transition-colors">
               Transparent, sourced comparison: Commercial {model.saasName} vs. Self-Hosted Infrastructure
             </p>
           </div>
         </div>
 
-        <span className="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-medium text-cyan-200">
-          <ShieldCheck className="h-3.5 w-3.5 text-cyan-300" />
-          Verified Sourced Data
-        </span>
-      </div>
+        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 self-stretch sm:self-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[11px] font-medium text-cyan-200">
+            <ShieldCheck className="h-3.5 w-3.5 text-cyan-300" />
+            Verified Sourced Data
+          </span>
 
-      {/* Interactive Controls Grid */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Slider 1: Workload Metric */}
-        <div className="space-y-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-          <div className="flex items-center justify-between text-xs">
-            <label htmlFor="savings-unit-slider" className="font-semibold text-white/80">
-              Your Team Size / Workload
-            </label>
-            <span className="font-mono text-cyan-300 font-bold text-sm">
-              {units.toLocaleString()} {model.unitName}
-            </span>
-          </div>
-
-          <input
-            id="savings-unit-slider"
-            type="range"
-            min={model.minUnits}
-            max={model.maxUnits}
-            step={model.step}
-            value={units}
-            onChange={(e) => setUnits(Number(e.target.value))}
-            className="w-full accent-cyan-400 bg-white/10 h-2 rounded-lg cursor-pointer transition-all"
-          />
-
-          <div className="flex justify-between text-[11px] text-white/40 font-mono">
-            <span>{model.minUnits}</span>
-            <span>Based on standard {model.saasPricingTier}</span>
-            <span>{model.maxUnits}+</span>
-          </div>
-        </div>
-
-        {/* Selector 2: Cloud Infrastructure Provider */}
-        <div className="space-y-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-white/80">Self-Hosted Server Provider</span>
-            <span className="font-mono text-xs text-white/50">{model.vpsSpec}</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            {(Object.keys(PROVIDERS) as ProviderKey[]).map((key) => {
-              const p = PROVIDERS[key];
-              const isSelected = provider === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setProvider(key)}
-                  className={`rounded-xl border px-2 py-2 text-center text-xs font-medium transition ${
-                    isSelected
-                      ? "border-cyan-400/60 bg-cyan-400/20 text-cyan-200 shadow-sm shadow-cyan-500/20"
-                      : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
-                  }`}
-                >
-                  {p.name.split(" ")[0]}
-                </button>
-              );
-            })}
-          </div>
-
-          <p className="text-[11px] text-white/40 leading-relaxed">
-            Includes estimated ${model.backupCostMonthly}/mo for offsite encrypted S3/B2 backups.
-          </p>
-        </div>
-      </div>
-
-      {/* Results Comparison Grid */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Commercial SaaS Cost */}
-        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/[0.03] p-4 text-left">
-          <p className="text-xs uppercase tracking-wider text-rose-300/80 font-semibold">
-            {model.saasName} SaaS Bill
-          </p>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="font-mono text-2xl md:text-3xl font-bold text-rose-200">
-              ${saasMonthlyTotal.toLocaleString()}
-            </span>
-            <span className="text-xs text-rose-300/60 font-mono">/month</span>
-          </div>
-          <p className="mt-2 text-xs text-white/50">
-            ${saasAnnual.toLocaleString()} / year (Recurring)
-          </p>
-          <span className="mt-3 inline-block rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[10px] text-rose-300">
-            {model.saasPricingTier}
+          <span
+            className={`flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/60 group-hover:text-white group-hover:border-white/20 transition-transform duration-200 ${
+              isOpen ? "rotate-180 bg-white/10 text-cyan-300 border-cyan-400/40" : ""
+            }`}
+          >
+            <ChevronDown className="h-4 w-4" />
           </span>
         </div>
+      </button>
 
-        {/* Self-Hosted Cost */}
-        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.03] p-4 text-left">
-          <p className="text-xs uppercase tracking-wider text-cyan-300/80 font-semibold">
-            Self-Hosted Infrastructure
-          </p>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="font-mono text-2xl md:text-3xl font-bold text-cyan-200">
-              ${selfHostedMonthlyTotal.toLocaleString()}
-            </span>
-            <span className="text-xs text-cyan-300/60 font-mono">/month</span>
-          </div>
-          <p className="mt-2 text-xs text-white/50">
-            ${selfHostedAnnual.toLocaleString()} / year ({currentProviderInfo.name} VPS)
-          </p>
-          <span className="mt-3 inline-block rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-300">
-            {model.openSourceAlternative}
-          </span>
-        </div>
+      {/* Expandable Body */}
+      {isOpen && (
+        <div className="mt-6 pt-6 border-t border-white/10 animate-in fade-in slide-in-from-top-2 duration-200">
+          {/* Interactive Controls Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Slider 1: Workload Metric */}
+            <div className="space-y-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+              <div className="flex items-center justify-between text-xs">
+                <label htmlFor="savings-unit-slider" className="font-semibold text-white/80">
+                  Your Team Size / Workload
+                </label>
+                <span className="font-mono text-cyan-300 font-bold text-sm">
+                  {units.toLocaleString()} {model.unitName}
+                </span>
+              </div>
 
-        {/* Net Savings Highlight */}
-        <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-4 text-left shadow-lg shadow-emerald-500/10">
-          <p className="text-xs uppercase tracking-wider text-emerald-300 font-bold flex items-center gap-1.5">
-            <DollarSign className="h-3.5 w-3.5" />
-            Estimated Net Savings
-          </p>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="font-mono text-2xl md:text-3xl font-bold text-emerald-300">
-              ${netAnnualSavings.toLocaleString()}
-            </span>
-            <span className="text-xs text-emerald-300/80 font-mono">/year</span>
-          </div>
-          <p className="mt-2 text-xs text-emerald-200/80 font-semibold">
-            {savingsPercent}% lower recurring cost
-          </p>
-          <span className="mt-3 inline-block rounded-md border border-emerald-400/30 bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
-            Unlimited Users • No Per-Seat Tax
-          </span>
-        </div>
-      </div>
+              <input
+                id="savings-unit-slider"
+                type="range"
+                min={model.minUnits}
+                max={model.maxUnits}
+                step={model.step}
+                value={units}
+                onChange={(e) => setUnits(Number(e.target.value))}
+                className="w-full accent-cyan-400 bg-white/10 h-2 rounded-lg cursor-pointer transition-all"
+              />
 
-      {/* Sourced Methodology Disclosure (Collapsible Drawer) */}
-      <div className="mt-6 border-t border-white/10 pt-4">
-        <button
-          type="button"
-          onClick={() => setShowSources(!showSources)}
-          className="flex w-full items-center justify-between text-xs text-white/60 hover:text-white transition py-1"
-        >
-          <span className="flex items-center gap-1.5 font-medium">
-            <Server className="h-3.5 w-3.5 text-cyan-400" />
-            <span>How we calculate this (View official sources & documentation)</span>
-          </span>
-          {showSources ? (
-            <ChevronUp className="h-4 w-4 text-white/40" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-white/40" />
-          )}
-        </button>
-
-        {showSources && (
-          <div className="mt-4 space-y-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-xs text-white/70 leading-relaxed animate-in fade-in duration-200">
-            <div>
-              <span className="font-semibold text-white">Calculation Breakdown: </span>
-              <span>{model.methodology}</span>
+              <div className="flex justify-between text-[11px] text-white/40 font-mono">
+                <span>{model.minUnits}</span>
+                <span>Based on standard {model.saasPricingTier}</span>
+                <span>{model.maxUnits}+</span>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/5 text-[11px]">
-              <a
-                href={model.saasPricingUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 underline underline-offset-2"
-              >
-                <span>Official {model.saasName} Pricing Page</span>
-                <ExternalLink className="h-3 w-3" />
-              </a>
+            {/* Selector 2: Cloud Infrastructure Provider */}
+            <div className="space-y-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-semibold text-white/80">Self-Hosted Server Provider</span>
+                <span className="font-mono text-xs text-white/50">{model.vpsSpec}</span>
+              </div>
 
-              <span className="text-white/20">•</span>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(PROVIDERS) as ProviderKey[]).map((key) => {
+                  const p = PROVIDERS[key];
+                  const isSelected = provider === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setProvider(key)}
+                      className={`rounded-xl border px-2 py-2 text-center text-xs font-medium transition ${
+                        isSelected
+                          ? "border-cyan-400/60 bg-cyan-400/20 text-cyan-200 shadow-sm shadow-cyan-500/20"
+                          : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"
+                      }`}
+                    >
+                      {p.name.split(" ")[0]}
+                    </button>
+                  );
+                })}
+              </div>
 
-              <a
-                href={currentProviderInfo.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 underline underline-offset-2"
-              >
-                <span>{currentProviderInfo.name} Droplet/VPS Pricing</span>
-                <ExternalLink className="h-3 w-3" />
-              </a>
+              <p className="text-[11px] text-white/40 leading-relaxed">
+                Includes estimated ${model.backupCostMonthly}/mo for offsite encrypted S3/B2 backups.
+              </p>
+            </div>
+          </div>
+
+          {/* Results Comparison Grid */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Commercial SaaS Cost */}
+            <div className="rounded-2xl border border-rose-500/20 bg-rose-500/[0.03] p-4 text-left">
+              <p className="text-xs uppercase tracking-wider text-rose-300/80 font-semibold">
+                {model.saasName} SaaS Bill
+              </p>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="font-mono text-2xl md:text-3xl font-bold text-rose-200">
+                  ${saasMonthlyTotal.toLocaleString()}
+                </span>
+                <span className="text-xs text-rose-300/60 font-mono">/month</span>
+              </div>
+              <p className="mt-2 text-xs text-white/50">
+                ${saasAnnual.toLocaleString()} / year (Recurring)
+              </p>
+              <span className="mt-3 inline-block rounded-md border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[10px] text-rose-300">
+                {model.saasPricingTier}
+              </span>
             </div>
 
-            <p className="text-[11px] text-white/40 italic pt-1">
-              Note: Self-hosting requires initial setup and basic OS security maintenance. Hardware requirements are based on production benchmarks for running Docker containers with SQLite/PostgreSQL on moderate loads.
-            </p>
+            {/* Self-Hosted Cost */}
+            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.03] p-4 text-left">
+              <p className="text-xs uppercase tracking-wider text-cyan-300/80 font-semibold">
+                Self-Hosted Infrastructure
+              </p>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="font-mono text-2xl md:text-3xl font-bold text-cyan-200">
+                  ${selfHostedMonthlyTotal.toLocaleString()}
+                </span>
+                <span className="text-xs text-cyan-300/60 font-mono">/month</span>
+              </div>
+              <p className="mt-2 text-xs text-white/50">
+                ${selfHostedAnnual.toLocaleString()} / year ({currentProviderInfo.name} VPS)
+              </p>
+              <span className="mt-3 inline-block rounded-md border border-cyan-500/20 bg-cyan-500/10 px-2 py-0.5 text-[10px] text-cyan-300">
+                {model.openSourceAlternative}
+              </span>
+            </div>
+
+            {/* Net Savings Highlight */}
+            <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-4 text-left shadow-lg shadow-emerald-500/10">
+              <p className="text-xs uppercase tracking-wider text-emerald-300 font-bold flex items-center gap-1.5">
+                <DollarSign className="h-3.5 w-3.5" />
+                Estimated Net Savings
+              </p>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="font-mono text-2xl md:text-3xl font-bold text-emerald-300">
+                  ${netAnnualSavings.toLocaleString()}
+                </span>
+                <span className="text-xs text-emerald-300/80 font-mono">/year</span>
+              </div>
+              <p className="mt-2 text-xs text-emerald-200/80 font-semibold">
+                {savingsPercent}% lower recurring cost
+              </p>
+              <span className="mt-3 inline-block rounded-md border border-emerald-400/30 bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-200">
+                Unlimited Users • No Per-Seat Tax
+              </span>
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Sourced Methodology Disclosure (Collapsible Drawer) */}
+          <div className="mt-6 border-t border-white/10 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowSources(!showSources)}
+              className="flex w-full items-center justify-between text-xs text-white/60 hover:text-white transition py-1"
+            >
+              <span className="flex items-center gap-1.5 font-medium">
+                <Server className="h-3.5 w-3.5 text-cyan-400" />
+                <span>How we calculate this (View official sources & documentation)</span>
+              </span>
+              <span
+                className={`text-xs text-white/40 transition-transform duration-200 ${
+                  showSources ? "rotate-180" : ""
+                }`}
+              >
+                ▼
+              </span>
+            </button>
+
+            {showSources && (
+              <div className="mt-4 space-y-3 rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-xs text-white/70 leading-relaxed animate-in fade-in duration-200">
+                <div>
+                  <span className="font-semibold text-white">Calculation Breakdown: </span>
+                  <span>{model.methodology}</span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-white/5 text-[11px]">
+                  <a
+                    href={model.saasPricingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 underline underline-offset-2"
+                  >
+                    <span>Official {model.saasName} Pricing Page</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+
+                  <span className="text-white/20">•</span>
+
+                  <a
+                    href={currentProviderInfo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 underline underline-offset-2"
+                  >
+                    <span>{currentProviderInfo.name} Droplet/VPS Pricing</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+
+                <p className="text-[11px] text-white/40 italic pt-1">
+                  Note: Self-hosting requires initial setup and basic OS security maintenance. Hardware requirements are based on production benchmarks for running Docker containers with SQLite/PostgreSQL on moderate loads.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
