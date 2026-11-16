@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Copy, Terminal, Server, Layers } from "lucide-react";
 import DockerStackModal from "./DockerStackModal";
+import { getDockerSpec } from "@/lib/docker-specs";
 
 interface DockerQuickstartProps {
   toolName: string;
@@ -15,8 +16,17 @@ export default function DockerQuickstart({ toolName, slug, repoOwner }: DockerQu
   const [copied, setCopied] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Derive standard container image name
-  const imageName = repoOwner ? `${repoOwner.toLowerCase()}/${slug.toLowerCase()}:latest` : `${slug.toLowerCase()}:latest`;
+  const spec = getDockerSpec(slug, repoOwner);
+  const imageName = spec.image;
+
+  // Build Compose snippet
+  const portsLines = spec.ports.map((p) => `      - "${p}"`).join("\n");
+  const volumesLines = spec.volumes && spec.volumes.length > 0
+    ? `\n    volumes:\n${spec.volumes.map((v) => `      - ${v}`).join("\n")}`
+    : "";
+  const envLines = spec.environment && Object.keys(spec.environment).length > 0
+    ? `\n    environment:\n${Object.entries(spec.environment).map(([k, v]) => `      ${k}: "${v}"`).join("\n")}`
+    : "";
 
   const composeSnippet = `services:
   ${slug}:
@@ -24,16 +34,22 @@ export default function DockerQuickstart({ toolName, slug, repoOwner }: DockerQu
     container_name: ${slug}
     restart: unless-stopped
     ports:
-      - "8080:8080"
-    volumes:
-      - ./${slug}-data:/data`;
+${portsLines}${envLines}${volumesLines}`;
+
+  // Build Docker Run CLI snippet
+  const cliPorts = spec.ports.map((p) => `  -p ${p} \\`).join("\n");
+  const cliVolumes = spec.volumes && spec.volumes.length > 0
+    ? spec.volumes.map((v) => `  -v ${v} \\`).join("\n") + "\n"
+    : "";
+  const cliEnv = spec.environment && Object.keys(spec.environment).length > 0
+    ? Object.entries(spec.environment).map(([k, v]) => `  -e ${k}="${v}" \\`).join("\n") + "\n"
+    : "";
 
   const cliSnippet = `docker run -d \\
   --name ${slug} \\
   --restart unless-stopped \\
-  -p 8080:8080 \\
-  -v ./${slug}-data:/data \\
-  ${imageName}`;
+${cliPorts}
+${cliEnv}${cliVolumes}  ${imageName}`;
 
   const currentSnippet = activeTab === "compose" ? composeSnippet : cliSnippet;
 

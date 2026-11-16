@@ -584,6 +584,22 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               </a>
             )}
 
+            <a
+              href="#maintainer-badge"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 hover:text-white"
+            >
+              <span>🛡️ Embed Badge</span>
+            </a>
+
+            {isSelfHostable && (
+              <a
+                href="#docker-quickstart"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2.5 text-sm font-medium text-white/80 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+              >
+                <span>🐳 Docker</span>
+              </a>
+            )}
+
             <ToolDetailActions
               toolName={tool.name}
               slug={tool.slug}
@@ -759,11 +775,13 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
 
       {/* ── 1-Click Docker / Self-Hosting Quickstart ── */}
       {isSelfHostable && (
-        <DockerQuickstart
-          toolName={tool.name}
-          slug={tool.slug}
-          repoOwner={currentGithubOwner}
-        />
+        <div id="docker-quickstart" className="scroll-mt-20">
+          <DockerQuickstart
+            toolName={tool.name}
+            slug={tool.slug}
+            repoOwner={currentGithubOwner}
+          />
+        </div>
       )}
 
       {/* ── Featured Editorial Museum Article (if published) ── */}
@@ -833,6 +851,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
         toolName={tool.name}
         slug={tool.slug}
         siteUrl={siteUrl}
+        replacesSaaS={matchingAlternatives[0]?.saas_name || null}
       />
 
       {/* ── Comparisons ── */}

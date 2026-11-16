@@ -19,11 +19,11 @@ export async function GET(
   const label = searchParams.get("label") || "FEATURED ON";
   const rightText = searchParams.get("text") || "The Cloud Rain ★ Verified OSS";
 
-  const safeLeft = escapeXml(label.slice(0, 24));
-  const safeRight = escapeXml(rightText.slice(0, 38));
+  const safeLeft = escapeXml(label.slice(0, 30));
+  const safeRight = escapeXml(rightText.slice(0, 60));
 
-  const leftWidth = Math.max(88, safeLeft.length * 7 + 22);
-  const rightWidth = Math.max(156, safeRight.length * 6.5 + 24);
+  const leftWidth = Math.max(92, safeLeft.length * 7 + 22);
+  const rightWidth = Math.max(160, safeRight.length * 6.8 + 24);
   const totalWidth = Math.round(leftWidth + rightWidth);
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="28" viewBox="0 0 ${totalWidth} 28" role="img" aria-label="${safeLeft}: ${safeRight}">
