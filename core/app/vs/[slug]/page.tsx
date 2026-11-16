@@ -218,6 +218,81 @@ const VS_SEO_OVERRIDES: Record<string, { title: string; description: string }> =
     description:
       "Compare PostHog vs Mixpanel: event-based analytics, session recordings, feature flags, A/B testing, and self-hosted ClickHouse data sovereignty.",
   },
+  "dokploy-vs-vercel": {
+    title: "Dokploy vs Vercel (2026): Self-Hosted PaaS on $5 VPS",
+    description:
+      "Dokploy vs Vercel compared: zero serverless execution timeouts, Traefik auto-SSL, Docker Compose multi-service support, and 90% cloud cost reduction.",
+  },
+  "coolify-vs-vercel": {
+    title: "Coolify vs Vercel (2026): Free Self-Hosted Cloud Verdict",
+    description:
+      "Coolify vs Vercel: compare GitHub automatic deployments, preview PR environments, database backups, and why developers are abandoning Vercel limits.",
+  },
+  "signoz-vs-datadog": {
+    title: "SigNoz vs Datadog (2026): OpenTelemetry APM & Log Savings",
+    description:
+      "SigNoz vs Datadog compared: native OpenTelemetry instrumentation, ClickHouse columnar storage speed, APM traces, and eliminating Datadog bill shock.",
+  },
+  "docuseal-vs-docusign": {
+    title: "DocuSeal vs DocuSign (2026): Free Self-Hosted eSignatures",
+    description:
+      "Compare DocuSeal vs DocuSign: eIDAS/ESIGN compliance, unlimited envelope signing, PDF form fields, self-hosted Docker, and 95% cost savings.",
+  },
+  "hoppscotch-vs-postman": {
+    title: "Hoppscotch vs Postman (2026): Lightweight Web API Client",
+    description:
+      "Hoppscotch vs Postman compared: browser-based sub-second speed, WebSocket & GraphQL support, zero forced cloud sync, and open-source privacy.",
+  },
+  "bruno-vs-postman": {
+    title: "Bruno vs Postman (2026): Git-Native Offline API Testing",
+    description:
+      "Bruno vs Postman: plain text Bru collection files saved in your Git repo, zero mandatory logins, offline-first execution, and total API data privacy.",
+  },
+  "supertokens-vs-auth0": {
+    title: "SuperTokens vs Auth0 (2026): Open-Source Auth Architecture",
+    description:
+      "SuperTokens vs Auth0 compared: session management, pre-built React SDKs, self-hosted Docker control, and zero unexpected active user price jumps.",
+  },
+  "twenty-vs-hubspot": {
+    title: "Twenty vs HubSpot (2026): Modern Open-Source CRM Verdict",
+    description:
+      "Twenty vs HubSpot compared: GraphQL APIs, custom data objects, modern Notion-like UI, self-hosted PostgreSQL, and zero steep seat-upgrade paywalls.",
+  },
+  "baserow-vs-airtable": {
+    title: "Baserow vs Airtable (2026): Self-Hosted Database with 100K+ Rows",
+    description:
+      "Baserow vs Airtable: PostgreSQL backend speed, handling 100,000+ records without lag, custom formulas, API webhooks, and unlimited self-hosted rows.",
+  },
+  "windmill-vs-retool": {
+    title: "Windmill vs Retool (2026): Code-First Internal Tools & Workflows",
+    description:
+      "Windmill vs Retool compared: Rust-powered sub-millisecond execution, Python/TypeScript script caching, UI builder, and developer-first pricing.",
+  },
+  "zammad-vs-zendesk": {
+    title: "Zammad vs Zendesk (2026): Open-Source Helpdesk & Ticket SLAs",
+    description:
+      "Zammad vs Zendesk: multi-channel email/chat support, automated SLA workflows, Elasticsearch search, self-hosted Docker, and zero per-agent gouging.",
+  },
+  "rocketchat-vs-slack": {
+    title: "Rocket.Chat vs Slack (2026): Enterprise Self-Hosted Chat & Matrix",
+    description:
+      "Rocket.Chat vs Slack compared: end-to-end encryption, Matrix federation, on-premise compliance, voice/video calls, and unlimited message history.",
+  },
+  "listmonk-vs-mailchimp": {
+    title: "Listmonk vs Mailchimp (2026): Send Millions of Emails on $5/mo",
+    description:
+      "Listmonk vs Mailchimp: single Go binary speed, PostgreSQL subscriber management, SES/Sendgrid integration, and why newsletters ditch Mailchimp costs.",
+  },
+  "medusa-vs-shopify": {
+    title: "Medusa vs Shopify (2026): Headless Open-Source Commerce",
+    description:
+      "Medusa vs Shopify compared: Node.js modular microservices, multi-currency cart & checkout, full source control, and zero 2% transaction penalties.",
+  },
+  "langfuse-vs-langsmith": {
+    title: "Langfuse vs LangSmith (2026): Open-Source LLM Observability",
+    description:
+      "Langfuse vs LangSmith: prompt management, LLM tracing & evaluation, latency & token cost analytics, self-hosted Docker, and vendor independence.",
+  },
 };
 
 function getSearchTitle(comparison: Comparison): string {
