@@ -512,8 +512,9 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
 
       {/* ── Hero Section with Instant Action CTAs ── */}
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 backdrop-blur-md">
-        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start flex-1 min-w-0">
+        <div className="flex flex-col gap-6">
+          {/* Top Row: Logo, Badges, Title & Tagline (Full Width) */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-5">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3">
               {faviconUrl ? (
                 <Image
@@ -531,7 +532,7 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               )}
             </div>
 
-            <div className="space-y-3 min-w-0 flex-1">
+            <div className="space-y-3 flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-200">
                   {tool.category}
@@ -554,14 +555,14 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
                 {tool.name}
               </h1>
 
-              <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-white/70">
+              <p className="text-sm sm:text-base leading-relaxed text-white/70 max-w-3xl">
                 {heroTagline}
               </p>
             </div>
           </div>
 
-          {/* Primary Action Buttons (Top of Page) */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:shrink-0 pt-2 md:pt-0">
+          {/* Primary Action Buttons (Full Width Flex-Wrap Strip) */}
+          <div className="flex flex-wrap items-center gap-2.5 pt-4 border-t border-white/10">
             <a
               href={tool.url}
               target="_blank"
