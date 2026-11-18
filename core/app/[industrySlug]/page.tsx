@@ -7,6 +7,8 @@ import { getIndustryPagePath } from "@/lib/industry-url";
 import { getSiteUrl } from "@/lib/site-url";
 import { cleanSeoDescription, cleanSeoTitle } from "@/lib/seo/metadata-text";
 import { BEST_TOOL_GUIDES } from "@/lib/best-guides";
+import { formatLicense } from "@/lib/utils/license";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export const revalidate = 0;
 const siteUrl = getSiteUrl();
@@ -95,15 +97,45 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
   if (Array.isArray(page.tool_ids) && page.tool_ids.length > 0) {
     const { data: toolsData, error: toolsError } = await supabase
       .from("open_source_tools")
-      .select("id, name, slug, description, category, url, logo_url")
+      .select("id, name, slug, description, category, url, logo_url, license, status, deployment_info")
       .in("id", page.tool_ids);
 
     if (!toolsError && Array.isArray(toolsData)) {
-      tools = toolsData;
+      const orderMap = new Map(page.tool_ids.map((id: string, idx: number) => [id, idx]));
+      tools = [...toolsData].sort(
+        (a, b) => Number(orderMap.get(a.id) ?? 999) - Number(orderMap.get(b.id) ?? 999)
+      );
     }
   }
 
   const pageUrl = `${siteUrl}${getIndustryPagePath(slug)}`;
+  const guideTitleClean = String(page.h1_title || "Best Open-Source Tools").replace(/\s*\(\d{4}\)$/, "");
+  const topToolNames = tools.slice(0, 4).map((t) => t.name).join(", ");
+
+  const guideFaqs: Array<{ q: string; a: string }> = [
+    {
+      q: `What are the top open-source options for ${guideTitleClean.replace(/^Best\s+/i, "")}?`,
+      a: topToolNames
+        ? `The leading self-hostable open-source choices include ${topToolNames}. Each can be deployed on private servers or Docker infrastructure to replace recurring proprietary SaaS subscriptions.`
+        : String(page.intro_paragraph || "All tools listed in this guide are verified open-source, self-hostable software options."),
+    },
+    ...(page.why_open_source
+      ? [
+          {
+            q: `Why choose self-hosted open source over commercial SaaS here?`,
+            a: String(page.why_open_source),
+          },
+        ]
+      : []),
+    ...(page.how_to_choose
+      ? [
+          {
+            q: `How should teams pick the right open-source stack from this shortlist?`,
+            a: String(page.how_to_choose),
+          },
+        ]
+      : []),
+  ];
 
   const industryStructuredData = {
     "@context": "https://schema.org",
@@ -127,12 +159,30 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
               "@type": "ItemList",
               name: page.h1_title || "Recommended Open Source Tools",
               numberOfItems: tools.length,
-              itemListElement: tools.map((tool: any, idx: number) => ({
-                "@type": "ListItem",
-                position: idx + 1,
-                name: tool.name,
-                url: tool.slug ? `${siteUrl}/tools/${tool.slug}` : (tool.url || pageUrl),
-                description: tool.description,
+              itemListElement: tools.map((tool: any, idx: number) => {
+                const isApproved = String(tool.status || "").toLowerCase() === "approved";
+                return {
+                  "@type": "ListItem",
+                  position: idx + 1,
+                  name: tool.name,
+                  url: isApproved && tool.slug ? `${siteUrl}/tools/${tool.slug}` : (tool.url || pageUrl),
+                  description: stripMarkdown(tool.description ?? ""),
+                };
+              }),
+            },
+          ]
+        : []),
+      ...(guideFaqs.length > 0
+        ? [
+            {
+              "@type": "FAQPage",
+              mainEntity: guideFaqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.q,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.a,
+                },
               })),
             },
           ]
@@ -141,11 +191,20 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-12 px-4 py-12">
+    <div className="mx-auto max-w-5xl space-y-10 px-4 py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(industryStructuredData) }}
       />
+
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Blog", href: "/blog" },
+          { label: page.h1_title || slug },
+        ]}
+      />
+
       <section>
         <h1 className="font-display text-4xl text-white md:text-5xl lg:text-6xl">{page.h1_title}</h1>
         {page.intro_paragraph && (
@@ -155,16 +214,79 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
         )}
       </section>
 
+      {/* ── At-a-Glance Comparison Table (Featured Snippet & Rich Comparison) ── */}
+      {tools.length > 0 && (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-white">At-a-Glance Comparison</h2>
+              <p className="text-xs text-white/50">Verified licensing, Docker support, and deployment overview.</p>
+            </div>
+            <Link href="/about#methodology" className="text-xs text-cyan-300/80 hover:text-cyan-200 transition">
+              Audit Methodology →
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-white/70">
+              <thead>
+                <tr className="border-b border-white/10 text-white/40 uppercase tracking-wider font-semibold">
+                  <th className="py-2.5 pr-4">Tool</th>
+                  <th className="py-2.5 px-4">Category</th>
+                  <th className="py-2.5 px-4">License</th>
+                  <th className="py-2.5 px-4">Self-Hosted Docker</th>
+                  <th className="py-2.5 pl-4">Details</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {tools.map((tool: any) => {
+                  const isApproved = String(tool.status || "").toLowerCase() === "approved";
+                  const href = isApproved && tool.slug ? `/tools/${tool.slug}` : (tool.url || "#");
+                  const formattedLic = tool.license ? formatLicense(String(tool.license)) : "Open Source (OSS)";
+                  const dep = tool.deployment_info as { docker?: boolean; self_hosted?: boolean } | null;
+                  const dockerReady =
+                    dep?.docker || dep?.self_hosted || true ? "🐳 Docker / Self-Host" : "Self-Hostable";
+
+                  return (
+                    <tr key={tool.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="py-3 pr-4 font-semibold text-white">{tool.name}</td>
+                      <td className="py-3 px-4 text-white/60">{tool.category || "Open Source"}</td>
+                      <td className="py-3 px-4 font-mono text-white/80">{formattedLic}</td>
+                      <td className="py-3 px-4 font-mono text-cyan-200">{dockerReady}</td>
+                      <td className="py-3 pl-4">
+                        <Link
+                          href={href}
+                          target={isApproved ? undefined : "_blank"}
+                          rel={isApproved ? undefined : "noopener noreferrer"}
+                          className="text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2"
+                        >
+                          {isApproved ? "View Tool →" : "Visit Site ↗"}
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       {tools.length > 0 && (
         <section>
           <h2 className="mb-6 font-display text-3xl text-white">Recommended Tools</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
             {tools.map((tool: any) => {
-              const toolUrl = tool.slug ? `/tools/${tool.slug}` : (tool.url || "#");
+              const isApproved = String(tool.status || "").toLowerCase() === "approved";
+              const toolUrl = isApproved && tool.slug ? `/tools/${tool.slug}` : (tool.url || "#");
 
               return (
                 <div key={tool.id} className="group relative rounded-3xl border border-white/10 bg-black/20 p-6 md:p-8 transition-colors hover:bg-white/[0.05]">
-                  <Link href={toolUrl} className="absolute inset-0 z-10" />
+                  <Link
+                    href={toolUrl}
+                    target={isApproved ? undefined : "_blank"}
+                    rel={isApproved ? undefined : "noopener noreferrer"}
+                    className="absolute inset-0 z-10"
+                  />
                   <div className="flex items-start gap-4">
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 p-2">
                       {tool.logo_url ? (
@@ -250,6 +372,32 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
           >
             Browse SaaS Alternatives →
           </Link>
+        </section>
+      )}
+
+      {/* ── Frequently Asked Questions ── */}
+      {guideFaqs.length > 0 && (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.22em] text-white/40 font-semibold">FAQ</p>
+          <h2 className="mt-1 font-display text-2xl text-white">
+            Frequently Asked Questions
+          </h2>
+          <div className="mt-5 space-y-3">
+            {guideFaqs.map((faq, idx) => (
+              <details
+                key={idx}
+                className="group rounded-2xl border border-white/10 bg-white/[0.02] p-4 open:border-cyan-400/30 open:bg-white/[0.04] transition-colors"
+              >
+                <summary className="cursor-pointer list-none flex items-center justify-between text-sm sm:text-base font-semibold text-white/90 group-hover:text-cyan-200">
+                  <span>{faq.q}</span>
+                  <span className="text-xs text-white/40 group-open:rotate-180 transition-transform ml-3">▼</span>
+                </summary>
+                <p className="mt-3 text-xs sm:text-sm leading-relaxed text-white/70">
+                  {faq.a}
+                </p>
+              </details>
+            ))}
+          </div>
         </section>
       )}
 

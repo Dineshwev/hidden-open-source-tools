@@ -98,4 +98,94 @@ export const BEST_TOOL_GUIDES: BestGuideItem[] = [
       "Self-hosted visual workflow automation and background job orchestrators with unlimited executions and zero per-task fees.",
     topTools: "n8n, Activepieces, Windmill, Trigger.dev, Node-RED",
   },
+  {
+    slug: "best-open-source-analytics-tools",
+    href: "/best-open-source-analytics-tools",
+    title: "Best Open-Source Analytics & Product Telemetry Tools (2026)",
+    category: "Analytics & Telemetry",
+    summary:
+      "Privacy-first, self-hosted replacements for Mixpanel and Google Analytics without cookie banners or MTU overage bills.",
+    topTools: "PostHog, Plausible, Umami, Matomo, Countly",
+  },
+  {
+    slug: "best-open-source-api-testing-tools",
+    href: "/best-open-source-api-testing-tools",
+    title: "Best Open-Source API Testing Tools (Postman Alternatives)",
+    category: "API & Developer Tools",
+    summary:
+      "Self-hosted browser workspaces, offline Git-native clients, and API gateways without forced Postman cloud accounts.",
+    topTools: "Hoppscotch, DreamFactory, Tyk, LocalStack, n8n",
+  },
+  {
+    slug: "best-open-source-website-change-detection-tools",
+    href: "/best-open-source-website-change-detection-tools",
+    title: "Best Open-Source Website Change Detection & Alert Tools (2026)",
+    category: "Monitoring & Alerts",
+    summary:
+      "Unlimited webpage diffs, price drop alerts, Playwright SPA scraping, and 20s uptime monitors on a $5 VPS.",
+    topTools: "Changedetection.io, Uptime Kuma, Gatus, Healthchecks, Kestra",
+  },
+  {
+    slug: "best-open-source-log-management-tools",
+    href: "/best-open-source-log-management-tools",
+    title: "Best Open-Source Log Management & ELK Alternatives (2026)",
+    category: "Logs & Observability",
+    summary:
+      "S3-backed Rust/Go log compression and metrics pipelines cutting Datadog Log & Elasticsearch RAM bills by 90%.",
+    topTools: "OpenObserve, ZincSearch, Grafana, VictoriaMetrics, Beszel",
+  },
+  {
+    slug: "best-open-source-social-media-schedulers",
+    href: "/best-open-source-social-media-schedulers",
+    title: "Best Open-Source Social Media Schedulers (Buffer & Hootsuite Alternatives)",
+    category: "Marketing & Growth",
+    summary:
+      "Multi-platform social calendars, AI post generation, and webhook automation without $99/user Hootsuite seats.",
+    topTools: "Postiz, Mixpost, n8n, Activepieces, LinkStack",
+  },
+  {
+    slug: "best-open-source-document-signing-tools",
+    href: "/best-open-source-document-signing-tools",
+    title: "Best Open-Source Document Signing & PDF Workflow Tools (2026)",
+    category: "Legal & Compliance",
+    summary:
+      "Legally binding ESIGN/eIDAS PDF signatures, conditional intake forms, and self-hosted workflows replacing DocuSign.",
+    topTools: "DocuSeal, Documenso, OpenSign, docassemble, BentoPDF",
+  },
+  {
+    slug: "best-open-source-paas-platforms",
+    href: "/best-open-source-paas-platforms",
+    title: "Best Open-Source Self-Hosted PaaS Platforms (Vercel & Heroku Alternatives)",
+    category: "Cloud & Deployment",
+    summary:
+      "Turn any Ubuntu VPS into an automated Git push cloud with Let's Encrypt SSL, preview branches, and managed Postgres.",
+    topTools: "Coolify, Dokploy, CapRover, Dokku, Portainer",
+  },
+  {
+    slug: "best-open-source-database-guis-and-airtable-alternatives",
+    href: "/best-open-source-database-guis-and-airtable-alternatives",
+    title: "Best Open-Source Smart Databases & Airtable Alternatives (2026)",
+    category: "Databases & Operations",
+    summary:
+      "Manage 100K+ rows cleanly over PostgreSQL & SQLite with Kanban views, Python formulas, and zero record caps.",
+    topTools: "NocoDB, Baserow, Grist, drawDB, Supabase",
+  },
+  {
+    slug: "best-open-source-password-managers",
+    href: "/best-open-source-password-managers",
+    title: "Best Open-Source Password & Secrets Managers (2026)",
+    category: "Security & Secrets",
+    summary:
+      "Publicly audited zero-knowledge password vaults and Kubernetes `.env` secret managers replacing LastPass and 1Password.",
+    topTools: "Vaultwarden, Bitwarden, Passbolt, Psono, Infisical",
+  },
+  {
+    slug: "best-open-source-business-intelligence-tools",
+    href: "/best-open-source-business-intelligence-tools",
+    title: "Best Open-Source Business Intelligence (BI) Tools (2026)",
+    category: "BI & Dashboards",
+    summary:
+      "Self-hosted visual SQL & no-code executive dashboards over Postgres and ClickHouse without $75/Creator Tableau fees.",
+    topTools: "Metabase, Superset, Redash, Druid, Grafana",
+  },
 ];

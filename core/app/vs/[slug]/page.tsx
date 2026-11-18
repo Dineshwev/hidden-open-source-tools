@@ -295,6 +295,106 @@ const VS_SEO_OVERRIDES: Record<string, { title: string; description: string }> =
     description:
       "Langfuse vs LangSmith: prompt management, LLM tracing & evaluation, latency & token cost analytics, self-hosted Docker, and vendor independence.",
   },
+  "openobserve-vs-signoz": {
+    title: "OpenObserve vs SigNoz (2026): Rust S3 Logs vs ClickHouse APM",
+    description:
+      "Compare OpenObserve vs SigNoz: S3 Parquet log compression vs ClickHouse distributed trace flamegraphs, RAM footprint, licenses, and self-hosting costs.",
+  },
+  "openobserve-vs-elasticsearch": {
+    title: "OpenObserve vs Elasticsearch (2026): 140x Cheaper S3 Logs?",
+    description:
+      "OpenObserve vs Elasticsearch (ELK) compared: Rust + Parquet S3 storage vs JVM heap shards, SQL vs Query DSL, and cutting log retention bills by 90%.",
+  },
+  "openobserve-vs-grafana-loki": {
+    title: "OpenObserve vs Grafana Loki (2026): SQL Logs vs Label Streams",
+    description:
+      "Compare OpenObserve vs Grafana Loki: single binary all-in-one observability vs LGTM cluster complexity, high-cardinality JSON queries, and Docker setup.",
+  },
+  "changedetection-io-vs-visualping": {
+    title: "Changedetection.io vs Visualping (2026): Unlimited Free Checks?",
+    description:
+      "Changedetection.io vs Visualping compared: Playwright browser steps, JSON/PDF diffs, 85+ alert channels, and unlimited self-hosted monitoring on a $5 VPS.",
+  },
+  "changedetection-io-vs-uptime-kuma": {
+    title: "Changedetection.io vs Uptime Kuma (2026): Diffs vs Uptime Pings",
+    description:
+      "Compare Changedetection.io vs Uptime Kuma: DOM content/price change alerts vs 20s endpoint uptime pings and public SLA status pages.",
+  },
+  "postiz-vs-hootsuite": {
+    title: "Postiz vs Hootsuite (2026): Self-Hosted AI Social Scheduling",
+    description:
+      "Postiz vs Hootsuite compared: unlimited channels, AI drafting, API/n8n automation, Next.js Docker self-hosting, and eliminating $99/user/mo Hootsuite bills.",
+  },
+  "taiga-vs-jira": {
+    title: "Taiga vs Jira (2026): Clean Open-Source Scrum & Kanban",
+    description:
+      "Compare Taiga vs Jira: MPL-2.0 self-hosted Docker Agile boards, Scrum story points, burndown charts, and escaping Jira bloat & per-seat hikes.",
+  },
+  "taiga-vs-linear": {
+    title: "Taiga vs Linear (2026): Open-Source Scrum vs Cloud Cycles",
+    description:
+      "Taiga vs Linear compared: formal Scrum planning & story points, self-hosted MPL-2.0 data ownership vs Linear's cloud-only speed.",
+  },
+  "posthog-vs-amplitude": {
+    title: "PostHog vs Amplitude (2026): All-in-One Analytics & Replay",
+    description:
+      "Compare PostHog vs Amplitude: product funnels, built-in session replay, feature flags, ClickHouse HogQL access, and lower growth-stage pricing.",
+  },
+  "matomo-vs-mixpanel": {
+    title: "Matomo vs Mixpanel (2026): GDPR Privacy vs Event Cohorts",
+    description:
+      "Matomo vs Mixpanel compared: CNIL consent-free GDPR tracking on a $5 MySQL VPS vs cloud MTU pricing for deep app telemetry.",
+  },
+  "countly-vs-mixpanel": {
+    title: "Countly vs Mixpanel (2026): Self-Hosted Mobile Analytics",
+    description:
+      "Compare Countly vs Mixpanel: native iOS/Android/Flutter SDKs, integrated crash reporting, custom events, and unlimited self-hosted MAUs.",
+  },
+  "beszel-vs-netdata": {
+    title: "Beszel vs Netdata (2026): 30MB Go Fleet Hub vs 1-Sec Metrics",
+    description:
+      "Compare Beszel vs Netdata: ultra-light multi-server Docker overview in <30MB RAM vs 1-second kernel & eBPF performance troubleshooting.",
+  },
+  "beszel-vs-uptime-kuma": {
+    title: "Beszel vs Uptime Kuma (2026): Server Metrics vs SLA Status Pages",
+    description:
+      "Beszel vs Uptime Kuma compared: internal CPU/RAM/Docker telemetry vs external HTTP/SSL endpoint probing and customer status pages.",
+  },
+  "docuseal-vs-documenso": {
+    title: "DocuSeal vs Documenso (2026): Best Open-Source eSignature App",
+    description:
+      "Compare DocuSeal vs Documenso: single-container PDF form builder vs TypeScript Next.js/Prisma architecture, APIs, and self-hosting ease.",
+  },
+  "bruno-vs-hoppscotch": {
+    title: "Bruno vs Hoppscotch (2026): Offline Git `.bru` vs Web API Client",
+    description:
+      "Bruno vs Hoppscotch compared: plain-text Git PR API collections vs lightning-fast browser PWA, WebSocket testing, and Docker team sync.",
+  },
+  "pocketbase-vs-supabase": {
+    title: "PocketBase vs Supabase (2026): Single Go Binary vs Postgres BaaS",
+    description:
+      "Compare PocketBase vs Supabase: <100MB SQLite simplicity on a $4 VPS vs multi-container PostgreSQL, pgvector, and Edge Functions.",
+  },
+  "pocketbase-vs-appwrite": {
+    title: "PocketBase vs Appwrite (2026): Lightweight Go vs Firebase BaaS",
+    description:
+      "PocketBase vs Appwrite compared: zero-ops single executable SQLite backend vs full polyglot cloud functions and mobile SDK suite.",
+  },
+  "immich-vs-photoprism": {
+    title: "Immich vs PhotoPrism (2026): Best Self-Hosted Google Photos",
+    description:
+      "Immich vs PhotoPrism compared: native iOS/Android mobile auto-backup, multi-user family albums, CLIP search, and NAS RAW photo indexing.",
+  },
+  "jellyfin-vs-plex": {
+    title: "Jellyfin vs Plex (2026): 100% Free GPU Transcoding & Privacy",
+    description:
+      "Compare Jellyfin vs Plex: free NVENC/QuickSync hardware transcoding, offline LAN auth, zero ad bloat, and remote sharing tradeoffs.",
+  },
+  "metabase-vs-tableau": {
+    title: "Metabase vs Tableau (2026): 5-Min Open BI vs Enterprise Seats",
+    description:
+      "Metabase vs Tableau compared: intuitive SQL/no-code team dashboards on $10 Docker hosting vs Tableau's $15-$75/user/mo license fees.",
+  },
 };
 
 function getSearchTitle(comparison: Comparison): string {
