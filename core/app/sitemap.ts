@@ -7,8 +7,8 @@ import { getAllCategorySlugs } from "@/lib/categories";
 
 const siteUrl = getSiteUrl();
 
-// Refresh the generated URL list after database status/content changes.
-export const revalidate = 0;
+// Revalidate sitemap hourly so Googlebot gets fast cached responses.
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
@@ -21,21 +21,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/free-tools`,
       changeFrequency: "daily",
       priority: 0.95
-    },
-    {
-      url: `${siteUrl}/feed.xml`,
-      changeFrequency: "daily",
-      priority: 0.9
-    },
-    {
-      url: `${siteUrl}/llms.txt`,
-      changeFrequency: "daily",
-      priority: 0.95
-    },
-    {
-      url: `${siteUrl}/llms-full.txt`,
-      changeFrequency: "daily",
-      priority: 0.9
     },
     {
       url: `${siteUrl}/vs`,
@@ -62,16 +47,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.85
     })),
-    {
-      url: `${siteUrl}/open-source-software`,
-      changeFrequency: "daily",
-      priority: 0.85
-    },
-    {
-      url: `${siteUrl}/hidden-tools`,
-      changeFrequency: "daily",
-      priority: 0.85
-    },
     {
       url: `${siteUrl}/badge`,
       changeFrequency: "weekly",
@@ -187,12 +162,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     if (allTools.length > 0) {
-      toolEntries = dedupeToolRowsBySlug(allTools).map((tool: any) => ({
-        url: `${siteUrl}/tools/${tool.slug}`,
-        lastModified: new Date(tool.enrichment_completed_at || tool.last_updated || tool.created_at || Date.now()),
-        changeFrequency: "weekly",
-        priority: 0.8
-      }));
+      toolEntries = dedupeToolRowsBySlug(allTools)
+        .filter((tool: any) => {
+          const aiLen = typeof tool.ai_content === "string" ? tool.ai_content.trim().length : 0;
+          const descLen = typeof tool.description === "string" ? tool.description.trim().length : 0;
+          return (
+            tool.structured_content_status === "success" ||
+            aiLen > 100 ||
+            descLen > 60
+          );
+        })
+        .map((tool: any) => ({
+          url: `${siteUrl}/tools/${tool.slug}`,
+          lastModified: new Date(tool.enrichment_completed_at || tool.last_updated || tool.created_at || Date.now()),
+          changeFrequency: "weekly",
+          priority: 0.8
+        }));
     }
 
     // Fetch Industry Pages

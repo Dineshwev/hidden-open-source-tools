@@ -29,8 +29,8 @@ export const metadata: Metadata = {
   }
 };
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+// Revalidate weekly roundups hourly via ISR
+export const revalidate = 3600;
 
 async function getWeeklyRoundups(): Promise<WeeklyRoundupRow[]> {
   const supabase = getAdmin();

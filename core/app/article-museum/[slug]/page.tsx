@@ -1,7 +1,6 @@
 import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Script from "next/script";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import ArticleMuseumArticleClient, { type ArticleRelatedData } from "@/components/article-museum/ArticleMuseumArticleClient";
 
@@ -20,13 +19,17 @@ type Article = {
   tags: string[];
   published_at: string;
   image_url?: string;
+  related_tool_url?: string | null;
 };
 
 const siteUrl = getSiteUrl();
-const fallbackOgImage = `${siteUrl}/thumb1.svg`;
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+function buildArticleOgImage(article: Article, title: string, description: string): string {
+  if (article.image_url) return article.image_url;
+  return `${siteUrl}/api/og?title=${encodeURIComponent(title)}&subtitle=${encodeURIComponent(description.slice(0, 110))}&badge=${encodeURIComponent("DEEP DIVE")}&category=${encodeURIComponent(article.tool_name || "Open Source")}`;
+}
+
+export const revalidate = 3600;
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
   const supabase = getAdmin();
@@ -116,7 +119,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const title = getArticleTitle(article);
   const description = getArticleDescription(article);
-  const imageUrl = article.image_url || fallbackOgImage;
+  const imageUrl = buildArticleOgImage(article, title, description);
 
   return {
     title,
@@ -128,12 +131,17 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title,
       description,
       url: canonicalUrl,
+      siteName: "The Cloud Rain",
       type: "article",
+      publishedTime: article.published_at || undefined,
+      authors: ["Dinesh Regar"],
+      tags: Array.isArray(article.tags) ? article.tags : undefined,
       images: [
         {
           url: imageUrl,
           width: 1200,
-          height: 630
+          height: 630,
+          alt: title,
         }
       ]
     },
@@ -156,7 +164,7 @@ async function getArticleRelatedData(article: Article): Promise<ArticleRelatedDa
     const [toolsRes, vsRes, altsRes, moreArtsRes] = await Promise.all([
       supabase
         .from("open_source_tools")
-        .select("name, slug, category, github_stars")
+        .select("name, slug, category, github_stars, license, url, language")
         .or("status.eq.approved,status.eq.APPROVED")
         .or(`slug.eq.${normSlug},slug.eq.${compactSlug},name.ilike.${rawName}`)
         .limit(1),
@@ -186,26 +194,13 @@ async function getArticleRelatedData(article: Article): Promise<ArticleRelatedDa
           slug: String(rawTool.slug || ""),
           category: rawTool.category ? String(rawTool.category) : null,
           github_stars: typeof rawTool.github_stars === "number" ? rawTool.github_stars : null,
+          license: rawTool.license ? String(rawTool.license) : null,
+          url: rawTool.url ? String(rawTool.url) : null,
+          language: rawTool.language ? String(rawTool.language) : null,
         }
       : null;
 
-    let rawComparisons: any[] = vsRes.data || [];
-
-    if (rawComparisons.length === 0) {
-      const { data: fallbackVs } = await supabase
-        .from("comparisons")
-        .select("slug, tool_a, tool_b")
-        .eq("status", "published")
-        .in("slug", [
-          "appflowy-vs-notion",
-          "plane-vs-linear",
-          "tooljet-vs-retool",
-          "infisical-vs-hashicorp-vault",
-        ]);
-      rawComparisons = fallbackVs || [];
-    }
-
-    const comparisons = rawComparisons.map((c: any) => ({
+    const comparisons = (vsRes.data || []).map((c: any) => ({
       slug: String(c.slug || ""),
       tool_a: String(c.tool_a || ""),
       tool_b: String(c.tool_b || ""),
@@ -225,13 +220,6 @@ async function getArticleRelatedData(article: Article): Promise<ArticleRelatedDa
           matchedAlts.push({ saas_name: String(alt.saas_name), saas_slug: String(alt.saas_slug) });
         }
       }
-    }
-
-    if (matchedAlts.length === 0) {
-      matchedAlts.push(
-        { saas_name: "Notion", saas_slug: "notion" },
-        { saas_name: "Datadog", saas_slug: "datadog" }
-      );
     }
 
     const moreArticles = (moreArtsRes.data || []).map((a: any) => ({
@@ -259,27 +247,67 @@ export default async function ArticleMuseumSinglePage({ params }: { params: { sl
   }
 
   const related = await getArticleRelatedData(article);
+  const seoTitle = getArticleTitle(article);
+  const seoDesc = getArticleDescription(article);
+  const ogImageUrl = buildArticleOgImage(article, seoTitle, seoDesc);
+  const combinedText = [
+    article.mystery_intro,
+    article.superpower,
+    article.user_case,
+    article.origin_story,
+    article.why_care,
+    article.hands_on_code,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const wordCount = combinedText.trim().split(/\s+/).filter(Boolean).length;
 
   const articleSchema = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Article",
-        headline: article.title,
-        description: article.mystery_intro,
-        image: article.image_url || fallbackOgImage,
+        "@type": "TechArticle",
+        headline: seoTitle,
+        description: seoDesc,
+        image: ogImageUrl,
         datePublished: article.published_at,
+        dateModified: article.published_at,
+        wordCount,
+        keywords: Array.isArray(article.tags) ? article.tags.join(", ") : undefined,
         author: {
-          "@type": "Organization",
-          name: "The Cloud Rain"
+          "@type": "Person",
+          name: "Dinesh Regar",
+          url: `${siteUrl}/about`,
+          sameAs: [
+            "https://github.com/Dineshwev",
+            "https://x.com/TheCloudRain_",
+          ],
         },
-        mainEntityOfPage: `${siteUrl}/article-museum/${article.slug}`
+        publisher: {
+          "@type": "Organization",
+          name: "The Cloud Rain",
+          url: siteUrl,
+          logo: {
+            "@type": "ImageObject",
+            url: `${siteUrl}/icon.svg`,
+          },
+        },
+        about: {
+          "@type": "SoftwareApplication",
+          name: article.tool_name || article.title,
+          applicationCategory: related.tool?.category || "DeveloperApplication",
+          ...(related.tool?.url ? { url: related.tool.url } : {}),
+        },
+        mainEntityOfPage: {
+          "@type": "WebPage",
+          "@id": `${siteUrl}/article-museum/${article.slug}`,
+        },
       },
       {
         "@type": "BreadcrumbList",
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
-          { "@type": "ListItem", position: 2, name: "Articles", item: `${siteUrl}/article-museum` },
+          { "@type": "ListItem", position: 2, name: "Deep Dives", item: `${siteUrl}/article-museum` },
           { "@type": "ListItem", position: 3, name: article.tool_name || article.title, item: `${siteUrl}/article-museum/${article.slug}` }
         ]
       }
@@ -288,9 +316,7 @@ export default async function ArticleMuseumSinglePage({ params }: { params: { sl
 
   return (
     <>
-      <Script
-        id={`article-json-ld-${article.slug}`}
-        strategy="beforeInteractive"
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />

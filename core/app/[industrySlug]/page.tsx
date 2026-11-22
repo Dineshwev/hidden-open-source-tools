@@ -10,7 +10,7 @@ import { BEST_TOOL_GUIDES } from "@/lib/best-guides";
 import { formatLicense } from "@/lib/utils/license";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-export const revalidate = 0;
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 function stripMarkdown(text: string): string {
@@ -242,9 +242,13 @@ export default async function IndustrySlugPage({ params }: { params: { industryS
                   const isApproved = String(tool.status || "").toLowerCase() === "approved";
                   const href = isApproved && tool.slug ? `/tools/${tool.slug}` : (tool.url || "#");
                   const formattedLic = tool.license ? formatLicense(String(tool.license)) : "Open Source (OSS)";
-                  const dep = tool.deployment_info as { docker?: boolean; self_hosted?: boolean } | null;
+                  const dep = tool.deployment_info as { docker?: boolean; docker_compose?: boolean; self_hosted?: boolean } | null;
                   const dockerReady =
-                    dep?.docker || dep?.self_hosted || true ? "🐳 Docker / Self-Host" : "Self-Hostable";
+                    dep?.docker || dep?.docker_compose
+                      ? "🐳 Docker Ready"
+                      : dep?.self_hosted
+                        ? "Self-Hostable"
+                        : "Open Source";
 
                   return (
                     <tr key={tool.id} className="hover:bg-white/[0.02] transition-colors">

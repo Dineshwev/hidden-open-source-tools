@@ -9,8 +9,9 @@ export const metadata: Metadata = {
   description:
     "Browse open-source software projects and review available information about their features, licenses, source code, and deployment options.",
   alternates: {
-    canonical: "/open-source-software"
+    canonical: "/free-tools"
   },
+  robots: { index: false, follow: true },
   openGraph: {
     title: "Open-Source Software Directory",
     description:

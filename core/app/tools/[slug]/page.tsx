@@ -11,14 +11,14 @@ import buildToolStructuredData from "@/lib/seo/toolStructuredData";
 import DockerQuickstart from "@/components/tools/DockerQuickstart";
 import ToolDetailActions from "@/components/tools/ToolDetailActions";
 import MaintainerBadgeCard from "@/components/tools/MaintainerBadgeCard";
+import ToolHealthCard from "@/components/tools/ToolHealthCard";
+import RepoPreviewCard from "@/components/tools/RepoPreviewCard";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
-import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown, ArrowRight } from "lucide-react";
+import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown, ArrowRight, CheckCircle2, XCircle, ThumbsUp, Ban } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 type ToolRow = {
@@ -277,7 +277,9 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   // Fetch extra columns written by generate / refresh scripts
   const { data: rawRows } = await supabaseAdmin
     .from("open_source_tools")
-    .select("id, slug, created_at, license, github_last_commit, github_checked_at, deployment_info")
+    .select(
+      "id, slug, created_at, license, github_last_commit, github_checked_at, github_archived, deployment_info, pros, cons, best_for, not_for"
+    )
     .eq("slug", params.slug)
     .or("status.eq.approved,status.eq.APPROVED")
     .order("created_at", { ascending: true })
@@ -287,6 +289,17 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
   const dbLicense: string | null = rawRow?.license != null ? String(rawRow.license) : null;
   const dbLastCommit: string | null = rawRow?.github_last_commit != null ? String(rawRow.github_last_commit) : null;
   const dbCheckedAt: string | null = rawRow?.github_checked_at != null ? String(rawRow.github_checked_at) : null;
+  const isArchived: boolean = rawRow?.github_archived === true;
+
+  const toStringList = (val: unknown): string[] =>
+    Array.isArray(val)
+      ? val.map((item) => String(item || "").trim()).filter(Boolean)
+      : [];
+
+  const prosList = toStringList(rawRow?.pros);
+  const consList = toStringList(rawRow?.cons);
+  const bestForList = toStringList(rawRow?.best_for);
+  const notForList = toStringList(rawRow?.not_for);
 
   // Deployment metadata
   const deploymentInfo = rawRow?.deployment_info as {
@@ -423,7 +436,13 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
     (tool.url?.includes("github.com") ? tool.url : null) ??
     extractGithubUrl(tool.description) ??
     (tool.ai_content ? extractGithubUrl(tool.ai_content) : null);
+  const githubRepoRef = githubUrl ? extractGithubOwnerRepo(githubUrl) : null;
   const githubStats = githubUrl ? await fetchGithubStats(githubUrl) : null;
+  const hasDockerSupport = Boolean(
+    deploymentInfo?.docker ||
+    deploymentInfo?.docker_compose ||
+    tool.description.toLowerCase().includes("docker")
+  );
 
   const starsCount = (githubStats?.stars && githubStats.stars > 0)
     ? githubStats.stars
@@ -585,19 +604,12 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               </a>
             )}
 
-            <a
-              href="#maintainer-badge"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 hover:text-white"
-            >
-              <span>🛡️ Embed Badge</span>
-            </a>
-
             {isSelfHostable && (
               <a
                 href="#docker-quickstart"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2.5 text-sm font-medium text-white/80 transition hover:border-white/30 hover:bg-white/10 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-3.5 py-2.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-400/20 hover:text-white"
               >
-                <span>🐳 Docker</span>
+                <span>🐳 Docker Quickstart</span>
               </a>
             )}
 
@@ -740,6 +752,107 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
               </Link>
             </div>
           </div>
+        </section>
+      )}
+
+      {/* ── At-a-Glance Open-Source Health & Readiness Score ── */}
+      <ToolHealthCard
+        toolName={tool.name}
+        stars={starsCount}
+        forks={forksCount}
+        license={displayLicense ?? null}
+        lastCommitIso={dbLastCommit}
+        isSelfHostable={isSelfHostable}
+        hasDocker={hasDockerSupport}
+        isArchived={isArchived}
+      />
+
+      {/* ── GitHub Repository Social Preview Visual ── */}
+      {githubRepoRef && githubUrl && (
+        <RepoPreviewCard
+          toolName={tool.name}
+          owner={githubRepoRef.owner}
+          repo={githubRepoRef.repo}
+          githubUrl={githubUrl}
+        />
+      )}
+
+      {/* ── Structured Pros & Cons + Best For / Skip If Cards ── */}
+      {(prosList.length > 0 || consList.length > 0) && (
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {prosList.length > 0 && (
+            <div className="rounded-3xl border border-emerald-500/20 bg-emerald-950/15 p-6">
+              <div className="flex items-center gap-2 text-emerald-300">
+                <ThumbsUp className="h-4 w-4" />
+                <h2 className="font-display text-lg font-bold text-white">
+                  Key Strengths (Pros)
+                </h2>
+              </div>
+              <ul className="mt-4 space-y-2.5">
+                {prosList.slice(0, 6).map((pro, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-200">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                    <span>{pro}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {consList.length > 0 && (
+            <div className="rounded-3xl border border-amber-500/20 bg-amber-950/15 p-6">
+              <div className="flex items-center gap-2 text-amber-300">
+                <Ban className="h-4 w-4" />
+                <h2 className="font-display text-lg font-bold text-white">
+                  Limitations &amp; Trade-Offs (Cons)
+                </h2>
+              </div>
+              <ul className="mt-4 space-y-2.5">
+                {consList.slice(0, 6).map((con, idx) => (
+                  <li key={idx} className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-200">
+                    <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                    <span>{con}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
+
+      {(bestForList.length > 0 || notForList.length > 0) && (
+        <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {bestForList.length > 0 && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
+                Choose {tool.name} If
+              </p>
+              <ul className="mt-3 space-y-2 text-sm text-white/80">
+                {bestForList.slice(0, 4).map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 text-cyan-400">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {notForList.length > 0 && (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/45">
+                Skip {tool.name} If
+              </p>
+              <ul className="mt-3 space-y-2 text-sm text-white/70">
+                {notForList.slice(0, 4).map((item, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 text-slate-500">✕</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
 

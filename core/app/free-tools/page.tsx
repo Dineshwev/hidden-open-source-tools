@@ -10,8 +10,7 @@ import { getApprovedSuccessToolCount } from "@/lib/tool-count";
 
 const pagePath = "/free-tools";
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = getSiteUrl();
@@ -95,7 +94,9 @@ export default async function FreeToolsPage({
   const supabase = getAdmin();
   const { data, error } = await supabase
     .from("open_source_tools")
-    .select("*")
+    .select(
+      "id, slug, name, description, logo_url, url, category, github_stars, status, created_at"
+    )
     .eq("status", "approved")
     .order("github_stars", { ascending: false, nullsFirst: false });
 

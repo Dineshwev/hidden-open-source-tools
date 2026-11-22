@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Search, Menu, X, PlusCircle } from "lucide-react";
 import Logo from "./Logo";
 
@@ -12,8 +11,8 @@ const primaryDesktopLinks = [
   { href: "/free-tools", label: "Explore Tools" },
   { href: "/alternatives", label: "Alternatives" },
   { href: "/vs", label: "Comparisons" },
-  { href: "/blog", label: "Blog" },
-  { href: "/article-museum", label: "Articles" },
+  { href: "/blog", label: "Buyer Guides" },
+  { href: "/article-museum", label: "Deep Dives" },
 ];
 
 const mobileLinks = [
@@ -21,8 +20,8 @@ const mobileLinks = [
   { href: "/free-tools", label: "Explore Tools" },
   { href: "/alternatives", label: "SaaS Alternatives" },
   { href: "/vs", label: "Head-to-Head Comparisons" },
-  { href: "/blog", label: "Best Tools Blog" },
-  { href: "/article-museum", label: "Deep-Dive Articles" },
+  { href: "/blog", label: "Open-Source Buyer Guides" },
+  { href: "/article-museum", label: "Tool Deep Dives" },
   { href: "/contact", label: "Contact" },
   { href: "/upload", label: "Submit a Tool" },
 ];
@@ -77,12 +76,7 @@ export default function Navbar() {
   };
 
   return (
-    <motion.header
-      className="sticky top-0 z-50 border-b border-[color:var(--nav-border)] bg-[var(--nav-bg)] text-[color:var(--nav-text)] backdrop-blur-xl"
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
+    <header className="sticky top-0 z-50 border-b border-[color:var(--nav-border)] bg-[var(--nav-bg)] text-[color:var(--nav-text)] backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3.5 md:px-8">
         {/* Brand Logo */}
         <Link
@@ -166,11 +160,8 @@ export default function Navbar() {
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
             onClick={closePanels}
           />
-          <motion.div
+          <div
             className="absolute right-4 top-full z-50 mt-2 w-[calc(100%-2rem)] max-w-lg rounded-2xl border border-[color:var(--nav-border)] bg-[var(--nav-search-bg)] p-4 shadow-2xl md:right-8"
-            initial={{ opacity: 0, scale: 0.95, y: -8 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.15 }}
           >
             <form
               className="space-y-3"
@@ -235,18 +226,13 @@ export default function Navbar() {
                 </div>
               </div>
             </form>
-          </motion.div>
+          </div>
         </>
       )}
 
       {/* ── Mobile Navigation Drawer ── */}
       {mobileOpen && (
-        <motion.div
-          className="border-t border-[color:var(--nav-border)] bg-[var(--nav-dropdown-bg)] px-4 py-4 lg:hidden"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
-        >
+        <div className="border-t border-[color:var(--nav-border)] bg-[var(--nav-dropdown-bg)] px-4 py-4 lg:hidden">
           {/* Quick Search inside Mobile Menu */}
           <form
             onSubmit={(e) => {
@@ -295,8 +281,8 @@ export default function Navbar() {
               + Submit Open-Source Tool
             </Link>
           </div>
-        </motion.div>
+        </div>
       )}
-    </motion.header>
+    </header>
   );
 }

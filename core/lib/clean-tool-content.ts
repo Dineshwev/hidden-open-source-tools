@@ -5,7 +5,10 @@
  */
 
 const VOLATILE_STAT_LINE_REGEX =
-  /^\s*[-*•]?\s*(?:(?:⭐|🍴|🐛|👥|🕐|🏷️|👁️)\s*)?(?:Stars|Forks|Open\s*Issues|Issues|Contributors|Last\s*Commit|Latest\s*Release|Watchers)\s*:\s*.+$/iu;
+  /^\s*[-*•]?\s*(?:(?:⭐|🍴|🐛|👥|🕐|🏷️|👁️|💻|📄)\s*)?(?:Stars|Forks|Open\s*Issues|Issues|Contributors|Last\s*Commit|Latest\s*Release|Watchers)\s*:\s*.+$/iu;
+
+const REDUNDANT_GITHUB_SECTION_LINE_REGEX =
+  /^\s*[-*•]?\s*(?:(?:💻|📄)\s*)?(?:Language|License)\s*:\s*.+$/iu;
 
 const GITHUB_STATS_HEADING_REGEX =
   /^#{1,6}\s+(?:GitHub\s+Stats|GitHub\s+Statistics|Repository\s+Stats)\s*$/i;
@@ -60,6 +63,9 @@ export function cleanToolMarkdownContent(markdown: string | null | undefined): s
     }
 
     if (inGitHubStatsSection) {
+      if (REDUNDANT_GITHUB_SECTION_LINE_REGEX.test(line)) {
+        continue;
+      }
       const trimmed = line.trim();
       if (trimmed.length > 0) {
         statsSectionHasContent = true;

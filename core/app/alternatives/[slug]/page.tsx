@@ -8,6 +8,8 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import ShareButton from "@/components/ShareButton";
 import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
 import SavingsCalculator from "@/components/pricing/SavingsCalculator";
+import CostComparisonBarChart from "@/components/vs/CostComparisonBarChart";
+import { VERIFIED_SAAS_PRICING } from "@/lib/pricing-data";
 
 export const revalidate = 3600;
 const siteUrl = getSiteUrl();
@@ -160,6 +162,12 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
 
   const c = alt.content;
   const pageUrl = `${siteUrl}/alternatives/${alt.saas_slug}`;
+  const verifiedPricing = VERIFIED_SAAS_PRICING[alt.saas_slug] || null;
+  const topPicks = Array.isArray(c.alternatives)
+    ? [...c.alternatives]
+        .sort((a, b) => (Number(b.similarity_score) || 0) - (Number(a.similarity_score) || 0))
+        .slice(0, 3)
+    : [];
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -316,6 +324,75 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
         </div>
       </section>
 
+      {/* ── Top Picks Summary Strip (Instant 3-Second Shortlist) ── */}
+      {topPicks.length >= 2 && (
+        <section aria-label={`Top ${alt.saas_name} replacement picks`} className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/90">
+              Quick Shortlist
+            </p>
+            <span className="text-xs text-slate-400">
+              Ranked by feature parity &amp; self-hosting fit
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-3.5 md:grid-cols-3">
+            {topPicks.map((pick, idx) => {
+              const pSlug = String(pick.slug || "").toLowerCase().trim();
+              const isInternal = approvedSlugs.has(pSlug);
+              const href = isInternal
+                ? `/tools/${pSlug}`
+                : pick.url || `https://github.com/search?q=${encodeURIComponent(pick.name)}`;
+              const badge =
+                idx === 0
+                  ? { label: "#1 Closest Match", cls: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300" }
+                  : idx === 1
+                    ? { label: "#2 Runner-Up", cls: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200" }
+                    : { label: "#3 Strong Alternative", cls: "border-slate-700 bg-slate-800/80 text-slate-200" };
+              const score = Math.min(100, Math.max(10, Number(pick.similarity_score) || 75));
+
+              return (
+                <div
+                  key={pick.slug || pick.name}
+                  className="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${badge.cls}`}>
+                        {badge.label}
+                      </span>
+                      <span className="text-xs font-bold text-emerald-300">{score}% fit</span>
+                    </div>
+                    <h2 className="mt-2.5 font-display text-lg font-bold text-white">
+                      {pick.name}
+                    </h2>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-300 line-clamp-2">
+                      {pick.best_for || pick.tagline}
+                    </p>
+                    <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400"
+                        style={{ width: `${score}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3.5 flex items-center justify-between border-t border-slate-800 pt-2.5 text-xs">
+                    <span className="font-mono text-slate-400 truncate max-w-[120px]">{pick.license}</span>
+                    <Link
+                      href={href}
+                      target={isInternal ? undefined : "_blank"}
+                      rel={isInternal ? undefined : "noopener noreferrer"}
+                      className="font-semibold text-cyan-300 hover:text-cyan-200 transition"
+                    >
+                      {isInternal ? "Specs →" : "Visit ↗"}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* ── Concrete Comparison Matrix Table (Featured Snippet & AI Overview Anchor) ── */}
       {c.alternatives && c.alternatives.length > 0 && (
         <section id="comparison-matrix" className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 overflow-hidden scroll-mt-20">
@@ -359,8 +436,8 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
                       <td className="py-3 pl-4">
                         <Link
                           href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          target={isInternal ? undefined : "_blank"}
+                          rel={isInternal ? undefined : "noopener noreferrer"}
                           className="text-cyan-300 hover:text-cyan-200 font-semibold underline underline-offset-2"
                         >
                           {isInternal ? "Details →" : "Visit Site ↗"}
@@ -373,6 +450,14 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
             </table>
           </div>
         </section>
+      )}
+
+      {/* ── Verified Annual Cost Comparison Bar Chart ── */}
+      {verifiedPricing && (
+        <CostComparisonBarChart
+          pricing={verifiedPricing}
+          openSourceToolName={topPicks[0]?.name || verifiedPricing.openSourceAlternative}
+        />
       )}
 
       {/* ── Verified Self-Hosted vs. SaaS Cost Savings Calculator ── */}
@@ -396,16 +481,26 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
             <div key={tool.slug} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-white/30">#{i + 1}</span>
-                    <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
-                    <span className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2 py-0.5 text-xs text-emerald-300">
-                      {tool.similarity_score}% match
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-semibold text-slate-400">#{i + 1}</span>
+                      <h3 className="text-lg font-semibold text-white">{tool.name}</h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-800">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400"
+                          style={{ width: `${Math.min(100, Math.max(10, Number(tool.similarity_score) || 75))}%` }}
+                        />
+                      </div>
+                      <span className="inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2 py-0.5 text-xs font-semibold text-emerald-300">
+                        {tool.similarity_score}% match
+                      </span>
+                    </div>
                   </div>
-                  <p className="mt-1 text-sm text-white/50">{tool.tagline}</p>
-                  <p className="mt-3 text-sm leading-6 text-white/60">{tool.description}</p>
-                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/40">
+                  <p className="mt-1.5 text-sm text-slate-300">{tool.tagline}</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-200/85">{tool.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-400">
                     <span>🐳 Docker / Self-Host Ready</span>
                     <span>📄 {tool.license}</span>
                     <span>🎯 {tool.best_for}</span>

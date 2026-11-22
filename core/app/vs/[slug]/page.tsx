@@ -9,11 +9,11 @@ import ShareButton from "@/components/ShareButton";
 import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
 import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 import SavingsCalculator from "@/components/pricing/SavingsCalculator";
+import QuickVerdictCard from "@/components/vs/QuickVerdictCard";
+import CostComparisonBarChart from "@/components/vs/CostComparisonBarChart";
 import { VERIFIED_SAAS_PRICING } from "@/lib/pricing-data";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 type ComparisonPageProps = {
@@ -499,55 +499,19 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
       .limit(3),
   ]);
 
-  let rawRelatedComparisons: any[] = relatedVsRes.data || [];
-  if (rawRelatedComparisons.length < 2) {
-    const { data: fallbackVs } = await supabase
-      .from("comparisons")
-      .select("slug, tool_a, tool_b")
-      .eq("status", "published")
-      .neq("slug", comparison.slug)
-      .in("slug", [
-        "keycloak-vs-auth0",
-        "appwrite-vs-firebase",
-        "openproject-vs-jira",
-        "plane-vs-linear",
-        "infisical-vs-hashicorp-vault",
-      ])
-      .limit(4);
-    const seen = new Set(rawRelatedComparisons.map((c: any) => String(c.slug)));
-    for (const item of fallbackVs || []) {
-      if (!seen.has(String((item as any).slug)) && rawRelatedComparisons.length < 4) {
-        rawRelatedComparisons.push(item);
-      }
-    }
-  }
-  const relatedComparisons = rawRelatedComparisons.map((c: any) => ({
+  const relatedComparisons = (relatedVsRes.data || []).map((c: any) => ({
     slug: String(c.slug || ""),
     tool_a: String(c.tool_a || ""),
     tool_b: String(c.tool_b || ""),
   }));
 
-  let rawRelatedArticles: any[] = relatedArtsRes.data || [];
-  if (rawRelatedArticles.length === 0) {
-    const { data: fallbackArts } = await supabase
-      .from("articles")
-      .select("slug, tool_name, title")
-      .eq("is_published", true)
-      .in("slug", [
-        "appwrite-the-open-source-backend-that-replaced-firebase",
-        "authentik-the-identity-provider-that-replaced-auth0",
-        "changedetection-io-the-open-source-website-watcher",
-      ])
-      .limit(3);
-    rawRelatedArticles = fallbackArts || [];
-  }
-  const relatedArticles = rawRelatedArticles.map((a: any) => ({
+  const relatedArticles = (relatedArtsRes.data || []).map((a: any) => ({
     slug: String(a.slug || ""),
     tool_name: String(a.tool_name || ""),
     title: String(a.title || ""),
   }));
 
-  const comparisonFaqs = [
+  const fallbackFaqs = [
     {
       q: `What are the key architectural differences between ${toolA} and ${toolB}?`,
       a: `${toolA} and ${toolB} take different approaches to runtime performance, deployment complexity, and hosting. ${verdictSnippet}`
@@ -566,11 +530,55 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
     }
   ];
 
+  const cleanedMarkdown = cleanToolMarkdownContent(comparison.content);
+  const comparisonWordCount = cleanedMarkdown.trim().split(/\s+/).filter(Boolean).length;
+
+  // Extract tool-specific FAQs from "## Frequently Asked Questions" if present,
+  // and remove the raw section from body markdown so it isn't rendered twice.
+  const faqSectionMatch = cleanedMarkdown.match(
+    /\n##\s+Frequently Asked Questions[^\n]*\n([\s\S]*?)(?=\n##\s+|$)/i
+  );
+  const extractedFaqs: Array<{ q: string; a: string }> = [];
+  if (faqSectionMatch?.[1]) {
+    const qaRegex = /###\s+([^\n]+)\n+([\s\S]*?)(?=\n###\s+|$)/g;
+    let qaMatch: RegExpExecArray | null;
+    while ((qaMatch = qaRegex.exec(faqSectionMatch[1])) !== null) {
+      const q = stripMarkdown(qaMatch[1]);
+      const a = stripMarkdown(qaMatch[2]);
+      if (q.length > 8 && a.length > 15) {
+        extractedFaqs.push({ q, a });
+      }
+    }
+  }
+  const comparisonFaqs = extractedFaqs.length >= 2 ? extractedFaqs : fallbackFaqs;
+  const bodyMarkdown =
+    extractedFaqs.length >= 2 && faqSectionMatch
+      ? cleanedMarkdown.replace(faqSectionMatch[0], "").trim()
+      : cleanedMarkdown;
+
+  const slugifyHeading = (text: string) =>
+    text
+      .replace(/<[^>]+>/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+
+  const tocSections: Array<{ id: string; label: string }> = [];
+  const rawHtml = marked(bodyMarkdown, { async: false, breaks: true }) as string;
+  const renderedHtml = rawHtml.replace(/<h2>([\s\S]*?)<\/h2>/gi, (_match, inner) => {
+    const plain = String(inner).replace(/<[^>]+>/g, "").trim();
+    const id = slugifyHeading(plain);
+    if (id && plain && !tocSections.some((s) => s.id === id)) {
+      tocSections.push({ id, label: plain });
+    }
+    return `<h2 id="${id}" class="scroll-mt-24">${inner}</h2>`;
+  });
+
   const comparisonStructuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Article",
+        "@type": "TechArticle",
         "@id": `${pageUrl}#article`,
         isPartOf: {
           "@type": "WebSite",
@@ -580,8 +588,27 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         },
         headline: `${toolA} vs ${toolB} (2026): Detailed Technical Comparison & Verdict`,
         description: verdictSnippet,
+        wordCount: comparisonWordCount,
         datePublished: comparison.verified_regenerated_at || undefined,
         dateModified: comparison.verified_regenerated_at || undefined,
+        author: {
+          "@type": "Person",
+          name: "Dinesh Regar",
+          url: `${siteUrl}/about`,
+          sameAs: [
+            "https://github.com/Dineshwev",
+            "https://x.com/TheCloudRain_",
+          ],
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "The Cloud Rain",
+          url: siteUrl,
+          logo: {
+            "@type": "ImageObject",
+            url: `${siteUrl}/icon.svg`,
+          },
+        },
         about: [
           { "@type": "SoftwareApplication", name: toolA },
           { "@type": "SoftwareApplication", name: toolB },
@@ -679,7 +706,57 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             ))}
           </div>
         )}
+
+        {/* Quick Jump Anchor Strip */}
+        {tocSections.length > 1 && (
+          <nav aria-label="Comparison sections" className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-white/10 pt-4 text-xs">
+            <span className="mr-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              Jump to:
+            </span>
+            {tocSections.slice(0, 6).map((sec) => (
+              <a
+                key={sec.id}
+                href={`#${sec.id}`}
+                className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-2.5 py-1 text-slate-200 transition hover:border-cyan-400/40 hover:text-cyan-200"
+              >
+                {sec.label}
+              </a>
+            ))}
+            {saasSlugMatch && (
+              <a
+                href="#cost-calculator"
+                className="rounded-lg border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-emerald-300 transition hover:border-emerald-400/40"
+              >
+                Cost Savings
+              </a>
+            )}
+            <a
+              href="#comparison-faq"
+              className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-2.5 py-1 text-slate-200 transition hover:border-cyan-400/40 hover:text-cyan-200"
+            >
+              FAQ
+            </a>
+          </nav>
+        )}
       </section>
+
+      {/* ── Above-the-Fold Quick Verdict Split Card ── */}
+      <QuickVerdictCard
+        toolA={toolA}
+        toolB={toolB}
+        markdown={cleanedMarkdown}
+        toolLinks={toolLinks}
+      />
+
+      {/* ── Verified Annual Cost Comparison Bar Chart ── */}
+      {saasSlugMatch && (
+        <CostComparisonBarChart
+          pricing={VERIFIED_SAAS_PRICING[saasSlugMatch]}
+          openSourceToolName={
+            toolA.toLowerCase().includes(saasSlugMatch) ? toolB : toolA
+          }
+        />
+      )}
 
       <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <div
@@ -687,15 +764,15 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             prose-headings:font-display
             prose-h2:text-2xl prose-h2:text-white prose-h2:mt-8 prose-h2:mb-4
             prose-h3:text-xl prose-h3:text-white/90 prose-h3:mt-6 prose-h3:mb-3
-            prose-p:text-white/70 prose-p:leading-7
-            prose-li:text-white/70
+            prose-p:text-slate-200/90 prose-p:leading-7
+            prose-li:text-slate-200/90
             prose-table:text-sm
             prose-th:text-white prose-th:bg-white/5 prose-th:p-3
-            prose-td:text-white/70 prose-td:p-3 prose-td:border-white/10
+            prose-td:text-slate-200/85 prose-td:p-3 prose-td:border-white/10
             prose-strong:text-white
             prose-code:text-cyan-300 prose-code:bg-white/5 prose-code:px-1 prose-code:rounded"
           dangerouslySetInnerHTML={{
-            __html: marked(cleanToolMarkdownContent(comparison.content), { async: false, breaks: true }) as string,
+            __html: renderedHtml,
           }}
         />
       </section>
@@ -711,7 +788,7 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
       )}
 
       {/* ── Frequently Asked Questions ── */}
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+      <section id="comparison-faq" className="scroll-mt-24 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-8">
         <p className="text-xs uppercase tracking-[0.25em] text-white/40">FAQ</p>
         <h2 className="mt-2 font-display text-2xl text-white">
           Frequently Asked Questions: {toolA} vs {toolB}
@@ -798,12 +875,6 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
             className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
           >
             Best Free Developer Tools
-          </Link>
-          <Link
-            href="/alternatives/notion"
-            className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80 hover:border-white/40 transition"
-          >
-            Notion Alternatives
           </Link>
           <Link
             href="/free-tools"

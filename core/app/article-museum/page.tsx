@@ -1,25 +1,32 @@
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
+import { getSiteUrl } from "@/lib/site-url";
 import type { Metadata } from "next";
 import ArticleMuseumClient from "./ArticleMuseumClient";
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "Open-Source Tool Guides and Project Overviews",
-  description: "Read guides about open-source software projects. Each article covers the details available for that specific tool.",
+  title: "Open-Source Tool Deep Dives & Self-Hosting Guides (2026)",
+  description:
+    "Hands-on technical deep dives into underrated open-source tools and self-hosted SaaS alternatives. Architecture breakdowns, real use cases, and Docker setup guides.",
+  alternates: {
+    canonical: "/article-museum",
+  },
   openGraph: {
-    title: "Open-Source Tool Guides and Project Overviews | The Cloud Rain",
-    description: "Read guides about open-source software projects, with coverage based on the information available for each tool.",
+    title: "Open-Source Tool Deep Dives & Self-Hosting Guides (2026) | The Cloud Rain",
+    description:
+      "Hands-on technical deep dives into underrated open-source tools and self-hosted SaaS alternatives, with architecture breakdowns and Docker quickstarts.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Open-Source Tool Guides and Project Overviews | The Cloud Rain",
-    description: "Read guides about open-source software projects, with coverage based on the information available for each tool.",
-  }
+    title: "Open-Source Tool Deep Dives & Self-Hosting Guides (2026) | The Cloud Rain",
+    description:
+      "Hands-on technical deep dives into underrated open-source tools and self-hosted SaaS alternatives.",
+  },
 };
 
-// Force fresh data on every visit
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 function normalizeSearchTerm(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -51,22 +58,52 @@ export default async function ArticleMuseumPage({
     .order("published_at", { ascending: false });
 
   const articleRows = (articles || []) as ArticleRow[];
-  const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim().toLowerCase() || "";
-  const filteredArticles = searchTerm
-    ? articleRows.filter((article) => {
-        const haystack = `${article.title || ""} ${article.tool_name || ""} ${(article.tags || []).join(" ")} ${article.mystery_intro || ""}`.toLowerCase();
-        return haystack.includes(searchTerm);
-      })
-    : articleRows;
+  const searchTerm = normalizeSearchTerm(searchParams?.search)?.trim() || "";
+
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${siteUrl}/article-museum`,
+        url: `${siteUrl}/article-museum`,
+        name: "Open-Source Tool Deep Dives & Self-Hosting Guides",
+        description:
+          "Hands-on technical deep dives into underrated open-source tools and self-hosted SaaS alternatives.",
+      },
+      {
+        "@type": "ItemList",
+        name: "Open-Source Tool Deep Dives",
+        numberOfItems: articleRows.length,
+        itemListElement: articleRows.slice(0, 50).map((art, idx) => ({
+          "@type": "ListItem",
+          position: idx + 1,
+          name: art.title || art.tool_name || art.slug,
+          url: `${siteUrl}/article-museum/${art.slug}`,
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Deep Dives", item: `${siteUrl}/article-museum` },
+        ],
+      },
+    ],
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
       {error ? (
         <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-200">
           Error loading articles: {error.message}
         </div>
       ) : null}
-      <ArticleMuseumClient articles={filteredArticles} />
+      <ArticleMuseumClient articles={articleRows} initialSearch={searchTerm} />
     </>
   );
 }

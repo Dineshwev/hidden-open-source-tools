@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans, Sora } from "next/font/google";
 import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -9,6 +10,20 @@ import { getSiteUrl } from "@/lib/site-url";
 import { getApprovedSuccessToolCount } from "@/lib/tool-count";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const sora = Sora({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-sora",
+  display: "swap",
+});
 
 const siteName = "The Cloud Rain";
 
@@ -27,7 +42,6 @@ export async function generateMetadata(): Promise<Metadata> {
     applicationName: siteName,
     category: "technology",
     alternates: {
-      canonical: siteUrl,
       types: {
         "application/rss+xml": `${siteUrl}/feed.xml`,
         "text/plain": `${siteUrl}/llms.txt`,
@@ -115,20 +129,16 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           },
           "query-input": "required name=search_term_string"
         }
-      },
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
-          { "@type": "ListItem", position: 2, name: "Explore Tools", item: `${siteUrl}/free-tools` },
-          { "@type": "ListItem", position: 3, name: "Articles", item: `${siteUrl}/article-museum` }
-        ]
       }
     ]
   };
 
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`dark ${plusJakartaSans.variable} ${sora.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <link
           rel="alternate"

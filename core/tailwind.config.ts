@@ -19,8 +19,9 @@ const config: Config = {
         void: "#07111f"
       },
       fontFamily: {
-        display: ["'Space Grotesk'", "sans-serif"],
-        body: ["'Manrope'", "sans-serif"]
+        display: ["var(--font-sora)", "Sora", "system-ui", "sans-serif"],
+        body: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        sans: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"]
       },
       boxShadow: {
         glow: "0 0 50px rgba(87, 112, 255, 0.35)"

@@ -9,8 +9,10 @@ export const metadata: Metadata = {
   description:
     "Find lesser-known developer utilities, open-source projects, and lightweight SaaS alternatives curated for practical engineering workflows.",
   alternates: {
-    canonical: "/hidden-tools"
+    canonical: "/free-tools"
   },
+  // Consolidated into /free-tools to avoid directory keyword cannibalization
+  robots: { index: false, follow: true },
   openGraph: {
     title: "Lesser-Known Developer Utilities and SaaS Alternatives",
     description:

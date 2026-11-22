@@ -3,12 +3,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAdmin } from "@/lib/backend_lib/supabase-server";
 import AlternativesListingClient from "./AlternativesListingClient";
-export const revalidate = 0;
+export const revalidate = 3600;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Best Open-Source SaaS Alternatives (Free & Self-Hosted Directory)",
-  description: "Browse 70+ curated open-source alternatives to Notion, Jira, Datadog, DocuSign, Retool, Postman, Airtable, Slack, and more. Self-hostable, zero vendor lock-in, and $0 monthly subscriptions.",
+  description: "Browse 85+ curated open-source alternatives to Notion, Jira, Datadog, DocuSign, Retool, Postman, Airtable, Slack, and more. Self-hostable, zero vendor lock-in, and $0 monthly subscriptions.",
   alternates: { canonical: `${siteUrl}/alternatives` },
   openGraph: {
     title: "Best Open-Source SaaS Alternatives | The Cloud Rain",
