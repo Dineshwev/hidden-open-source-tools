@@ -9,6 +9,8 @@ import ShareButton from "@/components/ShareButton";
 import AlternativesStackAction from "@/components/alternatives/AlternativesStackAction";
 import SavingsCalculator from "@/components/pricing/SavingsCalculator";
 import CostComparisonBarChart from "@/components/vs/CostComparisonBarChart";
+import DecisionQuadrantChart from "@/components/alternatives/DecisionQuadrantChart";
+import ToolMatcherQuiz from "@/components/alternatives/ToolMatcherQuiz";
 import { VERIFIED_SAAS_PRICING } from "@/lib/pricing-data";
 
 export const revalidate = 3600;
@@ -392,6 +394,32 @@ export default async function AlternativePage({ params }: AlternativePageProps) 
           </div>
         </section>
       )}
+
+      {/* ── Interactive 2x2 Decision Quadrant Chart & 2-Click Matcher Quiz ── */}
+      {Array.isArray(c.alternatives) && c.alternatives.length >= 2 && (() => {
+        const mappedTools = c.alternatives.map((t) => {
+          const tSlug = String(t.slug || "").toLowerCase().trim();
+          const isInternal = approvedSlugs.has(tSlug);
+          return {
+            name: t.name,
+            slug: tSlug || t.name.toLowerCase(),
+            tagline: t.tagline || "",
+            best_for: t.best_for || "",
+            license: t.license || "Open Source",
+            similarity_score: Number(t.similarity_score) || 75,
+            href: isInternal
+              ? `/tools/${tSlug}`
+              : t.url || `https://github.com/search?q=${encodeURIComponent(t.name)}`,
+            isInternal,
+          };
+        });
+        return (
+          <>
+            <DecisionQuadrantChart saasName={alt.saas_name} tools={mappedTools} />
+            <ToolMatcherQuiz saasName={alt.saas_name} tools={mappedTools} />
+          </>
+        );
+      })()}
 
       {/* ── Concrete Comparison Matrix Table (Featured Snippet & AI Overview Anchor) ── */}
       {c.alternatives && c.alternatives.length > 0 && (

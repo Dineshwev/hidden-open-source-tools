@@ -16,6 +16,8 @@ import {
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ShareButton from "@/components/ShareButton";
 import CopyCodeBlock from "@/components/article-museum/CopyCodeBlock";
+import ArchitectureFlowchart from "@/components/tools/ArchitectureFlowchart";
+import VpsSizingEstimator from "@/components/tools/VpsSizingEstimator";
 import { formatLicense } from "@/lib/utils/license";
 
 type Article = {
@@ -326,13 +328,31 @@ export default function ArticleMuseumArticleClient({
             )}
 
             {article.hands_on_code?.trim() && (
-              <section id="quickstart" className="scroll-mt-24">
+              <section id="quickstart" className="scroll-mt-24 space-y-6">
                 <div className="mb-4 flex items-center gap-3">
                   <Code2 className="h-5 w-5 text-cyan-400 shrink-0" />
                   <h2 className="font-display text-2xl font-bold text-white">
                     Quickstart &amp; Self-Hosting Setup
                   </h2>
                 </div>
+                <ArchitectureFlowchart
+                  toolName={toolName}
+                  slug={
+                    related?.tool?.slug ||
+                    toolName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+                  }
+                  language={related?.tool?.language}
+                  category={related?.tool?.category}
+                />
+                <VpsSizingEstimator
+                  toolName={toolName}
+                  slug={
+                    related?.tool?.slug ||
+                    toolName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+                  }
+                  language={related?.tool?.language}
+                  saasSlug={related?.alternatives?.[0]?.saas_slug || null}
+                />
                 <CopyCodeBlock
                   code={article.hands_on_code}
                   label={`${toolName} Quickstart`}

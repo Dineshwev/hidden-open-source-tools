@@ -1,5 +1,6 @@
 import { Activity, ShieldCheck, Server, Users, AlertTriangle } from "lucide-react";
 import { formatLicense } from "@/lib/utils/license";
+import AnimatedBar from "@/components/ui/AnimatedBar";
 
 interface ToolHealthCardProps {
   toolName: string;
@@ -165,10 +166,7 @@ export default function ToolHealthCard({
                 aria-valuemax={100}
                 aria-label={`${m.name}: ${m.score} out of 100`}
               >
-                <div
-                  className={`h-full rounded-full ${barColor(m.score)}`}
-                  style={{ width: `${m.score}%` }}
-                />
+                <AnimatedBar pct={m.score} className={barColor(m.score)} />
               </div>
             </div>
           );

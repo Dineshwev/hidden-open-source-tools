@@ -1,5 +1,6 @@
 import type { SaasPricingModel } from "@/lib/pricing-data";
 import { DollarSign, TrendingDown } from "lucide-react";
+import AnimatedBar from "@/components/ui/AnimatedBar";
 
 function formatUsd(amount: number): string {
   return `$${Math.round(amount).toLocaleString("en-US")}`;
@@ -91,10 +92,7 @@ export default function CostComparisonBarChart({
               </p>
             </div>
             <div className="h-3 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className={`h-full rounded-full ${bar.barClass}`}
-                style={{ width: `${bar.width}%` }}
-              />
+              <AnimatedBar pct={bar.width} className={bar.barClass} />
             </div>
           </div>
         ))}

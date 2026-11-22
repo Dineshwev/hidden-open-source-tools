@@ -13,6 +13,8 @@ import ToolDetailActions from "@/components/tools/ToolDetailActions";
 import MaintainerBadgeCard from "@/components/tools/MaintainerBadgeCard";
 import ToolHealthCard from "@/components/tools/ToolHealthCard";
 import RepoPreviewCard from "@/components/tools/RepoPreviewCard";
+import ArchitectureFlowchart from "@/components/tools/ArchitectureFlowchart";
+import VpsSizingEstimator from "@/components/tools/VpsSizingEstimator";
 import { marked } from "marked";
 import { formatLicense } from "@/lib/utils/license";
 import { ExternalLink, Star, GitFork, Code2, Scale, Clock, ChevronDown, ArrowRight, CheckCircle2, XCircle, ThumbsUp, Ban } from "lucide-react";
@@ -886,6 +888,25 @@ export default async function ToolSlugPage({ params }: ToolPageProps) {
           </p>
         )}
       </section>
+
+      {/* ── Animated Self-Hosting Architecture Flowchart & VPS Hardware Estimator ── */}
+      {isSelfHostable && (
+        <>
+          <ArchitectureFlowchart
+            toolName={tool.name}
+            slug={tool.slug}
+            language={displayLanguage}
+            category={tool.category}
+            repoOwner={currentGithubOwner}
+          />
+          <VpsSizingEstimator
+            toolName={tool.name}
+            slug={tool.slug}
+            language={displayLanguage}
+            saasSlug={matchingAlternatives[0]?.saas_slug || null}
+          />
+        </>
+      )}
 
       {/* ── 1-Click Docker / Self-Hosting Quickstart ── */}
       {isSelfHostable && (

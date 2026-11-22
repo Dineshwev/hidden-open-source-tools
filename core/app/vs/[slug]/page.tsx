@@ -10,6 +10,7 @@ import AlternativesStackAction from "@/components/alternatives/AlternativesStack
 import { cleanToolMarkdownContent } from "@/lib/clean-tool-content";
 import SavingsCalculator from "@/components/pricing/SavingsCalculator";
 import QuickVerdictCard from "@/components/vs/QuickVerdictCard";
+import ComparisonRadarChart from "@/components/vs/ComparisonRadarChart";
 import CostComparisonBarChart from "@/components/vs/CostComparisonBarChart";
 import { VERIFIED_SAAS_PRICING } from "@/lib/pricing-data";
 
@@ -745,6 +746,13 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
         toolA={toolA}
         toolB={toolB}
         markdown={cleanedMarkdown}
+        toolLinks={toolLinks}
+      />
+
+      {/* ── Interactive 5-Axis SVG Radar Comparison Chart ── */}
+      <ComparisonRadarChart
+        toolA={toolA}
+        toolB={toolB}
         toolLinks={toolLinks}
       />
 
